@@ -4,3 +4,13 @@ obj
 
 # mstest test results
 TestResults
+
+
+#Tooling
+_ReSharper*/
+*.resharper
+[Tt]est[Rr]esult*
+
+
+#NuGet
+packages/

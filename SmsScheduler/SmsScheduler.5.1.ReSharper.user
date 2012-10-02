@@ -1,0 +1,127 @@
+<Configuration>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:ISmsService.cs" caret="78" fromTop="4" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="107" fromTop="6" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:MessageSent.cs" caret="111" fromTop="6" />
+      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:SmsActioner.cs" caret="390" fromTop="13" />
+      <File id="9C85101A-C4C0-49A2-B4D9-A6BAB104E67E/d:Properties/f:AssemblyInfo.cs" caret="0" fromTop="0" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="109" fromTop="11" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="93" fromTop="8" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="0" fromTop="0" />
+      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:ISmsService.cs" caret="0" fromTop="0" />
+      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:ISmsService.cs" caret="154" fromTop="8" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="100" fromTop="5" />
+      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:SmsActioner.cs" caret="135" fromTop="5" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:MessageSent.cs" caret="111" fromTop="6" />
+      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:SmsActioner.cs" caret="441" fromTop="13" />
+    </RecentEdits>
+  </RecentFiles>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerNUnit>
+    <NUnitInstallDir IsNull="False">
+    </NUnitInstallDir>
+    <UseAddins>Never</UseAddins>
+  </UnitTestRunnerNUnit>
+  <CompletionStatisticsManager>
+    <ItemStatistics item="Default">
+      <Item value="public" priority="2" />
+      <Item value="void" priority="1" />
+      <Item value="Scheduler" priority="4" />
+      <Item value="var" priority="2" />
+      <Item value="scheduler" priority="0" />
+      <Item value="new" priority="7" />
+      <Item value="Scheduler`0" priority="1" />
+      <Item value="sendOneMessageNow" priority="3" />
+      <Item value="SendOneMessageNow" priority="0" />
+      <Item value="SmsActioner`0" priority="1" />
+      <Item value="smsService" priority="6" />
+      <Item value="s" priority="1" />
+      <Item value="MockRepository`0" priority="1" />
+      <Item value="b" priority="2" />
+      <Item value="Arg`0" priority="4" />
+      <Item value="bus" priority="2" />
+      <Item value="Expect`0" priority="0" />
+      <Item value="MessageSent`0" priority="4" />
+      <Item value="string" priority="1" />
+      <Item value="ICommand`0" priority="0" />
+      <Item value="IEvent`0" priority="0" />
+      <Item value="SmsService" priority="0" />
+      <Item value="Bus" priority="3" />
+      <Item value="IMessageSent`0" priority="9" />
+      <Item value="mbox" priority="0" />
+      <Item value="m" priority="9" />
+      <Item value="ConfigurePurging`0" priority="0" />
+      <Item value="receipt" priority="5" />
+      <Item value="NServiceBus" priority="1" />
+      <Item value="Testing" priority="0" />
+      <Item value="Test`0" priority="1" />
+      <Item value="SendOneMessageNow`0" priority="4" />
+      <Item value="a" priority="0" />
+      <Item value="IHandleMessages" priority="0" />
+      <Item value="p" priority="3" />
+      <Item value="IMessage`0" priority="0" />
+      <Item value="PairwiseAttribute`0" priority="0" />
+      <Item value="class" priority="0" />
+      <Item value="fakeEvent`0" priority="0" />
+      <Item value="Action&lt;SmsActioner&gt;" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Rhino.Mocks.MockRepository">
+      <Item value="GenerateMock`0" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Rhino.Mocks.Arg`1">
+      <Item value="Is" priority="3" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Rhino.Mocks.Constraints.IsArg`1">
+      <Item value="Anything" priority="4" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:SmsCoordinator.ISmsService">
+      <Item value="Send`0" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:NServiceBus.IBus">
+      <Item value="Publish`1" priority="1" />
+      <Item value="Send`1" priority="1" />
+      <Item value="Reply`1" priority="0" />
+      <Item value="Expect`2" priority="0" />
+      <Item value="CreateInstance`0" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:SmsMessages.IMessageSent">
+      <Item value="Receipt" priority="4" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Rhino.Mocks.Interfaces.IMethodOptions`1">
+      <Item value="Return`0" priority="3" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@NServiceBus.Testing.Test">
+      <Item value="Bus" priority="0" />
+      <Item value="Handler`1" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:NServiceBus.Testing.Handler`1">
+      <Item value="ExpectReply`1" priority="0" />
+      <Item value="ExpectPublish`1" priority="1" />
+      <Item value="OnMessage`1" priority="1" />
+      <Item value="WithExternalDependencies`0" priority="1" />
+      <Item value="ExpectSend`1" priority="0" />
+      <Item value="ExpectNotPublish`1" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:SmsMessages.MessageSent">
+      <Item value="Receipt" priority="0" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:SmsCoordinator.SmsActioner">
+      <Item value="SmsService" priority="0" />
+    </ItemStatistics>
+  </CompletionStatisticsManager>
+</Configuration>
