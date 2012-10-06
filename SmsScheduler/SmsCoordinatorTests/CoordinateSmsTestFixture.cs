@@ -33,16 +33,27 @@ namespace SmsCoordinatorTests
             timingManager.Expect(t => t.CalculateTiming(startTime, duration, 3))
                 .Return(messageTiming);
 
+            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(s => s.TimingManager = timingManager)
+                .WithExternalDependencies(s =>
+                    {
+                        s.TimingManager = timingManager;
+                        s.Data = sagaData;
+                    })
                     .ExpectSend<ScheduleSmsForSendingLater>(a => a.SendMessageAt == messageTiming[0])
                     .ExpectSend<ScheduleSmsForSendingLater>(a => a.SendMessageAt == messageTiming[1])
                     .ExpectSend<ScheduleSmsForSendingLater>(a => a.SendMessageAt == messageTiming[2])
                 .When(s => s.Handle(trickleMultipleMessages))
-                .AssertSagaCompletionIs(false);
+                    .AssertSagaCompletionIs(false)
+                .When(s => s.Handle(new ScheduledSmsSent()))
+                .When(s => s.Handle(new ScheduledSmsSent()))
+                .When(s => s.Handle(new ScheduledSmsSent()))
+                    .AssertSagaCompletionIs(true);
 
             timingManager.VerifyAllExpectations();
+            Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
         }
 
         [Test]
@@ -62,13 +73,22 @@ namespace SmsCoordinatorTests
                 TimeSpacing = timeSpacing
             };
 
+            var sagaData = new CoordinateSmsSchedulingData {Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(d => d.Data = sagaData)
                     .ExpectSend<ScheduleSmsForSendingLater>(a => a.SendMessageAt == startTime)
                     .ExpectSend<ScheduleSmsForSendingLater>(a => a.SendMessageAt == startTime + timeSpacing)
                     .ExpectSend<ScheduleSmsForSendingLater>(a => a.SendMessageAt == startTime + timeSpacing + timeSpacing)
                 .When(s => s.Handle(trickleMultipleMessages))
-                .AssertSagaCompletionIs(false);
+                .AssertSagaCompletionIs(false)
+                .When(s => s.Handle(new ScheduledSmsSent()))
+                .When(s => s.Handle(new ScheduledSmsSent()))
+                .When(s => s.Handle(new ScheduledSmsSent()))
+                    .AssertSagaCompletionIs(true);
+
+            Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
         }
     }
 }
