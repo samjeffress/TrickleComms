@@ -13,6 +13,15 @@ namespace SmsMessages
         public TimeSpan Duration { get; set; }
     }
 
+    public class TrickleSmsSpacedByTimePeriod : ICommand
+    {
+        public List<SmsData> Messages { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public TimeSpan TimeSpacing { get; set; }
+    }
+
     public class SmsData
     {
         public string Mobile { get; set; }

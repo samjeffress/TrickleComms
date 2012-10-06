@@ -7,7 +7,8 @@ namespace SmsCoordinator
 {
     public class CoordinateSmsScheduler : 
         Saga<CoordinateSmsSchedulingData>,
-        IAmStartedByMessages<TrickleSmsOverTimePeriod>
+        IAmStartedByMessages<TrickleSmsOverTimePeriod>, 
+        IAmStartedByMessages<TrickleSmsSpacedByTimePeriod>
     {
         public void Handle(TrickleSmsOverTimePeriod message)
         {
@@ -20,6 +21,19 @@ namespace SmsCoordinator
         }
 
         public ICalculateSmsTiming TimingManager { get; set; }
+
+        public void Handle(TrickleSmsSpacedByTimePeriod trickleMultipleMessages)
+        {
+            for(int i = 0; i < trickleMultipleMessages.Messages.Count; i++)
+            {
+                var extraTime = TimeSpan.FromTicks(trickleMultipleMessages.TimeSpacing.Ticks*i);
+                var smsForSendingLater = new ScheduleSmsForSendingLater
+                {
+                    SendMessageAt = trickleMultipleMessages.StartTime.Add(extraTime)
+                };
+                Bus.Send(smsForSendingLater);
+            }
+        }
     }
 
     public interface ICalculateSmsTiming
