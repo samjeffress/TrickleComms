@@ -10,7 +10,7 @@ TestResults
 _ReSharper*/
 *.resharper
 [Tt]est[Rr]esult*
-
+*.user
 
 #NuGet
 packages/
