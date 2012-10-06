@@ -55,6 +55,7 @@
     <Compile Include="SendOneMessageNow.cs" />
     <Compile Include="MessageSent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TrickleSmsOverTimePeriod.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -51,10 +51,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoordinateSmsScheduler.cs" />
     <Compile Include="ISmsService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmsActioner.cs" />
-    <Compile Include="SmsScheduler.cs" />
+    <Compile Include="ScheduleSms.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
