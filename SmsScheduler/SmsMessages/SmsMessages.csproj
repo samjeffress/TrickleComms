@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ScheduleSmsForSendingLater.cs" />
     <Compile Include="SendOneMessageNow.cs" />
     <Compile Include="MessageSent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

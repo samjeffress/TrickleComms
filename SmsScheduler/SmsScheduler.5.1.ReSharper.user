@@ -9,10 +9,12 @@
   <RecentFiles>
     <RecentFiles>
       <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:ISmsService.cs" caret="78" fromTop="4" />
-      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="107" fromTop="6" />
       <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:MessageSent.cs" caret="111" fromTop="6" />
-      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:SmsActioner.cs" caret="390" fromTop="13" />
       <File id="9C85101A-C4C0-49A2-B4D9-A6BAB104E67E/d:Properties/f:AssemblyInfo.cs" caret="0" fromTop="0" />
+      <File id="8C605680-13D5-4B2C-B6D2-3801188CDD35/f:SmsActioner.cs" caret="452" fromTop="14" />
+      <File id="9C85101A-C4C0-49A2-B4D9-A6BAB104E67E/f:SendNowTestFixture.cs" caret="566" fromTop="19" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:packages.config" caret="0" fromTop="0" />
+      <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="110" fromTop="7" />
     </RecentFiles>
     <RecentEdits>
       <File id="024BB854-56C8-4A03-A9DE-68FF4FE1FBA7/f:SendOneMessageNow.cs" caret="109" fromTop="11" />
