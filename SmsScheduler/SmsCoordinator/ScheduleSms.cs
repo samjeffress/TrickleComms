@@ -24,7 +24,13 @@ namespace SmsCoordinator
 
         public void Timeout(ScheduleSmsTimeout state)
         {
-            Bus.Send(new SendOneMessageNow());
+            var sendOneMessageNow = new SendOneMessageNow
+            {
+                CorrelationId = Data.Id,
+                SmsData = Data.OriginalMessage.SmsData,
+                SmsMetaData = Data.OriginalMessage.SmsMetaData
+            };
+            Bus.Send(sendOneMessageNow);
         }
 
         public void Handle(MessageSent scheduleSmsForSendingLater)
@@ -38,6 +44,7 @@ namespace SmsCoordinator
         public Guid Id { get; set; }
         public string Originator { get; set; }
         public string OriginalMessageId { get; set; }
+        public ScheduleSmsForSendingLater OriginalMessage { get; set; }
     }
 
     public class ScheduleSmsTimeout

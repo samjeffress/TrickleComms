@@ -8,10 +8,9 @@ namespace SmsMessages
         public string Receipt { get; set; }
 
         public Guid CorrelationId { get; set; }
-    }
 
-    public class ScheduledSmsSent : IMessage
-    {
-        public Guid CoordinatorId { get; set; }
+        public SmsData SmsData { get; set; }
+
+        public SmsMetaData SmsMetaData { get; set; }
     }
 }

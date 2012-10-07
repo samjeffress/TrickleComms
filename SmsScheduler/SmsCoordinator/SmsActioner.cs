@@ -11,7 +11,13 @@ namespace SmsCoordinator
         public void Handle(SendOneMessageNow sendOneMessageNow)
         {
             var receipt = SmsService.Send(sendOneMessageNow);
-            Bus.Publish<MessageSent>(m => m.Receipt = receipt);
+            Bus.Publish<MessageSent>(m =>
+            {
+                m.Receipt = receipt;
+                m.CorrelationId = sendOneMessageNow.CorrelationId;
+                m.SmsData = sendOneMessageNow.SmsData;
+                m.SmsMetaData = sendOneMessageNow.SmsMetaData;
+            });
         }
     }
 }
