@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages;
@@ -51,11 +50,6 @@ namespace SmsCoordinator
             if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
                 MarkAsComplete();
         }
-    }
-
-    public interface ICalculateSmsTiming
-    {
-        List<DateTime> CalculateTiming(DateTime startTime, TimeSpan duration, int i);
     }
 
     public class CoordinateSmsSchedulingData : ISagaEntity
