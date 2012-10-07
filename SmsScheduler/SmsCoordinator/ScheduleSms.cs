@@ -19,6 +19,7 @@ namespace SmsCoordinator
 
         public void Handle(ScheduleSmsForSendingLater scheduleSmsForSendingLater)
         {
+            Data.OriginalMessage = scheduleSmsForSendingLater;
             RequestUtcTimeout<ScheduleSmsTimeout>(scheduleSmsForSendingLater.SendMessageAt);
         }
 

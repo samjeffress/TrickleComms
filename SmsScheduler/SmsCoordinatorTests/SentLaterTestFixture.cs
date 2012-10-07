@@ -39,7 +39,7 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
-        public void ScheduleSmsForSendingLaterData()
+        public void TimeoutPromptsMessageSendingDataTest()
         {
             var bus = MockRepository.GenerateMock<IBus>();
 
@@ -60,6 +60,19 @@ namespace SmsCoordinatorTests
             Assert.That(sendOneMessageNow.CorrelationId, Is.EqualTo(data.Id));
 
             bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void OriginalMessageGetsSavedToSagaData()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            var data = new ScheduledSmsData();
+            var originalMessage = new ScheduleSmsForSendingLater() { SendMessageAt = DateTime.Now };
+
+            var scheduleSms = new ScheduleSms { Bus = bus, Data = data };
+            scheduleSms.Handle(originalMessage);
+
+            Assert.That(data.OriginalMessage, Is.EqualTo(originalMessage));
         }
     }
 }
