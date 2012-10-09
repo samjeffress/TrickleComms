@@ -120,12 +120,12 @@ namespace SmsCoordinatorTests
             Assert.That(scheduleSmsForLaterList[0].SendMessageAt, Is.EqualTo(datetimeSpacing[0]));
             Assert.That(scheduleSmsForLaterList[0].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[0].Message));
             Assert.That(scheduleSmsForLaterList[0].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[0].Mobile));
-            Assert.That(scheduleSmsForLaterList[0].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.Messages[0].MetaData));
+            Assert.That(scheduleSmsForLaterList[0].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(scheduleSmsForLaterList[1].SendMessageAt, Is.EqualTo(datetimeSpacing[1]));
             Assert.That(scheduleSmsForLaterList[1].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[1].Message));
             Assert.That(scheduleSmsForLaterList[1].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[1].Mobile));
-            Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.Messages[1].MetaData));
+            Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
             timingManager.VerifyAllExpectations();
@@ -152,12 +152,12 @@ namespace SmsCoordinatorTests
             Assert.That(scheduleSmsForLaterList[0].SendMessageAt.Ticks, Is.EqualTo(trickleMessagesOverTime.StartTime.Ticks));
             Assert.That(scheduleSmsForLaterList[0].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[0].Message));
             Assert.That(scheduleSmsForLaterList[0].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[0].Mobile));
-            Assert.That(scheduleSmsForLaterList[0].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.Messages[0].MetaData));
+            Assert.That(scheduleSmsForLaterList[0].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(scheduleSmsForLaterList[1].SendMessageAt.Ticks, Is.EqualTo(trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks));
             Assert.That(scheduleSmsForLaterList[1].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[1].Message));
             Assert.That(scheduleSmsForLaterList[1].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[1].Mobile));
-            Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.Messages[1].MetaData));
+            Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
             timingManager.VerifyAllExpectations();

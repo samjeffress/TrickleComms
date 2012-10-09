@@ -12,6 +12,8 @@ namespace SmsMessages.Commands
         public DateTime StartTime { get; set; }
 
         public TimeSpan Duration { get; set; }
+
+        public SmsMetaData MetaData { get; set; }
     }
 
     public class TrickleSmsSpacedByTimePeriod : ICommand
@@ -21,5 +23,7 @@ namespace SmsMessages.Commands
         public DateTime StartTime { get; set; }
 
         public TimeSpan TimeSpacing { get; set; }
+
+        public SmsMetaData MetaData { get; set; }
     }
 }

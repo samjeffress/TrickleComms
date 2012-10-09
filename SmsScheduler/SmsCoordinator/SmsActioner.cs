@@ -1,5 +1,4 @@
 ﻿using NServiceBus;
-using SmsMessages;
 using SmsMessages.Commands;
 using SmsMessages.Events;
 

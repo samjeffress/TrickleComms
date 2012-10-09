@@ -32,7 +32,7 @@ namespace SmsCoordinator
                 {
                     SendMessageAt = messageTiming[i],
                     SmsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message),
-                    SmsMetaData = message.Messages[i].MetaData
+                    SmsMetaData = message.MetaData
                 };
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;
@@ -50,7 +50,7 @@ namespace SmsCoordinator
                 {
                     SendMessageAt = trickleMultipleMessages.StartTime.Add(extraTime),
                     SmsData = new SmsData(trickleMultipleMessages.Messages[i].Mobile, trickleMultipleMessages.Messages[i].Message),
-                    SmsMetaData = trickleMultipleMessages.Messages[0].MetaData
+                    SmsMetaData = trickleMultipleMessages.MetaData
                 };
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;
