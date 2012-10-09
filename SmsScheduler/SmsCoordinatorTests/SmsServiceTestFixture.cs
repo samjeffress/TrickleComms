@@ -1,7 +1,9 @@
 ﻿using NUnit.Framework;
+using Rhino.Mocks;
 using SmsCoordinator;
-using SmsMessages;
 using SmsMessages.Commands;
+using SmsMessages.CommonData;
+using Twilio;
 
 namespace SmsCoordinatorTests
 {
@@ -11,10 +13,20 @@ namespace SmsCoordinatorTests
         [Test]
         public void SmsServiceSuccess()
         {
-            var messageToSend = new SendOneMessageNow();
+            var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message")};
+            var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
+            var smsService = new SmsService { TwilioWrapper = twilioWrapper };
 
-            var smsService = new SmsService();
+            var smsMessage = new SMSMessage { Status = "sent", Sid = "sidReceipt" };
+            twilioWrapper
+                .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+                .Return(smsMessage);
+
             var response = smsService.Send(messageToSend);
+
+            Assert.That(response, Is.EqualTo(smsMessage.Sid));
+            twilioWrapper.VerifyAllExpectations();
         }
     }
+
 }
