@@ -51,14 +51,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ScheduledSmsSent.cs" />
-    <Compile Include="ScheduleSmsForSendingLater.cs" />
-    <Compile Include="SendOneMessageNow.cs" />
-    <Compile Include="MessageSent.cs" />
+    <Compile Include="Commands\ScheduledSmsSent.cs" />
+    <Compile Include="Commands\ScheduleSmsForSendingLater.cs" />
+    <Compile Include="Commands\SendOneMessageNow.cs" />
+    <Compile Include="Events\MessageSent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SmsData.cs" />
-    <Compile Include="SmsMetaData.cs" />
-    <Compile Include="TrickleSmsOverTimePeriod.cs" />
+    <Compile Include="CommonData\SmsData.cs" />
+    <Compile Include="CommonData\SmsMetaData.cs" />
+    <Compile Include="Commands\TrickleSmsOverTimePeriod.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

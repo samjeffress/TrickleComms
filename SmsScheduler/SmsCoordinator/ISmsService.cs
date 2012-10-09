@@ -1,5 +1,6 @@
 ﻿using System;
 using SmsMessages;
+using SmsMessages.Commands;
 
 namespace SmsCoordinator
 {

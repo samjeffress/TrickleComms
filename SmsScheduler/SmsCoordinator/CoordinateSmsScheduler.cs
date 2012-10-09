@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages;
+using SmsMessages.Commands;
+using SmsMessages.CommonData;
 
 namespace SmsCoordinator
 {

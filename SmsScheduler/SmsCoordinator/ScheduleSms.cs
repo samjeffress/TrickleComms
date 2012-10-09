@@ -2,6 +2,8 @@ using System;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages;
+using SmsMessages.Commands;
+using SmsMessages.Events;
 
 namespace SmsCoordinator
 {

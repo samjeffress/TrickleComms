@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SmsCoordinator;
 using SmsMessages;
+using SmsMessages.Commands;
 
 namespace SmsCoordinatorTests
 {

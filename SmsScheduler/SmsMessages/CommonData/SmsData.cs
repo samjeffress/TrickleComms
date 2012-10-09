@@ -1,4 +1,4 @@
-namespace SmsMessages
+namespace SmsMessages.CommonData
 {
     public class SmsData
     {
