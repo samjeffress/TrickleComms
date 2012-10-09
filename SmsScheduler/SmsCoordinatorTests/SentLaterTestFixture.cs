@@ -39,7 +39,7 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
-        public void TimeoutPromptsMessageSendingDataTest()
+        public void TimeoutPromptsMessageSending_Data()
         {
             var bus = MockRepository.GenerateMock<IBus>();
 
@@ -63,7 +63,7 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
-        public void OriginalMessageGetsSavedToSagaData()
+        public void OriginalMessageGetsSavedToSaga_Data()
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var data = new ScheduledSmsData();

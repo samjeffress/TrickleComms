@@ -33,7 +33,7 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
-        public void SendSingleSmsNowData()
+        public void SendSingleSmsNow_Data()
         {
             var sendOneMessageNow = new SendOneMessageNow
             {
