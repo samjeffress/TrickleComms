@@ -1,6 +1,5 @@
-﻿using System;
-using SmsMessages;
-using SmsMessages.Commands;
+﻿using SmsMessages.Commands;
+using Twilio;
 
 namespace SmsCoordinator
 {
@@ -11,9 +10,18 @@ namespace SmsCoordinator
 
     public class SmsService : ISmsService
     {
+        public ITwilioWrapper TwilioWrapper { get; set; }
+
         public string Send(SendOneMessageNow messageToSend)
         {
-            throw new NotImplementedException();
+            var sendSmsMessage = TwilioWrapper.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
+            return sendSmsMessage.Sid;
         }
+    }
+
+    
+    public interface ITwilioWrapper
+    {
+        SMSMessage SendSmsMessage(string from, string to, string message);
     }
 }
