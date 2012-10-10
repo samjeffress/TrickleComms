@@ -1,5 +1,4 @@
-﻿using System;
-using Twilio;
+﻿using Twilio;
 
 namespace SmsCoordinator
 {
@@ -11,16 +10,20 @@ namespace SmsCoordinator
 
     public class TwilioWrapper : ITwilioWrapper
     {
+        private readonly TwilioRestClient _restClient;
+        public TwilioWrapper()
+        {
+            _restClient = new TwilioRestClient("accountSid", "authToken");
+        }
+
         public SMSMessage SendSmsMessage(string from, string to, string message)
         {
-            //var twilioRestClient = new TwilioRestClient("accountSid", "authToken");
-            ////twilioRestClient.getsm
-            throw new NotImplementedException();
+            return _restClient.SendSmsMessage(from, to, message);
         }
 
         public SMSMessage CheckMessage(string sid)
         {
-            throw new NotImplementedException();
+            return _restClient.GetSmsMessage(sid);
         }
     }
 }
