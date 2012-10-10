@@ -63,6 +63,7 @@
     <Compile Include="CoordinateSmsScheduler.cs" />
     <Compile Include="ICalculateSmsTiming.cs" />
     <Compile Include="ISmsService.cs" />
+    <Compile Include="ITwilioWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmsActioner.cs" />
     <Compile Include="ScheduleSms.cs" />
