@@ -71,7 +71,7 @@
   <ItemGroup>
     <Compile Include="CalculateTimingTests.cs" />
     <Compile Include="CoordinateSmsTestFixture.cs" />
-    <Compile Include="SendNowTestFixture.cs" />
+    <Compile Include="SmsActionerTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SentLaterTestFixture.cs" />
     <Compile Include="SmsServiceTestFixture.cs" />

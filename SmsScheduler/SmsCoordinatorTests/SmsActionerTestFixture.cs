@@ -6,7 +6,6 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using Rhino.Mocks.Constraints;
 using SmsCoordinator;
-using SmsMessages;
 using SmsMessages.Commands;
 using SmsMessages.CommonData;
 using SmsMessages.Events;
@@ -14,7 +13,7 @@ using SmsMessages.Events;
 namespace SmsCoordinatorTests
 {
     [TestFixture]
-    public class SendNowTestFixture
+    public class SmsActionerTestFixture
     {
         [Test]
         public void SendSinlgeSmsNow()
