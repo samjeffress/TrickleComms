@@ -6,7 +6,7 @@ namespace SmsMessages.Events
 {
     public class MessageSent : IMessage
     {
-        public string Receipt { get; set; }
+        public SmsConfirmationData ConfirmationData { get; set; }
 
         public Guid CorrelationId { get; set; }
 

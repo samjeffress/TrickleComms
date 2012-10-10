@@ -54,6 +54,7 @@
     <Compile Include="Commands\ScheduledSmsSent.cs" />
     <Compile Include="Commands\ScheduleSmsForSendingLater.cs" />
     <Compile Include="Commands\SendOneMessageNow.cs" />
+    <Compile Include="CommonData\SmsConfirmationData.cs" />
     <Compile Include="Events\MessageSent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommonData\SmsData.cs" />

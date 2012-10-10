@@ -19,10 +19,9 @@ namespace SmsCoordinatorTests
         public void SendSinlgeSmsNow()
         {
             var sendOneMessageNow = new SendOneMessageNow();
-            const string receipt = "receipt123";
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
-            smsService.Expect(s => s.Send(Arg<SendOneMessageNow>.Is.Anything)).Return(receipt);
+            smsService.Expect(s => s.Send(Arg<SendOneMessageNow>.Is.Anything)).Return(new SmsConfirmationData("receipt", DateTime.Now, 2));
 
             Test.Initialize();
 
@@ -45,14 +44,15 @@ namespace SmsCoordinatorTests
             var bus = MockRepository.GenerateStrictMock<IBus>();
             var smsService = MockRepository.GenerateMock<ISmsService>();
 
-            smsService.Expect(s => s.Send(sendOneMessageNow)).Return("Receipt");
+            var smsConfirmationData = new SmsConfirmationData("Receipt", DateTime.Now, 2);
+            smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsConfirmationData);
             var publishingMessage = MockRepository.GenerateStub<MessageSent>();
             bus.Expect(b => b.Publish(null as Action<MessageSent>))
                 .Constraints(new PredicateConstraint<Action<MessageSent>>(c =>
                 {
                     c.Invoke(publishingMessage);
                     return
-                    publishingMessage.Receipt == "Receipt" &&
+                    publishingMessage.ConfirmationData == smsConfirmationData &&
                     publishingMessage.SmsData == sendOneMessageNow.SmsData &&
                     publishingMessage.SmsMetaData == sendOneMessageNow.SmsMetaData &&
                     publishingMessage.CorrelationId == sendOneMessageNow.CorrelationId;

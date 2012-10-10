@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using SmsMessages.Commands;
+using SmsMessages.CommonData;
 using Twilio;
 
 namespace SmsCoordinator
@@ -12,7 +13,7 @@ namespace SmsCoordinator
         /// </summary>
         /// <param name="messageToSend">Phone number and message to send to contact</param>
         /// <returns>Receipt Id from provider</returns>
-        string Send(SendOneMessageNow messageToSend);
+        SmsConfirmationData Send(SendOneMessageNow messageToSend);
     }
 
     public class SmsService : ISmsService
@@ -21,16 +22,16 @@ namespace SmsCoordinator
 
         private int _waitingForSendingTries = 0;
 
-        public string Send(SendOneMessageNow messageToSend)
+        public SmsConfirmationData Send(SendOneMessageNow messageToSend)
         {
             var createdSmsMessage = TwilioWrapper.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
             return ProcessSms(createdSmsMessage);
         }
 
-        private string ProcessSms(SMSMessage createdSmsMessage)
+        private SmsConfirmationData ProcessSms(SMSMessage createdSmsMessage)
         {
             if (createdSmsMessage.Status.Equals("sent", StringComparison.CurrentCultureIgnoreCase))
-                return createdSmsMessage.Sid;
+                return new SmsConfirmationData(createdSmsMessage.Sid, createdSmsMessage.DateSent, createdSmsMessage.Price); 
 
             if (createdSmsMessage.Status.Equals("sending", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -57,11 +58,11 @@ namespace SmsCoordinator
         {
             if (createdSmsMessage.RestException != null)
             {
-                string exceptionMessage = String.Format("Rest Exception: {0} (Http Status {3}). /n Message: {1}/n More Info At {2}",
-                                                        createdSmsMessage.RestException.Code, 
-                                                        createdSmsMessage.RestException.Message,
-                                                        createdSmsMessage.RestException.MoreInfo, 
-                                                        createdSmsMessage.RestException.Status);
+                var exceptionMessage = String.Format("Rest Exception: {0} (Http Status {3}). /n Message: {1}/n More Info At {2}",
+                    createdSmsMessage.RestException.Code, 
+                    createdSmsMessage.RestException.Message,
+                    createdSmsMessage.RestException.MoreInfo, 
+                    createdSmsMessage.RestException.Status);
                 throw new Exception(exceptionMessage);
             }
             throw new Exception("Message sending failed");

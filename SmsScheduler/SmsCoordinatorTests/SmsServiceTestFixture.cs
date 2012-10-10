@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using Rhino.Mocks;
 using SmsCoordinator;
 using SmsMessages.Commands;
@@ -17,14 +18,16 @@ namespace SmsCoordinatorTests
             var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
             var smsService = new SmsService { TwilioWrapper = twilioWrapper };
 
-            var smsMessage = new SMSMessage { Status = "sent", Sid = "sidReceipt" };
+            var smsMessage = new SMSMessage { Status = "sent", Sid = "sidReceipt", DateSent = DateTime.Now, Price = 3 };
             twilioWrapper
                 .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessage);
 
             var response = smsService.Send(messageToSend);
 
-            Assert.That(response, Is.EqualTo(smsMessage.Sid));
+            Assert.That(response.Receipt, Is.EqualTo(smsMessage.Sid));
+            Assert.That(response.SentAt, Is.EqualTo(smsMessage.DateSent));
+            Assert.That(response.Price, Is.EqualTo(smsMessage.Price));
             twilioWrapper.VerifyAllExpectations();
         }
 
@@ -36,7 +39,7 @@ namespace SmsCoordinatorTests
             var smsService = new SmsService { TwilioWrapper = twilioWrapper };
 
             var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
-            var smsMessageSent = new SMSMessage { Status = "sent", Sid = "sidReceipt" };
+            var smsMessageSent = new SMSMessage { Status = "sent", Sid = "sidReceipt", DateSent = DateTime.Now, Price = 33 };
             twilioWrapper
                 .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessageSending);
@@ -47,7 +50,9 @@ namespace SmsCoordinatorTests
 
             var response = smsService.Send(messageToSend);
 
-            Assert.That(response, Is.EqualTo(smsMessageSending.Sid));
+            Assert.That(response.Receipt, Is.EqualTo(smsMessageSending.Sid));
+            Assert.That(response.SentAt, Is.EqualTo(smsMessageSent.DateSent));
+            Assert.That(response.Price, Is.EqualTo(smsMessageSent.Price));
             twilioWrapper.VerifyAllExpectations();
         }
 
