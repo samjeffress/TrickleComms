@@ -12,9 +12,10 @@ namespace SmsCoordinator
         Saga<CoordinateSmsSchedulingData>,
         IAmStartedByMessages<TrickleSmsOverTimePeriod>, 
         IAmStartedByMessages<TrickleSmsSpacedByTimePeriod>,
+        //IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
-        IHandleMessages<ResumeTrickledMessagesNow>
+        IHandleMessages<ResumeTrickledMessages>
     {
         public ICalculateSmsTiming TimingManager { get; set; }
 
@@ -83,7 +84,7 @@ namespace SmsCoordinator
             Bus.Send(messagesToPause);
         }
 
-        public void Handle(ResumeTrickledMessagesNow trickleMultipleMessages)
+        public void Handle(ResumeTrickledMessages trickleMultipleMessages)
         {
             var offset = trickleMultipleMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var messagesToResume = new List<ResumeScheduledMessageWithOffset>();
@@ -94,6 +95,14 @@ namespace SmsCoordinator
             }
             Bus.Send(messagesToResume);
         }
+
+        //public void Handle(SmsScheduled smsScheduled)
+        //{
+        //    var messageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsScheduled.ScheduleMessageId);
+        //    if (messageStatus == null)
+        //        throw new Exception("Cannot find message with id " + smsScheduled.ScheduleMessageId);
+        //    messageStatus.MessageStatus = MessageStatus.Scheduled;
+        //}
     }
 
     public class CoordinateSmsSchedulingData : ISagaEntity

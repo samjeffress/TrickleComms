@@ -5,7 +5,6 @@ using NServiceBus.Testing;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsCoordinator;
-using SmsMessages;
 using SmsMessages.Commands;
 using SmsMessages.CommonData;
 
@@ -121,7 +120,7 @@ namespace SmsCoordinatorTests
                     .ExpectSend<List<PauseScheduledMessageIndefinitely>>()
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
                     .ExpectSend<List<ResumeScheduledMessageWithOffset>>()
-                .When(s => s.Handle(new ResumeTrickledMessagesNow()))
+                .When(s => s.Handle(new ResumeTrickledMessages()))
                 .When(s => s.Handle(new ScheduledSmsSent()))
                     .AssertSagaCompletionIs(false)
                 .When(s => s.Handle(new ScheduledSmsSent()))
@@ -267,7 +266,7 @@ namespace SmsCoordinatorTests
             var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = scheduledMessageStatuses, OriginalScheduleStartTime = dateTime.AddMinutes(-5) };
             var smsScheduler = new CoordinateSmsScheduler { Bus = bus, Data = sagaData };
             
-            var resumeTricklesMessages = new ResumeTrickledMessagesNow { ResumeTime = dateTime };
+            var resumeTricklesMessages = new ResumeTrickledMessages { ResumeTime = dateTime };
             smsScheduler.Handle(resumeTricklesMessages);
 
             Assert.That(resumeScheduledMessages.Count, Is.EqualTo(2));
@@ -282,5 +281,23 @@ namespace SmsCoordinatorTests
             timingManager.VerifyAllExpectations();
             bus.VerifyAllExpectations();
         }
+
+        //[Test]
+        //public void SmsScheduled_Data()
+        //{
+        //    var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj"), new SmsData("mobile", "sent") };
+
+        //    var scheduledMessageStatuses = new List<ScheduledMessageStatus> 
+        //    {
+        //        new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]})
+        //    };
+
+        //    var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = scheduledMessageStatuses };
+        //    var smsScheduler = new CoordinateSmsScheduler { Data = sagaData };
+
+        //    smsScheduler.Handle(new SmsScheduled { ScheduleMessageId = scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId });
+
+        //    Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+        //}
     }
 }

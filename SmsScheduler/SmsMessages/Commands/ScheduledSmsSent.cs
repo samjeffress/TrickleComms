@@ -8,6 +8,13 @@ namespace SmsMessages.Commands
         public Guid CoordinatorId { get; set; }
     }
 
+    //public class SmsScheduled : IMessage
+    //{
+    //    public Guid CoordinatorId { get; set; }
+
+    //    public Guid ScheduleMessageId { get; set; }
+    //}
+
     public class PauseTrickledMessagesIndefinitely : IMessage
     {
         public Guid CoordinatorId { get; set; }
@@ -23,7 +30,7 @@ namespace SmsMessages.Commands
         public Guid ScheduleMessageId { get; set; }
     }
 
-    public class ResumeTrickledMessagesNow : IMessage
+    public class ResumeTrickledMessages : IMessage
     {
         public Guid CoordinatorId { get; set; }
 
