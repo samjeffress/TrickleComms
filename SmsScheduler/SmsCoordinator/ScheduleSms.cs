@@ -43,6 +43,7 @@ namespace SmsCoordinator
 
         public void Handle(MessageSent scheduleSmsForSendingLater)
         {
+            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Guid.Parse(Data.OriginalMessageId), ScheduledSmsId = Data.OriginalMessage.ScheduleMessageId });
             MarkAsComplete();
         }
 

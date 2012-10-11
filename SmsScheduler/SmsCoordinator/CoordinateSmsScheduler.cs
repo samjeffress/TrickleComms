@@ -69,6 +69,13 @@ namespace SmsCoordinator
         public void Handle(ScheduledSmsSent smsSent)
         {
             Data.MessagesConfirmedSent++;
+
+            var scheduledMessageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsSent.ScheduledSmsId);
+            if (scheduledMessageStatus == null)
+                throw new Exception("Can't find scheduled message");
+
+            scheduledMessageStatus.MessageStatus = MessageStatus.Sent;
+
             if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
                 MarkAsComplete();
         }

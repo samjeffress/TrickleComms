@@ -25,7 +25,7 @@ namespace SmsCoordinatorTests
             {
                 Id = sagaId, 
                 Originator = "place", 
-                OriginalMessageId = "one",
+                OriginalMessageId = Guid.NewGuid().ToString(),
                 OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
             };
 
@@ -36,6 +36,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
+                    .ExpectReplyToOrginator<ScheduledSmsSent>()
                 .When(s => s.Handle(messageSent))
                     .AssertSagaCompletionIs(true);
         }
@@ -75,7 +76,7 @@ namespace SmsCoordinatorTests
             {
                 Id = sagaId, 
                 Originator = "place", 
-                OriginalMessageId = "one",
+                OriginalMessageId = Guid.NewGuid().ToString(),
                 OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
             };
 
@@ -92,6 +93,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
+                    .ExpectReplyToOrginator<ScheduledSmsSent>()
                 .When(s => s.Handle(new MessageSent()))
                     .AssertSagaCompletionIs(true);
         }

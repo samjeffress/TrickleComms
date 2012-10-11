@@ -282,6 +282,24 @@ namespace SmsCoordinatorTests
             bus.VerifyAllExpectations();
         }
 
+        [Test]
+        public void ScheduledSmsSent_Data()
+        {
+            var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj"), new SmsData("mobile", "sent") };
+
+            var scheduledMessageStatuses = new List<ScheduledMessageStatus> 
+            {
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]})
+            };
+
+            var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = scheduledMessageStatuses };
+            var smsScheduler = new CoordinateSmsScheduler { Data = sagaData };
+
+            smsScheduler.Handle(new ScheduledSmsSent { ScheduledSmsId = scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId });
+
+            Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Sent));
+        }
+
         //[Test]
         //public void SmsScheduled_Data()
         //{
