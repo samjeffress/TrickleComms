@@ -94,6 +94,43 @@ namespace SmsCoordinatorTests
             Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
         }
 
+        //[Test]
+        //public void TrickleThreeMessagesSpacedAMinuteApartPausedAfterFirstThenResumed()
+        //{
+        //    var startTime = DateTime.Now.AddHours(3);
+        //    var timeSpacing = new TimeSpan(0, 10, 0);
+        //    var trickleMultipleMessages = new TrickleSmsSpacedByTimePeriod
+        //    {
+        //        StartTime = startTime,
+        //        Messages = new List<SmsData>
+        //        {
+        //            new SmsData("mobile#1", "message"), 
+        //            new SmsData("mobile#2", "message2"),
+        //            new SmsData("mobile#3", "message3")
+        //        },
+        //        TimeSpacing = timeSpacing
+        //    };
+
+        //    var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
+        //    Test.Initialize();
+        //    Test.Saga<CoordinateSmsScheduler>()
+        //        .WithExternalDependencies(d => d.Data = sagaData)
+        //            .ExpectSend<List<ScheduleSmsForSendingLater>>()
+        //        .When(s => s.Handle(trickleMultipleMessages))
+        //        .When(s => s.Handle(new ScheduledSmsSent()))
+        //            .ExpectSend<List<PauseScheduledMessageIndefinitely>>()
+        //        .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
+        //            .ExpectSend<List<ResumeScheduledMessageWithOffset>>()
+        //        .When(s => s.Handle(new ResumeTrickledMessagesNow()))
+        //        .When(s => s.Handle(new ScheduledSmsSent()))
+        //            .AssertSagaCompletionIs(false)
+        //        .When(s => s.Handle(new ScheduledSmsSent()))
+        //            .AssertSagaCompletionIs(true);
+
+        //    Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
+        //    Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
+        //}
+
         [Test]
         public void TrickleMessagesOverPeriod_Data()
         {
@@ -128,6 +165,10 @@ namespace SmsCoordinatorTests
             Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
+            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[0].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[0]));
+            Assert.That(sagaData.ScheduledMessageStatus[1].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[1].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[1]));
             timingManager.VerifyAllExpectations();
             bus.VerifyAllExpectations();
         }
@@ -160,8 +201,77 @@ namespace SmsCoordinatorTests
             Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
+            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[0].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[0]));
+            Assert.That(sagaData.ScheduledMessageStatus[1].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[1].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[1]));
             timingManager.VerifyAllExpectations();
             bus.VerifyAllExpectations();
         }
+
+        //[Test]
+        //public void TrickleMessagesPauseMessagesIndefinitely_Data()
+        //{
+        //    var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj") };
+
+        //    var pauseMessageSending = new PauseTrickledMessagesIndefinitely();
+
+        //    var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
+        //    var bus = MockRepository.GenerateMock<IBus>();
+
+        //    var scheduleSmsForLaterList = new List<ScheduleSmsForSendingLater>();
+        //    bus.Expect(b => b.Send(Arg<ScheduleSmsForSendingLater>.Is.NotNull))
+        //        .WhenCalled(i => scheduleSmsForLaterList = (List<ScheduleSmsForSendingLater>)((object[])(i.Arguments[0]))[0]);
+
+        //    var sagaData = new CoordinateSmsSchedulingData();
+        //    var smsScheduler = new CoordinateSmsScheduler { Bus = bus, Data = sagaData };
+        //    smsScheduler.Handle(pauseMessageSending);
+
+        //    Assert.That(scheduleSmsForLaterList[0].SendMessageAt.Ticks, Is.EqualTo(trickleMessagesOverTime.StartTime.Ticks));
+        //    Assert.That(scheduleSmsForLaterList[0].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[0].Message));
+        //    Assert.That(scheduleSmsForLaterList[0].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[0].Mobile));
+        //    Assert.That(scheduleSmsForLaterList[0].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
+
+        //    Assert.That(scheduleSmsForLaterList[1].SendMessageAt.Ticks, Is.EqualTo(trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks));
+        //    Assert.That(scheduleSmsForLaterList[1].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[1].Message));
+        //    Assert.That(scheduleSmsForLaterList[1].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[1].Mobile));
+        //    Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
+
+        //    Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
+        //    timingManager.VerifyAllExpectations();
+        //    bus.VerifyAllExpectations();
+        //}
+
+        //[Test]
+        //public void TrickleMessagesResumeMessageSending_Data()
+        //{
+        //    var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj") };
+        //    var trickleMessagesOverTime = new TrickleSmsSpacedByTimePeriod { TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTime = DateTime.Now };
+
+        //    var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
+        //    var bus = MockRepository.GenerateMock<IBus>();
+
+        //    var scheduleSmsForLaterList = new List<ScheduleSmsForSendingLater>();
+        //    bus.Expect(b => b.Send(Arg<ScheduleSmsForSendingLater>.Is.NotNull))
+        //        .WhenCalled(i => scheduleSmsForLaterList = (List<ScheduleSmsForSendingLater>)((object[])(i.Arguments[0]))[0]);
+
+        //    var sagaData = new CoordinateSmsSchedulingData();
+        //    var smsScheduler = new CoordinateSmsScheduler { Bus = bus, Data = sagaData };
+        //    smsScheduler.Handle(trickleMessagesOverTime);
+
+        //    Assert.That(scheduleSmsForLaterList[0].SendMessageAt.Ticks, Is.EqualTo(trickleMessagesOverTime.StartTime.Ticks));
+        //    Assert.That(scheduleSmsForLaterList[0].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[0].Message));
+        //    Assert.That(scheduleSmsForLaterList[0].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[0].Mobile));
+        //    Assert.That(scheduleSmsForLaterList[0].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
+
+        //    Assert.That(scheduleSmsForLaterList[1].SendMessageAt.Ticks, Is.EqualTo(trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks));
+        //    Assert.That(scheduleSmsForLaterList[1].SmsData.Message, Is.EqualTo(trickleMessagesOverTime.Messages[1].Message));
+        //    Assert.That(scheduleSmsForLaterList[1].SmsData.Mobile, Is.EqualTo(trickleMessagesOverTime.Messages[1].Mobile));
+        //    Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
+
+        //    Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
+        //    timingManager.VerifyAllExpectations();
+        //    bus.VerifyAllExpectations();
+        //}
     }
 }
