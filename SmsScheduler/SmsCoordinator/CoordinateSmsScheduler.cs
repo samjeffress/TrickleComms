@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages.Commands;
@@ -73,12 +74,25 @@ namespace SmsCoordinator
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
-            throw new NotImplementedException();
+            var messagesToPause = new List<PauseScheduledMessageIndefinitely>();
+            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled).ToList())
+            {
+                messagesToPause.Add(new PauseScheduledMessageIndefinitely (scheduledMessageStatuse.ScheduledSms.ScheduleMessageId));
+                scheduledMessageStatuse.MessageStatus = MessageStatus.Paused;
+            }
+            Bus.Send(messagesToPause);
         }
 
         public void Handle(ResumeTrickledMessagesNow trickleMultipleMessages)
         {
-            throw new NotImplementedException();
+            var offset = trickleMultipleMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
+            var messagesToResume = new List<ResumeScheduledMessageWithOffset>();
+            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled).ToList())
+            {
+                messagesToResume.Add(new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)));
+                scheduledMessageStatuse.MessageStatus = MessageStatus.Scheduled;
+            }
+            Bus.Send(messagesToResume);
         }
     }
 
@@ -92,6 +106,8 @@ namespace SmsCoordinator
         public int MessagesConfirmedSent { get; set; }
 
         public List<ScheduledMessageStatus> ScheduledMessageStatus { get; set; }
+
+        public DateTime OriginalScheduleStartTime { get; set; }
     }
 
     public class ScheduledMessageStatus
@@ -116,7 +132,6 @@ namespace SmsCoordinator
     public enum MessageStatus
     {
         Scheduled,
-        Sending,
         Sent,
         Paused,
         Cancelled

@@ -11,6 +11,9 @@ _ReSharper*/
 *.resharper
 [Tt]est[Rr]esult*
 *.user
+*.suo
+*.dotCover
 
 #NuGet
 packages/
+
