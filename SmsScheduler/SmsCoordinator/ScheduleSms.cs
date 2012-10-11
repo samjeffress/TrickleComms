@@ -10,11 +10,14 @@ namespace SmsCoordinator
         Saga<ScheduledSmsData>,
         IAmStartedByMessages<ScheduleSmsForSendingLater>,
         IHandleTimeouts<ScheduleSmsTimeout>,
+        IHandleMessages<PauseScheduledMessageIndefinitely>,
+        IHandleMessages<ResumeScheduledMessageWithOffset>,
         IHandleMessages<MessageSent>
     {
         public override void ConfigureHowToFindSaga()
         {
             ConfigureMapping<MessageSent>(data => data.Id, message => message.CorrelationId);
+            ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.OriginalMessage.ScheduleMessageId, message => message.ScheduleMessageId);
             base.ConfigureHowToFindSaga();
         }
 
@@ -26,18 +29,32 @@ namespace SmsCoordinator
 
         public void Timeout(ScheduleSmsTimeout state)
         {
-            var sendOneMessageNow = new SendOneMessageNow
+            if (!Data.SchedulingPaused)
             {
-                CorrelationId = Data.Id,
-                SmsData = Data.OriginalMessage.SmsData,
-                SmsMetaData = Data.OriginalMessage.SmsMetaData
-            };
-            Bus.Send(sendOneMessageNow);
+                var sendOneMessageNow = new SendOneMessageNow
+                {
+                    CorrelationId = Data.Id,
+                    SmsData = Data.OriginalMessage.SmsData,
+                    SmsMetaData = Data.OriginalMessage.SmsMetaData
+                };
+                Bus.Send(sendOneMessageNow);
+            }
         }
 
         public void Handle(MessageSent scheduleSmsForSendingLater)
         {
             MarkAsComplete();
+        }
+
+        public void Handle(PauseScheduledMessageIndefinitely pauseScheduling)
+        {
+            Data.SchedulingPaused = true;
+        }
+
+        public void Handle(ResumeScheduledMessageWithOffset scheduleSmsForSendingLater)
+        {
+            Data.SchedulingPaused = false;
+            RequestUtcTimeout<ScheduleSmsTimeout>(Data.OriginalMessage.SendMessageAt.Add(scheduleSmsForSendingLater.Offset));
         }
     }
 
@@ -47,6 +64,8 @@ namespace SmsCoordinator
         public string Originator { get; set; }
         public string OriginalMessageId { get; set; }
         public ScheduleSmsForSendingLater OriginalMessage { get; set; }
+
+        public bool SchedulingPaused { get; set; }
     }
 
     public class ScheduleSmsTimeout

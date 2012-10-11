@@ -41,6 +41,62 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
+        public void ScheduleSmsForSendingLaterButIsPaused()
+        {
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAt = DateTime.Now.AddDays(1) };
+            var sagaId = Guid.NewGuid();
+
+            var scheduledSmsData = new ScheduledSmsData 
+            {
+                Id = sagaId, 
+                Originator = "place", 
+                OriginalMessageId = "one",
+                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
+            };
+
+            Test.Initialize();
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>(
+                    (state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAt)
+                .When(s => s.Handle(scheduleSmsForSendingLater))
+                .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
+                    .ExpectNotSend<SendOneMessageNow>(now => false)
+                .WhenSagaTimesOut();
+        }
+
+        [Test]
+        public void ScheduleSmsForSendingLaterButIsPausedThenResumedAndSent()
+        {
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAt = DateTime.Now.AddDays(1) };
+            var sagaId = Guid.NewGuid();
+
+            var scheduledSmsData = new ScheduledSmsData 
+            {
+                Id = sagaId, 
+                Originator = "place", 
+                OriginalMessageId = "one",
+                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
+            };
+
+            Test.Initialize();
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>(
+                    (state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAt)
+                .When(s => s.Handle(scheduleSmsForSendingLater))
+                .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
+                    .ExpectNotSend<SendOneMessageNow>(now => false)
+                .WhenSagaTimesOut()
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
+                .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
+                    .ExpectSend<SendOneMessageNow>()
+                .WhenSagaTimesOut()
+                .When(s => s.Handle(new MessageSent()))
+                    .AssertSagaCompletionIs(true);
+        }
+
+        [Test]
         public void TimeoutPromptsMessageSending_Data()
         {
             var bus = MockRepository.GenerateMock<IBus>();
@@ -65,6 +121,22 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
+        public void TimeoutSendingPausedNoAction_Data()
+        {
+            var bus = MockRepository.GenerateStrictMock<IBus>();
+
+            var dataId = Guid.NewGuid();
+            var originalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("3443", "message"), SmsMetaData = new SmsMetaData { Tags = new List<string> { "a", "b" }, Topic = "topic" } };
+            var data = new ScheduledSmsData { Id = dataId, OriginalMessage = originalMessage, SchedulingPaused = true };
+
+            var scheduleSms = new ScheduleSms { Bus = bus, Data = data };
+            var timeoutMessage = new ScheduleSmsTimeout();
+            scheduleSms.Timeout(timeoutMessage);
+
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
         public void OriginalMessageGetsSavedToSaga_Data()
         {
             var bus = MockRepository.GenerateMock<IBus>();
@@ -75,6 +147,18 @@ namespace SmsCoordinatorTests
             scheduleSms.Handle(originalMessage);
 
             Assert.That(data.OriginalMessage, Is.EqualTo(originalMessage));
+        }
+
+        [Test]
+        public void PauseMessageSetsSchedulePauseFlag_Data()
+        {
+            var data = new ScheduledSmsData();
+            var pauseScheduledMessageIndefinitely = new PauseScheduledMessageIndefinitely(Guid.Empty);
+
+            var scheduleSms = new ScheduleSms { Data = data };
+            scheduleSms.Handle(pauseScheduledMessageIndefinitely);
+
+            Assert.IsTrue(data.SchedulingPaused);
         }
     }
 }
