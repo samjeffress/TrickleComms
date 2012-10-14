@@ -24,6 +24,8 @@ namespace SmsCoordinator
         {
             ConfigureMapping<ScheduledSmsSent>(data => data.Id, message => message.CoordinatorId);
             ConfigureMapping<PauseTrickledMessagesIndefinitely>(data => data.Id, message => message.CoordinatorId);
+            ConfigureMapping<SmsScheduled>(data => data.Id, message => message.CoordinatorId);
+            ConfigureMapping<ResumeTrickledMessages>(data => data.Id, message => message.CoordinatorId);
             base.ConfigureHowToFindSaga();
         }
 
@@ -58,7 +60,8 @@ namespace SmsCoordinator
                 {
                     SendMessageAt = trickleMultipleMessages.StartTime.Add(extraTime),
                     SmsData = new SmsData(trickleMultipleMessages.Messages[i].Mobile, trickleMultipleMessages.Messages[i].Message),
-                    SmsMetaData = trickleMultipleMessages.MetaData
+                    SmsMetaData = trickleMultipleMessages.MetaData,
+                    CorrelationId = Data.Id
                 };
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;

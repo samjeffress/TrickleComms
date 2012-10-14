@@ -141,12 +141,15 @@ namespace SmsCoordinatorTests
         [Test]
         public void OriginalMessageGetsSavedToSaga_Data()
         {
-            var bus = MockRepository.GenerateMock<IBus>();
             var data = new ScheduledSmsData();
-            var originalMessage = new ScheduleSmsForSendingLater() { SendMessageAt = DateTime.Now };
+            var originalMessage = new ScheduleSmsForSendingLater { SendMessageAt = DateTime.Now };
 
-            var scheduleSms = new ScheduleSms { Bus = bus, Data = data };
-            scheduleSms.Handle(originalMessage);
+            Test.Initialize();
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = data)
+                .WhenReceivesMessageFrom("address")
+                    .ExpectReplyToOrginator<SmsScheduled>(m => m.CoordinatorId == data.Id && m.ScheduleMessageId == originalMessage.ScheduleMessageId)
+                .When(s => s.Handle(originalMessage));
 
             Assert.That(data.OriginalMessage, Is.EqualTo(originalMessage));
         }

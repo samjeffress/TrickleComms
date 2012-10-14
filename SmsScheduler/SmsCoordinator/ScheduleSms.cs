@@ -25,6 +25,7 @@ namespace SmsCoordinator
         {
             Data.OriginalMessage = scheduleSmsForSendingLater;
             RequestUtcTimeout<ScheduleSmsTimeout>(scheduleSmsForSendingLater.SendMessageAt);
+            ReplyToOriginator(new SmsScheduled { ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
         }
 
         public void Timeout(ScheduleSmsTimeout state)

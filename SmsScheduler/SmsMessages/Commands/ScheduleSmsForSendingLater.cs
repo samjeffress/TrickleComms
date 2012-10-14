@@ -24,5 +24,7 @@ namespace SmsMessages.Commands
         public SmsMetaData SmsMetaData { get; set; }
 
         public Guid ScheduleMessageId { get; set; }
+
+        public Guid CorrelationId { get; set; }
     }
 }
