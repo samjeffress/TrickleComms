@@ -6,9 +6,8 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using Rhino.Mocks.Constraints;
 using SmsCoordinator;
-using SmsMessages.Commands;
 using SmsMessages.CommonData;
-using SmsMessages.Events;
+using SmsMessages.MessageSending;
 
 namespace SmsCoordinatorTests
 {

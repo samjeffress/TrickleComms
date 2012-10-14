@@ -2,7 +2,7 @@
 using NServiceBus;
 using SmsMessages.CommonData;
 
-namespace SmsMessages.Events
+namespace SmsMessages.MessageSending
 {
     public class MessageSent : IMessage
     {
@@ -13,12 +13,5 @@ namespace SmsMessages.Events
         public SmsData SmsData { get; set; }
 
         public SmsMetaData SmsMetaData { get; set; }
-    }
-
-    public class SmsScheduled : IMessage
-    {
-        public Guid ScheduleMessageId { get; set; }
-
-        public Guid CoordinatorId { get; set; }
     }
 }

@@ -2,8 +2,8 @@
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsCoordinator;
-using SmsMessages.Commands;
 using SmsMessages.CommonData;
+using SmsMessages.MessageSending;
 using Twilio;
 
 namespace SmsCoordinatorTests

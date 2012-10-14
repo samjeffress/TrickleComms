@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
-using SmsMessages.Commands;
 using SmsMessages.CommonData;
+using SmsMessages.MessageSending;
 using Twilio;
 
 namespace SmsCoordinator

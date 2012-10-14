@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using NServiceBus;
 using NServiceBus.Saga;
-using SmsMessages.Commands;
 using SmsMessages.CommonData;
-using SmsMessages.Events;
+using SmsMessages.Coordinator;
+using SmsMessages.MessageSending;
+using SmsMessages.Scheduling;
 
 namespace SmsCoordinator
 {
@@ -70,20 +71,6 @@ namespace SmsCoordinator
             Bus.Send(messageList);
         }
 
-        public void Handle(ScheduledSmsSent smsSent)
-        {
-            Data.MessagesConfirmedSent++;
-
-            var scheduledMessageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsSent.ScheduledSmsId);
-            if (scheduledMessageStatus == null)
-                throw new Exception("Can't find scheduled message");
-
-            scheduledMessageStatus.MessageStatus = MessageStatus.Sent;
-
-            if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
-                MarkAsComplete();
-        }
-
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
             var messagesToPause = new List<PauseScheduledMessageIndefinitely>();
@@ -115,6 +102,20 @@ namespace SmsCoordinator
             if (messageStatus.MessageStatus == MessageStatus.Sent)
                 throw new Exception("Message already sent.");
             messageStatus.MessageStatus = MessageStatus.Scheduled;
+        }
+
+        public void Handle(ScheduledSmsSent smsSent)
+        {
+            Data.MessagesConfirmedSent++;
+
+            var scheduledMessageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsSent.ScheduledSmsId);
+            if (scheduledMessageStatus == null)
+                throw new Exception("Can't find scheduled message");
+
+            scheduledMessageStatus.MessageStatus = MessageStatus.Sent;
+
+            if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
+                MarkAsComplete();
         }
     }
 

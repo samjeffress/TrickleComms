@@ -5,9 +5,9 @@ using NServiceBus.Testing;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsCoordinator;
-using SmsMessages.Commands;
 using SmsMessages.CommonData;
-using SmsMessages.Events;
+using SmsMessages.MessageSending;
+using SmsMessages.Scheduling;
 
 namespace SmsCoordinatorTests
 {

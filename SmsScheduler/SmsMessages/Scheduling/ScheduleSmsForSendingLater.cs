@@ -2,7 +2,7 @@ using System;
 using NServiceBus;
 using SmsMessages.CommonData;
 
-namespace SmsMessages.Commands
+namespace SmsMessages.Scheduling
 {
     public class ScheduleSmsForSendingLater : ICommand
     {

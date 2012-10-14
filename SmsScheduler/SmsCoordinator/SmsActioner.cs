@@ -1,6 +1,5 @@
 ﻿using NServiceBus;
-using SmsMessages.Commands;
-using SmsMessages.Events;
+using SmsMessages.MessageSending;
 
 namespace SmsCoordinator
 {

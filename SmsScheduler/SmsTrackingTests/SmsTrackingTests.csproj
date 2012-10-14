@@ -108,6 +108,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RavenTestBase.cs" />
+    <Compile Include="SmsSchedulerAuditorTestFixture.cs" />
+    <Compile Include="SmsSchedulerTestFixture.cs" />
     <Compile Include="SmsSentAuditorTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
