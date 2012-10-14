@@ -3,6 +3,7 @@ using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages.MessageSending;
 using SmsMessages.Scheduling;
+using SmsMessages.Tracking;
 
 namespace SmsCoordinator
 {
