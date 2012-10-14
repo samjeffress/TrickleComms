@@ -51,6 +51,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonData\MessageStatus.cs" />
+    <Compile Include="Scheduling\ScheduleCreated.cs" />
     <Compile Include="Scheduling\SmsScheduled.cs" />
     <Compile Include="Scheduling\PauseScheduledMessageIndefinitely.cs" />
     <Compile Include="Coordinator\PauseTrickledMessagesIndefinitely.cs" />
@@ -66,6 +68,7 @@
     <Compile Include="CommonData\SmsData.cs" />
     <Compile Include="CommonData\SmsMetaData.cs" />
     <Compile Include="Coordinator\TrickleSmsOverTimePeriod.cs" />
+    <Compile Include="Tracking\ScheduleTracking.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

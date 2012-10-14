@@ -5,7 +5,6 @@ using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
-using SmsMessages.MessageSending;
 using SmsMessages.Scheduling;
 
 namespace SmsCoordinator
@@ -150,14 +149,5 @@ namespace SmsCoordinator
         public MessageStatus MessageStatus { get; set; }
 
         public ScheduleSmsForSendingLater ScheduledSms { get; set; }
-    }
-
-    public enum MessageStatus
-    {
-        WaitingForScheduling,
-        Scheduled,
-        Sent,
-        Paused,
-        Cancelled
     }
 }
