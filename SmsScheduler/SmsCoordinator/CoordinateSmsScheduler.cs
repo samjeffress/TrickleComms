@@ -5,6 +5,7 @@ using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages.Commands;
 using SmsMessages.CommonData;
+using SmsMessages.Events;
 
 namespace SmsCoordinator
 {
@@ -12,7 +13,7 @@ namespace SmsCoordinator
         Saga<CoordinateSmsSchedulingData>,
         IAmStartedByMessages<TrickleSmsOverTimePeriod>, 
         IAmStartedByMessages<TrickleSmsSpacedByTimePeriod>,
-        //IHandleMessages<SmsScheduled>,
+        IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
         IHandleMessages<ResumeTrickledMessages>
@@ -83,7 +84,7 @@ namespace SmsCoordinator
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
             var messagesToPause = new List<PauseScheduledMessageIndefinitely>();
-            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled).ToList())
+            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling).ToList())
             {
                 messagesToPause.Add(new PauseScheduledMessageIndefinitely (scheduledMessageStatuse.ScheduledSms.ScheduleMessageId));
                 scheduledMessageStatuse.MessageStatus = MessageStatus.Paused;
@@ -95,7 +96,7 @@ namespace SmsCoordinator
         {
             var offset = trickleMultipleMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var messagesToResume = new List<ResumeScheduledMessageWithOffset>();
-            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled).ToList())
+            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Paused).ToList())
             {
                 messagesToResume.Add(new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)));
                 scheduledMessageStatuse.MessageStatus = MessageStatus.Scheduled;
@@ -103,13 +104,15 @@ namespace SmsCoordinator
             Bus.Send(messagesToResume);
         }
 
-        //public void Handle(SmsScheduled smsScheduled)
-        //{
-        //    var messageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsScheduled.ScheduleMessageId);
-        //    if (messageStatus == null)
-        //        throw new Exception("Cannot find message with id " + smsScheduled.ScheduleMessageId);
-        //    messageStatus.MessageStatus = MessageStatus.Scheduled;
-        //}
+        public void Handle(SmsScheduled smsScheduled)
+        {
+            var messageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsScheduled.ScheduleMessageId);
+            if (messageStatus == null)
+                throw new Exception("Cannot find message with id " + smsScheduled.ScheduleMessageId);
+            if (messageStatus.MessageStatus == MessageStatus.Sent)
+                throw new Exception("Message already sent.");
+            messageStatus.MessageStatus = MessageStatus.Scheduled;
+        }
     }
 
     public class CoordinateSmsSchedulingData : ISagaEntity
@@ -130,7 +133,7 @@ namespace SmsCoordinator
     {
         public ScheduledMessageStatus(ScheduleSmsForSendingLater message)
         {
-            MessageStatus = MessageStatus.Scheduled;
+            MessageStatus = MessageStatus.WaitingForScheduling;
             ScheduledSms = message;
         }
 
@@ -147,6 +150,7 @@ namespace SmsCoordinator
 
     public enum MessageStatus
     {
+        WaitingForScheduling,
         Scheduled,
         Sent,
         Paused,

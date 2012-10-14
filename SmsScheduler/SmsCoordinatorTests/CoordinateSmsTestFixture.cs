@@ -7,6 +7,7 @@ using Rhino.Mocks;
 using SmsCoordinator;
 using SmsMessages.Commands;
 using SmsMessages.CommonData;
+using SmsMessages.Events;
 
 namespace SmsCoordinatorTests
 {
@@ -164,9 +165,9 @@ namespace SmsCoordinatorTests
             Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
-            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));
             Assert.That(sagaData.ScheduledMessageStatus[0].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[0]));
-            Assert.That(sagaData.ScheduledMessageStatus[1].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[1].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));
             Assert.That(sagaData.ScheduledMessageStatus[1].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[1]));
             timingManager.VerifyAllExpectations();
             bus.VerifyAllExpectations();
@@ -200,12 +201,29 @@ namespace SmsCoordinatorTests
             Assert.That(scheduleSmsForLaterList[1].SmsMetaData, Is.EqualTo(trickleMessagesOverTime.MetaData));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
-            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));
             Assert.That(sagaData.ScheduledMessageStatus[0].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[0]));
-            Assert.That(sagaData.ScheduledMessageStatus[1].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(sagaData.ScheduledMessageStatus[1].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));
             Assert.That(sagaData.ScheduledMessageStatus[1].ScheduledSms, Is.EqualTo(scheduleSmsForLaterList[1]));
             timingManager.VerifyAllExpectations();
             bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void TrickleMessageScheduledSuccess_Data()
+        {
+            var scheduleMessageId = Guid.NewGuid();
+            var smsScheduled = new SmsScheduled { ScheduleMessageId = scheduleMessageId };
+
+            var smsScheduledForLater = new ScheduleSmsForSendingLater(DateTime.Now.AddMinutes(10), new SmsData("mobile", "message"), new SmsMetaData()) { ScheduleMessageId = scheduleMessageId};
+            var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = new List<ScheduledMessageStatus>
+            {
+                new ScheduledMessageStatus(smsScheduledForLater)
+            }};
+            var smsScheduler = new CoordinateSmsScheduler { Data = sagaData };
+            smsScheduler.Handle(smsScheduled);
+
+            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
         }
 
         [Test]
@@ -225,7 +243,7 @@ namespace SmsCoordinatorTests
             var scheduledMessageStatuses = new List<ScheduledMessageStatus> 
             {
                 new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]}),
-                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[1]}),
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[1]}, MessageStatus.Scheduled),
                 new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[2]}, MessageStatus.Sent)
             };
 
@@ -258,8 +276,8 @@ namespace SmsCoordinatorTests
 
             var scheduledMessageStatuses = new List<ScheduledMessageStatus> 
             {
-                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]}),
-                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[1]}),
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]}, MessageStatus.Paused),
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[1]}, MessageStatus.Paused),
                 new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[2]}, MessageStatus.Sent)
             };
             var dateTime = DateTime.Now;
@@ -299,23 +317,5 @@ namespace SmsCoordinatorTests
 
             Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Sent));
         }
-
-        //[Test]
-        //public void SmsScheduled_Data()
-        //{
-        //    var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj"), new SmsData("mobile", "sent") };
-
-        //    var scheduledMessageStatuses = new List<ScheduledMessageStatus> 
-        //    {
-        //        new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]})
-        //    };
-
-        //    var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = scheduledMessageStatuses };
-        //    var smsScheduler = new CoordinateSmsScheduler { Data = sagaData };
-
-        //    smsScheduler.Handle(new SmsScheduled { ScheduleMessageId = scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId });
-
-        //    Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
-        //}
     }
 }

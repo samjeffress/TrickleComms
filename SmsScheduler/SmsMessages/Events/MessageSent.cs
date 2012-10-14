@@ -14,4 +14,9 @@ namespace SmsMessages.Events
 
         public SmsMetaData SmsMetaData { get; set; }
     }
+
+    public class SmsScheduled : IMessage
+    {
+        public Guid ScheduleMessageId { get; set; }
+    }
 }
