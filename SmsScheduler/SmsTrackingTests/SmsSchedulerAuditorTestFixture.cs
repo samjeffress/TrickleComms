@@ -14,7 +14,7 @@ namespace SmsTrackingTests
         public void HandleMessageScheduled()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentAuditor { DocumentStore = DocumentStore };
+            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
             var scheduleCreated = new ScheduleCreated {ScheduleId = scheduleId};
             smsSentAuditor.Handle(scheduleCreated);
 
@@ -34,7 +34,7 @@ namespace SmsTrackingTests
         public void HandleMessagePaused()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentAuditor { DocumentStore = DocumentStore };
+            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -56,7 +56,7 @@ namespace SmsTrackingTests
         public void HandleMessageResumed()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentAuditor { DocumentStore = DocumentStore };
+            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -78,7 +78,7 @@ namespace SmsTrackingTests
         public void HandleMessageCancelled()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentAuditor { DocumentStore = DocumentStore };
+            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -100,7 +100,7 @@ namespace SmsTrackingTests
         public void HandleMessageSent()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentAuditor { DocumentStore = DocumentStore };
+            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {

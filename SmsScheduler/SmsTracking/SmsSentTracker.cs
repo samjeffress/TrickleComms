@@ -3,12 +3,11 @@ using NServiceBus;
 using Raven.Client;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending;
-using SmsMessages.Scheduling;
 using SmsMessages.Tracking;
 
 namespace SmsTracking
 {
-    public class SmsSentAuditor : 
+    public class SmsSentTracker : 
         IHandleMessages<MessageSent>,
         IHandleMessages<ScheduleCreated>,
         IHandleMessages<SchedulePaused>,

@@ -13,7 +13,7 @@ namespace SmsTrackingTests
         public void HandleMessageSent()
         {
             var messageSent = new MessageSent { ConfirmationData = new SmsConfirmationData("receipt", DateTime.Now.AddMinutes(-10), 0.33m) };
-            var smsSentAuditor = new SmsSentAuditor { DocumentStore = DocumentStore };
+            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
             smsSentAuditor.Handle(messageSent);
 
             using (var session = DocumentStore.OpenSession())

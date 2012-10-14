@@ -54,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ScheduleTracking.cs" />
-    <Compile Include="SmsSentAuditor.cs" />
+    <Compile Include="SmsSentTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
