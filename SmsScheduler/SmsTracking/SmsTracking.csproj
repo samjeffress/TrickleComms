@@ -53,7 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ScheduleTracking.cs" />
+    <Compile Include="ScheduleTracker.cs" />
+    <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsSentTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

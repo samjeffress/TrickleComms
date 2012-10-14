@@ -1,7 +1,6 @@
 using System;
 using NUnit.Framework;
 using SmsMessages.CommonData;
-using SmsMessages.Scheduling;
 using SmsMessages.Tracking;
 using SmsTracking;
 
@@ -14,13 +13,13 @@ namespace SmsTrackingTests
         public void HandleMessageScheduled()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
+            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
             var scheduleCreated = new ScheduleCreated {ScheduleId = scheduleId};
-            smsSentAuditor.Handle(scheduleCreated);
+            tracker.Handle(scheduleCreated);
 
             using (var session = DocumentStore.OpenSession())
             {
-                var scheduleTracking = session.Load<ScheduleTracking>(scheduleId.ToString());
+                var scheduleTracking = session.Load<ScheduleTrackingData>(scheduleId.ToString());
 
                 Assert.That(scheduleTracking.SmsData, Is.EqualTo(scheduleCreated.SmsData));
                 Assert.That(scheduleTracking.SmsMetaData, Is.EqualTo(scheduleCreated.SmsMetaData));
@@ -34,20 +33,20 @@ namespace SmsTrackingTests
         public void HandleMessagePaused()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
+            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {
-                session.Store(new ScheduleTracking { ScheduleId = scheduleId, MessageStatus = MessageStatus.Scheduled }, scheduleId.ToString());
+                session.Store(new ScheduleTrackingData { ScheduleId = scheduleId, MessageStatus = MessageStatus.Scheduled }, scheduleId.ToString());
                 session.SaveChanges();
             }
 
             var scheduleCreated = new SchedulePaused { ScheduleId = scheduleId };
-            smsSentAuditor.Handle(scheduleCreated);
+            tracker.Handle(scheduleCreated);
 
             using (var session = DocumentStore.OpenSession())
             {
-                var scheduleTracking = session.Load<ScheduleTracking>(scheduleId.ToString());
+                var scheduleTracking = session.Load<ScheduleTrackingData>(scheduleId.ToString());
                 Assert.That(scheduleTracking.MessageStatus, Is.EqualTo(MessageStatus.Paused));
             }
         }
@@ -56,20 +55,20 @@ namespace SmsTrackingTests
         public void HandleMessageResumed()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
+            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {
-                session.Store(new ScheduleTracking { ScheduleId = scheduleId, MessageStatus = MessageStatus.Paused }, scheduleId.ToString());
+                session.Store(new ScheduleTrackingData { ScheduleId = scheduleId, MessageStatus = MessageStatus.Paused }, scheduleId.ToString());
                 session.SaveChanges();
             }
 
             var scheduleCreated = new ScheduleResumed { ScheduleId = scheduleId };
-            smsSentAuditor.Handle(scheduleCreated);
+            tracker.Handle(scheduleCreated);
 
             using (var session = DocumentStore.OpenSession())
             {
-                var scheduleTracking = session.Load<ScheduleTracking>(scheduleId.ToString());
+                var scheduleTracking = session.Load<ScheduleTrackingData>(scheduleId.ToString());
                 Assert.That(scheduleTracking.MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
             }
         }
@@ -78,20 +77,20 @@ namespace SmsTrackingTests
         public void HandleMessageCancelled()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
+            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {
-                session.Store(new ScheduleTracking { ScheduleId = scheduleId, MessageStatus = MessageStatus.Scheduled }, scheduleId.ToString());
+                session.Store(new ScheduleTrackingData { ScheduleId = scheduleId, MessageStatus = MessageStatus.Scheduled }, scheduleId.ToString());
                 session.SaveChanges();
             }
 
             var scheduleCreated = new ScheduleCancelled { ScheduleId = scheduleId };
-            smsSentAuditor.Handle(scheduleCreated);
+            tracker.Handle(scheduleCreated);
 
             using (var session = DocumentStore.OpenSession())
             {
-                var scheduleTracking = session.Load<ScheduleTracking>(scheduleId.ToString());
+                var scheduleTracking = session.Load<ScheduleTrackingData>(scheduleId.ToString());
                 Assert.That(scheduleTracking.MessageStatus, Is.EqualTo(MessageStatus.Cancelled));
             }
         }
@@ -100,20 +99,20 @@ namespace SmsTrackingTests
         public void HandleMessageSent()
         {
             var scheduleId = Guid.NewGuid();
-            var smsSentAuditor = new SmsSentTracker { DocumentStore = DocumentStore };
+            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
 
             using (var session = DocumentStore.OpenSession())
             {
-                session.Store(new ScheduleTracking { ScheduleId = scheduleId, MessageStatus = MessageStatus.Scheduled }, scheduleId.ToString());
+                session.Store(new ScheduleTrackingData { ScheduleId = scheduleId, MessageStatus = MessageStatus.Scheduled }, scheduleId.ToString());
                 session.SaveChanges();
             }
 
             var scheduleCreated = new ScheduleComplete { ScheduleId = scheduleId };
-            smsSentAuditor.Handle(scheduleCreated);
+            tracker.Handle(scheduleCreated);
 
             using (var session = DocumentStore.OpenSession())
             {
-                var scheduleTracking = session.Load<ScheduleTracking>(scheduleId.ToString());
+                var scheduleTracking = session.Load<ScheduleTrackingData>(scheduleId.ToString());
                 Assert.That(scheduleTracking.MessageStatus, Is.EqualTo(MessageStatus.Sent));
             }
         }

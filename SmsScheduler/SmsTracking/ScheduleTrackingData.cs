@@ -3,7 +3,7 @@ using SmsMessages.CommonData;
 
 namespace SmsTracking
 {
-    public class ScheduleTracking
+    public class ScheduleTrackingData
     {
         public SmsData SmsData { get; set; }
 
