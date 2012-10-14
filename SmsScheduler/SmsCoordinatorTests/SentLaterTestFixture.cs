@@ -33,10 +33,12 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAt)
+                    .ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectReplyToOrginator<ScheduledSmsSent>()
+                    .ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(messageSent))
                     .AssertSagaCompletionIs(true);
         }
@@ -58,9 +60,10 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
-                .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>(
-                    (state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAt)
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAt)
+                    .ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
+                    .ExpectSend<SchedulePaused>()
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
                     .ExpectNotSend<SendOneMessageNow>(now => false)
                 .WhenSagaTimesOut();
@@ -83,17 +86,20 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
-                .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>(
-                    (state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAt)
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAt)
+                    .ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
+                    .ExpectSend<SchedulePaused>()
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
                     .ExpectNotSend<SendOneMessageNow>(now => false)
                 .WhenSagaTimesOut()
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
+                    .ExpectSend<ScheduleResumed>()
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectReplyToOrginator<ScheduledSmsSent>()
+                    .ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(new MessageSent()))
                     .AssertSagaCompletionIs(true);
         }
@@ -158,12 +164,17 @@ namespace SmsCoordinatorTests
         public void PauseMessageSetsSchedulePauseFlag_Data()
         {
             var data = new ScheduledSmsData();
-            var pauseScheduledMessageIndefinitely = new PauseScheduledMessageIndefinitely(Guid.Empty);
+            var scheduleId = Guid.NewGuid();
+            var pauseScheduledMessageIndefinitely = new PauseScheduledMessageIndefinitely(scheduleId);
 
-            var scheduleSms = new ScheduleSms { Data = data };
+            var bus = MockRepository.GenerateMock<IBus>();
+            bus.Expect(b => b.Send<SchedulePaused>(s => s.ScheduleId = scheduleId));
+
+            var scheduleSms = new ScheduleSms { Data = data, Bus = bus };
             scheduleSms.Handle(pauseScheduledMessageIndefinitely);
 
             Assert.IsTrue(data.SchedulingPaused);
+            bus.VerifyAllExpectations();
         }
     }
 }
