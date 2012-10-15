@@ -109,9 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RavenTestBase.cs" />
-    <Compile Include="SmsSchedulerAuditorTestFixture.cs" />
-    <Compile Include="SmsSchedulerTestFixture.cs" />
-    <Compile Include="SmsSentAuditorTestFixture.cs" />
+    <Compile Include="SmsSchedulerTrackerTestFixture.cs" />
+    <Compile Include="SmsCoordinatorTestFixture.cs" />
+    <Compile Include="SmsSentTrackerTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

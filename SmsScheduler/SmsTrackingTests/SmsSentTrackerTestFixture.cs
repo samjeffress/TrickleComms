@@ -7,7 +7,7 @@ using SmsTracking;
 namespace SmsTrackingTests
 {
     [TestFixture]
-    public class SmsSentAuditorTestFixture : RavenTestBase
+    public class SmsSentTrackerTestFixture : RavenTestBase
     {
         [Test]
         public void HandleMessageSent()
