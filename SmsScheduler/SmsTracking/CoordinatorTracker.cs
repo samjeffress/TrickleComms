@@ -15,13 +15,27 @@ namespace SmsTracking
         {
             using(var session = DocumentStore.OpenSession())
             {
-                var coordinatorTrackingData = new CoordinatorTrackingData();
-                coordinatorTrackingData.CoordinatorId = message.CoordinatorId;
-                coordinatorTrackingData.MessageStatuses = message
-                    .ScheduledMessages
-                    .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime })
-                    .ToList();
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = message.CoordinatorId,
+                    MessageStatuses = message.ScheduledMessages
+                        .Select(s =>new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        ToList()
+                };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
+                session.SaveChanges();
+            }
+        }
+
+        public void Handle(CoordinatorMessageSent coordinatorMessageSent)
+        {
+            using (var session = DocumentStore.OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageSent.CoordinatorId.ToString());
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.Number == coordinatorMessageSent.Number);
+                messageSendingStatus.ActualSentTime = coordinatorMessageSent.TimeSent;
+                messageSendingStatus.Cost = coordinatorMessageSent.Cost;
+                messageSendingStatus.Status = MessageStatusTracking.Completed;
                 session.SaveChanges();
             }
         }
@@ -77,5 +91,16 @@ namespace SmsTracking
         Started,
         Paused,
         Completed
+    }
+
+    public class CoordinatorMessageSent
+    {
+        public Guid CoordinatorId { get; set; }
+
+        public string Number { get; set; }
+
+        public DateTime TimeSent { get; set; }
+
+        public decimal Cost { get; set; }
     }
 }
