@@ -12,10 +12,14 @@ namespace SmsTrackingTests
         [Test]
         public void CoordinateMessagesCreated()
         {
-            var coordinatorCreated = new CoordinatorCreated { CoordinatorId = Guid.NewGuid(), ScheduledMessages = new List<MessageSchedule> { 
+            var coordinatorCreated = new CoordinatorCreated
+            {
+                CoordinatorId = Guid.NewGuid(),
+                ScheduledMessages = new List<MessageSchedule> { 
                 new MessageSchedule { Number = "04040044", ScheduledTime = DateTime.Now.AddMinutes(5)},
                 new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
-            }};
+            }
+            };
 
             var coordinatorTracker = new CoordinatorTracker { DocumentStore = DocumentStore };
             coordinatorTracker.Handle(coordinatorCreated);
@@ -42,10 +46,14 @@ namespace SmsTrackingTests
             const string updatedNumber = "04040044";
             using (var session = DocumentStore.OpenSession())
             {
-                var message = new CoordinatorCreated { CoordinatorId = coordinatorId, ScheduledMessages = new List<MessageSchedule> { 
+                var message = new CoordinatorCreated
+                {
+                    CoordinatorId = coordinatorId,
+                    ScheduledMessages = new List<MessageSchedule> { 
                 new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
                 new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
-                }};
+                }
+                };
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
@@ -68,6 +76,125 @@ namespace SmsTrackingTests
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Completed));
                 Assert.That(updatedMessageData.ActualSentTime, Is.EqualTo(coordinatorMessageSent.TimeSent));
                 Assert.That(updatedMessageData.Cost, Is.EqualTo(coordinatorMessageSent.Cost));
+            }
+        }
+
+        [Test]
+        public void CoordinateMessagesOneMessagePausedCurrentStatusScheduled()
+        {
+            var coordinatorId = Guid.NewGuid();
+            const string updatedNumber = "04040044";
+            using (var session = DocumentStore.OpenSession())
+            {
+                var message = new CoordinatorCreated
+                {
+                    CoordinatorId = coordinatorId,
+                    ScheduledMessages = new List<MessageSchedule> { 
+                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                }
+                };
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = message.CoordinatorId,
+                    MessageStatuses = message.ScheduledMessages
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        ToList()
+                };
+                session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
+                session.SaveChanges();
+            }
+
+            var coordinatorMessagePaused = new CoordinatorMessagePaused { CoordinatorId = coordinatorId, Number = updatedNumber };
+            var coordinatorTracker = new CoordinatorTracker { DocumentStore = DocumentStore };
+            coordinatorTracker.Handle(coordinatorMessagePaused);
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
+                var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
+                Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Paused));
+                Assert.That(updatedMessageData.ActualSentTime, Is.Null);
+                Assert.That(updatedMessageData.Cost, Is.Null);
+            }
+        }
+
+        [Test]
+        public void CoordinateMessagesOneMessagePausedCurrentStatusSentThrowsException()
+        {
+            var coordinatorId = Guid.NewGuid();
+            const string updatedNumber = "04040044";
+            using (var session = DocumentStore.OpenSession())
+            {
+                var message = new CoordinatorCreated
+                {
+                    CoordinatorId = coordinatorId,
+                    ScheduledMessages = new List<MessageSchedule> { 
+                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                }
+                };
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = message.CoordinatorId,
+                    MessageStatuses = message.ScheduledMessages
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.Completed }).
+                        ToList()
+                };
+                session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
+                session.SaveChanges();
+            }
+
+            var coordinatorMessagePaused = new CoordinatorMessagePaused { CoordinatorId = coordinatorId, Number = updatedNumber };
+            var coordinatorTracker = new CoordinatorTracker { DocumentStore = DocumentStore };
+            Assert.That(() => coordinatorTracker.Handle(coordinatorMessagePaused), Throws.Exception.With.Message.EqualTo("Cannot record pausing of message - it is already recorded as complete."));
+        }
+
+        [Test]
+        public void CoordinateMessagesCompleteWithAllMessagesComplete()
+        {
+            var coordinatorId = Guid.NewGuid();
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = coordinatorId,
+                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTime = DateTime.Now, ActualSentTime = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.Paused } }
+                };
+                session.Store(coordinatorTrackingData, coordinatorId.ToString());
+                session.SaveChanges();
+            }
+
+            var coordinatorCompleted = new CoordinatorCompleted { CoordinatorId = coordinatorId };
+            var coordinatorTracker = new CoordinatorTracker { DocumentStore = DocumentStore };
+            Assert.That(() => coordinatorTracker.Handle(coordinatorCompleted), Throws.Exception.With.Message.EqualTo("Cannot complete coordinator - some messages are not yet complete."));
+        }
+
+        [Test]
+        public void CoordinateMessagesCompleteWithSomeIncompleteMessagesThrowsException()
+        {
+            var coordinatorId = Guid.NewGuid();
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = coordinatorId,
+                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTime = DateTime.Now, ActualSentTime = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.Completed } }
+                };
+                session.Store(coordinatorTrackingData, coordinatorId.ToString());
+                session.SaveChanges();
+            }
+
+            var coordinatorCompleted = new CoordinatorCompleted { CoordinatorId = coordinatorId };
+            var coordinatorTracker = new CoordinatorTracker { DocumentStore = DocumentStore };
+            coordinatorTracker.Handle(coordinatorCompleted);
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
+                Assert.That(trackingData.CurrentStatus, Is.EqualTo(CoordinatorStatusTracking.Completed));
             }
         }
     }
