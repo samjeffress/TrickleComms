@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NServiceBus;
 using Raven.Client;
+using SmsMessages.Tracking;
 
 namespace SmsTracking
 {
@@ -71,20 +72,6 @@ namespace SmsTracking
         }
     }
 
-    public class CoordinatorCreated
-    {
-        public Guid CoordinatorId { get; set; }
-
-        public List<MessageSchedule> ScheduledMessages { get; set; }
-    }
-
-    public class MessageSchedule
-    {
-        public string Number { get; set; }
-
-        public DateTime ScheduledTime { get; set; }
-    }
-
     public class CoordinatorTrackingData
     {
         public Guid CoordinatorId { get; set; }
@@ -121,30 +108,5 @@ namespace SmsTracking
         Started,
         Paused,
         Completed
-    }
-
-    public class CoordinatorMessageSent
-    {
-        public Guid CoordinatorId { get; set; }
-
-        public string Number { get; set; }
-
-        public DateTime TimeSent { get; set; }
-
-        public decimal Cost { get; set; }
-    }
-
-    public class CoordinatorMessagePaused
-    {
-        public Guid CoordinatorId { get; set; }
-
-        public string Number { get; set; }
-    }
-
-    public class CoordinatorCompleted
-    {
-        public Guid CoordinatorId { get; set; }
-
-        public DateTime CompletionDate { get; set; }
     }
 }

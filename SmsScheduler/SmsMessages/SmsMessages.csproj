@@ -52,6 +52,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonData\MessageStatus.cs" />
+    <Compile Include="Tracking\CoordinatorCompleted.cs" />
+    <Compile Include="Tracking\CoordinatorCreated.cs" />
+    <Compile Include="Tracking\CoordinatorMessagePaused.cs" />
+    <Compile Include="Tracking\CoordinatorMessageSent.cs" />
     <Compile Include="Tracking\ScheduleCancelled.cs" />
     <Compile Include="Tracking\ScheduleComplete.cs" />
     <Compile Include="Tracking\ScheduleCreated.cs" />
