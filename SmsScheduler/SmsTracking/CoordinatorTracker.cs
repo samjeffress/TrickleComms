@@ -9,6 +9,7 @@ namespace SmsTracking
 {
     public class CoordinatorTracker :
         IHandleMessages<CoordinatorCreated>,
+        IHandleMessages<CoordinatorMessageScheduled>,
         IHandleMessages<CoordinatorMessagePaused>,
         IHandleMessages<CoordinatorMessageSent>,
         IHandleMessages<CoordinatorCompleted>
@@ -70,6 +71,19 @@ namespace SmsTracking
                 session.SaveChanges();
             }
         }
+
+        public void Handle(CoordinatorMessageScheduled coordinatorMessageScheduled)
+        {
+            using (var session = DocumentStore.OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageScheduled.CoordinatorId.ToString());
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.Number == coordinatorMessageScheduled.Number);
+                if (messageSendingStatus.Status != MessageStatusTracking.WaitingForScheduling)
+                    throw new Exception("Cannot record pausing of message - it is already recorded as complete.");
+                messageSendingStatus.Status = MessageStatusTracking.Scheduled;
+                session.SaveChanges();
+            }
+        }
     }
 
     public class CoordinatorTrackingData
@@ -98,6 +112,7 @@ namespace SmsTracking
 
     public enum MessageStatusTracking
     {
+        WaitingForScheduling,
         Scheduled,
         Paused,
         Completed

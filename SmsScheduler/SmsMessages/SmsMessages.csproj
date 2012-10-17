@@ -55,6 +55,7 @@
     <Compile Include="Tracking\CoordinatorCompleted.cs" />
     <Compile Include="Tracking\CoordinatorCreated.cs" />
     <Compile Include="Tracking\CoordinatorMessagePaused.cs" />
+    <Compile Include="Tracking\CoordinatorMessageScheduled.cs" />
     <Compile Include="Tracking\CoordinatorMessageSent.cs" />
     <Compile Include="Tracking\ScheduleCancelled.cs" />
     <Compile Include="Tracking\ScheduleComplete.cs" />
