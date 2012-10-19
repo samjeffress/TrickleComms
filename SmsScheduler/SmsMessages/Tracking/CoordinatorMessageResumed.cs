@@ -10,5 +10,7 @@ namespace SmsMessages.Tracking
         public string Number { get; set; }
 
         public Guid ScheduleMessageId { get; set; }
+
+        public TimeSpan TimeOffset { get; set; }
     }
 }

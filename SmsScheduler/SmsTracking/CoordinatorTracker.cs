@@ -11,6 +11,7 @@ namespace SmsTracking
         IHandleMessages<CoordinatorCreated>,
         IHandleMessages<CoordinatorMessageScheduled>,
         IHandleMessages<CoordinatorMessagePaused>,
+        IHandleMessages<CoordinatorMessageResumed>,
         IHandleMessages<CoordinatorMessageSent>,
         IHandleMessages<CoordinatorCompleted>
     {
@@ -81,6 +82,20 @@ namespace SmsTracking
                 if (messageSendingStatus.Status != MessageStatusTracking.WaitingForScheduling)
                     throw new Exception("Cannot record pausing of message - it is already recorded as complete.");
                 messageSendingStatus.Status = MessageStatusTracking.Scheduled;
+                session.SaveChanges();
+            }
+        }
+
+        public void Handle(CoordinatorMessageResumed coordinatorMessageResumed)
+        {
+            using (var session = DocumentStore.OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageResumed.CoordinatorId.ToString());
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.Number == coordinatorMessageResumed.Number);
+                if (messageSendingStatus.Status != MessageStatusTracking.Paused)
+                    throw new Exception("Cannot record resumption of message - it is no longer paused.");
+                messageSendingStatus.Status = MessageStatusTracking.Scheduled;
+                messageSendingStatus.ScheduledSendingTime = messageSendingStatus.ScheduledSendingTime.AddTicks(coordinatorMessageResumed.TimeOffset.Ticks);
                 session.SaveChanges();
             }
         }

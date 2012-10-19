@@ -161,6 +161,50 @@ namespace SmsTrackingTests
         }
 
         [Test]
+        public void CoordinateMessagesOneMessageResumedCurrentStatusPaused()
+        {
+            var coordinatorId = Guid.NewGuid();
+            const string updatedNumber = "04040044";
+            var scheduledTime = DateTime.Now.AddMinutes(5);
+            using (var session = DocumentStore.OpenSession())
+            {
+                var message = new CoordinatorCreated
+                {
+                    CoordinatorId = coordinatorId,
+                    ScheduledMessages = new List<MessageSchedule> 
+                    { 
+                        new MessageSchedule { Number = updatedNumber, ScheduledTime = scheduledTime},
+                        new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                    }
+                 };
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = message.CoordinatorId,
+                    MessageStatuses = message.ScheduledMessages
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.Paused}).
+                        ToList()
+                };
+                session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
+                session.SaveChanges();
+            }
+
+            var coordinatorMessagePaused = new CoordinatorMessageResumed { CoordinatorId = coordinatorId, Number = updatedNumber, TimeOffset =  new TimeSpan(1000) };
+            var coordinatorTracker = new CoordinatorTracker { DocumentStore = DocumentStore };
+            coordinatorTracker.Handle(coordinatorMessagePaused);
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
+                var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
+                Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Scheduled));
+                var rescheduledTime = scheduledTime.AddTicks(coordinatorMessagePaused.TimeOffset.Ticks);
+                Assert.That(updatedMessageData.ScheduledSendingTime, Is.EqualTo(rescheduledTime));
+                Assert.That(updatedMessageData.ActualSentTime, Is.Null);
+                Assert.That(updatedMessageData.Cost, Is.Null);
+            }
+        }
+
+        [Test]
         public void CoordinateMessagesOneMessagePausedCurrentStatusSentThrowsException()
         {
             var coordinatorId = Guid.NewGuid();

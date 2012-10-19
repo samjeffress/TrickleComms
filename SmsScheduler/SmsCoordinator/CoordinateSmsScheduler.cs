@@ -105,6 +105,7 @@ namespace SmsCoordinator
             foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Paused).ToList())
             {
                 messagesToResume.Add(new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)));
+                messagesToTrackAsResumed.Add(new CoordinatorMessageResumed { CoordinatorId = Data.Id, Number = scheduledMessageStatuse.ScheduledSms.SmsData.Mobile, ScheduleMessageId = scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, TimeOffset = new TimeSpan(offset) });
                 scheduledMessageStatuse.MessageStatus = MessageStatus.Scheduled;
             }
             Bus.Send(messagesToResume);
