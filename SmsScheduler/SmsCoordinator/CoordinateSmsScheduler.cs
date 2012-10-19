@@ -86,24 +86,29 @@ namespace SmsCoordinator
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
             var messagesToPause = new List<PauseScheduledMessageIndefinitely>();
+            var messagesToTrackAsPaused = new List<CoordinatorMessagePaused>();
             foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling).ToList())
             {
                 messagesToPause.Add(new PauseScheduledMessageIndefinitely (scheduledMessageStatuse.ScheduledSms.ScheduleMessageId));
+                messagesToTrackAsPaused.Add(new CoordinatorMessagePaused { CoordinatorId = Data.Id, Number = scheduledMessageStatuse.ScheduledSms.SmsData.Mobile });
                 scheduledMessageStatuse.MessageStatus = MessageStatus.Paused;
             }
             Bus.Send(messagesToPause);
+            Bus.Send(messagesToTrackAsPaused);
         }
 
         public void Handle(ResumeTrickledMessages trickleMultipleMessages)
         {
             var offset = trickleMultipleMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var messagesToResume = new List<ResumeScheduledMessageWithOffset>();
+            var messagesToTrackAsResumed = new List<CoordinatorMessageResumed>();
             foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Paused).ToList())
             {
                 messagesToResume.Add(new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)));
                 scheduledMessageStatuse.MessageStatus = MessageStatus.Scheduled;
             }
             Bus.Send(messagesToResume);
+            Bus.Send(messagesToTrackAsResumed);
         }
 
         public void Handle(SmsScheduled smsScheduled)
