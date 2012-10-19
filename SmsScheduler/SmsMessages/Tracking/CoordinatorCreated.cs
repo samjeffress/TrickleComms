@@ -16,5 +16,7 @@ namespace SmsMessages.Tracking
         public string Number { get; set; }
 
         public DateTime ScheduledTime { get; set; }
+
+        public Guid ScheduleMessageId { get; set; }
     }
 }

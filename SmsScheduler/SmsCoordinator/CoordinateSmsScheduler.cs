@@ -6,6 +6,7 @@ using NServiceBus.Saga;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
 using SmsMessages.Scheduling;
+using SmsMessages.Tracking;
 
 namespace SmsCoordinator
 {
@@ -47,6 +48,12 @@ namespace SmsCoordinator
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
             }
             Bus.Send(messageList);
+            var coordinatorCreated = new CoordinatorCreated
+            {
+                CoordinatorId = Data.Id,
+                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAt, ScheduleMessageId = m.ScheduleMessageId }).ToList()
+            };
+            Bus.Send(coordinatorCreated);
         }
 
         public void Handle(TrickleSmsSpacedByTimePeriod trickleMultipleMessages)
@@ -68,6 +75,12 @@ namespace SmsCoordinator
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
             }
             Bus.Send(messageList);
+            var coordinatorCreated = new CoordinatorCreated
+            {
+                CoordinatorId = Data.Id,
+                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAt, ScheduleMessageId = m.ScheduleMessageId }).ToList()
+            };
+            Bus.Send(coordinatorCreated);
         }
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
@@ -101,6 +114,7 @@ namespace SmsCoordinator
             if (messageStatus.MessageStatus == MessageStatus.Sent)
                 throw new Exception("Message already sent.");
             messageStatus.MessageStatus = MessageStatus.Scheduled;
+            Bus.Send(new CoordinatorMessageScheduled { CoordinatorId = Data.Id, ScheduleMessageId = smsScheduled.ScheduleMessageId, Number = messageStatus.ScheduledSms.SmsData.Mobile });
         }
 
         public void Handle(ScheduledSmsSent smsSent)
@@ -112,6 +126,15 @@ namespace SmsCoordinator
                 throw new Exception("Can't find scheduled message");
 
             scheduledMessageStatus.MessageStatus = MessageStatus.Sent;
+
+            Bus.Send(new CoordinatorMessageSent
+            {
+                CoordinatorId = Data.Id,
+                ScheduleMessageId = smsSent.ScheduledSmsId,
+                Cost = smsSent.ConfirmationData.Price,
+                TimeSent = smsSent.ConfirmationData.SentAt,
+                Number = smsSent.Number
+            });
 
             if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
                 MarkAsComplete();

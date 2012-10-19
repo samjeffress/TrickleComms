@@ -12,5 +12,7 @@ namespace SmsMessages.Tracking
         public DateTime TimeSent { get; set; }
 
         public decimal Cost { get; set; }
+
+        public Guid ScheduleMessageId { get; set; }
     }
 }
