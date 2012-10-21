@@ -37,12 +37,8 @@ namespace SmsCoordinator
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for (int i = 0; i < message.Messages.Count; i++)
             {
-                var smsForSendingLater = new ScheduleSmsForSendingLater
-                {
-                    SendMessageAt = messageTiming[i],
-                    SmsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message),
-                    SmsMetaData = message.MetaData
-                };
+                var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData);
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
@@ -63,11 +59,9 @@ namespace SmsCoordinator
             for(int i = 0; i < trickleMultipleMessages.Messages.Count; i++)
             {
                 var extraTime = TimeSpan.FromTicks(trickleMultipleMessages.TimeSpacing.Ticks*i);
-                var smsForSendingLater = new ScheduleSmsForSendingLater
+                var smsData = new SmsData(trickleMultipleMessages.Messages[i].Mobile, trickleMultipleMessages.Messages[i].Message);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(trickleMultipleMessages.StartTime.Add(extraTime), smsData, trickleMultipleMessages.MetaData)
                 {
-                    SendMessageAt = trickleMultipleMessages.StartTime.Add(extraTime),
-                    SmsData = new SmsData(trickleMultipleMessages.Messages[i].Mobile, trickleMultipleMessages.Messages[i].Message),
-                    SmsMetaData = trickleMultipleMessages.MetaData,
                     CorrelationId = Data.Id
                 };
                 messageList.Add(smsForSendingLater);

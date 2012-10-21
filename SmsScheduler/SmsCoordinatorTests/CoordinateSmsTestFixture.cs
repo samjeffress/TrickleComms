@@ -50,13 +50,13 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(trickleMultipleMessages))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m)}))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
             timingManager.VerifyAllExpectations();
@@ -89,13 +89,13 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(trickleMultipleMessages))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
@@ -126,16 +126,16 @@ namespace SmsCoordinatorTests
                     .ExpectSend<List<ScheduleSmsForSendingLater>>()
                 .When(s => s.Handle(trickleMultipleMessages))
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
                     .ExpectSend<List<PauseScheduledMessageIndefinitely>>()
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
                     .ExpectSend<List<ResumeScheduledMessageWithOffset>>()
                 .When(s => s.Handle(new ResumeTrickledMessages()))
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
-                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m) }))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
@@ -180,11 +180,13 @@ namespace SmsCoordinatorTests
                         c.CoordinatorId == sagaData.Id && 
                         c.ScheduledMessages.Count == 2 &&
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
-                        c.ScheduledMessages[0].ScheduleMessageId == Guid.Empty && // HACK : Need to make this valid
+                        c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
+                        c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && 
                         c.ScheduledMessages[0].ScheduledTime == datetimeSpacing[0] &&
 
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
-                        c.ScheduledMessages[1].ScheduleMessageId == Guid.Empty && // HACK : Need to make this valid
+                        c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
+                        c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && 
                         c.ScheduledMessages[1].ScheduledTime == datetimeSpacing[1])
                 .When(s => s.Handle(trickleMessagesOverTime));
 
@@ -228,11 +230,13 @@ namespace SmsCoordinatorTests
                         c.CoordinatorId == sagaData.Id &&
                         c.ScheduledMessages.Count == 2 &&
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
-                        c.ScheduledMessages[0].ScheduleMessageId == Guid.Empty && // HACK : Need to make this valid
+                        c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
+                        c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
                         c.ScheduledMessages[0].ScheduledTime.Ticks == trickleMessagesOverTime.StartTime.Ticks &&
 
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
-                        c.ScheduledMessages[1].ScheduleMessageId == Guid.Empty && // HACK : Need to make this valid
+                        c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
+                        c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
                         c.ScheduledMessages[1].ScheduledTime.Ticks == trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
                 .When(s => s.Handle(trickleMessagesOverTime));
 

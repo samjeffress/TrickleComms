@@ -69,6 +69,7 @@ namespace SmsCoordinator
             Data.SchedulingPaused = false;
             RequestUtcTimeout<ScheduleSmsTimeout>(Data.OriginalMessage.SendMessageAt.Add(scheduleSmsForSendingLater.Offset));
             Bus.Send(new ScheduleResumed {ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId});
+            //ReplyToOriginator(new MessageRescheduled { CorrelationId = Data.OriginalMessageId, ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, RescheduledTime = Data.OriginalMessage.SendMessageAt.Add(scheduleSmsForSendingLater.Offset)});
         }
     }
 
