@@ -96,6 +96,7 @@ namespace SmsCoordinatorTests
                 .WhenSagaTimesOut()
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
                     .ExpectSend<ScheduleResumed>()
+                    .ExpectReplyToOrginator<MessageRescheduled>()
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
@@ -103,6 +104,35 @@ namespace SmsCoordinatorTests
                     .ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(new MessageSent()))
                     .AssertSagaCompletionIs(true);
+        }
+
+        [Test]
+        public void ResumePausedSchedule_Data()
+        {
+            var sagaId = Guid.NewGuid();
+
+            var scheduledSmsData = new ScheduledSmsData
+            {
+                Id = sagaId,
+                Originator = "place",
+                OriginalMessageId = Guid.NewGuid().ToString(),
+                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData(),SendMessageAt = DateTime.Now }
+            };
+
+            Test.Initialize();
+            var scheduleMessageId = Guid.NewGuid();
+            var rescheduleMessage = new ResumeScheduledMessageWithOffset(scheduleMessageId, new TimeSpan(0, 1, 0, 0));
+            var resheduledTime = scheduledSmsData.OriginalMessage.SendMessageAt.Add(rescheduleMessage.Offset);
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, span) => span == resheduledTime)
+                    .ExpectSend<ScheduleResumed>(s =>
+                    {
+                        return s.ScheduleId == scheduleMessageId &&
+                        s.RescheduledTime == resheduledTime;
+                    })
+                    .ExpectReplyToOrginator<MessageRescheduled>()
+                .When(s => s.Handle(rescheduleMessage));
         }
 
         [Test]
