@@ -110,17 +110,18 @@ namespace SmsCoordinatorTests
         public void ResumePausedSchedule_Data()
         {
             var sagaId = Guid.NewGuid();
+            var scheduleMessageId = Guid.NewGuid();
 
             var scheduledSmsData = new ScheduledSmsData
             {
                 Id = sagaId,
+                ScheduleMessageId = scheduleMessageId,
                 Originator = "place",
                 OriginalMessageId = Guid.NewGuid().ToString(),
                 OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData(),SendMessageAt = DateTime.Now }
             };
 
             Test.Initialize();
-            var scheduleMessageId = Guid.NewGuid();
             var rescheduleMessage = new ResumeScheduledMessageWithOffset(scheduleMessageId, new TimeSpan(0, 1, 0, 0));
             var resheduledTime = scheduledSmsData.OriginalMessage.SendMessageAt.Add(rescheduleMessage.Offset);
             Test.Saga<ScheduleSms>()

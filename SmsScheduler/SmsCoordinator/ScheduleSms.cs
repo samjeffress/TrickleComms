@@ -18,20 +18,21 @@ namespace SmsCoordinator
         public override void ConfigureHowToFindSaga()
         {
             ConfigureMapping<MessageSent>(data => data.Id, message => message.CorrelationId);
-            ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.OriginalMessage.ScheduleMessageId, message => message.ScheduleMessageId);
-            ConfigureMapping<ResumeScheduledMessageWithOffset>(data => data.OriginalMessage.ScheduleMessageId, message => message.ScheduleMessageId);
+            ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
+            ConfigureMapping<ResumeScheduledMessageWithOffset>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
             base.ConfigureHowToFindSaga();
         }
 
         public void Handle(ScheduleSmsForSendingLater scheduleSmsForSendingLater)
         {
             Data.OriginalMessage = scheduleSmsForSendingLater;
+            Data.ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId == Guid.NewGuid() ? Data.Id : scheduleSmsForSendingLater.ScheduleMessageId;
             RequestUtcTimeout<ScheduleSmsTimeout>(scheduleSmsForSendingLater.SendMessageAt);
-            ReplyToOriginator(new SmsScheduled { ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
+            ReplyToOriginator(new SmsScheduled { ScheduleMessageId = Data.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
             Bus.Send(new ScheduleCreated
             {
                 CallerId = Data.Id,
-                ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId,
+                ScheduleId = Data.ScheduleMessageId,
                 SmsData = scheduleSmsForSendingLater.SmsData,
                 SmsMetaData = scheduleSmsForSendingLater.SmsMetaData
             });
@@ -53,8 +54,8 @@ namespace SmsCoordinator
 
         public void Handle(MessageSent message)
         {
-            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Guid.Parse(Data.OriginalMessageId), ScheduledSmsId = Data.OriginalMessage.ScheduleMessageId });
-            Bus.Send(new ScheduleComplete {ScheduleId = Data.OriginalMessage.ScheduleMessageId});
+            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Guid.Parse(Data.OriginalMessageId), ScheduledSmsId = Data.ScheduleMessageId });
+            Bus.Send(new ScheduleComplete {ScheduleId = Data.ScheduleMessageId});
             MarkAsComplete();
         }
 
@@ -70,8 +71,8 @@ namespace SmsCoordinator
             Data.SchedulingPaused = false;
             var rescheduledTime = Data.OriginalMessage.SendMessageAt.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
-            Bus.Send(new ScheduleResumed {ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, RescheduledTime = rescheduledTime});
-            ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.OriginalMessageId, ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId, RescheduledTime = rescheduledTime });
+            Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
+            ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.OriginalMessageId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime });
         }
     }
 
@@ -83,6 +84,8 @@ namespace SmsCoordinator
         public ScheduleSmsForSendingLater OriginalMessage { get; set; }
 
         public bool SchedulingPaused { get; set; }
+
+        public Guid ScheduleMessageId { get; set; }
     }
 
     public class ScheduleSmsTimeout
