@@ -164,8 +164,11 @@ namespace SmsTrackingTests
         public void CoordinateMessagesOneMessageResumedCurrentStatusPaused()
         {
             var coordinatorId = Guid.NewGuid();
+            var scheduleId = Guid.NewGuid();
             const string updatedNumber = "04040044";
             var scheduledTime = DateTime.Now.AddMinutes(5);
+            var rescheduledTime = DateTime.Now.AddMinutes(5);
+
             using (var session = DocumentStore.OpenSession())
             {
                 var message = new CoordinatorCreated
@@ -173,7 +176,7 @@ namespace SmsTrackingTests
                     CoordinatorId = coordinatorId,
                     ScheduledMessages = new List<MessageSchedule> 
                     { 
-                        new MessageSchedule { Number = updatedNumber, ScheduledTime = scheduledTime},
+                        new MessageSchedule { ScheduleMessageId = scheduleId, Number = updatedNumber, ScheduledTime = scheduledTime},
                         new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
                     }
                  };
@@ -181,23 +184,22 @@ namespace SmsTrackingTests
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.Paused}).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.Paused, ScheduleMessageId = s.ScheduleMessageId}).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
                 session.SaveChanges();
             }
 
-            var coordinatorMessagePaused = new CoordinatorMessageResumed { CoordinatorId = coordinatorId, Number = updatedNumber, TimeOffset =  new TimeSpan(1000) };
+            var coordinatorMessageResumed = new CoordinatorMessageResumed { CoordinatorId = coordinatorId, ScheduleMessageId = scheduleId, Number = updatedNumber, RescheduledTime = rescheduledTime };
             var coordinatorTracker = new CoordinatorTracker { DocumentStore = DocumentStore };
-            coordinatorTracker.Handle(coordinatorMessagePaused);
+            coordinatorTracker.Handle(coordinatorMessageResumed);
 
             using (var session = DocumentStore.OpenSession())
             {
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Scheduled));
-                var rescheduledTime = scheduledTime.AddTicks(coordinatorMessagePaused.TimeOffset.Ticks);
                 Assert.That(updatedMessageData.ScheduledSendingTime, Is.EqualTo(rescheduledTime));
                 Assert.That(updatedMessageData.ActualSentTime, Is.Null);
                 Assert.That(updatedMessageData.Cost, Is.Null);

@@ -25,7 +25,7 @@ namespace SmsTracking
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, ScheduleMessageId = s.ScheduleMessageId }).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -38,7 +38,7 @@ namespace SmsTracking
             using (var session = DocumentStore.OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageSent.CoordinatorId.ToString());
-                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.Number == coordinatorMessageSent.Number);
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageSent.ScheduleMessageId);
                 messageSendingStatus.ActualSentTime = coordinatorMessageSent.TimeSent;
                 messageSendingStatus.Cost = coordinatorMessageSent.Cost;
                 messageSendingStatus.Status = MessageStatusTracking.Completed;
@@ -51,7 +51,7 @@ namespace SmsTracking
             using (var session = DocumentStore.OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessagePaused.CoordinatorId.ToString());
-                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.Number == coordinatorMessagePaused.Number);
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessagePaused.ScheduleMessageId);
                 if (messageSendingStatus.Status == MessageStatusTracking.Completed)
                     throw new Exception("Cannot record pausing of message - it is already recorded as complete.");
                 messageSendingStatus.Status = MessageStatusTracking.Paused;
@@ -78,7 +78,7 @@ namespace SmsTracking
             using (var session = DocumentStore.OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageScheduled.CoordinatorId.ToString());
-                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.Number == coordinatorMessageScheduled.Number);
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageScheduled.ScheduleMessageId);
                 if (messageSendingStatus.Status != MessageStatusTracking.WaitingForScheduling)
                     throw new Exception("Cannot record pausing of message - it is already recorded as complete.");
                 messageSendingStatus.Status = MessageStatusTracking.Scheduled;
@@ -91,11 +91,11 @@ namespace SmsTracking
             using (var session = DocumentStore.OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageResumed.CoordinatorId.ToString());
-                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.Number == coordinatorMessageResumed.Number);
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageResumed.ScheduleMessageId);
                 if (messageSendingStatus.Status != MessageStatusTracking.Paused)
                     throw new Exception("Cannot record resumption of message - it is no longer paused.");
                 messageSendingStatus.Status = MessageStatusTracking.Scheduled;
-                messageSendingStatus.ScheduledSendingTime = messageSendingStatus.ScheduledSendingTime.AddTicks(coordinatorMessageResumed.TimeOffset.Ticks);
+                messageSendingStatus.ScheduledSendingTime = coordinatorMessageResumed.RescheduledTime;
                 session.SaveChanges();
             }
         }
@@ -114,6 +114,8 @@ namespace SmsTracking
 
     public class MessageSendingStatus
     {
+        public Guid ScheduleMessageId { get; set; }
+        
         public string Number { get; set; }
 
         public DateTime ScheduledSendingTime { get; set; }

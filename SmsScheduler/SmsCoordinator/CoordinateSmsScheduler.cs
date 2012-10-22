@@ -29,6 +29,8 @@ namespace SmsCoordinator
             ConfigureMapping<PauseTrickledMessagesIndefinitely>(data => data.Id, message => message.CoordinatorId);
             ConfigureMapping<SmsScheduled>(data => data.Id, message => message.CoordinatorId);
             ConfigureMapping<ResumeTrickledMessages>(data => data.Id, message => message.CoordinatorId);
+            ConfigureMapping<MessageSchedulePaused>(data => data.Id, message => message.CoordinatorId);
+            ConfigureMapping<MessageRescheduled>(data => data.Id, message => message.CoordinatorId);
             base.ConfigureHowToFindSaga();
         }
 

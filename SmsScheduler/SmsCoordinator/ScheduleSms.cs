@@ -70,7 +70,7 @@ namespace SmsCoordinator
             var rescheduledTime = Data.OriginalMessage.SendMessageAt.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
             Bus.Send(new ScheduleResumed {ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, RescheduledTime = rescheduledTime});
-            ReplyToOriginator(new MessageRescheduled { CorrelationId = Data.OriginalMessageId, ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId, RescheduledTime = rescheduledTime });
+            ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.OriginalMessageId, ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId, RescheduledTime = rescheduledTime });
         }
     }
 
