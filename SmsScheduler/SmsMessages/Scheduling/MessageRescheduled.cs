@@ -7,7 +7,7 @@ namespace SmsMessages.Scheduling
     {
         public string CorrelationId { get; set; }
 
-        public Guid ScheduleId { get; set; }
+        public Guid ScheduleMessageId { get; set; }
 
         public DateTime RescheduledTime { get; set; }
     }

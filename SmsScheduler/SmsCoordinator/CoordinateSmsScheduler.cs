@@ -17,7 +17,9 @@ namespace SmsCoordinator
         IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
-        IHandleMessages<ResumeTrickledMessages>
+        IHandleMessages<ResumeTrickledMessages>,
+        IHandleMessages<MessageSchedulePaused>,
+        IHandleMessages<MessageRescheduled>
     {
         public ICalculateSmsTiming TimingManager { get; set; }
 
@@ -80,30 +82,26 @@ namespace SmsCoordinator
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
             var messagesToPause = new List<PauseScheduledMessageIndefinitely>();
-            var messagesToTrackAsPaused = new List<CoordinatorMessagePaused>();
             foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling).ToList())
             {
                 messagesToPause.Add(new PauseScheduledMessageIndefinitely (scheduledMessageStatuse.ScheduledSms.ScheduleMessageId));
-                messagesToTrackAsPaused.Add(new CoordinatorMessagePaused { CoordinatorId = Data.Id, Number = scheduledMessageStatuse.ScheduledSms.SmsData.Mobile });
-                scheduledMessageStatuse.MessageStatus = MessageStatus.Paused;
             }
             Bus.Send(messagesToPause);
-            Bus.Send(messagesToTrackAsPaused);
         }
 
         public void Handle(ResumeTrickledMessages trickleMultipleMessages)
         {
             var offset = trickleMultipleMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var messagesToResume = new List<ResumeScheduledMessageWithOffset>();
-            var messagesToTrackAsResumed = new List<CoordinatorMessageResumed>();
+            //var messagesToTrackAsResumed = new List<CoordinatorMessageResumed>();
             foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Paused).ToList())
             {
                 messagesToResume.Add(new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)));
-                messagesToTrackAsResumed.Add(new CoordinatorMessageResumed { CoordinatorId = Data.Id, Number = scheduledMessageStatuse.ScheduledSms.SmsData.Mobile, ScheduleMessageId = scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, TimeOffset = new TimeSpan(offset) });
-                scheduledMessageStatuse.MessageStatus = MessageStatus.Scheduled;
+                //messagesToTrackAsResumed.Add(new CoordinatorMessageResumed { CoordinatorId = Data.Id, Number = scheduledMessageStatuse.ScheduledSms.SmsData.Mobile, ScheduleMessageId = scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, TimeOffset = new TimeSpan(offset) });
+                //scheduledMessageStatuse.MessageStatus = MessageStatus.Scheduled;
             }
             Bus.Send(messagesToResume);
-            Bus.Send(messagesToTrackAsResumed);
+            //Bus.Send(messagesToTrackAsResumed);
         }
 
         public void Handle(SmsScheduled smsScheduled)
@@ -115,6 +113,34 @@ namespace SmsCoordinator
                 throw new Exception("Message already sent.");
             messageStatus.MessageStatus = MessageStatus.Scheduled;
             Bus.Send(new CoordinatorMessageScheduled { CoordinatorId = Data.Id, ScheduleMessageId = smsScheduled.ScheduleMessageId, Number = messageStatus.ScheduledSms.SmsData.Mobile });
+        }
+
+        public void Handle(MessageSchedulePaused message)
+        {
+            var messageStatus = Data.ScheduledMessageStatus.Where(s => s.ScheduledSms.ScheduleMessageId == message.ScheduleId).Select(s => s).FirstOrDefault();
+            if (messageStatus == null)
+                throw new Exception("Could not find message " + message.ScheduleId + ".");
+            if (messageStatus.MessageStatus == MessageStatus.Sent)
+                throw new Exception("Scheduled message " + message.ScheduleId + " is already sent.");
+            messageStatus.MessageStatus = MessageStatus.Paused;
+            Bus.Send(new CoordinatorMessagePaused { CoordinatorId = Data.Id, ScheduleMessageId = message.ScheduleId });
+        }
+
+        public void Handle(MessageRescheduled message)
+        {
+            var messageStatus = Data.ScheduledMessageStatus.Where(s => s.ScheduledSms.ScheduleMessageId == message.ScheduleMessageId).Select(s => s).FirstOrDefault();
+            if (messageStatus == null)
+                throw new Exception("Could not find message " + message.ScheduleMessageId + ".");
+            if (messageStatus.MessageStatus == MessageStatus.Sent)
+                throw new Exception("Scheduled message " + message.ScheduleMessageId + " is already sent.");
+            messageStatus.MessageStatus = MessageStatus.Scheduled;
+            Bus.Send(new CoordinatorMessageResumed
+                         {
+                             ScheduleMessageId = message.ScheduleMessageId,
+                             CoordinatorId = Data.Id,
+                             Number = messageStatus.ScheduledSms.SmsData.Mobile,
+                             RescheduledTime = message.RescheduledTime
+                         });
         }
 
         public void Handle(ScheduledSmsSent smsSent)
