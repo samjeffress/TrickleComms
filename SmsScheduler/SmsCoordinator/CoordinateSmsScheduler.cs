@@ -83,27 +83,25 @@ namespace SmsCoordinator
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
-            var messagesToPause = new List<PauseScheduledMessageIndefinitely>();
-            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling).ToList())
-            {
-                messagesToPause.Add(new PauseScheduledMessageIndefinitely (scheduledMessageStatuse.ScheduledSms.ScheduleMessageId));
-            }
+            var messagesToPause = Data.ScheduledMessageStatus
+                .Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling)
+                .ToList()
+                .Select(scheduledMessageStatuse => 
+                    new PauseScheduledMessageIndefinitely(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId))
+                .ToList();
             Bus.Send(messagesToPause);
         }
 
         public void Handle(ResumeTrickledMessages trickleMultipleMessages)
         {
             var offset = trickleMultipleMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
-            var messagesToResume = new List<ResumeScheduledMessageWithOffset>();
-            //var messagesToTrackAsResumed = new List<CoordinatorMessageResumed>();
-            foreach (var scheduledMessageStatuse in Data.ScheduledMessageStatus.Where(s => s.MessageStatus == MessageStatus.Paused).ToList())
-            {
-                messagesToResume.Add(new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)));
-                //messagesToTrackAsResumed.Add(new CoordinatorMessageResumed { CoordinatorId = Data.Id, Number = scheduledMessageStatuse.ScheduledSms.SmsData.Mobile, ScheduleMessageId = scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, TimeOffset = new TimeSpan(offset) });
-                //scheduledMessageStatuse.MessageStatus = MessageStatus.Scheduled;
-            }
+            var messagesToResume = Data.ScheduledMessageStatus
+                .Where(s => s.MessageStatus == MessageStatus.Paused)
+                .ToList()
+                .Select(scheduledMessageStatuse => 
+                    new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)))
+                .ToList();
             Bus.Send(messagesToResume);
-            //Bus.Send(messagesToTrackAsResumed);
         }
 
         public void Handle(SmsScheduled smsScheduled)
