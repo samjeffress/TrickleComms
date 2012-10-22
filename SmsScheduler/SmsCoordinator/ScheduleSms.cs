@@ -19,6 +19,7 @@ namespace SmsCoordinator
         {
             ConfigureMapping<MessageSent>(data => data.Id, message => message.CorrelationId);
             ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.OriginalMessage.ScheduleMessageId, message => message.ScheduleMessageId);
+            ConfigureMapping<ResumeScheduledMessageWithOffset>(data => data.OriginalMessage.ScheduleMessageId, message => message.ScheduleMessageId);
             base.ConfigureHowToFindSaga();
         }
 
