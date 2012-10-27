@@ -13,5 +13,7 @@ namespace SmsMessages.MessageSending
         public SmsData SmsData { get; set; }
 
         public SmsMetaData SmsMetaData { get; set; }
+
+        public string ConfirmationEmailAddress { get; set; }
     }
 }

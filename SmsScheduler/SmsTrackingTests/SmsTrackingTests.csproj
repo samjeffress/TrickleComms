@@ -98,6 +98,9 @@
     <Reference Include="Raven.Storage.Managed">
       <HintPath>..\packages\RavenDB.Database.1.0.960\lib\net40\Raven.Storage.Managed.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\SmsCoordinatorTests\bin\Debug\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="Spatial4n.Core">
       <HintPath>..\packages\RavenDB.Database.1.0.960\lib\net40\Spatial4n.Core.dll</HintPath>
     </Reference>

@@ -17,6 +17,7 @@ namespace SmsCoordinator
                 m.CorrelationId = sendOneMessageNow.CorrelationId;
                 m.SmsData = sendOneMessageNow.SmsData;
                 m.SmsMetaData = sendOneMessageNow.SmsMetaData;
+                m.ConfirmationEmailAddress = sendOneMessageNow.ConfirmationEmailAddress;
             });
         }
     }

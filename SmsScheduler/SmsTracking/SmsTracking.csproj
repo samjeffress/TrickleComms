@@ -58,6 +58,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Client.1.0.960\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -70,6 +73,7 @@
   <ItemGroup>
     <Compile Include="CoordinatorTracker.cs" />
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="IEmailService.cs" />
     <Compile Include="ScheduleTracker.cs" />
     <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsSentTracker.cs" />

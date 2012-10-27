@@ -38,7 +38,9 @@ namespace SmsCoordinatorTests
             var sendOneMessageNow = new SendOneMessageNow
             {
                 SmsData = new SmsData("0044044040", "message"),     
-                SmsMetaData = new SmsMetaData { Topic = "MissedPayment", Tags = new List<string> { "Money", "Stuff" } }
+                SmsMetaData = new SmsMetaData { Topic = "MissedPayment", Tags = new List<string> { "Money", "Stuff" } },
+                ConfirmationEmailAddress = "blah",
+                CorrelationId = Guid.NewGuid()
             };
             var bus = MockRepository.GenerateStrictMock<IBus>();
             var smsService = MockRepository.GenerateMock<ISmsService>();
@@ -54,7 +56,8 @@ namespace SmsCoordinatorTests
                     publishingMessage.ConfirmationData == smsConfirmationData &&
                     publishingMessage.SmsData == sendOneMessageNow.SmsData &&
                     publishingMessage.SmsMetaData == sendOneMessageNow.SmsMetaData &&
-                    publishingMessage.CorrelationId == sendOneMessageNow.CorrelationId;
+                    publishingMessage.CorrelationId == sendOneMessageNow.CorrelationId && 
+                    publishingMessage.ConfirmationEmailAddress == sendOneMessageNow.ConfirmationEmailAddress;
                 }));
 
             var smsActioner = new SmsActioner { Bus = bus, SmsService = smsService };

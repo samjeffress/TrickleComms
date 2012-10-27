@@ -11,5 +11,7 @@ namespace SmsMessages.MessageSending
         public SmsMetaData SmsMetaData { get; set; }
 
         public Guid CorrelationId { get; set; }
+
+        public string ConfirmationEmailAddress { get; set; }
     }
 }

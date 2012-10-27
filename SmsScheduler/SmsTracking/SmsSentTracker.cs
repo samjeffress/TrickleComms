@@ -9,6 +9,8 @@ namespace SmsTracking
     {
         public IDocumentStore DocumentStore { get; set; }
 
+        public IEmailService EmailService { get; set; }
+
         public void Handle(MessageSent message)
         {
             using (var session = DocumentStore.OpenSession())
@@ -17,6 +19,11 @@ namespace SmsTracking
                 if (messageSent != null) return;
                 session.Store(message, message.ConfirmationData.Receipt);
                 session.SaveChanges();
+            }
+
+            if(!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
+            {
+                EmailService.SendSmsSentConfirmation(message);
             }
         }
     }
