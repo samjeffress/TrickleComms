@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoordinatorTracker.cs" />
+    <Compile Include="EndpointConfig.cs" />
     <Compile Include="ScheduleTracker.cs" />
     <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsSentTracker.cs" />
