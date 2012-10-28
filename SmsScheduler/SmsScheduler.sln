@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsWeb", "SmsWeb\SmsWeb.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsWebTests", "SmsWebTests\SmsWebTests.csproj", "{F3045BF7-6246-41E3-9E88-C88D632029FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcApplication1", "MvcApplication1\MvcApplication1.csproj", "{9E484B6C-CC64-4B66-9EC5-DE81AECC979B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web2", "Web2\Web2.csproj", "{7AAA92A7-3258-44AE-A033-11C171CCA11D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +59,14 @@ Global
 		{F3045BF7-6246-41E3-9E88-C88D632029FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3045BF7-6246-41E3-9E88-C88D632029FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3045BF7-6246-41E3-9E88-C88D632029FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E484B6C-CC64-4B66-9EC5-DE81AECC979B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E484B6C-CC64-4B66-9EC5-DE81AECC979B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E484B6C-CC64-4B66-9EC5-DE81AECC979B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E484B6C-CC64-4B66-9EC5-DE81AECC979B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AAA92A7-3258-44AE-A033-11C171CCA11D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AAA92A7-3258-44AE-A033-11C171CCA11D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AAA92A7-3258-44AE-A033-11C171CCA11D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AAA92A7-3258-44AE-A033-11C171CCA11D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
