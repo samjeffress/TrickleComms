@@ -26,7 +26,7 @@ namespace SmsWeb.Controllers
             if(isModelValid(sendNowModel))
             {
                 var sendOneMessageNow = new SendOneMessageNow {SmsData = new SmsData(sendNowModel.Number, sendNowModel.MessageBody), ConfirmationEmailAddress = sendNowModel.ConfirmationEmail};
-                Bus.Send("smscoordinator", sendOneMessageNow);
+                Bus.Send(sendOneMessageNow);
                 return View("Details", sendNowModel);
             }
             return View("Create", sendNowModel);
