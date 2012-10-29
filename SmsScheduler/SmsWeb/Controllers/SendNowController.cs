@@ -23,25 +23,14 @@ namespace SmsWeb.Controllers
         [HttpPost]
         public ActionResult Create(SendNowModel sendNowModel)
         {
-            if(isModelValid(sendNowModel))
+            var isValid = TryValidateModel(sendNowModel);
+            if(isValid)
             {
                 var sendOneMessageNow = new SendOneMessageNow {SmsData = new SmsData(sendNowModel.Number, sendNowModel.MessageBody), ConfirmationEmailAddress = sendNowModel.ConfirmationEmail};
                 Bus.Send(sendOneMessageNow);
                 return View("Details", sendNowModel);
             }
             return View("Create", sendNowModel);
-        }
-
-        private bool isModelValid(SendNowModel model)
-        {
-            var isValid = true;
-            if (string.IsNullOrWhiteSpace(model.MessageBody))
-                isValid = false;
-            if (string.IsNullOrWhiteSpace(model.Number))
-                isValid = false;
-            if (string.IsNullOrWhiteSpace(model.ConfirmationEmail))
-                isValid = false;
-            return isValid;
         }
     }
 }

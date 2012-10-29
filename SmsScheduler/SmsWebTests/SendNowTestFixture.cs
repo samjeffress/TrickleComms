@@ -14,7 +14,7 @@ namespace SmsWebTests
         [Test]
         public void InvalidMessageReturnsToCreatePageWithValidation()
         {
-            var controller = new SendNowController();
+            var controller = new SendNowController { ControllerContext = new ControllerContext() };
             var sendNowModel = new SendNowModel { Number = "number" };
             var result = (ViewResult)controller.Create(sendNowModel);
 
@@ -24,18 +24,8 @@ namespace SmsWebTests
         [Test]
         public void InvalidNumberReturnsToCreatePageWithValidation()
         {
-            var controller = new SendNowController();
+            var controller = new SendNowController { ControllerContext = new ControllerContext() };
             var sendNowModel = new SendNowModel { MessageBody = "asdflj" };
-            var result = (ViewResult)controller.Create(sendNowModel);
-
-            Assert.That(result.ViewName, Is.EqualTo("Create"));
-        }
-
-        [Test]
-        public void InvalidConfirmationEmailReturnsToCreatePageWithValidation()
-        {
-            var controller = new SendNowController();
-            var sendNowModel = new SendNowModel { MessageBody = "asdflj", Number = "number"};
             var result = (ViewResult)controller.Create(sendNowModel);
 
             Assert.That(result.ViewName, Is.EqualTo("Create"));
@@ -50,7 +40,7 @@ namespace SmsWebTests
             bus.Expect(b => b.Send(Arg<SendOneMessageNow>.Is.NotNull))
                 .WhenCalled(a => sentMessage = ((SendOneMessageNow)((object[])a.Arguments[0])[0]));
 
-            var controller = new SendNowController { Bus = bus };
+            var controller = new SendNowController { ControllerContext = new ControllerContext(), Bus = bus };
             var sendNowModel = new SendNowModel { MessageBody = "asdflj", Number = "number", ConfirmationEmail = "sdakflj"};
             var result = (ViewResult)controller.Create(sendNowModel);
 
