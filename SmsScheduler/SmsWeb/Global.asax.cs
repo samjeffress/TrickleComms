@@ -8,6 +8,8 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using NServiceBus;
+using Raven.Client;
+using Raven.Client.Document;
 using SmsWeb.Controllers;
 
 namespace SmsWeb
@@ -27,7 +29,6 @@ namespace SmsWeb
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
 
-
             Configure.With()
             .DefaultBuilder()
                 .Log4Net()
@@ -42,6 +43,8 @@ namespace SmsWeb
 
             RegisterControllers();
             ControllerBuilder.Current.SetControllerFactory(new IoCControllerFactory());
+
+            Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
         }
 
         private void RegisterControllers()
@@ -65,7 +68,7 @@ namespace SmsWeb
                 if (controllerType == null) return null;
                 var controller = Configure.Instance.Builder.Build(controllerType) as Controller;
 
-                // HACK: IoCControllerFactory: This property setting is ugly. it was put in for the EftTokeniserController.HttpContextBase property. NEED to determine if we need this and if not remove it!!!! Possibly use the HttpContext property instead (if we can work out how to inject a HttpContextBase at test time).
+                // HACK: IoCControllerFactory: This property setting is ugly. 
                 if (controller == null) return null;
                 var setProperties = controller.GetType()
                     .GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -86,6 +89,21 @@ namespace SmsWeb
                 Debug.Write(message);
                 throw new ArgumentException(message, e);
             }
+        }
+    }
+
+    public class RavenDocStore
+    {
+        private readonly IDocumentStore _documentStore;
+        public RavenDocStore()
+        {
+            _documentStore = new DocumentStore {Url = "http://localhost:8080"};
+            _documentStore.Initialize();
+        }
+
+        public IDocumentStore GetStore()
+        {
+            return _documentStore;
         }
     }
 }
