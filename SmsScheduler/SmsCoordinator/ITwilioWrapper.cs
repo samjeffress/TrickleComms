@@ -15,10 +15,11 @@ namespace SmsCoordinator
     {
         private readonly TwilioRestClient _restClient;
 
-        public IRavenDocStore DocumentStore { get; set; }
+        private IRavenDocStore DocumentStore { get; set; }
 
-        public TwilioWrapper()
+        public TwilioWrapper(IRavenDocStore documentStore)
         {
+            DocumentStore = documentStore;
             string accountSid;
             string authToken;
             using (var session = DocumentStore.GetStore().OpenSession("TwilioConfiguration"))
