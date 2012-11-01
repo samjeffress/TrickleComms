@@ -5,7 +5,7 @@ namespace SmsWeb.Controllers
 {
     public class TwilioConfigController : Controller
     {
-        public RavenDocStore DocumentStore { get; set; }
+        public IRavenDocStore DocumentStore { get; set; }
 
         public ActionResult Index()
         {

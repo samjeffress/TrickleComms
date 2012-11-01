@@ -1,4 +1,7 @@
-﻿using Twilio;
+﻿using System;
+using Raven.Client;
+using Raven.Client.Document;
+using Twilio;
 
 namespace SmsCoordinator
 {
@@ -11,9 +14,26 @@ namespace SmsCoordinator
     public class TwilioWrapper : ITwilioWrapper
     {
         private readonly TwilioRestClient _restClient;
+
+        public IRavenDocStore DocumentStore { get; set; }
+
         public TwilioWrapper()
         {
-            _restClient = new TwilioRestClient("accountSid", "authToken");
+            string accountSid;
+            string authToken;
+            using (var session = DocumentStore.GetStore().OpenSession("TwilioConfiguration"))
+            {
+                // TODO: Ensure database exists & create
+                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
+                if (twilioConfiguration == null)
+                {
+                    throw new ArgumentException("Could not find twilio configuration");
+                }
+                accountSid = twilioConfiguration.AccountSid;
+                authToken = twilioConfiguration.AuthToken;
+            }
+
+            _restClient = new TwilioRestClient(accountSid, authToken);
         }
 
         public SMSMessage SendSmsMessage(string from, string to, string message)
@@ -25,5 +45,25 @@ namespace SmsCoordinator
         {
             return _restClient.GetSmsMessage(sid);
         }
+    }
+
+    public class RavenDocStore : IRavenDocStore
+    {
+        private readonly IDocumentStore _documentStore;
+        public RavenDocStore()
+        {
+            _documentStore = new DocumentStore { Url = "http://localhost:8080" };
+            _documentStore.Initialize();
+        }
+
+        public IDocumentStore GetStore()
+        {
+            return _documentStore;
+        }
+    }
+
+    public interface IRavenDocStore
+    {
+        IDocumentStore GetStore();
     }
 }

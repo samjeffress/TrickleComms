@@ -92,7 +92,7 @@ namespace SmsWeb
         }
     }
 
-    public class RavenDocStore
+    public class RavenDocStore : IRavenDocStore
     {
         private readonly IDocumentStore _documentStore;
         public RavenDocStore()
@@ -105,5 +105,10 @@ namespace SmsWeb
         {
             return _documentStore;
         }
+    }
+
+    public interface IRavenDocStore
+    {
+        IDocumentStore GetStore();
     }
 }
