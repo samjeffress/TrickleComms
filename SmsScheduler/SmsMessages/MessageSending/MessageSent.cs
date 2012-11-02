@@ -16,4 +16,17 @@ namespace SmsMessages.MessageSending
 
         public string ConfirmationEmailAddress { get; set; }
     }
+
+    public class MessageFailedSending : IMessage
+    {
+        public SmsFailed SmsFailed { get; set; }
+
+        public Guid CorrelationId { get; set; }
+
+        public SmsData SmsData { get; set; }
+
+        public SmsMetaData SmsMetaData { get; set; }
+
+        public string ConfirmationEmailAddress { get; set; }
+    }
 }

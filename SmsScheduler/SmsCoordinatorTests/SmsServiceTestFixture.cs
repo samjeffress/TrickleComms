@@ -25,75 +25,82 @@ namespace SmsCoordinatorTests
 
             var response = smsService.Send(messageToSend);
 
-            Assert.That(response.Receipt, Is.EqualTo(smsMessage.Sid));
-            Assert.That(response.SentAt, Is.EqualTo(smsMessage.DateSent));
-            Assert.That(response.Price, Is.EqualTo(smsMessage.Price));
+            Assert.That(response, Is.TypeOf(typeof(SmsSent)));
+            Assert.That(response.Sid, Is.EqualTo(smsMessage.Sid));
+            var smsSent = response as SmsSent;
+            Assert.That(smsSent.SmsConfirmationData.Receipt, Is.EqualTo(smsMessage.Sid));
+            Assert.That(smsSent.SmsConfirmationData.SentAt, Is.EqualTo(smsMessage.DateSent));
+            Assert.That(smsSent.SmsConfirmationData.Price, Is.EqualTo(smsMessage.Price));
             twilioWrapper.VerifyAllExpectations();
         }
 
+        //[Test]
+        //public void SmsServiceSendingWaitsAndSucceeds()
+        //{
+        //    var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
+        //    var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
+        //    var smsService = new SmsService { TwilioWrapper = twilioWrapper };
+
+        //    var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
+        //    var smsMessageSent = new SMSMessage { Status = "sent", Sid = "sidReceipt", DateSent = DateTime.Now, Price = 33 };
+        //    twilioWrapper
+        //        .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+        //        .Return(smsMessageSending);
+
+        //    twilioWrapper
+        //        .Expect(t => t.CheckMessage(smsMessageSending.Sid))
+        //        .Return(smsMessageSent);
+
+        //    var response = smsService.Send(messageToSend);
+
+        //    Assert.That(response.Receipt, Is.EqualTo(smsMessageSending.Sid));
+        //    Assert.That(response.SentAt, Is.EqualTo(smsMessageSent.DateSent));
+        //    Assert.That(response.Price, Is.EqualTo(smsMessageSent.Price));
+        //    twilioWrapper.VerifyAllExpectations();
+        //}
+
+        //[Test]
+        //public void SmsServiceSendingWaitsFiveLoopsThrowsException()
+        //{
+        //    var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
+        //    var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
+        //    var smsService = new SmsService { TwilioWrapper = twilioWrapper };
+
+        //    var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
+        //    twilioWrapper
+        //        .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+        //        .Return(smsMessageSending);
+        //    twilioWrapper
+        //        .Expect(t => t.CheckMessage(smsMessageSending.Sid))
+        //        .Return(smsMessageSending)
+        //        .Repeat.Times(5);
+
+        //    Assert.That(() => smsService.Send(messageToSend), Throws.Exception.With.Message.Contains("Waited too long for message to send - retry later"));
+
+        //    twilioWrapper.VerifyAllExpectations();
+        //}
+
         [Test]
-        public void SmsServiceSendingWaitsAndSucceeds()
+        public void SmsServiceSending()
         {
             var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
             var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
             var smsService = new SmsService { TwilioWrapper = twilioWrapper };
 
             var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
-            var smsMessageSent = new SMSMessage { Status = "sent", Sid = "sidReceipt", DateSent = DateTime.Now, Price = 33 };
             twilioWrapper
                 .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessageSending);
-
-            twilioWrapper
-                .Expect(t => t.CheckMessage(smsMessageSending.Sid))
-                .Return(smsMessageSent);
 
             var response = smsService.Send(messageToSend);
 
-            Assert.That(response.Receipt, Is.EqualTo(smsMessageSending.Sid));
-            Assert.That(response.SentAt, Is.EqualTo(smsMessageSent.DateSent));
-            Assert.That(response.Price, Is.EqualTo(smsMessageSent.Price));
+            Assert.That(response, Is.TypeOf(typeof (SmsSending)));
+            Assert.That(response.Sid, Is.EqualTo(smsMessageSending.Sid));
             twilioWrapper.VerifyAllExpectations();
         }
 
         [Test]
-        public void SmsServiceSendingWaitsFiveLoopsThrowsException()
-        {
-            var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
-            var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
-            var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-
-            var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
-            twilioWrapper
-                .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
-                .Return(smsMessageSending);
-            twilioWrapper
-                .Expect(t => t.CheckMessage(smsMessageSending.Sid))
-                .Return(smsMessageSending)
-                .Repeat.Times(5);
-
-            Assert.That(() => smsService.Send(messageToSend), Throws.Exception.With.Message.Contains("Waited too long for message to send - retry later"));
-
-            twilioWrapper.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void SmsServiceSendingFailsThrowsException()
-        {
-            var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
-            var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
-            var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-
-            var smsMessageSending = new SMSMessage { Status = "failed", Sid = "sidReceipt" };
-            twilioWrapper
-                .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
-                .Return(smsMessageSending);
-
-            Assert.That(() => smsService.Send(messageToSend), Throws.Exception.With.Message.Contains("Message sending failed"));
-        }
-
-        [Test]
-        public void SmsServiceSendingFailsThrowsExceptionWithRestDetails()
+        public void SmsServiceSendingFails()
         {
             var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
             var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
@@ -104,11 +111,20 @@ namespace SmsCoordinatorTests
                 .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessageSending);
 
-            Assert.That(() => smsService.Send(messageToSend), Throws.Exception.With.Message.Contains("Rest Exception"));
+            var response = smsService.Send(messageToSend);
+
+            Assert.That(response, Is.TypeOf(typeof(SmsFailed)));
+            Assert.That(response.Sid, Is.EqualTo(smsMessageSending.Sid));
+            var smsFailed = response as SmsFailed;
+            Assert.That(smsFailed.Status, Is.EqualTo(smsMessageSending.RestException.Status));
+            Assert.That(smsFailed.Code, Is.EqualTo(smsMessageSending.RestException.Code));
+            Assert.That(smsFailed.Message, Is.EqualTo(smsMessageSending.RestException.Message));
+            Assert.That(smsFailed.MoreInfo, Is.EqualTo(smsMessageSending.RestException.MoreInfo));
+            twilioWrapper.VerifyAllExpectations();
         }
 
         [Test]
-        public void SmsServiceQueuedMessageNotSureWhatToDo()
+        public void SmsServiceMessageQueued()
         {
             var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
             var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
@@ -119,8 +135,11 @@ namespace SmsCoordinatorTests
                 .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessageSending);
 
-            Assert.That(() => smsService.Send(messageToSend), Throws.Exception.With.Message.Contains("Not sure what to do with a queued message"));
+            var response = smsService.Send(messageToSend);
+
+            Assert.That(response, Is.TypeOf(typeof(SmsQueued)));
+            Assert.That(response.Sid, Is.EqualTo(smsMessageSending.Sid));
+            twilioWrapper.VerifyAllExpectations();
         }
     }
-
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending;
 using Twilio;
@@ -13,59 +12,46 @@ namespace SmsCoordinator
         /// </summary>
         /// <param name="messageToSend">Phone number and message to send to contact</param>
         /// <returns>Receipt Id from provider</returns>
-        SmsConfirmationData Send(SendOneMessageNow messageToSend);
+        SmsStatus Send(SendOneMessageNow messageToSend);
+
+        SmsStatus Check(string sid);
     }
 
     public class SmsService : ISmsService
     {
         public ITwilioWrapper TwilioWrapper { get; set; }
 
-        private int _waitingForSendingTries = 0;
-
-        public SmsConfirmationData Send(SendOneMessageNow messageToSend)
+        public SmsStatus Send(SendOneMessageNow messageToSend)
         {
             var createdSmsMessage = TwilioWrapper.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
             return ProcessSms(createdSmsMessage);
         }
 
-        private SmsConfirmationData ProcessSms(SMSMessage createdSmsMessage)
+        public SmsStatus Check(string sid)
+        {
+            throw new NotImplementedException();
+        }
+
+        private SmsStatus ProcessSms(SMSMessage createdSmsMessage)
         {
             if (createdSmsMessage.Status.Equals("sent", StringComparison.CurrentCultureIgnoreCase))
-                return new SmsConfirmationData(createdSmsMessage.Sid, createdSmsMessage.DateSent, createdSmsMessage.Price); 
+                return new SmsSent(new SmsConfirmationData(createdSmsMessage.Sid, createdSmsMessage.DateSent, createdSmsMessage.Price)); 
 
             if (createdSmsMessage.Status.Equals("sending", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (_waitingForSendingTries > 4)
-                    throw new ArgumentException("Waited too long for message to send - retry later");
-                _waitingForSendingTries++;
-                var updatedMessage = TwilioWrapper.CheckMessage(createdSmsMessage.Sid);
-                Thread.Sleep(1000);
-                return ProcessSms(updatedMessage);
+                return new SmsSending(createdSmsMessage.Sid);
             }
 
             if (createdSmsMessage.Status.Equals("failed", StringComparison.CurrentCultureIgnoreCase))
             {
-                RaiseTwilioException(createdSmsMessage);
+                var e = createdSmsMessage.RestException;
+                return new SmsFailed(createdSmsMessage.Sid, e.Code, e.Message, e.MoreInfo, e.Status);
             }
 
             if (createdSmsMessage.Status.Equals("queued", StringComparison.CurrentCultureIgnoreCase))
-                throw new NotImplementedException("Not sure what to do with a queued message");
+                return new SmsQueued(createdSmsMessage.Sid);
 
             throw new NotImplementedException();
-        }
-
-        private void RaiseTwilioException(SMSMessage createdSmsMessage)
-        {
-            if (createdSmsMessage.RestException != null)
-            {
-                var exceptionMessage = String.Format("Rest Exception: {0} (Http Status {3}). /n Message: {1}/n More Info At {2}",
-                    createdSmsMessage.RestException.Code, 
-                    createdSmsMessage.RestException.Message,
-                    createdSmsMessage.RestException.MoreInfo, 
-                    createdSmsMessage.RestException.Status);
-                throw new Exception(exceptionMessage);
-            }
-            throw new Exception("Message sending failed");
         }
     }
 }
