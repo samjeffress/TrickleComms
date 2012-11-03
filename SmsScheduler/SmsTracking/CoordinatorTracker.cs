@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NServiceBus;
-using Raven.Client;
 using SmsMessages.Tracking;
 
 namespace SmsTracking
@@ -15,11 +14,11 @@ namespace SmsTracking
         IHandleMessages<CoordinatorMessageSent>,
         IHandleMessages<CoordinatorCompleted>
     {
-        public IDocumentStore DocumentStore { get; set; }
+        public IRavenDocStore RavenStore { get; set; }
 
         public void Handle(CoordinatorCreated message)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
@@ -35,7 +34,7 @@ namespace SmsTracking
 
         public void Handle(CoordinatorMessageSent coordinatorMessageSent)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageSent.CoordinatorId.ToString());
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageSent.ScheduleMessageId);
@@ -48,7 +47,7 @@ namespace SmsTracking
 
         public void Handle(CoordinatorMessagePaused coordinatorMessagePaused)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessagePaused.CoordinatorId.ToString());
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessagePaused.ScheduleMessageId);
@@ -61,7 +60,7 @@ namespace SmsTracking
 
         public void Handle(CoordinatorCompleted coordinatorCompleted)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorCompleted.CoordinatorId.ToString());
                 var incompleteMessageCount = coordinatorTrackingData.MessageStatuses.Count(m => m.Status == MessageStatusTracking.Paused || m.Status == MessageStatusTracking.Scheduled);
@@ -75,7 +74,7 @@ namespace SmsTracking
 
         public void Handle(CoordinatorMessageScheduled coordinatorMessageScheduled)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageScheduled.CoordinatorId.ToString());
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageScheduled.ScheduleMessageId);
@@ -88,7 +87,7 @@ namespace SmsTracking
 
         public void Handle(CoordinatorMessageResumed coordinatorMessageResumed)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageResumed.CoordinatorId.ToString());
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageResumed.ScheduleMessageId);

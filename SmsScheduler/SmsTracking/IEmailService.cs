@@ -6,4 +6,12 @@ namespace SmsTracking
     {
         void SendSmsSentConfirmation(MessageSent message);
     }
+
+    public class EmailService : IEmailService
+    {
+        public void SendSmsSentConfirmation(MessageSent message)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }

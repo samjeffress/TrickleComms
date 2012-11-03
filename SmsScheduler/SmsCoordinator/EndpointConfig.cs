@@ -13,6 +13,8 @@ namespace SmsCoordinator
             .MsmqTransport()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
+            .Sagas()
+                .RavenSagaPersister()
             .UnicastBus()
                 .LoadMessageHandlers();
 

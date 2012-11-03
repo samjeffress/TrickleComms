@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using Rhino.Mocks;
 using SmsMessages.CommonData;
 using SmsMessages.Tracking;
 using SmsTracking;
@@ -13,7 +14,11 @@ namespace SmsTrackingTests
         public void HandleMessageScheduled()
         {
             var scheduleId = Guid.NewGuid();
-            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+
+            var tracker = new ScheduleTracker { RavenStore = ravenDocStore };
             var scheduleCreated = new ScheduleCreated {ScheduleId = scheduleId};
             tracker.Handle(scheduleCreated);
 
@@ -33,7 +38,10 @@ namespace SmsTrackingTests
         public void HandleMessagePaused()
         {
             var scheduleId = Guid.NewGuid();
-            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+            var tracker = new ScheduleTracker { RavenStore = ravenDocStore };
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -55,7 +63,10 @@ namespace SmsTrackingTests
         public void HandleMessageResumed()
         {
             var scheduleId = Guid.NewGuid();
-            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+            var tracker = new ScheduleTracker { RavenStore = ravenDocStore };
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -77,7 +88,10 @@ namespace SmsTrackingTests
         public void HandleMessageCancelled()
         {
             var scheduleId = Guid.NewGuid();
-            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+            var tracker = new ScheduleTracker { RavenStore = ravenDocStore };
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -99,7 +113,10 @@ namespace SmsTrackingTests
         public void HandleMessageSent()
         {
             var scheduleId = Guid.NewGuid();
-            var tracker = new ScheduleTracker { DocumentStore = DocumentStore };
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+            var tracker = new ScheduleTracker { RavenStore = ravenDocStore };
 
             using (var session = DocumentStore.OpenSession())
             {

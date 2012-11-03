@@ -1,6 +1,5 @@
 ﻿using System;
 using NServiceBus;
-using Raven.Client;
 using SmsMessages.CommonData;
 using SmsMessages.Tracking;
 
@@ -13,11 +12,11 @@ namespace SmsTracking
         IHandleMessages<ScheduleCancelled>,
         IHandleMessages<ScheduleComplete>
     {
-        public IDocumentStore DocumentStore { get; set; }
+        public IRavenDocStore RavenStore { get; set; }
 
         public void Handle(ScheduleCreated message)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId);
                 if (scheduleTracking != null) return;
@@ -36,7 +35,7 @@ namespace SmsTracking
 
         public void Handle(SchedulePaused message)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
                 if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
@@ -47,7 +46,7 @@ namespace SmsTracking
 
         public void Handle(ScheduleResumed message)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
                 if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
@@ -58,7 +57,7 @@ namespace SmsTracking
 
         public void Handle(ScheduleCancelled message)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
                 if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
@@ -69,7 +68,7 @@ namespace SmsTracking
 
         public void Handle(ScheduleComplete message)
         {
-            using (var session = DocumentStore.OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession())
             {
                 var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
                 if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
