@@ -34,52 +34,6 @@ namespace SmsCoordinatorTests
             twilioWrapper.VerifyAllExpectations();
         }
 
-        //[Test]
-        //public void SmsServiceSendingWaitsAndSucceeds()
-        //{
-        //    var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
-        //    var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
-        //    var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-
-        //    var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
-        //    var smsMessageSent = new SMSMessage { Status = "sent", Sid = "sidReceipt", DateSent = DateTime.Now, Price = 33 };
-        //    twilioWrapper
-        //        .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
-        //        .Return(smsMessageSending);
-
-        //    twilioWrapper
-        //        .Expect(t => t.CheckMessage(smsMessageSending.Sid))
-        //        .Return(smsMessageSent);
-
-        //    var response = smsService.Send(messageToSend);
-
-        //    Assert.That(response.Receipt, Is.EqualTo(smsMessageSending.Sid));
-        //    Assert.That(response.SentAt, Is.EqualTo(smsMessageSent.DateSent));
-        //    Assert.That(response.Price, Is.EqualTo(smsMessageSent.Price));
-        //    twilioWrapper.VerifyAllExpectations();
-        //}
-
-        //[Test]
-        //public void SmsServiceSendingWaitsFiveLoopsThrowsException()
-        //{
-        //    var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
-        //    var twilioWrapper = MockRepository.GenerateMock<ITwilioWrapper>();
-        //    var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-
-        //    var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
-        //    twilioWrapper
-        //        .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
-        //        .Return(smsMessageSending);
-        //    twilioWrapper
-        //        .Expect(t => t.CheckMessage(smsMessageSending.Sid))
-        //        .Return(smsMessageSending)
-        //        .Repeat.Times(5);
-
-        //    Assert.That(() => smsService.Send(messageToSend), Throws.Exception.With.Message.Contains("Waited too long for message to send - retry later"));
-
-        //    twilioWrapper.VerifyAllExpectations();
-        //}
-
         [Test]
         public void SmsServiceSending()
         {

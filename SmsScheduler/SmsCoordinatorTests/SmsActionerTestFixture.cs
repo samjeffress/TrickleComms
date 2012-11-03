@@ -57,7 +57,7 @@ namespace SmsCoordinatorTests
             var smsQueued = new SmsQueued("12");
             var smsSent = new SmsSent(new SmsConfirmationData("r", DateTime.Now, .44m));
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsQueued);
-            smsService.Expect(s => s.Check(smsQueued.Sid)).Return(smsSent);
+            smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsSent);
 
             Test.Initialize();
             Test.Saga<SmsActioner>()
@@ -80,7 +80,7 @@ namespace SmsCoordinatorTests
             var smsQueued = new SmsQueued(sid);
             var smsFailed = new SmsFailed(sid, "c", "m", "m", "s");
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsQueued);
-            smsService.Expect(s => s.Check(smsQueued.Sid)).Return(smsFailed);
+            smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsFailed);
 
             Test.Initialize();
             Test.Saga<SmsActioner>()
@@ -103,8 +103,8 @@ namespace SmsCoordinatorTests
             var smsQueued = new SmsQueued(sid);
             var smsSuccess = new SmsSent(new SmsConfirmationData("r", DateTime.Now, 3.3m));
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsQueued);
-            smsService.Expect(s => s.Check(smsQueued.Sid)).Repeat.Once().Return(smsQueued);
-            smsService.Expect(s => s.Check(smsQueued.Sid)).Return(smsSuccess);
+            smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Repeat.Once().Return(smsQueued);
+            smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsSuccess);
 
             Test.Initialize();
             Test.Saga<SmsActioner>()

@@ -23,7 +23,7 @@ namespace SmsCoordinator
 
         public void Timeout(SmsPendingTimeout state)
         {
-            var smsStatus = SmsService.Check(Data.SmsRequestId);
+            var smsStatus = SmsService.CheckStatus(Data.SmsRequestId);
             ProcessConfirmationData(smsStatus);
         }
 

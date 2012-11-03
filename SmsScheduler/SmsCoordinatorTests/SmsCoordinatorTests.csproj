@@ -74,6 +74,7 @@
     <Compile Include="SmsActionerTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SentLaterTestFixture.cs" />
+    <Compile Include="SmsServiceCheckTestFixture.cs" />
     <Compile Include="SmsServiceTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>

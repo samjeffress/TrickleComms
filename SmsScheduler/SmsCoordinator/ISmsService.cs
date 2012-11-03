@@ -11,10 +11,10 @@ namespace SmsCoordinator
         /// Send the SMS message through a provider
         /// </summary>
         /// <param name="messageToSend">Phone number and message to send to contact</param>
-        /// <returns>Receipt Id from provider</returns>
+        /// <returns>Status of the SMS message, including SId from the provider</returns>
         SmsStatus Send(SendOneMessageNow messageToSend);
 
-        SmsStatus Check(string sid);
+        SmsStatus CheckStatus(string sid);
     }
 
     public class SmsService : ISmsService
@@ -27,9 +27,10 @@ namespace SmsCoordinator
             return ProcessSms(createdSmsMessage);
         }
 
-        public SmsStatus Check(string sid)
+        public SmsStatus CheckStatus(string sid)
         {
-            throw new NotImplementedException();
+            var checkMessage = TwilioWrapper.CheckMessage(sid);
+            return ProcessSms(checkMessage);
         }
 
         private SmsStatus ProcessSms(SMSMessage createdSmsMessage)
