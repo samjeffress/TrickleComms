@@ -11,7 +11,7 @@ namespace SmsTrackingTests
         [SetUp]
         public void Setup()
         {
-            DocumentStore = new EmbeddableDocumentStore { DefaultDatabase = "SmsTracking", RunInMemory = true }.Initialize();
+            DocumentStore = new EmbeddableDocumentStore { RunInMemory = true }.Initialize();
         }
 
         [TearDown]
