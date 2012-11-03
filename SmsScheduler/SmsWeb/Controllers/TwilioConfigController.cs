@@ -25,7 +25,6 @@ namespace SmsWeb.Controllers
             {
                 using (var session = DocumentStore.GetStore().OpenSession("TwilioConfiguration"))
                 {
-                    // TODO: Ensure database exists & create
                     var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
                     if (twilioConfiguration != null)
                     {

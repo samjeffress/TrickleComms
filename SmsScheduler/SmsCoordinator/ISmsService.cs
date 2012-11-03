@@ -52,7 +52,7 @@ namespace SmsCoordinator
             if (createdSmsMessage.Status.Equals("queued", StringComparison.CurrentCultureIgnoreCase))
                 return new SmsQueued(createdSmsMessage.Sid);
 
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

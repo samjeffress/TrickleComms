@@ -1,6 +1,7 @@
 ﻿using System;
 using Raven.Client;
 using Raven.Client.Document;
+using Raven.Client.Extensions;
 using Twilio;
 
 namespace SmsCoordinator
@@ -24,7 +25,6 @@ namespace SmsCoordinator
             string authToken;
             using (var session = DocumentStore.GetStore().OpenSession("TwilioConfiguration"))
             {
-                // TODO: Ensure database exists & create
                 var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
                 if (twilioConfiguration == null)
                 {
@@ -55,6 +55,7 @@ namespace SmsCoordinator
         {
             _documentStore = new DocumentStore { Url = "http://localhost:8080" };
             _documentStore.Initialize();
+            _documentStore.DatabaseCommands.EnsureDatabaseExists("TwilioConfiguration");
         }
 
         public IDocumentStore GetStore()

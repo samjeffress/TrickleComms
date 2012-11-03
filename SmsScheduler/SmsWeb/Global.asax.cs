@@ -10,6 +10,7 @@ using System.Web.Routing;
 using NServiceBus;
 using Raven.Client;
 using Raven.Client.Document;
+using Raven.Client.Extensions;
 using SmsWeb.Controllers;
 
 namespace SmsWeb
@@ -99,6 +100,7 @@ namespace SmsWeb
         {
             _documentStore = new DocumentStore {Url = "http://localhost:8080"};
             _documentStore.Initialize();
+            _documentStore.DatabaseCommands.EnsureDatabaseExists("TwilioConfiguration");
         }
 
         public IDocumentStore GetStore()
