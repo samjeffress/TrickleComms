@@ -11,8 +11,10 @@ namespace SmsCoordinatorTests
     [TestFixture]
     public class SmsActionerTestFixture
     {
+        // TODO: Add tests for data in messages being set
+
         [Test]
-        public void SendSingleSmsNow_Success()
+        public void SendSingleSmsNowSuccess()
         {
             var sendOneMessageNow = new SendOneMessageNow();
 
@@ -29,7 +31,7 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
-        public void SendSingleSmsNow_Failure()
+        public void SendSingleSmsNowFailure()
         {
             var sendOneMessageNow = new SendOneMessageNow();
 
@@ -46,7 +48,7 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
-        public void SendSingleSmsNow_QueuedThenSuccess()
+        public void SendSingleSmsNowQueuedThenSuccess()
         {
             var sendOneMessageNow = new SendOneMessageNow();
 
@@ -62,19 +64,19 @@ namespace SmsCoordinatorTests
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
                 .When(a => a.Handle(sendOneMessageNow))
-                    .ExpectPublish<MessageSent>(null)
+                    .ExpectPublish<MessageSent>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
 
         [Test]
-        public void SendSingleSmsNow_QueuedThenFail()
+        public void SendSingleSmsNowQueuedThenFail()
         {
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
 
-            var sid = "12";
+            const string sid = "12";
             var smsQueued = new SmsQueued(sid);
             var smsFailed = new SmsFailed(sid, "c", "m", "m", "s");
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsQueued);
@@ -85,19 +87,19 @@ namespace SmsCoordinatorTests
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
                 .When(a => a.Handle(sendOneMessageNow))
-                    .ExpectNotPublish<MessageSent>(null)
+                    .ExpectNotPublish<MessageSent>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
 
         [Test]
-        public void SendSingleSmsNow_QueuedTwiceThenSuccess()
+        public void SendSingleSmsNowQueuedTwiceThenSuccess()
         {
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
 
-            var sid = "12";
+            const string sid = "12";
             var smsQueued = new SmsQueued(sid);
             var smsSuccess = new SmsSent(new SmsConfirmationData("r", DateTime.Now, 3.3m));
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsQueued);
@@ -109,64 +111,11 @@ namespace SmsCoordinatorTests
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
                 .When(a => a.Handle(sendOneMessageNow))
-                    .ExpectNotPublish<MessageSent>(null)
+                    .ExpectNotPublish<MessageSent>()
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
                 .WhenSagaTimesOut()
-                    .ExpectPublish<MessageSent>(null)
+                    .ExpectPublish<MessageSent>()
                 .WhenSagaTimesOut();
         }
-
-        //[Test]
-        //public void SendSinlgeSmsNow()
-        //{
-        //    var sendOneMessageNow = new SendOneMessageNow();
-
-        //    var smsService = MockRepository.GenerateMock<ISmsService>();
-        //    smsService.Expect(s => s.Send(Arg<SendOneMessageNow>.Is.Anything)).Return(new SmsConfirmationData("receipt", DateTime.Now, 2));
-
-        //    Test.Initialize();
-
-        //    Test.Handler<SmsActioner>()
-        //        .WithExternalDependencies(m => m.SmsService = smsService)
-        //        .ExpectPublish<MessageSent>(null)
-        //        .OnMessage<SendOneMessageNow>(s => s = sendOneMessageNow);
-
-        //    smsService.VerifyAllExpectations();
-        //}
-
-        //[Test]
-        //public void SendSingleSmsNow_Data()
-        //{
-        //    var sendOneMessageNow = new SendOneMessageNow
-        //    {
-        //        SmsData = new SmsData("0044044040", "message"),     
-        //        SmsMetaData = new SmsMetaData { Topic = "MissedPayment", Tags = new List<string> { "Money", "Stuff" } },
-        //        ConfirmationEmailAddress = "blah",
-        //        CorrelationId = Guid.NewGuid()
-        //    };
-        //    var bus = MockRepository.GenerateStrictMock<IBus>();
-        //    var smsService = MockRepository.GenerateMock<ISmsService>();
-
-        //    var smsConfirmationData = new SmsConfirmationData("Receipt", DateTime.Now, 2);
-        //    smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsConfirmationData);
-        //    var publishingMessage = MockRepository.GenerateStub<MessageSent>();
-        //    bus.Expect(b => b.Publish(null as Action<MessageSent>))
-        //        .Constraints(new PredicateConstraint<Action<MessageSent>>(c =>
-        //        {
-        //            c.Invoke(publishingMessage);
-        //            return
-        //            publishingMessage.ConfirmationData == smsConfirmationData &&
-        //            publishingMessage.SmsData == sendOneMessageNow.SmsData &&
-        //            publishingMessage.SmsMetaData == sendOneMessageNow.SmsMetaData &&
-        //            publishingMessage.CorrelationId == sendOneMessageNow.CorrelationId && 
-        //            publishingMessage.ConfirmationEmailAddress == sendOneMessageNow.ConfirmationEmailAddress;
-        //        }));
-
-        //    var smsActioner = new SmsActioner { Bus = bus, SmsService = smsService };
-        //    smsActioner.Handle(sendOneMessageNow);
-
-        //    bus.VerifyAllExpectations();
-        //    smsService.VerifyAllExpectations();
-        //}
     }
 }
