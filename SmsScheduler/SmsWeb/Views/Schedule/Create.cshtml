@@ -1,0 +1,54 @@
+﻿@model SmsWeb.Models.ScheduleModel
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Create Scheduled Sms</title>
+    </head>
+    <body>
+    @using (Html.BeginForm()) {
+        @Html.ValidationSummary(true)
+
+        <fieldset>
+            <legend>SendNowModel</legend>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.Number)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.Number)
+                @Html.ValidationMessageFor(model => model.Number)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.MessageBody)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.MessageBody)
+                @Html.ValidationMessageFor(model => model.MessageBody)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.ScheduledTime)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.ScheduledTime)
+                @Html.ValidationMessageFor(model => model.ScheduledTime)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(model => model.ConfirmationEmail)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.ConfirmationEmail)
+                @Html.ValidationMessageFor(model => model.ConfirmationEmail)
+            </div>
+
+            <p>
+                <input type="submit" value="Create" />
+            </p>
+        </fieldset>
+    }
+    </body>
+</html>
