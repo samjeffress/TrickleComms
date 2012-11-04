@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Web.Mvc;
 using NServiceBus;
+using SmsMessages.CommonData;
+using SmsMessages.Scheduling;
 using SmsWeb.Models;
 
 namespace SmsWeb.Controllers
@@ -17,7 +19,18 @@ namespace SmsWeb.Controllers
         [HttpPost]
         public ActionResult Create(ScheduleModel schedule)
         {
-            throw new NotImplementedException();
+            var isValid = TryValidateModel(schedule);
+            if (isValid && schedule.ScheduledTime > DateTime.Now)
+            {
+                var scheduleMessage = new ScheduleSmsForSendingLater
+                {
+                    SendMessageAt = schedule.ScheduledTime,
+                    SmsData = new SmsData(schedule.Number, schedule.MessageBody)
+                };
+                Bus.Send(scheduleMessage);
+                return View("Details", schedule);
+            }
+            return View("Create", schedule);
         }
     }
 }
