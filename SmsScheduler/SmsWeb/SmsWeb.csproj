@@ -317,6 +317,7 @@
     <Content Include="Views\TwilioConfig\Create.cshtml" />
     <Content Include="Views\TwilioConfig\Details.cshtml" />
     <Content Include="Views\Schedule\Create.cshtml" />
+    <Content Include="Views\Schedule\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
