@@ -1,7 +1,7 @@
 ﻿using System;
 using NServiceBus;
 using SmsMessages.CommonData;
-using SmsMessages.Tracking;
+using SmsTrackingMessages;
 
 namespace SmsTracking
 {

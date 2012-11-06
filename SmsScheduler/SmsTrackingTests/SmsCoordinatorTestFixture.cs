@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SmsMessages.Tracking;
 using SmsTracking;
+using SmsTrackingMessages;
 
 namespace SmsTrackingTests
 {

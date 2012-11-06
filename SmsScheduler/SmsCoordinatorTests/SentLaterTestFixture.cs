@@ -8,7 +8,7 @@ using SmsCoordinator;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending;
 using SmsMessages.Scheduling;
-using SmsMessages.Tracking;
+using SmsTrackingMessages;
 
 namespace SmsCoordinatorTests
 {

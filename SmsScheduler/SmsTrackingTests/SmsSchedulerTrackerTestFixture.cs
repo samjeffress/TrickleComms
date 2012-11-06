@@ -2,8 +2,8 @@ using System;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
-using SmsMessages.Tracking;
 using SmsTracking;
+using SmsTrackingMessages;
 
 namespace SmsTrackingTests
 {
