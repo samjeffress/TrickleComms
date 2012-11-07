@@ -16,8 +16,7 @@ namespace SmsCoordinator
             .Sagas()
                 .RavenSagaPersister()
             .UnicastBus()
-                .LoadMessageHandlers()
-                ;
+                .LoadMessageHandlers();
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);

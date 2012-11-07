@@ -1,6 +1,7 @@
 ﻿using System;
 using Raven.Client;
 using Raven.Client.Document;
+using Raven.Client.Extensions; // Used for EnsureDatabaseExists
 using Twilio;
 
 namespace SmsCoordinator
