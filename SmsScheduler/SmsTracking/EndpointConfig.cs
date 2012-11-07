@@ -1,7 +1,6 @@
 ﻿using NServiceBus;
 using Raven.Client;
 using Raven.Client.Document;
-using Raven.Client.Extensions;
 
 namespace SmsTracking
 {

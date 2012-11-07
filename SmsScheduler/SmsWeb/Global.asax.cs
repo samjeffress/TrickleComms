@@ -101,6 +101,7 @@ namespace SmsWeb
             _documentStore = new DocumentStore {Url = "http://localhost:8080"};
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("TwilioConfiguration");
+            _documentStore.DatabaseCommands.EnsureDatabaseExists("SmsTracking");
         }
 
         public IDocumentStore GetStore()

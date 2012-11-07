@@ -1,4 +1,10 @@
-﻿@model SmsWeb.Models.ScheduleModel
+﻿@model SmsTracking.ScheduleTrackingData
 
-<h2>Schedule sent!</h2>
-<p>Thanks! We've scheduled your message - you should get an email when it's sent. Once it's been setup you can find the details in the 'schedule' main page.</p>
+<h2>Schedule details!</h2>
+<p>Thanks! We've scheduled your message - you can see the details below.</p>
+<ul>
+    <li>@Model.MessageStatus</li>
+    <li>@Model.SmsData.Message</li>
+    <li>@Model.SmsData.Mobile</li>
+    <li>@Model.ScheduleId</li>
+</ul>

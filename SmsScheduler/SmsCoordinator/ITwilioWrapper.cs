@@ -1,7 +1,6 @@
 ﻿using System;
 using Raven.Client;
 using Raven.Client.Document;
-using Raven.Client.Extensions;
 using Twilio;
 
 namespace SmsCoordinator
