@@ -18,5 +18,9 @@ namespace SmsWeb.Models
         public TimeSpan? TimeSeparator { get; set; }
 
         public DateTime? SendAllBy { get; set; }
+
+        public List<string> Tags { get; set; }
+
+        public string Topic { get; set; }
     }
 }

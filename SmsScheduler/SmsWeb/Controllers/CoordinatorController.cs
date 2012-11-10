@@ -33,7 +33,6 @@ namespace SmsWeb.Controllers
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
 
-
                 return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }
             return View("Create", coordinatedMessages);
@@ -75,20 +74,21 @@ namespace SmsWeb.Controllers
                 Messages =
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
-                StartTime = model.StartTime
+                StartTime = model.StartTime,
+                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic }
             };
         }
 
         public TrickleSmsSpacedByTimePeriod MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model)
         {
-            // TODO : Add meta data
             return new TrickleSmsSpacedByTimePeriod
             {
                 Messages =
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
                 StartTime = model.StartTime,
-                TimeSpacing = model.TimeSeparator.Value
+                TimeSpacing = model.TimeSeparator.Value,
+                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic }
             };
         }
     }

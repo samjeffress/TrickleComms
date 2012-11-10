@@ -17,7 +17,9 @@ namespace SmsWebTests
                     Numbers = new List<string> { "04040404040", "11111111111"},
                     Message = "Message",
                     StartTime = DateTime.Now.AddHours(2),
-                    TimeSeparator = new TimeSpan(5000)
+                    TimeSeparator = new TimeSpan(5000),
+                    Tags = new List<string> { "tag1", "tag2 "},
+                    Topic = "Dance Dance Revolution!"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var message = mapper.MapToTrickleSpacedByPeriod(model);
@@ -27,8 +29,8 @@ namespace SmsWebTests
             Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
             Assert.That(message.Messages[1].Mobile, Is.EqualTo(model.Numbers[1]));
             Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
-            // TODO: Allow metadata to be set
-            //Assert.That(trickleByTime.MetaData);
+            Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags));
+            Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTime, Is.EqualTo(model.StartTime));
             Assert.That(message.TimeSpacing, Is.EqualTo(model.TimeSeparator));
         }
@@ -41,7 +43,9 @@ namespace SmsWebTests
                     Numbers = new List<string> { "04040404040", "11111111111"},
                     Message = "Message",
                     StartTime = DateTime.Now.AddHours(2),
-                    SendAllBy = DateTime.Now.AddHours(3)
+                    SendAllBy = DateTime.Now.AddHours(3),
+                    Tags = new List<string> { "tag1", "tag2 " },
+                    Topic = "Dance Dance Revolution!"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var message = mapper.MapToTrickleOverPeriod(model);
@@ -53,8 +57,8 @@ namespace SmsWebTests
             Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
             Assert.That(message.Messages[1].Mobile, Is.EqualTo(model.Numbers[1]));
             Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
-            // TODO: Allow metadata to be set
-            //Assert.That(trickleByTime.MetaData);
+            Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags));
+            Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTime, Is.EqualTo(model.StartTime));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
         }

@@ -17,12 +17,14 @@ namespace SmsWebTests
         public void CoordinatorSeparatedByTimeSpanReturnsDetails()
         {
             var model = new CoordinatedSharedMessageModel
-                            {
-                                Numbers = new List<string> { "04040404040"},
-                                Message = "Message",
-                                StartTime = DateTime.Now.AddHours(2),
-                                TimeSeparator = new TimeSpan(5000)
-                            };
+            {
+                Numbers = new List<string> { "04040404040"},
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                TimeSeparator = new TimeSpan(5000),
+                Tags = new List<string> { "tag1", "tag2" },
+                Topic = "New Feature!"
+            };
 
             var bus = MockRepository.GenerateMock<IBus>();
             var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
@@ -43,12 +45,12 @@ namespace SmsWebTests
         public void CoordinatorOverTimespanReturnsDetails()
         {
             var model = new CoordinatedSharedMessageModel
-                            {
-                                Numbers = new List<string> { "04040404040" },
-                                Message = "Message",
-                                StartTime = DateTime.Now.AddHours(2),
-                                SendAllBy = DateTime.Now.AddHours(3)
-                            };
+            {
+                Numbers = new List<string> { "04040404040" },
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllBy = DateTime.Now.AddHours(3)
+            };
 
             var bus = MockRepository.GenerateMock<IBus>();
             var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
