@@ -30,12 +30,15 @@ namespace SmsWebTests
             var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
 
             mapper.Expect(m => m.MapToTrickleSpacedByPeriod(model)).Return(new TrickleSmsSpacedByTimePeriod());
-            bus.Expect(b => b.Send(Arg<TrickleSmsSpacedByTimePeriod>.Is.NotNull));
+            var trickleMessage = new TrickleSmsSpacedByTimePeriod();
+            bus.Expect(b => b.Send(Arg<TrickleSmsSpacedByTimePeriod>.Is.NotNull))
+                .WhenCalled(i => trickleMessage = (TrickleSmsSpacedByTimePeriod) ((object[]) (i.Arguments[0]))[0]);
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
+            Assert.That(trickleMessage.CoordinatorId, Is.Not.EqualTo(Guid.Empty));
 
             bus.VerifyAllExpectations();
             mapper.VerifyAllExpectations();
@@ -56,12 +59,15 @@ namespace SmsWebTests
             var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
 
             mapper.Expect(m => m.MapToTrickleOverPeriod(model)).Return(new TrickleSmsOverTimePeriod());
-            bus.Expect(b => b.Send(Arg<TrickleSmsOverTimePeriod>.Is.NotNull));
+            var trickleMessage = new TrickleSmsOverTimePeriod();
+            bus.Expect(b => b.Send(Arg<TrickleSmsOverTimePeriod>.Is.NotNull))
+                .WhenCalled(i => trickleMessage = (TrickleSmsOverTimePeriod)((object[])(i.Arguments[0]))[0]);
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
+            Assert.That(trickleMessage.CoordinatorId, Is.Not.EqualTo(Guid.Empty));
 
             bus.VerifyAllExpectations();
             mapper.VerifyAllExpectations();

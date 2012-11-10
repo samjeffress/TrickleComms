@@ -7,6 +7,8 @@ namespace SmsMessages.Coordinator
 {
     public class TrickleSmsSpacedByTimePeriod : ICommand
     {
+        public Guid CoordinatorId { get; set; }
+
         public List<SmsData> Messages { get; set; }
 
         public DateTime StartTime { get; set; }
