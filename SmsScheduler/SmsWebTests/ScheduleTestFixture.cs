@@ -43,9 +43,9 @@ namespace SmsWebTests
             bus.Expect(b => b.Send(Arg<ScheduleSmsForSendingLater>.Is.NotNull))
                 .WhenCalled(a => scheduledMessage = ((ScheduleSmsForSendingLater)((object[])a.Arguments[0])[0]));
 
-            var result = (ViewResult)controller.Create(sendNowModel);
-
-            Assert.That(result.ViewName, Is.EqualTo("Details"));
+            var result = (RedirectToRouteResult)controller.Create(sendNowModel);
+            
+            Assert.That(result.RouteValues["action"], Is.EqualTo("Details"));
             Assert.That(scheduledMessage.SendMessageAt, Is.EqualTo(sendNowModel.ScheduledTime));
             Assert.That(scheduledMessage.SmsData.Mobile, Is.EqualTo(sendNowModel.Number));
             Assert.That(scheduledMessage.SmsData.Message, Is.EqualTo(sendNowModel.MessageBody));
