@@ -189,11 +189,13 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CoordinatorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ScheduleController.cs" />
     <Compile Include="Controllers\SendNowController.cs" />
     <Compile Include="Controllers\TwilioConfigController.cs" />
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="Models\CoordinatedSharedMessageModel.cs" />
     <Compile Include="Models\ScheduleModel.cs" />
     <Compile Include="Models\SendNowModel.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
