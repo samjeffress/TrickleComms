@@ -46,6 +46,7 @@ namespace SmsWeb
             ControllerBuilder.Current.SetControllerFactory(new IoCControllerFactory());
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<CoordinatorModelToMessageMapping>(DependencyLifecycle.InstancePerCall);
         }
 
         private void RegisterControllers()

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Web.Mvc;
 using NServiceBus;
+using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
 using SmsWeb.Models;
 
@@ -10,10 +12,11 @@ namespace SmsWeb.Controllers
     {
         public IBus Bus { get; set; }
 
+        public ICoordinatorModelToMessageMapping Mapper { get; set; }
+
         [HttpPost]
         public ActionResult Create(CoordinatedSharedMessageModel coordinatedMessages)
         {
-
             var isValid = TryValidateModel(coordinatedMessages);
             if (isValid && SecondaryValidation(coordinatedMessages))
             {
@@ -21,12 +24,12 @@ namespace SmsWeb.Controllers
 
                 if (coordinatedMessages.TimeSeparator.HasValue && !coordinatedMessages.SendAllBy.HasValue)
                 {
-                    var trickleSmsSpacedByTimePeriod = new TrickleSmsSpacedByTimePeriod();
+                    var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages);
                     Bus.Send(trickleSmsSpacedByTimePeriod);
                 }
                 if (!coordinatedMessages.TimeSeparator.HasValue && coordinatedMessages.SendAllBy.HasValue)
                 {
-                    var trickleSmsOverTimePeriod = new TrickleSmsOverTimePeriod();
+                    var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages);
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
 
@@ -52,6 +55,41 @@ namespace SmsWeb.Controllers
         public ActionResult Details(string coordinatorid)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public interface ICoordinatorModelToMessageMapping
+    {
+        TrickleSmsOverTimePeriod MapToTrickleOverPeriod(CoordinatedSharedMessageModel model);
+
+        TrickleSmsSpacedByTimePeriod MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model);
+    }
+
+    public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
+    {
+        public TrickleSmsOverTimePeriod MapToTrickleOverPeriod(CoordinatedSharedMessageModel model)
+        {
+            return new TrickleSmsOverTimePeriod
+            {
+                Duration = model.SendAllBy.Value.Subtract(model.StartTime),
+                Messages =
+                    model.Numbers.Select(n => new SmsData(n, model.Message)).
+                    ToList(),
+                StartTime = model.StartTime
+            };
+        }
+
+        public TrickleSmsSpacedByTimePeriod MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model)
+        {
+            // TODO : Add meta data
+            return new TrickleSmsSpacedByTimePeriod
+            {
+                Messages =
+                    model.Numbers.Select(n => new SmsData(n, model.Message)).
+                    ToList(),
+                StartTime = model.StartTime,
+                TimeSpacing = model.TimeSeparator.Value
+            };
         }
     }
 }
