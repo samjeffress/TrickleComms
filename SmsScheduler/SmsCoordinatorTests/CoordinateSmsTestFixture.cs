@@ -371,7 +371,8 @@ namespace SmsCoordinatorTests
                 new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[1]}, MessageStatus.Sent)
             };
 
-            var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = scheduledMessageStatuses, Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
+            var coordinatorId = Guid.NewGuid();
+            var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = scheduledMessageStatuses, Id = coordinatorId, CoordinatorId = coordinatorId, Originator = "o", OriginalMessageId = "i" };
 
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()

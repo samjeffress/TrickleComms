@@ -25,17 +25,18 @@ namespace SmsCoordinator
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<ScheduledSmsSent>(data => data.Id, message => message.CoordinatorId);
-            ConfigureMapping<PauseTrickledMessagesIndefinitely>(data => data.Id, message => message.CoordinatorId);
-            ConfigureMapping<SmsScheduled>(data => data.Id, message => message.CoordinatorId);
-            ConfigureMapping<ResumeTrickledMessages>(data => data.Id, message => message.CoordinatorId);
-            ConfigureMapping<MessageSchedulePaused>(data => data.Id, message => message.CoordinatorId);
-            ConfigureMapping<MessageRescheduled>(data => data.Id, message => message.CoordinatorId);
+            ConfigureMapping<ScheduledSmsSent>(data => data.CoordinatorId, message => message.CoordinatorId);
+            ConfigureMapping<PauseTrickledMessagesIndefinitely>(data => data.CoordinatorId, message => message.CoordinatorId);
+            ConfigureMapping<SmsScheduled>(data => data.CoordinatorId, message => message.CoordinatorId);
+            ConfigureMapping<ResumeTrickledMessages>(data => data.CoordinatorId, message => message.CoordinatorId);
+            ConfigureMapping<MessageSchedulePaused>(data => data.CoordinatorId, message => message.CoordinatorId);
+            ConfigureMapping<MessageRescheduled>(data => data.CoordinatorId, message => message.CoordinatorId);
             base.ConfigureHowToFindSaga();
         }
 
         public void Handle(TrickleSmsOverTimePeriod message)
         {
+            Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             var messageTiming = TimingManager.CalculateTiming(message.StartTime, message.Duration, message.Messages.Count);
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
@@ -50,23 +51,24 @@ namespace SmsCoordinator
             Bus.Send(messageList);
             var coordinatorCreated = new CoordinatorCreated
             {
-                CoordinatorId = Data.Id,
+                CoordinatorId = Data.CoordinatorId,
                 ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAt, ScheduleMessageId = m.ScheduleMessageId }).ToList()
             };
             Bus.Send(coordinatorCreated);
         }
 
-        public void Handle(TrickleSmsSpacedByTimePeriod trickleMultipleMessages)
+        public void Handle(TrickleSmsSpacedByTimePeriod message)
         {
+            Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
-            for(int i = 0; i < trickleMultipleMessages.Messages.Count; i++)
+            for(int i = 0; i < message.Messages.Count; i++)
             {
-                var extraTime = TimeSpan.FromTicks(trickleMultipleMessages.TimeSpacing.Ticks*i);
-                var smsData = new SmsData(trickleMultipleMessages.Messages[i].Mobile, trickleMultipleMessages.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(trickleMultipleMessages.StartTime.Add(extraTime), smsData, trickleMultipleMessages.MetaData)
+                var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
+                var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTime.Add(extraTime), smsData, message.MetaData)
                 {
-                    CorrelationId = Data.Id
+                    CorrelationId = Data.CoordinatorId
                 };
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;
@@ -75,7 +77,7 @@ namespace SmsCoordinator
             Bus.Send(messageList);
             var coordinatorCreated = new CoordinatorCreated
             {
-                CoordinatorId = Data.Id,
+                CoordinatorId = Data.CoordinatorId,
                 ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAt, ScheduleMessageId = m.ScheduleMessageId }).ToList()
             };
             Bus.Send(coordinatorCreated);
@@ -112,7 +114,7 @@ namespace SmsCoordinator
             if (messageStatus.MessageStatus == MessageStatus.Sent)
                 throw new Exception("Message already sent.");
             messageStatus.MessageStatus = MessageStatus.Scheduled;
-            Bus.Send(new CoordinatorMessageScheduled { CoordinatorId = Data.Id, ScheduleMessageId = smsScheduled.ScheduleMessageId, Number = messageStatus.ScheduledSms.SmsData.Mobile });
+            Bus.Send(new CoordinatorMessageScheduled { CoordinatorId = Data.CoordinatorId, ScheduleMessageId = smsScheduled.ScheduleMessageId, Number = messageStatus.ScheduledSms.SmsData.Mobile });
         }
 
         public void Handle(MessageSchedulePaused message)
@@ -123,7 +125,7 @@ namespace SmsCoordinator
             if (messageStatus.MessageStatus == MessageStatus.Sent)
                 throw new Exception("Scheduled message " + message.ScheduleId + " is already sent.");
             messageStatus.MessageStatus = MessageStatus.Paused;
-            Bus.Send(new CoordinatorMessagePaused { CoordinatorId = Data.Id, ScheduleMessageId = message.ScheduleId });
+            Bus.Send(new CoordinatorMessagePaused { CoordinatorId = Data.CoordinatorId, ScheduleMessageId = message.ScheduleId });
         }
 
         public void Handle(MessageRescheduled message)
@@ -137,7 +139,7 @@ namespace SmsCoordinator
             Bus.Send(new CoordinatorMessageResumed
                          {
                              ScheduleMessageId = message.ScheduleMessageId,
-                             CoordinatorId = Data.Id,
+                             CoordinatorId = Data.CoordinatorId,
                              Number = messageStatus.ScheduledSms.SmsData.Mobile,
                              RescheduledTime = message.RescheduledTime
                          });
@@ -155,7 +157,7 @@ namespace SmsCoordinator
 
             Bus.Send(new CoordinatorMessageSent
             {
-                CoordinatorId = Data.Id,
+                CoordinatorId = Data.CoordinatorId,
                 ScheduleMessageId = smsSent.ScheduledSmsId,
                 Cost = smsSent.ConfirmationData.Price,
                 TimeSent = smsSent.ConfirmationData.SentAt,
@@ -179,6 +181,8 @@ namespace SmsCoordinator
         public List<ScheduledMessageStatus> ScheduledMessageStatus { get; set; }
 
         public DateTime OriginalScheduleStartTime { get; set; }
+
+        public Guid CoordinatorId { get; set; }
     }
 
     public class ScheduledMessageStatus
