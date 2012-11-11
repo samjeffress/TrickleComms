@@ -18,7 +18,7 @@ namespace SmsWebTests
                     Message = "Message",
                     StartTime = DateTime.Now.AddHours(2),
                     TimeSeparator = new TimeSpan(5000),
-                    Tags = new List<string> { "tag1", "tag2 "},
+                    Tags = new List<string> {"tag1", "tag2"},
                     Topic = "Dance Dance Revolution!"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
@@ -44,7 +44,7 @@ namespace SmsWebTests
                     Message = "Message",
                     StartTime = DateTime.Now.AddHours(2),
                     SendAllBy = DateTime.Now.AddHours(3),
-                    Tags = new List<string> { "tag1", "tag2 " },
+                    Tags = new List<string> { "tag1", "tag2" },
                     Topic = "Dance Dance Revolution!"
                 };
             var mapper = new CoordinatorModelToMessageMapping();

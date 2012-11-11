@@ -14,6 +14,11 @@ namespace SmsWeb.Controllers
 
         public ICoordinatorModelToMessageMapping Mapper { get; set; }
 
+        public ActionResult Create()
+        {
+            return View("Create");
+        }
+
         [HttpPost]
         public ActionResult Create(CoordinatedSharedMessageModel coordinatedMessages)
         {
