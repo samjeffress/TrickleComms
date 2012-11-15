@@ -19,6 +19,19 @@
         });
     });
 
+    $(document).ready(function () {
+        $('#newNumber').keypress(function () {
+            var inputValue = $('#newNumber').val();
+            if (inputValue.lastIndexOf(',') != -1) {
+                var splitInput = inputValue.split(",");
+                for(var i = 0; i < splitInput.length - 1; i++) {
+                    addToNumberList(splitInput[i]);
+                }
+                $('#newNumber').val(splitInput[splitInput.length]);
+            }
+        });
+    });
+
     function addToNumberList(number) {
         if ($('li:contains("' + number + '")').length == 0) {
             var input = '<input type="hidden" style="display:none;" value="' + number + '" name="Tags">';
