@@ -20,7 +20,7 @@ namespace SmsCoordinatorTests
         {
             var startTime = DateTime.Now.AddHours(3);
             var duration = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsOverTimePeriod
+            var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
                 StartTime = startTime,
                 Messages = new List<SmsData>
@@ -69,7 +69,7 @@ namespace SmsCoordinatorTests
         {
             var startTime = DateTime.Now.AddHours(3);
             var timeSpacing = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsSpacedByTimePeriod
+            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 StartTime = startTime,
                 Messages = new List<SmsData>
@@ -107,7 +107,7 @@ namespace SmsCoordinatorTests
         {
             var startTime = DateTime.Now.AddHours(3);
             var timeSpacing = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsSpacedByTimePeriod
+            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 StartTime = startTime,
                 Messages = new List<SmsData>
@@ -147,7 +147,7 @@ namespace SmsCoordinatorTests
         {
             var startTime = DateTime.Now.AddHours(3);
             var timeSpacing = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsSpacedByTimePeriod
+            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 StartTime = startTime,
                 Messages = new List<SmsData>
@@ -194,7 +194,7 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesOverPeriod_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj")};
-            var trickleMessagesOverTime = new TrickleSmsOverTimePeriod { Duration = new TimeSpan(1000), Messages = messageList, StartTime = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsOverCalculatedIntervalsBetweenSetDates { Duration = new TimeSpan(1000), Messages = messageList, StartTime = DateTime.Now };
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
@@ -248,7 +248,7 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesSpacedByTimespan_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj") };
-            var trickleMessagesOverTime = new TrickleSmsSpacedByTimePeriod {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTime = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTime = DateTime.Now };
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             

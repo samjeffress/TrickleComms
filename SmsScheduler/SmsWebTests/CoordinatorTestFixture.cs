@@ -29,10 +29,10 @@ namespace SmsWebTests
             var bus = MockRepository.GenerateMock<IBus>();
             var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
 
-            mapper.Expect(m => m.MapToTrickleSpacedByPeriod(model)).Return(new TrickleSmsSpacedByTimePeriod());
-            var trickleMessage = new TrickleSmsSpacedByTimePeriod();
-            bus.Expect(b => b.Send(Arg<TrickleSmsSpacedByTimePeriod>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsSpacedByTimePeriod) ((object[]) (i.Arguments[0]))[0]);
+            mapper.Expect(m => m.MapToTrickleSpacedByPeriod(model)).Return(new TrickleSmsWithDefinedTimeBetweenEachMessage());
+            var trickleMessage = new TrickleSmsWithDefinedTimeBetweenEachMessage();
+            bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.NotNull))
+                .WhenCalled(i => trickleMessage = (TrickleSmsWithDefinedTimeBetweenEachMessage) ((object[]) (i.Arguments[0]))[0]);
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
@@ -58,10 +58,10 @@ namespace SmsWebTests
             var bus = MockRepository.GenerateMock<IBus>();
             var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
 
-            mapper.Expect(m => m.MapToTrickleOverPeriod(model)).Return(new TrickleSmsOverTimePeriod());
-            var trickleMessage = new TrickleSmsOverTimePeriod();
-            bus.Expect(b => b.Send(Arg<TrickleSmsOverTimePeriod>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsOverTimePeriod)((object[])(i.Arguments[0]))[0]);
+            mapper.Expect(m => m.MapToTrickleOverPeriod(model)).Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates());
+            var trickleMessage = new TrickleSmsOverCalculatedIntervalsBetweenSetDates();
+            bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull))
+                .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)((object[])(i.Arguments[0]))[0]);
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper };
             var actionResult = (RedirectToRouteResult)controller.Create(model);

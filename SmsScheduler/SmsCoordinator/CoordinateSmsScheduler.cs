@@ -12,8 +12,8 @@ namespace SmsCoordinator
 {
     public class CoordinateSmsScheduler : 
         Saga<CoordinateSmsSchedulingData>,
-        IAmStartedByMessages<TrickleSmsOverTimePeriod>, 
-        IAmStartedByMessages<TrickleSmsSpacedByTimePeriod>,
+        IAmStartedByMessages<TrickleSmsOverCalculatedIntervalsBetweenSetDates>, 
+        IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
         IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
@@ -34,7 +34,7 @@ namespace SmsCoordinator
             base.ConfigureHowToFindSaga();
         }
 
-        public void Handle(TrickleSmsOverTimePeriod message)
+        public void Handle(TrickleSmsOverCalculatedIntervalsBetweenSetDates message)
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             var messageTiming = TimingManager.CalculateTiming(message.StartTime, message.Duration, message.Messages.Count);
@@ -57,7 +57,7 @@ namespace SmsCoordinator
             Bus.Send(coordinatorCreated);
         }
 
-        public void Handle(TrickleSmsSpacedByTimePeriod message)
+        public void Handle(TrickleSmsWithDefinedTimeBetweenEachMessage message)
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             var messageList = new List<ScheduleSmsForSendingLater>();
@@ -94,16 +94,16 @@ namespace SmsCoordinator
             Bus.Send(messagesToPause);
         }
 
-        public void Handle(ResumeTrickledMessages trickleMultipleMessages)
+        public void Handle(ResumeTrickledMessages resumeMessages)
         {
-            var offset = trickleMultipleMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
-            var messagesToResume = Data.ScheduledMessageStatus
+            var offset = resumeMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
+            var resumeMessageCommands = Data.ScheduledMessageStatus
                 .Where(s => s.MessageStatus == MessageStatus.Paused)
                 .ToList()
                 .Select(scheduledMessageStatuse => 
                     new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)))
                 .ToList();
-            Bus.Send(messagesToResume);
+            Bus.Send(resumeMessageCommands);
         }
 
         public void Handle(SmsScheduled smsScheduled)

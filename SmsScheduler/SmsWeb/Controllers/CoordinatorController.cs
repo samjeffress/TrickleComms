@@ -66,16 +66,16 @@ namespace SmsWeb.Controllers
 
     public interface ICoordinatorModelToMessageMapping
     {
-        TrickleSmsOverTimePeriod MapToTrickleOverPeriod(CoordinatedSharedMessageModel model);
+        TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model);
 
-        TrickleSmsSpacedByTimePeriod MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model);
+        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model);
     }
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
     {
-        public TrickleSmsOverTimePeriod MapToTrickleOverPeriod(CoordinatedSharedMessageModel model)
+        public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model)
         {
-            return new TrickleSmsOverTimePeriod
+            return new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
                 Duration = model.SendAllBy.Value.Subtract(model.StartTime),
                 Messages =
@@ -86,9 +86,9 @@ namespace SmsWeb.Controllers
             };
         }
 
-        public TrickleSmsSpacedByTimePeriod MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model)
+        public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model)
         {
-            return new TrickleSmsSpacedByTimePeriod
+            return new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 Messages =
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
