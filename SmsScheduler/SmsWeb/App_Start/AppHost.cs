@@ -1,18 +1,13 @@
-using System;
-using System.Linq;
-using System.Configuration;
-using System.Collections.Generic;
 using System.Web.Mvc;
-using ServiceStack.Configuration;
+using NServiceBus;
 using ServiceStack.CacheAccess;
 using ServiceStack.CacheAccess.Providers;
 using ServiceStack.Mvc;
-using ServiceStack.OrmLite;
-using ServiceStack.OrmLite.SqlServer;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Auth;
-using ServiceStack.ServiceInterface.ServiceModel;
 using ServiceStack.WebHost.Endpoints;
+using SmsWeb.API;
+using SmsWeb.Controllers;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(SmsWeb.App_Start.AppHost), "Start")]
 
@@ -35,11 +30,10 @@ namespace SmsWeb.App_Start
 		public string CustomProperty { get; set; }
 	}
 
-	public class AppHost
-		: AppHostBase
+	public class AppHost : AppHostBase
 	{		
 		public AppHost() //Tell ServiceStack the name and where to find your web services
-			: base("StarterTemplate ASP.NET Host", typeof(HelloService).Assembly) { }
+			: base("StarterTemplate ASP.NET Host", typeof(SmsService).Assembly) { }
 
 		public override void Configure(Funq.Container container)
 		{
@@ -48,10 +42,7 @@ namespace SmsWeb.App_Start
 
 			//Configure User Defined REST Paths
 			Routes
-				.Add<Hello>("/hello")
-				.Add<Hello>("/hello/{Name*}")
-				.Add<Todo>("/todos")
-				.Add<Todo>("/todos/{Id}");
+                .Add<Sms>("/sms");
 
 			//Change the default ServiceStack configuration
 			//SetConfig(new EndpointHostConfig {
@@ -62,7 +53,7 @@ namespace SmsWeb.App_Start
 			//ConfigureAuth(container);
 
 			//Register all your dependencies
-			container.Register(new TodoRepository());
+            //container.Register(new TodoRepository());
 			
 			//Register In-Memory Cache provider. 
 			//For Distributed Cache Providers Use: PooledRedisClientManager, BasicRedisClientManager or see: https://github.com/ServiceStack/ServiceStack/wiki/Caching
@@ -70,6 +61,23 @@ namespace SmsWeb.App_Start
 			container.Register<ISessionFactory>(c => 
 				new SessionFactory(c.Resolve<ICacheClient>()));
 
+		    container.Register<IRavenDocStore>(new RavenDocStore());
+		    container.Register<ICoordinatorModelToMessageMapping>(new CoordinatorModelToMessageMapping());
+
+            var bus = NServiceBus.Configure.With()
+                .DefineEndpointName("SmsWeb")
+                .DefaultBuilder()
+                    .Log4Net()
+                .XmlSerializer()
+                .MsmqTransport()
+                    .IsTransactional(true)
+                    .PurgeOnStartup(false)
+                .UnicastBus()
+                    .LoadMessageHandlers()
+                .CreateBus()
+                .Start(() => NServiceBus.Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+
+            container.Register(bus);
 			//Set MVC to use the same Funq IOC as ServiceStack
 			ControllerBuilder.Current.SetControllerFactory(new FunqControllerFactory(container));
 		}
