@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using NServiceBus;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
+using SmsMessages.CommonData;
 using SmsMessages.MessageSending;
+using SmsTracking;
 
 namespace SmsWeb.API
 {
@@ -13,6 +16,14 @@ namespace SmsWeb.API
         public string Number { get; set; }
 
         public string Message { get; set; }
+
+        public string ConfirmationEmailAddress { get; set; }
+
+        public List<string> Tags { get; set; }
+
+        public string Topic { get; set; }
+
+        public SmsStatus Status { get; set; }
     }
 
     public class SmsResponse : IHasResponseStatus
@@ -26,11 +37,33 @@ namespace SmsWeb.API
     {
         public IBus Bus { get; set; }
 
+        public IRavenDocStore RavenDocStore { get; set; }
+
+        public override object OnPost(Sms request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Number) || string.IsNullOrWhiteSpace(request.Message))
+                return new SmsResponse { ResponseStatus = new ResponseStatus("InvalidSms", "Sms must contain both mobile number and a message") };
+            
+            if (request.RequestId == Guid.Empty)
+                request.RequestId = Guid.NewGuid();
+
+            Bus.Send(new SendOneMessageNow {CorrelationId = request.RequestId, SmsData = new SmsData(request.Number, request.Message), ConfirmationEmailAddress = request.ConfirmationEmailAddress, SmsMetaData = new SmsMetaData { Tags = request.Tags, Topic = request.Topic }});
+            return new SmsResponse {RequestId = request.RequestId};
+        }
+
         public override object OnGet(Sms request)
         {
-            var requestId = Guid.NewGuid();
-            Bus.Send(new SendOneMessageNow {CorrelationId = requestId});
-            return new SmsResponse {RequestId = requestId};
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var smsTrackingData = session.Load<SmsTrackingData>(request.RequestId.ToString());
+                if (smsTrackingData == null)
+                    return new SmsResponse { RequestId = request.RequestId, ResponseStatus = new ResponseStatus("NotYetComplete", "Sms has not yet been completed.") };
+                return new Sms
+                {
+                    RequestId = request.RequestId,
+                    Status = request.Status
+                };
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ using SmsMessages.MessageSending;
 namespace SmsTracking
 {
     public class SmsSentTracker : 
-        IHandleMessages<MessageSent>
+        IHandleMessages<MessageSent>, IHandleMessages<MessageFailedSending>
     {
         public IRavenDocStore RavenStore { get; set; }
 
@@ -14,9 +14,9 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
-                var messageSent = session.Load<MessageSent>(message.ConfirmationData.Receipt);
+                var messageSent = session.Load<SmsTrackingData>(message.CorrelationId);
                 if (messageSent != null) return;
-                session.Store(message, message.ConfirmationData.Receipt);
+                session.Store(new SmsTrackingData(message), message.CorrelationId.ToString());
                 session.SaveChanges();
             }
 
@@ -25,5 +25,26 @@ namespace SmsTracking
                 EmailService.SendSmsSentConfirmation(message);
             }
         }
+
+        public void Handle(MessageFailedSending message)
+        {
+            using (var session = RavenStore.GetStore().OpenSession())
+            {
+                var messageSent = session.Load<SmsTrackingData>(message.CorrelationId);
+                if (messageSent != null) return;
+                session.Store(new SmsTrackingData(message), message.CorrelationId.ToString());
+                session.SaveChanges();
+            }
+
+            if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
+            {
+                EmailService.SendSmsSentConfirmation(message);
+            }
+        }
+    }
+
+    public enum MessageTrackedStatus
+    {
+        Sent, Failed
     }
 }
