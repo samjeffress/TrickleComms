@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmsWeb.Models
@@ -17,5 +18,9 @@ namespace SmsWeb.Models
         public DateTime ScheduledTime { get; set; }
 
         public Guid ScheduleMessageId { get; set; }
+
+        public string Topic { get; set; }
+
+        public List<string> Tags { get; set; }
     }
 }

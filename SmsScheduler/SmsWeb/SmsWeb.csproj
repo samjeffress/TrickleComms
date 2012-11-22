@@ -224,6 +224,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\Sms.cs" />
+    <Compile Include="API\SmsSchedule.cs" />
     <Compile Include="App_Start\AppHost.cs" />
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
