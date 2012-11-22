@@ -8,6 +8,7 @@ using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.WebHost.Endpoints;
 using SmsWeb.API;
 using SmsWeb.Controllers;
+using SmsWeb.Models;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(SmsWeb.App_Start.AppHost), "Start")]
 
@@ -41,8 +42,9 @@ namespace SmsWeb.App_Start
 			ServiceStack.Text.JsConfig.EmitCamelCaseNames = true;
 
 			//Configure User Defined REST Paths
-			Routes
-                .Add<Sms>("/sms");
+		    Routes
+		        .Add<Sms>("/sms")
+                .Add<ScheduleModel>("/schedule");
 
 			//Change the default ServiceStack configuration
 			//SetConfig(new EndpointHostConfig {
