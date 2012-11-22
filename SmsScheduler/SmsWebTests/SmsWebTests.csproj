@@ -57,6 +57,22 @@
     <Reference Include="Rhino.Mocks">
       <HintPath>..\SmsCoordinatorTests\bin\Debug\Rhino.Mocks.dll</HintPath>
     </Reference>
+    <Reference Include="ServiceStack.Common, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.Common.3.9.28\lib\net35\ServiceStack.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Interfaces, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.Common.3.9.28\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.ServiceInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.3.9.28\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceStack.Text, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ServiceStack.Text.3.9.28\lib\net35\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -69,6 +85,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiSmsTestFixture.cs" />
     <Compile Include="CoordinatorModelToMessageMappingTestFixture.cs" />
     <Compile Include="CoordinatorTestFixture.cs" />
     <Compile Include="ScheduleTestFixture.cs" />
@@ -82,6 +99,14 @@
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
       <Project>{024BB854-56C8-4A03-A9DE-68FF4FE1FBA7}</Project>
       <Name>SmsMessages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SmsTrackingTests\SmsTrackingTests.csproj">
+      <Project>{9CF230DD-C4BC-46CA-A209-93CD897982ED}</Project>
+      <Name>SmsTrackingTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SmsTracking\SmsTracking.csproj">
+      <Project>{03281013-E596-424F-A9F5-88BFA5704C8B}</Project>
+      <Name>SmsTracking</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmsWeb\SmsWeb.csproj">
       <Project>{3D7DD4C4-7DAC-43CC-AB86-7849FA1F2DA2}</Project>

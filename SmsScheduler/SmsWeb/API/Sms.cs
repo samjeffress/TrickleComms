@@ -23,7 +23,7 @@ namespace SmsWeb.API
 
         public string Topic { get; set; }
 
-        public SmsStatus Status { get; set; }
+        public string Status { get; set; }
     }
 
     public class SmsResponse : IHasResponseStatus
@@ -61,7 +61,7 @@ namespace SmsWeb.API
                 return new Sms
                 {
                     RequestId = request.RequestId,
-                    Status = request.Status
+                    Status = smsTrackingData.Status.ToString()
                 };
             }
         }
