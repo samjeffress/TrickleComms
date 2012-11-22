@@ -1,7 +1,9 @@
 using System;
+using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
+using SmsMessages.MessageSending;
 using SmsTracking;
 using SmsTrackingTests;
 using SmsWeb.API;
@@ -56,6 +58,44 @@ namespace SmsWebTests
             Assert.That(response.RequestId, Is.EqualTo(smsFailed));
             Assert.That(response.Status, Is.EqualTo("Failed"));
             ravenDocStore.VerifyAllExpectations();            
+        }
+
+        [Test]
+        public void PostWithRequestIdSmsSuccess()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            bus.Expect(b => b.Send(Arg<SendOneMessageNow>.Is.Anything));
+
+            var smsService = new SmsService { Bus = bus };
+            var request = new Sms { Message = "m", Number = "n", RequestId = Guid.NewGuid() };
+            var response = smsService.OnPost(request) as SmsResponse;
+
+            Assert.That(response.RequestId, Is.EqualTo(request.RequestId));
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void PostWithoutRequestIdSmsSuccess()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            bus.Expect(b => b.Send(Arg<SendOneMessageNow>.Is.Anything));
+
+            var smsService = new SmsService { Bus = bus };
+            var request = new Sms { Message = "m", Number = "n", RequestId = Guid.Empty };
+            var response = smsService.OnPost(request) as SmsResponse;
+
+            Assert.That(response.RequestId, Is.Not.EqualTo(Guid.Empty));
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void PostInvalidRequest()
+        {
+            var smsService = new SmsService();
+            var request = new Sms { Message = string.Empty, Number = string.Empty, RequestId = Guid.Empty };
+            var response = smsService.OnPost(request) as SmsResponse;
+
+            Assert.That(response.ResponseStatus.ErrorCode, Is.EqualTo("InvalidSms"));
         }
 
         [SetUp]
