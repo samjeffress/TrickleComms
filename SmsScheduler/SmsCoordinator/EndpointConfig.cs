@@ -2,7 +2,7 @@
 
 namespace SmsCoordinator
 {
-    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization
+    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization, AsA_Publisher
     {
         public void Init()
         {
