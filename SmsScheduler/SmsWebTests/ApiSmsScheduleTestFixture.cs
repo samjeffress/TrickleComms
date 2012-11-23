@@ -20,7 +20,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidRequest()
         {
-            var scheduleModel = new ScheduleModel { Number = "number", ScheduledTime = DateTime.Now.AddHours(1) };
+            var scheduleModel = new Schedule { Number = "number", ScheduledTime = DateTime.Now.AddHours(1) };
             var smsScheduleService = new SmsScheduleService();
             var result = smsScheduleService.OnPost(scheduleModel) as SmsScheduleResponse;
 
@@ -32,7 +32,7 @@ namespace SmsWebTests
         public void PostValidRequest()
         {
             var bus = MockRepository.GenerateMock<IBus>();
-            var scheduleModel = new ScheduleModel { Number = "number", MessageBody = "m", ScheduledTime = DateTime.Now.AddHours(1) };
+            var scheduleModel = new Schedule { Number = "number", MessageBody = "m", ScheduledTime = DateTime.Now.AddHours(1) };
 
             bus.Expect(b => b.Send(Arg<ScheduleSmsForSendingLater>.Is.Anything));
 
@@ -50,7 +50,7 @@ namespace SmsWebTests
             ravenDocStore.Expect(r => r.GetStore()).Return(base.DocumentStore);
             var smsScheduleService = new SmsScheduleService { RavenDocStore = ravenDocStore };
 
-            var request = new ScheduleModel { ScheduleMessageId = Guid.NewGuid() };
+            var request = new Schedule { ScheduleMessageId = Guid.NewGuid() };
             var response = smsScheduleService.OnGet(request) as SmsScheduleResponse;
 
             Assert.That(response.RequestId, Is.EqualTo(request.ScheduleMessageId));
@@ -65,7 +65,7 @@ namespace SmsWebTests
             ravenDocStore.Expect(r => r.GetStore()).Return(base.DocumentStore);
             var smsScheduleService = new SmsScheduleService { RavenDocStore = ravenDocStore };
 
-            var request = new ScheduleModel { ScheduleMessageId = scheduleMessageId };
+            var request = new Schedule { ScheduleMessageId = scheduleMessageId };
             var response = smsScheduleService.OnGet(request) as ScheduleModel;
 
             Assert.That(response.ScheduleMessageId, Is.EqualTo(request.ScheduleMessageId));

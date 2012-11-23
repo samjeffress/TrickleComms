@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NServiceBus;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
@@ -9,6 +10,23 @@ using SmsWeb.Models;
 
 namespace SmsWeb.API
 {
+    public class Schedule
+    {
+        public string Number { get; set; }
+
+        public string MessageBody { get; set; }
+
+        public string ConfirmationEmail { get; set; }
+
+        public DateTime ScheduledTime { get; set; }
+
+        public Guid ScheduleMessageId { get; set; }
+
+        public string Topic { get; set; }
+
+        public List<string> Tags { get; set; }
+    }
+
     public class SmsScheduleResponse : IHasResponseStatus
     {
         public Guid RequestId { get; set; }
@@ -16,13 +34,13 @@ namespace SmsWeb.API
         public ResponseStatus ResponseStatus { get; set; }
     }
 
-    public class SmsScheduleService : RestServiceBase<ScheduleModel>
+    public class SmsScheduleService : RestServiceBase<Schedule>
     {
         public IBus Bus { get; set; }
 
         public IRavenDocStore RavenDocStore { get; set; }
 
-        public override object OnGet(ScheduleModel request)
+        public override object OnGet(Schedule request)
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
@@ -38,7 +56,7 @@ namespace SmsWeb.API
             }
         }
 
-        public override object OnPost(ScheduleModel request)
+        public override object OnPost(Schedule request)
         {
             if (IsValidRequest(request))
             {
@@ -55,7 +73,7 @@ namespace SmsWeb.API
             return new SmsScheduleResponse { ResponseStatus = new ResponseStatus("InvalidRequest") };
         }
 
-        private bool IsValidRequest(ScheduleModel request)
+        private bool IsValidRequest(Schedule request)
         {
             if (string.IsNullOrWhiteSpace(request.Number) || string.IsNullOrWhiteSpace(request.MessageBody) || request.ScheduledTime <= DateTime.Now)
             {
