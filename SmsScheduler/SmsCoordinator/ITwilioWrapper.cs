@@ -8,7 +8,7 @@ namespace SmsCoordinator
 {
     public interface ITwilioWrapper
     {
-        SMSMessage SendSmsMessage(string from, string to, string message);
+        SMSMessage SendSmsMessage(string to, string message);
         SMSMessage CheckMessage(string sid);
     }
 
@@ -37,9 +37,18 @@ namespace SmsCoordinator
             _restClient = new TwilioRestClient(accountSid, authToken);
         }
 
-        public SMSMessage SendSmsMessage(string from, string to, string message)
+        public SMSMessage SendSmsMessage(string to, string message)
         {
-            return _restClient.SendSmsMessage(from, to, message);
+            using (var session = DocumentStore.GetStore().OpenSession("TwilioConfiguration"))
+            {
+                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
+                if (twilioConfiguration == null)
+                {
+                    throw new NotImplementedException();
+                }
+                return _restClient.SendSmsMessage(twilioConfiguration.From, to, message);
+            }
+            
         }
 
         public SMSMessage CheckMessage(string sid)

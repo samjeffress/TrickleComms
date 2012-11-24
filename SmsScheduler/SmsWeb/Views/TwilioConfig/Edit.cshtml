@@ -21,6 +21,12 @@
                     @Html.LabelFor(m => m.AuthToken)
                     @Html.EditorFor(m => m.AuthToken)
                 </div>   
+
+                <div>
+                    @Html.ValidationMessageFor(m => m.From)
+                    @Html.LabelFor(m => m.From)
+                    @Html.EditorFor(m => m.From)
+                </div>   
                 <div>
                     <input type="submit" name="submit"/>
                 </div>                   

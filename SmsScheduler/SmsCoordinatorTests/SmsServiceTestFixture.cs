@@ -20,7 +20,7 @@ namespace SmsCoordinatorTests
 
             var smsMessage = new SMSMessage { Status = "sent", Sid = "sidReceipt", DateSent = DateTime.Now, Price = 3 };
             twilioWrapper
-                .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+                .Expect(t => t.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessage);
 
             var response = smsService.Send(messageToSend);
@@ -43,7 +43,7 @@ namespace SmsCoordinatorTests
 
             var smsMessageSending = new SMSMessage { Status = "sending", Sid = "sidReceipt" };
             twilioWrapper
-                .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+                .Expect(t => t.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessageSending);
 
             var response = smsService.Send(messageToSend);
@@ -62,7 +62,7 @@ namespace SmsCoordinatorTests
 
             var smsMessageSending = new SMSMessage { Status = "failed", Sid = "sidReceipt", RestException = new RestException {Code = "code", Message = "message", MoreInfo = "moreInfo", Status = "status"}};
             twilioWrapper
-                .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+                .Expect(t => t.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessageSending);
 
             var response = smsService.Send(messageToSend);
@@ -86,7 +86,7 @@ namespace SmsCoordinatorTests
 
             var smsMessageSending = new SMSMessage { Status = "queued", Sid = "sidReceipt" };
             twilioWrapper
-                .Expect(t => t.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+                .Expect(t => t.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
                 .Return(smsMessageSending);
 
             var response = smsService.Send(messageToSend);

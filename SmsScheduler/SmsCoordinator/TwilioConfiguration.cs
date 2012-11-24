@@ -9,5 +9,8 @@ namespace SmsCoordinator
 
         [Required]
         public string AccountSid { get; set; }
+
+        [Required]
+        public string From { get; set; }
     }
 }

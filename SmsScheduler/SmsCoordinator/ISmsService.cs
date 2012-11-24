@@ -23,7 +23,7 @@ namespace SmsCoordinator
 
         public SmsStatus Send(SendOneMessageNow messageToSend)
         {
-            var createdSmsMessage = TwilioWrapper.SendSmsMessage("defaultFrom", messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
+            var createdSmsMessage = TwilioWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
             return ProcessSms(createdSmsMessage);
         }
 
