@@ -8,6 +8,7 @@ namespace SmsCoordinator
         {
             var configure = Configure.With()
             .DefaultBuilder()
+                .RunTimeoutManager()
                 .Log4Net()
             .XmlSerializer()
             .MsmqTransport()

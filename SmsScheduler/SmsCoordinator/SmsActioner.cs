@@ -56,7 +56,10 @@ namespace SmsCoordinator
                 MarkAsComplete();
             }
             else
-                RequestUtcTimeout<SmsPendingTimeout>(new TimeSpan(0, 1, 0));
+            {
+                var dateTime = DateTime.UtcNow.AddMinutes(1);
+                RequestUtcTimeout<SmsPendingTimeout>(dateTime);
+            }
         }
     }
 

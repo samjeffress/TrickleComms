@@ -14,7 +14,7 @@ namespace SmsWeb
         private readonly IDocumentStore _documentStore;
         public RavenDocStore()
         {
-            _documentStore = new DocumentStore {Url = "http://localhost:8080"};
+            _documentStore = new DocumentStore {Url = "http://localhost:8080", DefaultDatabase = "SmsTracking"};
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("TwilioConfiguration");
             _documentStore.DatabaseCommands.EnsureDatabaseExists("SmsTracking");
