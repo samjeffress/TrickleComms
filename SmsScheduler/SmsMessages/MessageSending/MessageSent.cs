@@ -4,7 +4,7 @@ using SmsMessages.CommonData;
 
 namespace SmsMessages.MessageSending
 {
-    public class MessageSent : IMessage
+    public class MessageSent : IEvent
     {
         public SmsConfirmationData ConfirmationData { get; set; }
 
@@ -17,7 +17,7 @@ namespace SmsMessages.MessageSending
         public string ConfirmationEmailAddress { get; set; }
     }
 
-    public class MessageFailedSending : IMessage
+    public class MessageFailedSending : IEvent
     {
         public SmsFailed SmsFailed { get; set; }
 
