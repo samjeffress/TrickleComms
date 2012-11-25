@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NServiceBus;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
-using SmsMessages.CommonData;
-using SmsMessages.Coordinator;
+using SmsTracking;
 
 namespace SmsWeb.API
 {
     public class Coordinator
     {
+        public Guid RequestId { get; set; }
+
         public List<string> Numbers { get; set; }
 
         public string Message { get; set; }
@@ -31,6 +31,10 @@ namespace SmsWeb.API
         public Guid RequestId { get; set; }
 
         public ResponseStatus ResponseStatus { get; set; }
+
+        public List<MessageSendingStatus> Messages { get; set; }
+
+        public string CoordinatorStatus { get; set; }
     }
 
     public class CoordinatorService : RestServiceBase<Coordinator>
@@ -43,7 +47,20 @@ namespace SmsWeb.API
 
         public override object OnGet(Coordinator request)
         {
-            return base.OnGet(request);
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var trackingData = session.Load<CoordinatorTrackingData>(request.RequestId.ToString());
+                var response = new CoordinatorResponse  { RequestId = request.RequestId };
+                if (trackingData == null)
+                {
+                    response.ResponseStatus = new ResponseStatus("NotFound");
+                    return response;
+                }
+                
+                response.Messages = trackingData.MessageStatuses;
+                response.CoordinatorStatus = trackingData.CurrentStatus.ToString();
+                return response;
+            }
         }
 
         public override object OnPost(Coordinator request)
@@ -66,7 +83,7 @@ namespace SmsWeb.API
 
             if (response.Errors.Count == 0)
             {
-                coordinatorResponse.RequestId = Guid.NewGuid();
+                coordinatorResponse.RequestId = request.RequestId == Guid.Empty ? request.RequestId : Guid.NewGuid();
                 if (request.TimeSeparator.HasValue && !request.SendAllBy.HasValue)
                 {
                     var message = Mapper.MapToTrickleSpacedByPeriod(request, coordinatorResponse.RequestId);

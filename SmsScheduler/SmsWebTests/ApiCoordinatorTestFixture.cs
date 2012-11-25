@@ -4,13 +4,18 @@ using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.Coordinator;
+using SmsTracking;
+using SmsTrackingTests;
 using SmsWeb.API;
+using IRavenDocStore = SmsWeb.IRavenDocStore;
 
 namespace SmsWebTests
 {
     [TestFixture]
-    public class ApiCoordinatorTestFixture
+    public class ApiCoordinatorTestFixture : RavenTestBase
     {
+        private Guid _coordinatorId = Guid.NewGuid();
+
         [Test]
         public void PostInvalidNeitherTimeSeparatorOrSendBySet()
         {
@@ -116,6 +121,69 @@ namespace SmsWebTests
 
             bus.VerifyAllExpectations();
             mapper.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetFound()
+        {
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(base.DocumentStore);
+            var service = new CoordinatorService {RavenDocStore = ravenDocStore};
+
+            var request = new Coordinator { RequestId = _coordinatorId };
+            var response = service.OnGet(request) as CoordinatorResponse;
+
+            Assert.That(response.RequestId, Is.EqualTo(_coordinatorId));
+            Assert.That(response.Messages.Count, Is.EqualTo(2));
+            Assert.That(response.Messages[0].Number, Is.EqualTo("12313"));
+            Assert.That(response.Messages[0].Status, Is.EqualTo(MessageStatusTracking.Completed));
+            Assert.That(response.Messages[1].Number, Is.EqualTo("434039"));
+            Assert.That(response.Messages[1].Status, Is.EqualTo(MessageStatusTracking.Scheduled));
+
+            ravenDocStore.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void GetNotFound()
+        {
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(base.DocumentStore);
+            var service = new CoordinatorService { RavenDocStore = ravenDocStore };
+
+            var notFoundRequestId = Guid.NewGuid();
+            var request = new Coordinator { RequestId = notFoundRequestId };
+            var response = service.OnGet(request) as CoordinatorResponse;
+
+            Assert.That(response.RequestId, Is.EqualTo(notFoundRequestId));
+            Assert.That(response.ResponseStatus.ErrorCode, Is.EqualTo("NotFound"));
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            using (var session = base.DocumentStore.OpenSession())
+            {
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = _coordinatorId,
+                    CurrentStatus = CoordinatorStatusTracking.Started,
+                    MessageStatuses = new List<MessageSendingStatus>
+                    {
+                        new MessageSendingStatus
+                        {
+                            Number = "12313",
+                            Status = MessageStatusTracking.Completed
+                        },
+                        new MessageSendingStatus
+                        {
+                            Number = "434039",
+                            Status = MessageStatusTracking.Scheduled
+                        }
+                    }
+                };
+                session.Store(coordinatorTrackingData, _coordinatorId.ToString());
+                session.SaveChanges();
+            }
         }
     }
 }
