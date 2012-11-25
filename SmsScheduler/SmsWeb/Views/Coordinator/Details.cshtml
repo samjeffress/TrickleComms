@@ -1,0 +1,20 @@
+﻿@model SmsTracking.CoordinatorTrackingData
+
+@{
+    ViewBag.Title = "title";
+}
+
+<h2>title</h2>
+<div>ID : @Model.CoordinatorId</div>
+<div>Current Status: @Model.CurrentStatus.ToString()</div>
+@if(Model.CompletionDate.HasValue)
+{
+    <div>Completion Date: @Model.CompletionDate.Value</div>
+}
+@foreach(var message in Model.MessageStatuses)
+{
+    <div>
+        Number: @message.Number<br/>
+        Status: @message.Status.ToString()<br />
+    </div>
+}

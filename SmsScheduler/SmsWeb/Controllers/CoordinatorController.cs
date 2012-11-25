@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
+using SmsTracking;
 using SmsWeb.Models;
 
 namespace SmsWeb.Controllers
@@ -11,6 +12,8 @@ namespace SmsWeb.Controllers
     public class CoordinatorController : Controller
     {
         public IBus Bus { get; set; }
+
+        public IRavenDocStore RavenDocStore { get; set; }
 
         public ICoordinatorModelToMessageMapping Mapper { get; set; }
 
@@ -60,7 +63,14 @@ namespace SmsWeb.Controllers
 
         public ActionResult Details(string coordinatorid)
         {
-            throw new NotImplementedException();
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
+                if (coordinatorTrackingData == null)
+                    throw new NotImplementedException();
+                    //return View("DetailsNotCreated", scheduleId);
+                return View("Details", coordinatorTrackingData);
+            }
         }
     }
 

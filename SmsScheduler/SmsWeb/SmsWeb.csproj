@@ -378,6 +378,7 @@
     <Content Include="Views\Schedule\Details.cshtml" />
     <Content Include="Views\Schedule\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\Create.cshtml" />
+    <Content Include="Views\Coordinator\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
