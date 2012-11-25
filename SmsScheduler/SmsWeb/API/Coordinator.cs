@@ -83,7 +83,10 @@ namespace SmsWeb.API
 
             if (response.Errors.Count == 0)
             {
-                coordinatorResponse.RequestId = request.RequestId == Guid.Empty ? request.RequestId : Guid.NewGuid();
+                if (request.RequestId == Guid.Empty)
+                    coordinatorResponse.RequestId = Guid.NewGuid();
+                else
+                    coordinatorResponse.RequestId = request.RequestId;
                 if (request.TimeSeparator.HasValue && !request.SendAllBy.HasValue)
                 {
                     var message = Mapper.MapToTrickleSpacedByPeriod(request, coordinatorResponse.RequestId);

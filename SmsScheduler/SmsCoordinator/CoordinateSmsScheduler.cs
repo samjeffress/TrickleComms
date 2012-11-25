@@ -74,7 +74,7 @@ namespace SmsCoordinator
                 Data.MessagesScheduled++;
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
             }
-            Bus.Send(messageList);
+            Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
@@ -187,6 +187,9 @@ namespace SmsCoordinator
 
     public class ScheduledMessageStatus
     {
+        [Obsolete("For JSON deserialisation.")]
+        public ScheduledMessageStatus() {}
+
         public ScheduledMessageStatus(ScheduleSmsForSendingLater message)
         {
             MessageStatus = MessageStatus.WaitingForScheduling;
