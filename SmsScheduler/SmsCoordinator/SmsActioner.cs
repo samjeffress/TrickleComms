@@ -57,8 +57,7 @@ namespace SmsCoordinator
             }
             else
             {
-                var dateTime = DateTime.UtcNow.AddMinutes(1);
-                RequestUtcTimeout<SmsPendingTimeout>(dateTime);
+                RequestUtcTimeout<SmsPendingTimeout>(new TimeSpan(0,0,0,10));
             }
         }
     }

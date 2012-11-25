@@ -62,7 +62,7 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectPublish<MessageSent>()
                 .WhenSagaTimesOut()
@@ -85,7 +85,7 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectNotPublish<MessageSent>()
                 .WhenSagaTimesOut()
@@ -109,10 +109,10 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectNotPublish<MessageSent>()
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromMinutes(1))
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .WhenSagaTimesOut()
                     .ExpectPublish<MessageSent>()
                 .WhenSagaTimesOut();
