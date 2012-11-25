@@ -83,18 +83,19 @@ namespace SmsWebTests
             var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTime = DateTime.Now.AddDays(1), SendAllBy = DateTime.Now.AddDays(1) };
 
             var bus = MockRepository.GenerateMock<IBus>();
+            var mapper = MockRepository.GenerateMock<ICoordinatorApiModelToMessageMapping>();
 
-            var trickleMessage = new TrickleSmsOverCalculatedIntervalsBetweenSetDates();
-            bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)((object[])(i.Arguments[0]))[0]);
+            mapper.Expect(m => m.MapToTrickleOverPeriod(Arg<Coordinator>.Is.Equal(request), Arg<Guid>.Is.Anything));
+            bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
             
-            var service = new CoordinatorService { Bus = bus};
+            var service = new CoordinatorService { Bus = bus, Mapper = mapper };
             var response = service.OnPost(request) as CoordinatorResponse;
 
             Assert.That(response.ResponseStatus.ErrorCode, Is.Null);
             Assert.That(response.RequestId, Is.Not.EqualTo(Guid.Empty));
 
             bus.VerifyAllExpectations();
+            mapper.VerifyAllExpectations();
         }
 
         [Test]
@@ -102,18 +103,19 @@ namespace SmsWebTests
         {
             var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTime = DateTime.Now.AddDays(1), TimeSeparator = new TimeSpan(0,0,3)};
             var bus = MockRepository.GenerateMock<IBus>();
+            var mapper = MockRepository.GenerateMock<ICoordinatorApiModelToMessageMapping>();
 
-            var trickleMessage = new TrickleSmsWithDefinedTimeBetweenEachMessage();
-            bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsWithDefinedTimeBetweenEachMessage)((object[])(i.Arguments[0]))[0]);
+            mapper.Expect(m => m.MapToTrickleSpacedByPeriod(Arg<Coordinator>.Is.Equal(request), Arg<Guid>.Is.Anything));
+            bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.NotNull));
 
-            var service = new CoordinatorService { Bus = bus };
+            var service = new CoordinatorService { Bus = bus, Mapper = mapper };
             var response = service.OnPost(request) as CoordinatorResponse;
 
             Assert.That(response.ResponseStatus.ErrorCode, Is.Null);
             Assert.That(response.RequestId, Is.Not.EqualTo(Guid.Empty));
 
             bus.VerifyAllExpectations();
+            mapper.VerifyAllExpectations();
         }
     }
 }

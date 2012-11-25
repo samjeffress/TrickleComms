@@ -224,6 +224,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\Coordinator.cs" />
+    <Compile Include="API\CoordinatorApiModelToMessageMapping.cs" />
     <Compile Include="API\Sms.cs" />
     <Compile Include="API\SmsSchedule.cs" />
     <Compile Include="App_Start\AppHost.cs" />

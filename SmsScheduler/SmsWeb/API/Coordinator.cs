@@ -39,6 +39,8 @@ namespace SmsWeb.API
 
         public IRavenDocStore RavenDocStore { get; set; }
 
+        public ICoordinatorApiModelToMessageMapping Mapper { get; set; }
+
         public override object OnGet(Coordinator request)
         {
             return base.OnGet(request);
@@ -67,26 +69,13 @@ namespace SmsWeb.API
                 coordinatorResponse.RequestId = Guid.NewGuid();
                 if (request.TimeSeparator.HasValue && !request.SendAllBy.HasValue)
                 {
-                    var trickleSmsOverTimePeriod = new TrickleSmsWithDefinedTimeBetweenEachMessage
-                    {
-                        Messages = request.Numbers.Select(n => new SmsData(n, request.Message)).ToList(),
-                        StartTime = request.StartTime,
-                        TimeSpacing = request.TimeSeparator.Value,
-                        MetaData = new SmsMetaData { Tags = request.Tags, Topic = request.Topic }
-                    };
-                    Bus.Send(trickleSmsOverTimePeriod);
+                    var message = Mapper.MapToTrickleSpacedByPeriod(request, coordinatorResponse.RequestId);
+                    Bus.Send(message);
                 }
                 if (!request.TimeSeparator.HasValue && request.SendAllBy.HasValue)
                 {
-                    var trickleSmsSpacedByTimePeriod = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
-                    {
-                        Duration = request.SendAllBy.Value.Subtract(request.StartTime),
-                        Messages = request.Numbers.Select(n => new SmsData(n, request.Message)).ToList(),
-                        StartTime = request.StartTime,
-                        MetaData = new SmsMetaData { Tags = request.Tags, Topic = request.Topic },
-                        CoordinatorId = coordinatorResponse.RequestId
-                    };
-                    Bus.Send(trickleSmsSpacedByTimePeriod);
+                    var message = Mapper.MapToTrickleOverPeriod(request, coordinatorResponse.RequestId);
+                    Bus.Send(message);
                 }
             }
 

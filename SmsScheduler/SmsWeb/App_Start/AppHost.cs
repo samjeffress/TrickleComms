@@ -45,7 +45,8 @@ namespace SmsWeb.App_Start
 			//Configure User Defined REST Paths
 		    Routes
 		        .Add<Sms>("/sms")
-                .Add<Schedule>("/schedule");
+                .Add<Schedule>("/schedule")
+                .Add<Coordinator>("/coordinator");
 
 			//Change the default ServiceStack configuration
 			//SetConfig(new EndpointHostConfig {
@@ -66,6 +67,7 @@ namespace SmsWeb.App_Start
 
 		    container.Register<IRavenDocStore>(new RavenDocStore());
 		    container.Register<ICoordinatorModelToMessageMapping>(new CoordinatorModelToMessageMapping());
+		    container.Register<ICoordinatorApiModelToMessageMapping>(new CoordinatorApiModelToMessageMapping());
 
             var bus = NServiceBus.Configure.With()
                 .DefineEndpointName("SmsWeb")
