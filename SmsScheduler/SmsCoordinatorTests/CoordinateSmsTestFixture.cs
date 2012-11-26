@@ -45,7 +45,9 @@ namespace SmsCoordinatorTests
                         s.TimingManager = timingManager;
                         s.Data = sagaData;
                     })
-                    .ExpectSend<List<ScheduleSmsForSendingLater>>()
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
                     .ExpectSend<CoordinatorCreated>()
                 .When(s => s.Handle(trickleMultipleMessages))
                     .AssertSagaCompletionIs(false)
@@ -85,7 +87,9 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
                 .WithExternalDependencies(d => d.Data = sagaData)
-                    .ExpectSend<List<ScheduleSmsForSendingLater>>()
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
                 .When(s => s.Handle(trickleMultipleMessages))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
@@ -123,7 +127,9 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
                 .WithExternalDependencies(d => d.Data = sagaData)
-                    .ExpectSend<List<ScheduleSmsForSendingLater>>()
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
                 .When(s => s.Handle(trickleMultipleMessages))
                     .ExpectSend<CoordinatorMessageSent>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
@@ -163,7 +169,9 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
                 .WithExternalDependencies(d => d.Data = sagaData)
-                    .ExpectSend<List<ScheduleSmsForSendingLater>>()
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
                 .When(s => s.Handle(trickleMultipleMessages))
                     .ExpectSend<CoordinatorMessageSent>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
@@ -212,18 +220,16 @@ namespace SmsCoordinatorTests
                     s.TimingManager = timingManager;
                     s.Data = sagaData;
                 })
-                    .ExpectSend<List<ScheduleSmsForSendingLater>>(l => 
-                        l.Count == 2 && 
-                        l[0].SendMessageAt == datetimeSpacing[0] &&
-                        l[0].SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
-                        l[0].SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
-                        l[0].SmsMetaData == trickleMessagesOverTime.MetaData &&
-                        
-                        l[1].SendMessageAt == datetimeSpacing[1] &&
-                        l[1].SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
-                        l[1].SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
-                        l[1].SmsMetaData == trickleMessagesOverTime.MetaData
-                        )
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => 
+                        l.SendMessageAt == datetimeSpacing[0] &&
+                        l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
+                        l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
+                        l.SmsMetaData == trickleMessagesOverTime.MetaData)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l =>     
+                        l.SendMessageAt == datetimeSpacing[1] &&
+                        l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
+                        l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
+                        l.SmsMetaData == trickleMessagesOverTime.MetaData)
                     .ExpectSend<CoordinatorCreated>(c => 
                         c.CoordinatorId == sagaData.Id && 
                         c.ScheduledMessages.Count == 2 &&
@@ -260,18 +266,17 @@ namespace SmsCoordinatorTests
                     s.TimingManager = timingManager;
                     s.Data = sagaData;
                 })
-                    .ExpectSend<List<ScheduleSmsForSendingLater>>(l =>
-                        l.Count == 2 &&
-                        l[0].SendMessageAt.Ticks == trickleMessagesOverTime.StartTime.Ticks &&
-                        l[0].SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
-                        l[0].SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
-                        l[0].SmsMetaData == trickleMessagesOverTime.MetaData &&
-
-                        l[1].SendMessageAt.Ticks == trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
-                        l[1].SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
-                        l[1].SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
-                        l[1].SmsMetaData == trickleMessagesOverTime.MetaData
-                        )
+                    .ExpectSend<ScheduleSmsForSendingLater>(l =>
+                        //l.Count == 2 &&
+                        l.SendMessageAt.Ticks == trickleMessagesOverTime.StartTime.Ticks &&
+                        l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
+                        l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
+                        l.SmsMetaData == trickleMessagesOverTime.MetaData)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => 
+                        l.SendMessageAt.Ticks == trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
+                        l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
+                        l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
+                        l.SmsMetaData == trickleMessagesOverTime.MetaData)
                     .ExpectSend<CoordinatorCreated>(c =>
                         c.CoordinatorId == sagaData.Id &&
                         c.ScheduledMessages.Count == 2 &&

@@ -48,7 +48,7 @@ namespace SmsCoordinator
                 Data.MessagesScheduled++;
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
             }
-            Bus.Send(messageList);
+            Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
