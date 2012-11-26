@@ -8,6 +8,32 @@
 <h2>title</h2>
 <div>ID : @Model.CoordinatorId</div>
 <div>Current Status: @Model.CurrentStatus.ToString()</div>
+@if (Model.CurrentStatus != CoordinatorStatusTracking.Completed)
+{
+    if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
+    {
+        <div>
+            @using(Html.BeginForm("Pause", "Coordinator"))
+            {
+                <label>Pause message sending</label>
+                <input type="submit" value="go"/>
+            }
+        </div>
+        // show pause button
+    }
+    if (Model.CurrentStatus == CoordinatorStatusTracking.Paused)
+    {
+        <div>
+            @using(Html.BeginForm("Resume", "Coordinator"))
+            {
+                <label>Time to resume</label>
+                <input type="datetime-local" value="@DateTime.Now"/>
+                <input type="submit" value="go"/>
+            }
+        </div>
+        // show resume button
+    }
+}
 @if(Model.CompletionDate.HasValue)
 {
     <div>Completion Date: @Model.CompletionDate.Value</div>
