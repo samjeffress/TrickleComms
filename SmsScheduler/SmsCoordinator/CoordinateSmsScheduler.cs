@@ -91,7 +91,10 @@ namespace SmsCoordinator
                 .Select(scheduledMessageStatuse => 
                     new PauseScheduledMessageIndefinitely(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId))
                 .ToList();
-            Bus.Send(messagesToPause);
+            foreach (var pauseScheduledMessageIndefinitely in messagesToPause)
+            {
+                Bus.Send(pauseScheduledMessageIndefinitely);
+            }
         }
 
         public void Handle(ResumeTrickledMessages resumeMessages)
@@ -103,7 +106,10 @@ namespace SmsCoordinator
                 .Select(scheduledMessageStatuse => 
                     new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)))
                 .ToList();
-            Bus.Send(resumeMessageCommands);
+            foreach (var resumeScheduledMessageWithOffset in resumeMessageCommands)
+            {
+                Bus.Send(resumeScheduledMessageWithOffset);
+            }
         }
 
         public void Handle(SmsScheduled smsScheduled)
