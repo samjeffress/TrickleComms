@@ -15,6 +15,7 @@
         <div>
             @using(Html.BeginForm("Pause", "Coordinator"))
             {
+                @Html.HiddenFor(m => m.CoordinatorId)
                 <label>Pause message sending</label>
                 <input type="submit" value="go"/>
             }
@@ -26,8 +27,9 @@
         <div>
             @using(Html.BeginForm("Resume", "Coordinator"))
             {
+                @Html.HiddenFor(m => m.CoordinatorId)
                 <label>Time to resume</label>
-                <input type="datetime-local" value="@DateTime.Now"/>
+                <input name="timeToResume" type="datetime-local" value="@DateTime.Now"/>
                 <input type="submit" value="go"/>
             }
         </div>

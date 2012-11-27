@@ -72,6 +72,40 @@ namespace SmsWeb.Controllers
                 return View("Details", coordinatorTrackingData);
             }
         }
+
+        [HttpPost]
+        public ActionResult Pause(FormCollection collection)
+        {
+            var coordinatorid = collection["CoordinatorId"];
+            Bus.Send(new PauseTrickledMessagesIndefinitely { CoordinatorId = Guid.Parse(coordinatorid) });
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
+                if (coordinatorTrackingData == null)
+                    throw new NotImplementedException();
+                coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Paused;
+                //return View("DetailsNotCreated", scheduleId);
+                return View("Details", coordinatorTrackingData);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Resume(FormCollection collection)
+        {
+            var coordinatorid = collection["CoordinatorId"];
+            var timeToResume = DateTime.Parse(collection["timeToResume"]);
+            
+            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTime = timeToResume});
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
+                if (coordinatorTrackingData == null)
+                    throw new NotImplementedException();
+                coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Started;
+                //return View("DetailsNotCreated", scheduleId);
+                return View("Details", coordinatorTrackingData);
+            }
+        }
     }
 
     public interface ICoordinatorModelToMessageMapping
