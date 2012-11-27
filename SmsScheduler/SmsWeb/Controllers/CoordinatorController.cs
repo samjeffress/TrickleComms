@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.SessionState;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
@@ -69,6 +71,8 @@ namespace SmsWeb.Controllers
                 if (coordinatorTrackingData == null)
                     throw new NotImplementedException();
                     //return View("DetailsNotCreated", scheduleId);
+                if (HttpContext.Session != null && HttpContext.Session["CoordinatorState"] != null && HttpContext.Session["CoordinatorState"] is CoordinatorStatusTracking)
+                    coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState"];
                 return View("Details", coordinatorTrackingData);
             }
         }
@@ -78,15 +82,8 @@ namespace SmsWeb.Controllers
         {
             var coordinatorid = collection["CoordinatorId"];
             Bus.Send(new PauseTrickledMessagesIndefinitely { CoordinatorId = Guid.Parse(coordinatorid) });
-            using (var session = RavenDocStore.GetStore().OpenSession())
-            {
-                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
-                if (coordinatorTrackingData == null)
-                    throw new NotImplementedException();
-                coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Paused;
-                //return View("DetailsNotCreated", scheduleId);
-                return View("Details", coordinatorTrackingData);
-            }
+            HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Paused);
+            return RedirectToAction("Details", new { coordinatorid });
         }
 
         [HttpPost]
@@ -96,15 +93,8 @@ namespace SmsWeb.Controllers
             var timeToResume = DateTime.Parse(collection["timeToResume"]);
             
             Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTime = timeToResume});
-            using (var session = RavenDocStore.GetStore().OpenSession())
-            {
-                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
-                if (coordinatorTrackingData == null)
-                    throw new NotImplementedException();
-                coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Started;
-                //return View("DetailsNotCreated", scheduleId);
-                return View("Details", coordinatorTrackingData);
-            }
+            HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Started);
+            return RedirectToAction("Details", new { coordinatorid });
         }
     }
 
