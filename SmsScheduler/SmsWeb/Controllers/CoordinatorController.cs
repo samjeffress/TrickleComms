@@ -19,6 +19,17 @@ namespace SmsWeb.Controllers
 
         public ICoordinatorModelToMessageMapping Mapper { get; set; }
 
+        public ActionResult Index()
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = session.Query<CoordinatorTrackingData>()
+                    .Where(c => c.CurrentStatus != CoordinatorStatusTracking.Completed)
+                    .ToList();
+                return View("Index", coordinatorTrackingData);
+            }
+        }
+
         public ActionResult Create()
         {
             return View("Create");

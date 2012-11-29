@@ -1,0 +1,33 @@
+﻿@model List<SmsTracking.CoordinatorTrackingData>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+
+<h2>Incomplete Coordinated Message Senders</h2>
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Coordinator Id</th>
+                <th>Status</th>
+                <th>Message count</th>
+                <th>Start Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var coordintor in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(coordintor.CoordinatorId.ToString(), "Details", "Coordinator", new { coordinatorid = coordintor.CoordinatorId.ToString()}, null)</td>
+                    <td>@coordintor.CurrentStatus.ToString()</td>
+                    <td>@coordintor.MessageStatuses.Count</td>
+                    <td>Don't have this yet</td>
+                </tr>
+            }
+        </tbody>
+
+    </table>              
+</div>

@@ -7,17 +7,39 @@
 
 @*@section Scripts {*@
     @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/jqueryui")
-    @*@Scripts.Render("~/bundles/jqueryval")*@
+@Scripts.Render("~/bundles/jqueryui")
+@Styles.Render("~/Content/themes/base/jquery-ui.css")
+@*<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />*@
+@*@Scripts.Render("~/bundles/jqueryval")*@
 @*}*@
 
 <script type="text/javascript">
     $(document).ready(function () {
+
         $('#tag').bind('change, blur', function() {
             addToNumberList($('#tag').val());
             $('#tag').val("");
         });
+
+        $('input[name="coordinationStrategy"]').bind('click', function() {
+            if ($('input[name="coordinationStrategy"]:checked').val() == 'timeSeparated') {
+                $('#timeSeparated').show();
+                $('#sendAllBy').hide();
+                $('#sendAllBy input').val('');
+            } else {
+                $('#sendAllBy').show();
+                $('#timeSeparated').hide();
+                $('#timeSeparated input').val('');
+            }
+        });
+        
+        $("#messageSeparator").accordion({
+            collapsible: true, icons: null
+        });
+        
     });
+    
+    
 
     $(document).ready(function () {
         $('#tag').keypress(function () {
@@ -53,7 +75,7 @@
             @Html.LabelFor(model => model.Message)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.Message)
+            @Html.TextAreaFor(model => model.Message)
             @Html.ValidationMessageFor(model => model.Message)
         </div>
 
@@ -64,22 +86,26 @@
             @Html.EditorFor(model => model.StartTime)
             @Html.ValidationMessageFor(model => model.StartTime)
         </div>
+        
+        <div>
+            <h3>Select how you want to coordinate the timing:</h3>
+            <div id="messageSeparator">
+                <h3>Time Separated</h3>
+                <div>
+                        @Html.EditorFor(model => model.TimeSeparator)
+                        @Html.ValidationMessageFor(model => model.TimeSeparator)
+                </div>
+                <h3>Send All By Set Time</h3>
+                <div>
+                        @Html.EditorFor(model => model.SendAllBy, "blah")
+                        @Html.ValidationMessageFor(model => model.SendAllBy)
+                </div>
+            </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.TimeSeparator)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.TimeSeparator)
-            @Html.ValidationMessageFor(model => model.TimeSeparator)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.SendAllBy)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.SendAllBy)
-            @Html.ValidationMessageFor(model => model.SendAllBy)
-        </div>
+        
+
         <div>
             <div class="editor-label">
                 @Html.LabelFor(model => model.Topic)

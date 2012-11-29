@@ -7,6 +7,7 @@
         <title>Create Scheduled Sms</title>
     </head>
     <body>
+    <h2>Create a message to schedule a message for later</h2>    
     @using (Html.BeginForm()) {
         @Html.ValidationSummary(true)
 
@@ -25,7 +26,7 @@
                 @Html.LabelFor(model => model.MessageBody)
             </div>
             <div class="editor-field">
-                @Html.EditorFor(model => model.MessageBody)
+                @Html.TextAreaFor(model => model.MessageBody)
                 @Html.ValidationMessageFor(model => model.MessageBody)
             </div>
 

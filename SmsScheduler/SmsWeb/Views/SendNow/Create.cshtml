@@ -4,7 +4,7 @@
     ViewBag.Title = "Create";
 }
 
-<h2>Create</h2>
+<h2>Create a message to send now</h2>
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
@@ -24,7 +24,7 @@
             @Html.LabelFor(model => model.MessageBody)
         </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.MessageBody)
+            @Html.TextAreaFor(model => model.MessageBody)
             @Html.ValidationMessageFor(model => model.MessageBody)
         </div>
 
