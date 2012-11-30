@@ -434,7 +434,7 @@ namespace SmsCoordinatorTests
             var dateTime = DateTime.Now;
             var sagaData = new CoordinateSmsSchedulingData { Originator = "o", ScheduledMessageStatus = scheduledMessageStatuses, OriginalScheduleStartTime = dateTime.AddMinutes(-5) };
             
-            var resumeTricklesMessages = new ResumeTrickledMessages { ResumeTime = dateTime };
+            var resumeTricklesMessages = new ResumeTrickledMessages { ResumeTimeUtc = dateTime };
 
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
@@ -471,12 +471,12 @@ namespace SmsCoordinatorTests
             var dateTime = DateTime.Now;
             var sagaData = new CoordinateSmsSchedulingData { Originator = "o", ScheduledMessageStatus = scheduledMessageStatuses, OriginalScheduleStartTime = dateTime.AddMinutes(-5) };
 
-            var messageRescheduled = new MessageRescheduled { ScheduleMessageId = scheduleId, RescheduledTime = dateTime };
+            var messageRescheduled = new MessageRescheduled { ScheduleMessageId = scheduleId, RescheduledTimeUtc = dateTime.ToUniversalTime() };
 
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
                 .WithExternalDependencies(s => { s.Data = sagaData; })
-                    .ExpectSend<CoordinatorMessageResumed>(c => c.ScheduleMessageId == scheduleId && c.RescheduledTime == dateTime && c.Number == mobile)
+                    .ExpectSend<CoordinatorMessageResumed>(c => c.ScheduleMessageId == scheduleId && c.RescheduledTimeUtc == dateTime.ToUniversalTime() && c.Number == mobile)
                 .When(s => s.Handle(messageRescheduled));
 
             Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Scheduled));

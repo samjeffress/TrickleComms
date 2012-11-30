@@ -202,7 +202,7 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessageResumed = new CoordinatorMessageResumed { CoordinatorId = coordinatorId, ScheduleMessageId = scheduleId, Number = updatedNumber, RescheduledTime = rescheduledTime };
+            var coordinatorMessageResumed = new CoordinatorMessageResumed { CoordinatorId = coordinatorId, ScheduleMessageId = scheduleId, Number = updatedNumber, RescheduledTimeUtc = rescheduledTime };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);

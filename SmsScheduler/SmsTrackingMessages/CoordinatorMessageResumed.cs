@@ -11,6 +11,6 @@ namespace SmsTrackingMessages
 
         public string Number { get; set; }
 
-        public DateTime RescheduledTime { get; set; }
+        public DateTime RescheduledTimeUtc { get; set; }
     }
 }

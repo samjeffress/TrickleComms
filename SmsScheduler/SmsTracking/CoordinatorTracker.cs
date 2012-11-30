@@ -94,7 +94,7 @@ namespace SmsTracking
                 if (messageSendingStatus.Status != MessageStatusTracking.Paused)
                     throw new Exception("Cannot record resumption of message - it is no longer paused.");
                 messageSendingStatus.Status = MessageStatusTracking.Scheduled;
-                messageSendingStatus.ScheduledSendingTime = coordinatorMessageResumed.RescheduledTime;
+                messageSendingStatus.ScheduledSendingTime = coordinatorMessageResumed.RescheduledTimeUtc;
                 session.SaveChanges();
             }
         }

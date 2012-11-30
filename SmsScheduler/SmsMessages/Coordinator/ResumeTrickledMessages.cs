@@ -7,6 +7,6 @@ namespace SmsMessages.Coordinator
     {
         public Guid CoordinatorId { get; set; }
 
-        public DateTime ResumeTime { get; set; }
+        public DateTime ResumeTimeUtc { get; set; }
     }
 }

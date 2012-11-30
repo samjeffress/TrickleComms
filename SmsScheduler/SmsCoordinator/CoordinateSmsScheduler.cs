@@ -43,7 +43,7 @@ namespace SmsCoordinator
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i].ToUniversalTime(), smsData, message.MetaData);
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
@@ -99,7 +99,7 @@ namespace SmsCoordinator
 
         public void Handle(ResumeTrickledMessages resumeMessages)
         {
-            var offset = resumeMessages.ResumeTime.Ticks - Data.OriginalScheduleStartTime.Ticks;
+            var offset = resumeMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var resumeMessageCommands = Data.ScheduledMessageStatus
                 .Where(s => s.MessageStatus == MessageStatus.Paused)
                 .ToList()
@@ -147,7 +147,7 @@ namespace SmsCoordinator
                              ScheduleMessageId = message.ScheduleMessageId,
                              CoordinatorId = Data.CoordinatorId,
                              Number = messageStatus.ScheduledSms.SmsData.Mobile,
-                             RescheduledTime = message.RescheduledTime
+                             RescheduledTimeUtc = message.RescheduledTimeUtc
                          });
         }
 

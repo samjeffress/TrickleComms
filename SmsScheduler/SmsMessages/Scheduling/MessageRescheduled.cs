@@ -9,6 +9,6 @@ namespace SmsMessages.Scheduling
 
         public Guid ScheduleMessageId { get; set; }
 
-        public DateTime RescheduledTime { get; set; }
+        public DateTime RescheduledTimeUtc { get; set; }
     }
 }

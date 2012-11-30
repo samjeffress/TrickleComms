@@ -103,7 +103,7 @@ namespace SmsWeb.Controllers
             var coordinatorid = collection["CoordinatorId"];
             var timeToResume = DateTime.Parse(collection["timeToResume"]);
             
-            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTime = timeToResume});
+            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = timeToResume.ToUniversalTime()});
             HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Started);
             return RedirectToAction("Details", new { coordinatorid });
         }
