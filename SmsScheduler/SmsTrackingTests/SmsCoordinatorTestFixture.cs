@@ -111,7 +111,7 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessageSent = new CoordinatorMessageSent { CoordinatorId = coordinatorId, Number = updatedNumber, TimeSent = DateTime.Now.AddMinutes(7), Cost = 0.33m };
+            var coordinatorMessageSent = new CoordinatorMessageSent { CoordinatorId = coordinatorId, Number = updatedNumber, TimeSentUtc = DateTime.Now.AddMinutes(7), Cost = 0.33m };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
@@ -123,7 +123,7 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Completed));
-                Assert.That(updatedMessageData.ActualSentTime, Is.EqualTo(coordinatorMessageSent.TimeSent));
+                Assert.That(updatedMessageData.ActualSentTime, Is.EqualTo(coordinatorMessageSent.TimeSentUtc));
                 Assert.That(updatedMessageData.Cost, Is.EqualTo(coordinatorMessageSent.Cost));
             }
         }

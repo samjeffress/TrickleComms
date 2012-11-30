@@ -9,7 +9,7 @@ namespace SmsTrackingMessages
 
         public string Number { get; set; }
 
-        public DateTime TimeSent { get; set; }
+        public DateTime TimeSentUtc { get; set; }
 
         public decimal Cost { get; set; }
 

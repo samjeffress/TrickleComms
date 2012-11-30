@@ -166,7 +166,7 @@ namespace SmsCoordinator
                 CoordinatorId = Data.CoordinatorId,
                 ScheduleMessageId = smsSent.ScheduledSmsId,
                 Cost = smsSent.ConfirmationData.Price,
-                TimeSent = smsSent.ConfirmationData.SentAt,
+                TimeSentUtc = smsSent.ConfirmationData.SentAtUtc,
                 Number = smsSent.Number
             });
 

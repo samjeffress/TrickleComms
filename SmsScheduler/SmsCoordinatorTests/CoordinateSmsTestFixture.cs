@@ -508,7 +508,7 @@ namespace SmsCoordinatorTests
             Assert.That(coordinatorMessageSent.Cost, Is.EqualTo(scheduledSmsSent.ConfirmationData.Price));
             Assert.That(coordinatorMessageSent.Number, Is.EqualTo(scheduledSmsSent.Number));
             Assert.That(coordinatorMessageSent.ScheduleMessageId, Is.EqualTo(scheduledSmsSent.ScheduledSmsId));
-            Assert.That(coordinatorMessageSent.TimeSent, Is.EqualTo(scheduledSmsSent.ConfirmationData.SentAt));
+            Assert.That(coordinatorMessageSent.TimeSentUtc, Is.EqualTo(scheduledSmsSent.ConfirmationData.SentAtUtc));
 
             bus.VerifyAllExpectations();
         }

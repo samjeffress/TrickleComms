@@ -38,7 +38,7 @@ namespace SmsTracking
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageSent.CoordinatorId.ToString());
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageSent.ScheduleMessageId);
-                messageSendingStatus.ActualSentTime = coordinatorMessageSent.TimeSent;
+                messageSendingStatus.ActualSentTime = coordinatorMessageSent.TimeSentUtc;
                 messageSendingStatus.Cost = coordinatorMessageSent.Cost;
                 messageSendingStatus.Status = MessageStatusTracking.Completed;
                 session.SaveChanges();

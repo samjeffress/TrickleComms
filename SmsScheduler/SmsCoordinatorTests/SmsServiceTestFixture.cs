@@ -29,7 +29,7 @@ namespace SmsCoordinatorTests
             Assert.That(response.Sid, Is.EqualTo(smsMessage.Sid));
             var smsSent = response as SmsSent;
             Assert.That(smsSent.SmsConfirmationData.Receipt, Is.EqualTo(smsMessage.Sid));
-            Assert.That(smsSent.SmsConfirmationData.SentAt, Is.EqualTo(smsMessage.DateSent));
+            Assert.That(smsSent.SmsConfirmationData.SentAtUtc, Is.EqualTo(smsMessage.DateSent.ToUniversalTime()));
             Assert.That(smsSent.SmsConfirmationData.Price, Is.EqualTo(smsMessage.Price));
             twilioWrapper.VerifyAllExpectations();
         }
