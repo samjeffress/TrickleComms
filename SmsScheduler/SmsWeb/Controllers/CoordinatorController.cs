@@ -126,7 +126,7 @@ namespace SmsWeb.Controllers
                 Messages =
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
-                StartTime = model.StartTime,
+                StartTimeUTC = model.StartTime.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic }
             };
         }
@@ -138,7 +138,7 @@ namespace SmsWeb.Controllers
                 Messages =
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
-                StartTime = model.StartTime,
+                StartTimeUTC = model.StartTime.ToUniversalTime(),
                 TimeSpacing = model.TimeSeparator.Value,
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic }
             };

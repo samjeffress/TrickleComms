@@ -22,7 +22,7 @@ namespace SmsCoordinatorTests
             var duration = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
-                StartTime = startTime,
+                StartTimeUTC = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -73,7 +73,7 @@ namespace SmsCoordinatorTests
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                StartTime = startTime,
+                StartTimeUTC = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -113,7 +113,7 @@ namespace SmsCoordinatorTests
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                StartTime = startTime,
+                StartTimeUTC = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -133,9 +133,14 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(trickleMultipleMessages))
                     .ExpectSend<CoordinatorMessageSent>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
-                    .ExpectSend<List<PauseScheduledMessageIndefinitely>>()
+                    .ExpectSend<PauseScheduledMessageIndefinitely>()
+                    .ExpectSend<PauseScheduledMessageIndefinitely>()
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
-                    .ExpectSend<List<ResumeScheduledMessageWithOffset>>()
+                // TODO: Need to handle out of order messaging
+                .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
+                .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
+                    .ExpectSend<ResumeScheduledMessageWithOffset>()
+                    .ExpectSend<ResumeScheduledMessageWithOffset>()
                 .When(s => s.Handle(new ResumeTrickledMessages()))
                     .ExpectSend<CoordinatorMessageSent>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
@@ -155,7 +160,7 @@ namespace SmsCoordinatorTests
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                StartTime = startTime,
+                StartTimeUTC = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -175,13 +180,15 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(trickleMultipleMessages))
                     .ExpectSend<CoordinatorMessageSent>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
-                    .ExpectSend<List<PauseScheduledMessageIndefinitely>>()
+                    .ExpectSend<PauseScheduledMessageIndefinitely>()
+                    .ExpectSend<PauseScheduledMessageIndefinitely>()
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
                     .ExpectSend<CoordinatorMessagePaused>()
                 .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .ExpectSend<CoordinatorMessagePaused>()
                 .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
-                    .ExpectSend<List<ResumeScheduledMessageWithOffset>>()
+                    .ExpectSend<ResumeScheduledMessageWithOffset>()
+                    .ExpectSend<ResumeScheduledMessageWithOffset>()
                 .When(s => s.Handle(new ResumeTrickledMessages()))
                     .ExpectSend<CoordinatorMessageResumed>()
                 .When(s => s.Handle(new MessageRescheduled { ScheduleMessageId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
@@ -202,13 +209,13 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesOverPeriod_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj")};
-            var trickleMessagesOverTime = new TrickleSmsOverCalculatedIntervalsBetweenSetDates { Duration = new TimeSpan(1000), Messages = messageList, StartTime = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsOverCalculatedIntervalsBetweenSetDates { Duration = new TimeSpan(1000), Messages = messageList, StartTimeUTC = DateTime.Now };
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
             var datetimeSpacing = new List<DateTime> { DateTime.Now.AddMinutes(10), DateTime.Now.AddMinutes(20) };
             timingManager
-                .Expect(t => t.CalculateTiming(trickleMessagesOverTime.StartTime, trickleMessagesOverTime.Duration, trickleMessagesOverTime.Messages.Count))
+                .Expect(t => t.CalculateTiming(trickleMessagesOverTime.StartTimeUTC, trickleMessagesOverTime.Duration, trickleMessagesOverTime.Messages.Count))
                 .Return(datetimeSpacing);
 
 
@@ -221,12 +228,12 @@ namespace SmsCoordinatorTests
                     s.Data = sagaData;
                 })
                     .ExpectSend<ScheduleSmsForSendingLater>(l => 
-                        l.SendMessageAt == datetimeSpacing[0] &&
+                        l.SendMessageAtUtc == datetimeSpacing[0].ToUniversalTime() &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
                     .ExpectSend<ScheduleSmsForSendingLater>(l =>     
-                        l.SendMessageAt == datetimeSpacing[1] &&
+                        l.SendMessageAtUtc == datetimeSpacing[1].ToUniversalTime() &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
@@ -236,12 +243,12 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
                         c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && 
-                        c.ScheduledMessages[0].ScheduledTime == datetimeSpacing[0] &&
+                        c.ScheduledMessages[0].ScheduledTime == datetimeSpacing[0].ToUniversalTime() &&
 
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && 
-                        c.ScheduledMessages[1].ScheduledTime == datetimeSpacing[1])
+                        c.ScheduledMessages[1].ScheduledTime == datetimeSpacing[1].ToUniversalTime())
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -254,7 +261,7 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesSpacedByTimespan_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj") };
-            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTime = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTimeUTC = DateTime.Now };
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
@@ -268,12 +275,12 @@ namespace SmsCoordinatorTests
                 })
                     .ExpectSend<ScheduleSmsForSendingLater>(l =>
                         //l.Count == 2 &&
-                        l.SendMessageAt.Ticks == trickleMessagesOverTime.StartTime.Ticks &&
+                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => 
-                        l.SendMessageAt.Ticks == trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
+                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
@@ -283,12 +290,12 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
                         c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[0].ScheduledTime.Ticks == trickleMessagesOverTime.StartTime.Ticks &&
+                        c.ScheduledMessages[0].ScheduledTime.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks &&
 
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[1].ScheduledTime.Ticks == trickleMessagesOverTime.StartTime.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
+                        c.ScheduledMessages[1].ScheduledTime.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -350,10 +357,10 @@ namespace SmsCoordinatorTests
                     s.TimingManager = timingManager;
                     s.Data = sagaData;
                 })
-                    .ExpectSend<List<PauseScheduledMessageIndefinitely>>(
-                        l => l.Count == 2 &&
-                        l[0].ScheduleMessageId == scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId &&
-                        l[1].ScheduleMessageId == scheduledMessageStatuses[1].ScheduledSms.ScheduleMessageId)
+                    .ExpectSend<PauseScheduledMessageIndefinitely>(
+                        l => l.ScheduleMessageId == scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId)
+                    .ExpectSend<PauseScheduledMessageIndefinitely>(l => 
+                        l.ScheduleMessageId == scheduledMessageStatuses[1].ScheduledSms.ScheduleMessageId)
                 .When(s => s.Handle(pauseMessageSending));
 
             Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));
@@ -436,12 +443,14 @@ namespace SmsCoordinatorTests
                     s.TimingManager = timingManager;
                     s.Data = sagaData;
                 })
-                    .ExpectSend<List<ResumeScheduledMessageWithOffset>>(
-                        l => l.Count == 2 &&
-                        l[0].ScheduleMessageId == scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId &&
-                        l[0].Offset == new TimeSpan(0, 0, 5, 0) &&
-                        l[1].ScheduleMessageId == scheduledMessageStatuses[1].ScheduledSms.ScheduleMessageId &&
-                        l[0].Offset == new TimeSpan(0, 0, 5, 0))
+                    .ExpectSend<ResumeScheduledMessageWithOffset>(
+                        l => 
+                        l.ScheduleMessageId == scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId &&
+                        l.Offset == new TimeSpan(0, 0, 5, 0))
+                    .ExpectSend<ResumeScheduledMessageWithOffset>(
+                        l =>
+                        l.ScheduleMessageId == scheduledMessageStatuses[1].ScheduledSms.ScheduleMessageId &&
+                        l.Offset == new TimeSpan(0, 0, 5, 0))
                 .When(s => s.Handle(resumeTricklesMessages));
 
             Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Paused));

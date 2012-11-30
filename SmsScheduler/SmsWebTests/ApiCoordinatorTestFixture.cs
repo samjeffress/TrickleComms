@@ -19,7 +19,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidNeitherTimeSeparatorOrSendBySet()
         {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTime = DateTime.Now.AddMinutes(3) };
+            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddMinutes(3) };
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 
@@ -30,7 +30,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidBothTimeSeparatorAndSendBySet()
         {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTime = DateTime.Now.AddMinutes(3), SendAllBy = DateTime.Now.AddMinutes(33), TimeSeparator = new TimeSpan(300)};
+            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddMinutes(3), SendAllByUtc = DateTime.Now.AddMinutes(33), TimeSeparator = new TimeSpan(300)};
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 
@@ -41,7 +41,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidNoMessage()
         {
-            var request = new Coordinator { Numbers = new List<string> { "1" }, StartTime = DateTime.Now, SendAllBy = DateTime.Now.AddDays(1) };
+            var request = new Coordinator { Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now, SendAllByUtc = DateTime.Now.AddDays(1) };
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 
@@ -52,7 +52,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidNoNumbers()
         {
-            var request = new Coordinator { Message = "msg", StartTime = DateTime.Now, SendAllBy = DateTime.Now.AddDays(1) };
+            var request = new Coordinator { Message = "msg", StartTimeUtc = DateTime.Now, SendAllByUtc = DateTime.Now.AddDays(1) };
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 
@@ -63,7 +63,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidNoStartTime()
         {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, SendAllBy = DateTime.Now.AddDays(1) };
+            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, SendAllByUtc = DateTime.Now.AddDays(1) };
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 
@@ -74,7 +74,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidStartTimeInPast()
         {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTime = DateTime.Now.AddDays(-1), SendAllBy = DateTime.Now.AddDays(1) };
+            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddDays(-1), SendAllByUtc = DateTime.Now.AddDays(1) };
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 
@@ -85,7 +85,7 @@ namespace SmsWebTests
         [Test]
         public void PostValidWithEndDateCoordinator()
         {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTime = DateTime.Now.AddDays(1), SendAllBy = DateTime.Now.AddDays(1) };
+            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddDays(1), SendAllByUtc = DateTime.Now.AddDays(1) };
 
             var bus = MockRepository.GenerateMock<IBus>();
             var mapper = MockRepository.GenerateMock<ICoordinatorApiModelToMessageMapping>();
@@ -106,7 +106,7 @@ namespace SmsWebTests
         [Test]
         public void PostValidTimeSeparatedCoordinator()
         {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTime = DateTime.Now.AddDays(1), TimeSeparator = new TimeSpan(0,0,3)};
+            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddDays(1), TimeSeparator = new TimeSpan(0,0,3)};
             var bus = MockRepository.GenerateMock<IBus>();
             var mapper = MockRepository.GenerateMock<ICoordinatorApiModelToMessageMapping>();
 

@@ -11,7 +11,7 @@ namespace SmsMessages.Coordinator
 
         public List<SmsData> Messages { get; set; }
 
-        public DateTime StartTime { get; set; }
+        public DateTime StartTimeUTC { get; set; }
 
         public TimeSpan TimeSpacing { get; set; }
 

@@ -18,7 +18,7 @@ namespace SmsWeb.API
 
         public string ConfirmationEmail { get; set; }
 
-        public DateTime ScheduledTime { get; set; }
+        public DateTime ScheduledTimeUtc { get; set; }
 
         public Guid ScheduleMessageId { get; set; }
 
@@ -62,7 +62,7 @@ namespace SmsWeb.API
             {
                 var scheduleMessage = new ScheduleSmsForSendingLater
                 {
-                    SendMessageAt = request.ScheduledTime,
+                    SendMessageAtUtc = request.ScheduledTimeUtc.ToUniversalTime(),
                     SmsData = new SmsData(request.Number, request.MessageBody),
                     SmsMetaData = new SmsMetaData { Tags = request.Tags, Topic = request.Topic },
                     ScheduleMessageId = Guid.NewGuid()
@@ -75,7 +75,7 @@ namespace SmsWeb.API
 
         private bool IsValidRequest(Schedule request)
         {
-            if (string.IsNullOrWhiteSpace(request.Number) || string.IsNullOrWhiteSpace(request.MessageBody) || request.ScheduledTime <= DateTime.Now)
+            if (string.IsNullOrWhiteSpace(request.Number) || string.IsNullOrWhiteSpace(request.MessageBody) || request.ScheduledTimeUtc <= DateTime.Now)
             {
                 return false;
             }

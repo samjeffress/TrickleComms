@@ -20,7 +20,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidRequest()
         {
-            var scheduleModel = new Schedule { Number = "number", ScheduledTime = DateTime.Now.AddHours(1) };
+            var scheduleModel = new Schedule { Number = "number", ScheduledTimeUtc = DateTime.Now.AddHours(1) };
             var smsScheduleService = new SmsScheduleService();
             var result = smsScheduleService.OnPost(scheduleModel) as SmsScheduleResponse;
 
@@ -32,7 +32,7 @@ namespace SmsWebTests
         public void PostValidRequest()
         {
             var bus = MockRepository.GenerateMock<IBus>();
-            var scheduleModel = new Schedule { Number = "number", MessageBody = "m", ScheduledTime = DateTime.Now.AddHours(1) };
+            var scheduleModel = new Schedule { Number = "number", MessageBody = "m", ScheduledTimeUtc = DateTime.Now.AddHours(1) };
 
             bus.Expect(b => b.Send(Arg<ScheduleSmsForSendingLater>.Is.Anything));
 

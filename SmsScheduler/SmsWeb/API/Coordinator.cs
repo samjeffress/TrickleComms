@@ -15,11 +15,11 @@ namespace SmsWeb.API
 
         public string Message { get; set; }
 
-        public DateTime StartTime { get; set; }
+        public DateTime StartTimeUtc { get; set; }
 
         public TimeSpan? TimeSeparator { get; set; }
 
-        public DateTime? SendAllBy { get; set; }
+        public DateTime? SendAllByUtc { get; set; }
 
         public List<string> Tags { get; set; }
 
@@ -66,15 +66,15 @@ namespace SmsWeb.API
         public override object OnPost(Coordinator request)
         {
             var response = new ResponseStatus { Errors = new List<ResponseError>() };
-            if (request.StartTime == DateTime.MinValue)
+            if (request.StartTimeUtc == DateTime.MinValue)
                 response.Errors.Add(new ResponseError { Message = "Start time must be set" });
-            if (request.StartTime < DateTime.Now)
+            if (request.StartTimeUtc < DateTime.Now)
                 response.Errors.Add(new ResponseError { Message = "Start time must not be in the past" });
             if (string.IsNullOrWhiteSpace(request.Message))
                 response.Errors.Add(new ResponseError {Message = "Sms Message Required"});
             if (request.Numbers == null || request.Numbers.Count == 0)
                 response.Errors.Add(new ResponseError {Message = "List of numbers required"});
-            if ((request.SendAllBy.HasValue && request.TimeSeparator.HasValue) || (!request.SendAllBy.HasValue && !request.TimeSeparator.HasValue))
+            if ((request.SendAllByUtc.HasValue && request.TimeSeparator.HasValue) || (!request.SendAllByUtc.HasValue && !request.TimeSeparator.HasValue))
                 response.Errors.Add(new ResponseError { Message = "Message must contain either Time Separator OR DateTime to send all messages by." });
 
             var coordinatorResponse = new CoordinatorResponse {ResponseStatus = response};
@@ -87,12 +87,12 @@ namespace SmsWeb.API
                     coordinatorResponse.RequestId = Guid.NewGuid();
                 else
                     coordinatorResponse.RequestId = request.RequestId;
-                if (request.TimeSeparator.HasValue && !request.SendAllBy.HasValue)
+                if (request.TimeSeparator.HasValue && !request.SendAllByUtc.HasValue)
                 {
                     var message = Mapper.MapToTrickleSpacedByPeriod(request, coordinatorResponse.RequestId);
                     Bus.Send(message);
                 }
-                if (!request.TimeSeparator.HasValue && request.SendAllBy.HasValue)
+                if (!request.TimeSeparator.HasValue && request.SendAllByUtc.HasValue)
                 {
                     var message = Mapper.MapToTrickleOverPeriod(request, coordinatorResponse.RequestId);
                     Bus.Send(message);

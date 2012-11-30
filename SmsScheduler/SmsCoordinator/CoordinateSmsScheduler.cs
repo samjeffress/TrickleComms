@@ -37,7 +37,7 @@ namespace SmsCoordinator
         public void Handle(TrickleSmsOverCalculatedIntervalsBetweenSetDates message)
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
-            var messageTiming = TimingManager.CalculateTiming(message.StartTime, message.Duration, message.Messages.Count);
+            var messageTiming = TimingManager.CalculateTiming(message.StartTimeUTC, message.Duration, message.Messages.Count);
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for (int i = 0; i < message.Messages.Count; i++)
@@ -52,7 +52,7 @@ namespace SmsCoordinator
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
-                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAt, ScheduleMessageId = m.ScheduleMessageId }).ToList()
+                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList()
             };
             Bus.Send(coordinatorCreated);
         }
@@ -66,7 +66,7 @@ namespace SmsCoordinator
             {
                 var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTime.Add(extraTime), smsData, message.MetaData)
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUTC.Add(extraTime), smsData, message.MetaData)
                 {
                     CorrelationId = Data.CoordinatorId
                 };
@@ -78,7 +78,7 @@ namespace SmsCoordinator
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
-                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAt, ScheduleMessageId = m.ScheduleMessageId }).ToList()
+                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList()
             };
             Bus.Send(coordinatorCreated);
         }

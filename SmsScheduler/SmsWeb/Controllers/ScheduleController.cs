@@ -27,7 +27,7 @@ namespace SmsWeb.Controllers
             {
                 var scheduleMessage = new ScheduleSmsForSendingLater
                 {
-                    SendMessageAt = schedule.ScheduledTime,
+                    SendMessageAtUtc = schedule.ScheduledTime.ToUniversalTime(),
                     SmsData = new SmsData(schedule.Number, schedule.MessageBody),
                     ScheduleMessageId = Guid.NewGuid()
                 };

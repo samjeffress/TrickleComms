@@ -12,12 +12,12 @@ namespace SmsMessages.Scheduling
         public ScheduleSmsForSendingLater(DateTime sendMessageAt, SmsData smsData, SmsMetaData smsMetaData)
         {
             ScheduleMessageId = Guid.NewGuid();
-            SendMessageAt = sendMessageAt;
+            SendMessageAtUtc = sendMessageAt.ToUniversalTime();
             SmsData = smsData;
             SmsMetaData = smsMetaData;
         }
 
-        public DateTime SendMessageAt { get; set; }
+        public DateTime SendMessageAtUtc { get; set; }
 
         public SmsData SmsData { get; set; }
 

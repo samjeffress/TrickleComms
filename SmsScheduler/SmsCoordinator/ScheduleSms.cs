@@ -27,7 +27,7 @@ namespace SmsCoordinator
         {
             Data.OriginalMessage = scheduleSmsForSendingLater;
             Data.ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId == Guid.NewGuid() ? Data.Id : scheduleSmsForSendingLater.ScheduleMessageId;
-            var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAt.Ticks, DateTimeKind.Local);
+            var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout<ScheduleSmsTimeout>(timeout);
             ReplyToOriginator(new SmsScheduled { ScheduleMessageId = Data.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
             Bus.Send(new ScheduleCreated
@@ -70,7 +70,7 @@ namespace SmsCoordinator
         public void Handle(ResumeScheduledMessageWithOffset scheduleSmsForSendingLater)
         {
             Data.SchedulingPaused = false;
-            var rescheduledTime = Data.OriginalMessage.SendMessageAt.Add(scheduleSmsForSendingLater.Offset);
+            var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
             Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
             ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.OriginalMessageId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime });
