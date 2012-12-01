@@ -16,10 +16,10 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
-        $('#tag').bind('change, blur', function() {
-            addToNumberList($('#tag').val());
-            $('#tag').val("");
-        });
+        //$('#tag').bind('change, blur', function() {
+        //    addToNumberList($('#tag').val());
+        //    $('#tag').val("");
+        //});
 
         $('input[name="coordinationStrategy"]').bind('click', function() {
             if ($('input[name="coordinationStrategy"]:checked').val() == 'timeSeparated') {
@@ -41,18 +41,18 @@
     
     
 
-    $(document).ready(function () {
-        $('#tag').keypress(function () {
-            var inputValue = $('#tag').val();
-            if (inputValue.lastIndexOf(',') != -1) {
-                var splitInput = inputValue.split(",");
-                for(var i = 0; i < splitInput.length - 1; i++) {
-                    addToNumberList(splitInput[i]);
-                }
-                $('#tag').val(splitInput[splitInput.length]);
-            }
-        });
-    });
+    //$(document).ready(function () {
+    //    $('#tag').keypress(function () {
+    //        var inputValue = $('#tag').val();
+    //        if (inputValue.lastIndexOf(',') != -1) {
+    //            var splitInput = inputValue.split(",");
+    //            for(var i = 0; i < splitInput.length - 1; i++) {
+    //                addToNumberList(splitInput[i]);
+    //            }
+    //            $('#tag').val(splitInput[splitInput.length]);
+    //        }
+    //    });
+    //});
 
     function addToNumberList(number) {
         if ($('li:contains("' + number + '")').length == 0) {
@@ -77,6 +77,13 @@
         <div class="editor-field">
             @Html.TextAreaFor(model => model.Message)
             @Html.ValidationMessageFor(model => model.Message)
+        </div>
+        <div class="editor-label">
+            @Html.LabelFor(model => model.Numbers)
+        </div>
+        <div class="editor-field">
+            @Html.TextArea("numberList")
+            @Html.ValidationMessageFor(model => model.Numbers)
         </div>
 
         <div class="editor-label">

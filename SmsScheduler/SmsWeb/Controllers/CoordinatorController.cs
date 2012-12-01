@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using System.Web.SessionState;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
@@ -36,8 +35,9 @@ namespace SmsWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(CoordinatedSharedMessageModel coordinatedMessages)
+        public ActionResult Create(FormCollection collection)
         {
+            var coordinatedMessages = ParseFormData(collection);
             var isValid = TryValidateModel(coordinatedMessages);
             if (isValid && SecondaryValidation(coordinatedMessages))
             {
@@ -59,6 +59,31 @@ namespace SmsWeb.Controllers
                 return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }
             return View("Create", coordinatedMessages);
+        }
+
+        private CoordinatedSharedMessageModel ParseFormData(FormCollection formCollection)
+        {
+            var coordinatedSharedMessageModel = new CoordinatedSharedMessageModel();
+            coordinatedSharedMessageModel.Message = formCollection["Message"];
+            if (hasValue(formCollection, "numberList"))
+                coordinatedSharedMessageModel.Numbers = formCollection["numberList"].Split(',').Select(n => n.Trim()).ToList();
+            if (hasValue(formCollection, "SendAllBy"))
+                coordinatedSharedMessageModel.SendAllBy = DateTime.Parse(formCollection["SendAllBy"]);
+            if (hasValue(formCollection, "StartTime"))
+                coordinatedSharedMessageModel.StartTime = DateTime.Parse(formCollection["StartTime"]);
+            if (hasValue(formCollection, "tag"))
+                coordinatedSharedMessageModel.Tags = formCollection["tag"].Split(',').ToList().Select(t => t.Trim()).ToList();
+            if (hasValue(formCollection, "TimeSeparator"))
+                coordinatedSharedMessageModel.TimeSeparator = TimeSpan.Parse(formCollection["TimeSeparator"]);
+            coordinatedSharedMessageModel.Topic = formCollection["Topic"];
+            return coordinatedSharedMessageModel;
+        }
+
+        private bool hasValue(FormCollection formCollection, string key)
+        {
+            if (formCollection[key] != null && !string.IsNullOrWhiteSpace(formCollection[key]))
+                return true;
+            return false;
         }
 
         private bool SecondaryValidation(CoordinatedSharedMessageModel coordinatedMessages)
