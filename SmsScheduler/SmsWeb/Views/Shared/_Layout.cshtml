@@ -9,6 +9,20 @@
         @Scripts.Render("~/bundles/modernizr")
         @Scripts.Render("~/bundles/jquery")
         @RenderSection("scripts", required: false)
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('#searchBox').live("click, focus", function() {
+                    if ($(this).val() == 'Search For A Message By Id')
+                        $(this).val('');
+                });
+
+                $("#searchBox").live("blur", function() {
+                    if ($(this).val() == "") {
+                        $(this).val('Search For A Message By Id');
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
         <header>
@@ -20,12 +34,18 @@
                     <section id="login">
                         @Html.Partial("_LoginPartial")
                     </section>
+                    <section id="search">
+                        @using(Html.BeginForm("Details", "Tracking"))
+                        {
+                            <input type="text" id="searchBox" name="id" value="Search For A Message By Id" />
+                            <input type="submit" value="GO"/>
+                        }
+                    </section>
                     <nav>
                         <ul id="menu">
                             <li>@Html.ActionLink("Send", "Create", "SendNow")</li>
                             <li>@Html.ActionLink("Schedule", "Create", "Schedule")</li>
                             <li>@Html.ActionLink("Coordinate", "Create", "Coordinator")</li>
-                            <li>@Html.ActionLink("Check", "Details", "GeneralTracker")</li>
                             <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
                         </ul>
                     </nav>
@@ -45,6 +65,7 @@
                 </div>
             </div>
         </footer>
+        
 
     </body>
 </html>
