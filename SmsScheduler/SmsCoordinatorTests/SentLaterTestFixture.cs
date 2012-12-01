@@ -107,6 +107,40 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
+        public void ScheduleSmsForSendingLaterButIsPausedThenResumedOutOfOrderAndSent()
+        {
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1) };
+            var sagaId = Guid.NewGuid();
+
+            var scheduledSmsData = new ScheduledSmsData 
+            {
+                Id = sagaId, 
+                Originator = "place", 
+                OriginalMessageId = Guid.NewGuid().ToString(),
+                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
+            };
+
+            Test.Initialize();
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
+                    .ExpectSend<ScheduleCreated>()
+                .When(s => s.Handle(scheduleSmsForSendingLater))
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
+                    .ExpectSend<ScheduleResumed>()
+                    .ExpectReplyToOrginator<MessageRescheduled>()
+                .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
+                    //.ExpectSend<SchedulePaused>()
+                .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty) { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-10)}))
+                    .ExpectSend<SendOneMessageNow>()
+                .WhenSagaTimesOut()
+                    .ExpectReplyToOrginator<ScheduledSmsSent>()
+                    .ExpectSend<ScheduleComplete>()
+                .When(s => s.Handle(new MessageSent()))
+                    .AssertSagaCompletionIs(true);
+        }
+
+        [Test]
         public void ResumePausedSchedule_Data()
         {
             var sagaId = Guid.NewGuid();

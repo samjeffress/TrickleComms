@@ -9,9 +9,11 @@ namespace SmsMessages.Scheduling
         {
             ScheduleMessageId = scheduleMessageId;
             Offset = offset;
+            MessageRequestTimeUtc = DateTime.Now.ToUniversalTime();
         }
 
         public Guid ScheduleMessageId { get; set; }
         public TimeSpan Offset { get; set; }
+        public DateTime MessageRequestTimeUtc { get; set; }
     }
 }

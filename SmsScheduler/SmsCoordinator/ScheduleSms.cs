@@ -62,18 +62,24 @@ namespace SmsCoordinator
 
         public void Handle(PauseScheduledMessageIndefinitely pauseScheduling)
         {
+            if (Data.LastMessageRequestUtc != null && Data.LastMessageRequestUtc < pauseScheduling.MessageRequestTimeUtc)
+                return;
             Data.SchedulingPaused = true;
             var schedulePaused = new SchedulePaused {ScheduleId = pauseScheduling.ScheduleMessageId};
             Bus.Send(schedulePaused);
+            Data.LastMessageRequestUtc = pauseScheduling.MessageRequestTimeUtc;
         }
 
         public void Handle(ResumeScheduledMessageWithOffset scheduleSmsForSendingLater)
         {
+            if (Data.LastMessageRequestUtc != null && Data.LastMessageRequestUtc > scheduleSmsForSendingLater.MessageRequestTimeUtc)
+                return;
             Data.SchedulingPaused = false;
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
             Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
             ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.OriginalMessageId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
+            Data.LastMessageRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
         }
     }
 
@@ -87,6 +93,8 @@ namespace SmsCoordinator
         public bool SchedulingPaused { get; set; }
 
         public Guid ScheduleMessageId { get; set; }
+
+        public DateTime? LastMessageRequestUtc { get; set; }
     }
 
     public class ScheduleSmsTimeout
