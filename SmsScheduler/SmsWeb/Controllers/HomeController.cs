@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.Web.Mvc;
 
 namespace SmsWeb.Controllers
 {
@@ -23,6 +24,12 @@ namespace SmsWeb.Controllers
             ViewBag.Message = "Your contact page.";
 
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult Search(string id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

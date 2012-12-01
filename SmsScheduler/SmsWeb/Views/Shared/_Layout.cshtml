@@ -10,7 +10,7 @@
         @Scripts.Render("~/bundles/jquery")
         @RenderSection("scripts", required: false)
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(document).ready(function() { 
                 $('#searchBox').live("click, focus", function() {
                     if ($(this).val() == 'Search For A Message By Id')
                         $(this).val('');
@@ -35,7 +35,7 @@
                         @Html.Partial("_LoginPartial")
                     </section>
                     <section id="search">
-                        @using(Html.BeginForm("Details", "Tracking"))
+                        @using(Html.BeginForm("Search", "Home"))
                         {
                             <input type="text" id="searchBox" name="id" value="Search For A Message By Id" />
                             <input type="submit" value="GO"/>
