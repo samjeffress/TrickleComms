@@ -11,6 +11,9 @@ namespace SmsTracking
         {
             var configure = Configure.With()
             .DefaultBuilder()
+                .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
+                .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
+                .DefiningMessagesAs(t => t.Namespace == "SmsMessages")
                 .Log4Net()
             .XmlSerializer()
             .MsmqTransport()
