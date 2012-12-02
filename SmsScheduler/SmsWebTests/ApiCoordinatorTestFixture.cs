@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SmsMessages.Coordinator;
+using SmsMessages.Coordinator.Commands;
 using SmsTracking;
-using SmsTrackingTests;
 using SmsWeb.API;
 using IRavenDocStore = SmsWeb.IRavenDocStore;
 

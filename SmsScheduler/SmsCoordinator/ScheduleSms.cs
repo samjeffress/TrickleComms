@@ -1,8 +1,10 @@
 using System;
 using NServiceBus;
 using NServiceBus.Saga;
-using SmsMessages.MessageSending;
-using SmsMessages.Scheduling;
+using SmsMessages.MessageSending.Commands;
+using SmsMessages.MessageSending.Events;
+using SmsMessages.Scheduling.Commands;
+using SmsMessages.Scheduling.Events;
 using SmsTrackingMessages;
 
 namespace SmsCoordinator

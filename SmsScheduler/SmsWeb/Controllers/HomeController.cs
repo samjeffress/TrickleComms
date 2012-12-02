@@ -40,22 +40,12 @@ namespace SmsWeb.Controllers
                 if (trackingData != null)
                 {
                     if (trackingData is CoordinatorTrackingData)
-                    {
-                        return RedirectToAction("Details", "Coordinator", new { coordinatorId = id });                        
-                    }
+                        return RedirectToAction("Details", "Coordinator", new {coordinatorId = id});
                     if (trackingData is ScheduleTrackingData)
-                    {
                         return RedirectToAction("Details", "Schedule", new {scheduleId = id});
-                    }
                     if (trackingData is SmsTrackingData)
-                    {
-                        return RedirectToAction("Details", "SendNow", new { requestId = id });
-                        //return RedirectToAction("Details", "Coordinator", new { coordinatorId = id });
-                    }
-                    else
-                    {
-                        throw new Exception("Type not recognised");
-                    }
+                        return RedirectToAction("Details", "SendNow", new {requestId = id});
+                    throw new Exception("Type not recognised");
                 }
             }
             return View("NoResults", (object)id);

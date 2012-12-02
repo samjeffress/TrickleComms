@@ -4,7 +4,7 @@ using NServiceBus;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
 using SmsMessages.CommonData;
-using SmsMessages.Scheduling;
+using SmsMessages.Scheduling.Commands;
 using SmsTracking;
 using SmsWeb.Models;
 

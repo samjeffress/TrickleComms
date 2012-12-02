@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
-using SmsMessages.MessageSending;
+using SmsMessages.MessageSending.Events;
 using SmsTracking;
 
 namespace SmsTrackingTests

@@ -4,8 +4,9 @@ using System.Linq;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages.CommonData;
-using SmsMessages.Coordinator;
-using SmsMessages.Scheduling;
+using SmsMessages.Coordinator.Commands;
+using SmsMessages.Scheduling.Commands;
+using SmsMessages.Scheduling.Events;
 using SmsTrackingMessages;
 
 namespace SmsCoordinator
@@ -176,6 +177,7 @@ namespace SmsCoordinator
                 Number = smsSent.Number
             });
 
+            // TODO: sending of a coordinator complete event?
             if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
                 MarkAsComplete();
         }

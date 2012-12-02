@@ -3,6 +3,7 @@ using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.MessageSending;
+using SmsMessages.MessageSending.Commands;
 using SmsWeb.Controllers;
 using SmsWeb.Models;
 

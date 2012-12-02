@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
+using SmsMessages.Coordinator.Commands;
 
 namespace SmsWeb.API
 {

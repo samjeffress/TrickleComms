@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
 using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SmsMessages.Coordinator;
+using SmsMessages.Coordinator.Commands;
 using SmsWeb.Controllers;
 using SmsWeb.Models;
 

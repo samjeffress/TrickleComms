@@ -5,6 +5,8 @@ using Rhino.Mocks;
 using SmsCoordinator;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending;
+using SmsMessages.MessageSending.Commands;
+using SmsMessages.MessageSending.Events;
 
 namespace SmsCoordinatorTests
 {

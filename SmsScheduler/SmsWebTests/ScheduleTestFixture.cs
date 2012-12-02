@@ -3,7 +3,7 @@ using System.Web.Mvc;
 using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SmsMessages.Scheduling;
+using SmsMessages.Scheduling.Commands;
 using SmsWeb.Controllers;
 using SmsWeb.Models;
 

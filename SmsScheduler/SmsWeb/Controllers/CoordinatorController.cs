@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator;
+using SmsMessages.Coordinator.Commands;
 using SmsTracking;
 using SmsWeb.Models;
 

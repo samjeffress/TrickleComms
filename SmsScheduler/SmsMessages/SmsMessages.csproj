@@ -33,17 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus, Version=3.3.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NServiceBus.Interfaces.3.3.0\lib\net40\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NServiceBus.3.3.0\lib\net40\NServiceBus.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -54,26 +43,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonData\MessageStatus.cs" />
-    <Compile Include="Scheduling\MessageRescheduled.cs" />
-    <Compile Include="Scheduling\MessageSchedulePaused.cs" />
-    <Compile Include="Scheduling\SmsScheduled.cs" />
-    <Compile Include="Scheduling\PauseScheduledMessageIndefinitely.cs" />
-    <Compile Include="Coordinator\PauseTrickledMessagesIndefinitely.cs" />
-    <Compile Include="Scheduling\ResumeScheduledMessageWithOffset.cs" />
-    <Compile Include="Coordinator\ResumeTrickledMessages.cs" />
-    <Compile Include="Scheduling\ScheduledSmsSent.cs" />
-    <Compile Include="Coordinator\TrickleSmsWithDefinedTimeBetweenEachMessage.cs" />
-    <Compile Include="Scheduling\ScheduleSmsForSendingLater.cs" />
-    <Compile Include="MessageSending\SendOneMessageNow.cs" />
+    <Compile Include="MessageSending\Events\MessageFailedSending.cs" />
+    <Compile Include="Scheduling\Events\MessageRescheduled.cs" />
+    <Compile Include="Scheduling\Events\MessageSchedulePaused.cs" />
+    <Compile Include="Scheduling\Events\SmsScheduled.cs" />
+    <Compile Include="Scheduling\Commands\PauseScheduledMessageIndefinitely.cs" />
+    <Compile Include="Coordinator\Commands\PauseTrickledMessagesIndefinitely.cs" />
+    <Compile Include="Scheduling\Commands\ResumeScheduledMessageWithOffset.cs" />
+    <Compile Include="Coordinator\Commands\ResumeTrickledMessages.cs" />
+    <Compile Include="Scheduling\Commands\ScheduledSmsSent.cs" />
+    <Compile Include="Coordinator\Commands\TrickleSmsWithDefinedTimeBetweenEachMessage.cs" />
+    <Compile Include="Scheduling\Commands\ScheduleSmsForSendingLater.cs" />
+    <Compile Include="MessageSending\Commands\SendOneMessageNow.cs" />
     <Compile Include="CommonData\SmsConfirmationData.cs" />
-    <Compile Include="MessageSending\MessageSent.cs" />
+    <Compile Include="MessageSending\Events\MessageSent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommonData\SmsData.cs" />
     <Compile Include="CommonData\SmsMetaData.cs" />
-    <Compile Include="Coordinator\TrickleSmsOverCalculatedIntervalsBetweenSetDates.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <Compile Include="Coordinator\Commands\TrickleSmsOverCalculatedIntervalsBetweenSetDates.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

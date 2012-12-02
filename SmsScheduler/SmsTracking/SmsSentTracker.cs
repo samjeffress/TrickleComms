@@ -1,5 +1,5 @@
 ﻿using NServiceBus;
-using SmsMessages.MessageSending;
+using SmsMessages.MessageSending.Events;
 
 namespace SmsTracking
 {
