@@ -85,6 +85,8 @@ namespace SmsCoordinator
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
+            if (Data.LastCommandRequestUtc != null && Data.LastCommandRequestUtc < message.MessageRequestTimeUtc)
+                return;
             var messagesToPause = Data.ScheduledMessageStatus
                 .Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling)
                 .ToList()
@@ -95,10 +97,13 @@ namespace SmsCoordinator
             {
                 Bus.Send(pauseScheduledMessageIndefinitely);
             }
+            Data.LastCommandRequestUtc = message.MessageRequestTimeUtc;
         }
 
         public void Handle(ResumeTrickledMessages resumeMessages)
         {
+            if (Data.LastCommandRequestUtc != null && Data.LastCommandRequestUtc < resumeMessages.MessageRequestTimeUtc)
+                return;
             var offset = resumeMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var resumeMessageCommands = Data.ScheduledMessageStatus
                 .Where(s => s.MessageStatus == MessageStatus.Paused)
@@ -110,6 +115,7 @@ namespace SmsCoordinator
             {
                 Bus.Send(resumeScheduledMessageWithOffset);
             }
+            Data.LastCommandRequestUtc = resumeMessages.MessageRequestTimeUtc;
         }
 
         public void Handle(SmsScheduled smsScheduled)
@@ -189,6 +195,8 @@ namespace SmsCoordinator
         public DateTime OriginalScheduleStartTime { get; set; }
 
         public Guid CoordinatorId { get; set; }
+
+        public DateTime? LastCommandRequestUtc { get; set; }
     }
 
     public class ScheduledMessageStatus

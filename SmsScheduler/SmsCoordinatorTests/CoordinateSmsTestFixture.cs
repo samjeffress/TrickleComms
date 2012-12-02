@@ -136,7 +136,6 @@ namespace SmsCoordinatorTests
                     .ExpectSend<PauseScheduledMessageIndefinitely>()
                     .ExpectSend<PauseScheduledMessageIndefinitely>()
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
-                // TODO: Need to handle out of order messaging
                 .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                 .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .ExpectSend<ResumeScheduledMessageWithOffset>()
@@ -194,6 +193,50 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new MessageRescheduled { ScheduleMessageId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .ExpectSend<CoordinatorMessageResumed>()
                 .When(s => s.Handle(new MessageRescheduled { ScheduleMessageId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
+                    .ExpectSend<CoordinatorMessageSent>()
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
+                    .AssertSagaCompletionIs(false)
+                    .ExpectSend<CoordinatorMessageSent>()
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
+                    .AssertSagaCompletionIs(true);
+
+            Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
+        }
+        
+        [Test]
+        public void TrickleThreeMessagesFirstSentPausedThenResumedOutOfOrder()
+        {
+            var startTime = DateTime.Now.AddHours(3);
+            var timeSpacing = new TimeSpan(0, 10, 0);
+            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
+            {
+                StartTimeUTC = startTime,
+                Messages = new List<SmsData>
+                {
+                    new SmsData("mobile#1", "message"), 
+                    new SmsData("mobile#2", "message2"),
+                    new SmsData("mobile#3", "message3")
+                },
+                TimeSpacing = timeSpacing
+            };
+
+            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(d => d.Data = sagaData)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
+                .When(s => s.Handle(trickleMultipleMessages))
+                    .ExpectSend<CoordinatorMessageSent>()
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
+                    .ExpectNotSend<ResumeScheduledMessageWithOffset>(null)
+                    .ExpectNotSend<ResumeScheduledMessageWithOffset>(null)
+                .When(s => s.Handle(new ResumeTrickledMessages { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-10)}))
+                    .ExpectNotSend<PauseScheduledMessageIndefinitely>(null)
+                    .ExpectNotSend<PauseScheduledMessageIndefinitely>(null)
+                .When(s => s.Handle(new PauseTrickledMessagesIndefinitely { MessageRequestTimeUtc = DateTime.Now }))
                     .ExpectSend<CoordinatorMessageSent>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
