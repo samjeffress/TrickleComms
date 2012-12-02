@@ -1,0 +1,55 @@
+﻿@model SmsTracking.SmsTrackingData
+
+@{
+    ViewBag.Title = "Tracking Details";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>SendNowModel</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.SmsData.Mobile)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.SmsData.Mobile)
+    </div>
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.SmsData.Message)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.SmsData.Message)
+    </div>
+    
+    @if (Model.ConfirmationData != null)
+    {
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.ConfirmationData.Receipt)
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.ConfirmationData.Receipt)
+        </div>
+        
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.ConfirmationData.SentAtUtc)
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.ConfirmationData.SentAtUtc)
+        </div>
+        
+        <div class="display-label">
+            @Html.DisplayNameFor(model => model.ConfirmationData.Price)
+        </div>
+        <div class="display-field">
+            @Html.DisplayFor(model => model.ConfirmationData.Price)
+        </div>
+        
+    }
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.Status)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.Status)
+    </div>
+</fieldset>

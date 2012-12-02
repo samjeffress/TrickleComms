@@ -378,6 +378,8 @@
     <Content Include="Views\Coordinator\Create.cshtml" />
     <Content Include="Views\Coordinator\Details.cshtml" />
     <Content Include="Views\Coordinator\Index.cshtml" />
+    <Content Include="Views\SendNow\TrackingDetails.cshtml" />
+    <Content Include="Views\Home\NoResults.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

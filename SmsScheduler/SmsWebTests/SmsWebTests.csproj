@@ -91,6 +91,7 @@
     <Compile Include="CoordinatorModelToMessageMappingTestFixture.cs" />
     <Compile Include="CoordinatorTestFixture.cs" />
     <Compile Include="ScheduleTestFixture.cs" />
+    <Compile Include="SearchTestFixture.cs" />
     <Compile Include="SendNowTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
