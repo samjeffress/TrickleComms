@@ -62,24 +62,24 @@ namespace SmsCoordinator
 
         public void Handle(PauseScheduledMessageIndefinitely pauseScheduling)
         {
-            if (Data.LastCommandRequestUtc != null && Data.LastCommandRequestUtc < pauseScheduling.MessageRequestTimeUtc)
+            if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc < pauseScheduling.MessageRequestTimeUtc)
                 return;
             Data.SchedulingPaused = true;
             var schedulePaused = new SchedulePaused {ScheduleId = pauseScheduling.ScheduleMessageId};
             Bus.Send(schedulePaused);
-            Data.LastCommandRequestUtc = pauseScheduling.MessageRequestTimeUtc;
+            Data.LastUpdateCommandRequestUtc = pauseScheduling.MessageRequestTimeUtc;
         }
 
         public void Handle(ResumeScheduledMessageWithOffset scheduleSmsForSendingLater)
         {
-            if (Data.LastCommandRequestUtc != null && Data.LastCommandRequestUtc > scheduleSmsForSendingLater.MessageRequestTimeUtc)
+            if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc > scheduleSmsForSendingLater.MessageRequestTimeUtc)
                 return;
             Data.SchedulingPaused = false;
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
             Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
             ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.OriginalMessageId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
-            Data.LastCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
+            Data.LastUpdateCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
         }
     }
 
@@ -94,7 +94,7 @@ namespace SmsCoordinator
 
         public Guid ScheduleMessageId { get; set; }
 
-        public DateTime? LastCommandRequestUtc { get; set; }
+        public DateTime? LastUpdateCommandRequestUtc { get; set; }
     }
 
     public class ScheduleSmsTimeout

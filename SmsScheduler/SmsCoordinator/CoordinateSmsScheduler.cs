@@ -85,7 +85,7 @@ namespace SmsCoordinator
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
-            if (Data.LastCommandRequestUtc != null && Data.LastCommandRequestUtc < message.MessageRequestTimeUtc)
+            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc < message.MessageRequestTimeUtc)
                 return;
             var messagesToPause = Data.ScheduledMessageStatus
                 .Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling)
@@ -97,12 +97,12 @@ namespace SmsCoordinator
             {
                 Bus.Send(pauseScheduledMessageIndefinitely);
             }
-            Data.LastCommandRequestUtc = message.MessageRequestTimeUtc;
+            Data.LastUpdatingCommandRequestUtc = message.MessageRequestTimeUtc;
         }
 
         public void Handle(ResumeTrickledMessages resumeMessages)
         {
-            if (Data.LastCommandRequestUtc != null && Data.LastCommandRequestUtc < resumeMessages.MessageRequestTimeUtc)
+            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc < resumeMessages.MessageRequestTimeUtc)
                 return;
             var offset = resumeMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var resumeMessageCommands = Data.ScheduledMessageStatus
@@ -115,7 +115,7 @@ namespace SmsCoordinator
             {
                 Bus.Send(resumeScheduledMessageWithOffset);
             }
-            Data.LastCommandRequestUtc = resumeMessages.MessageRequestTimeUtc;
+            Data.LastUpdatingCommandRequestUtc = resumeMessages.MessageRequestTimeUtc;
         }
 
         public void Handle(SmsScheduled smsScheduled)
@@ -196,7 +196,7 @@ namespace SmsCoordinator
 
         public Guid CoordinatorId { get; set; }
 
-        public DateTime? LastCommandRequestUtc { get; set; }
+        public DateTime? LastUpdatingCommandRequestUtc { get; set; }
     }
 
     public class ScheduledMessageStatus
