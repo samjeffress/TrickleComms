@@ -186,6 +186,7 @@ namespace SmsCoordinatorTests
                     .ExpectSend<CoordinatorMessagePaused>()
                 .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .ExpectSend<CoordinatorMessagePaused>()
+                    //.ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .ExpectSend<ResumeScheduledMessageWithOffset>()
                     .ExpectSend<ResumeScheduledMessageWithOffset>()

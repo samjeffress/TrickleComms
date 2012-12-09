@@ -29,6 +29,7 @@ namespace SmsCoordinator
         {
             Data.OriginalMessage = scheduleSmsForSendingLater;
             Data.ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId == Guid.NewGuid() ? Data.Id : scheduleSmsForSendingLater.ScheduleMessageId;
+            Data.RequestingCoordinatorId = scheduleSmsForSendingLater.CorrelationId;
             var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout<ScheduleSmsTimeout>(timeout);
             ReplyToOriginator(new SmsScheduled { ScheduleMessageId = Data.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
@@ -57,7 +58,7 @@ namespace SmsCoordinator
 
         public void Handle(MessageSent message)
         {
-            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Guid.Parse(Data.OriginalMessageId), ScheduledSmsId = Data.ScheduleMessageId });
+            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId });
             Bus.Send(new ScheduleComplete {ScheduleId = Data.ScheduleMessageId});
             MarkAsComplete();
         }
@@ -69,6 +70,7 @@ namespace SmsCoordinator
             Data.SchedulingPaused = true;
             var schedulePaused = new SchedulePaused {ScheduleId = pauseScheduling.ScheduleMessageId};
             Bus.Send(schedulePaused);
+            ReplyToOriginator(new MessageSchedulePaused { CoordinatorId = Data.RequestingCoordinatorId, ScheduleId = pauseScheduling.ScheduleMessageId });
             Data.LastUpdateCommandRequestUtc = pauseScheduling.MessageRequestTimeUtc;
         }
 
@@ -80,7 +82,7 @@ namespace SmsCoordinator
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
             Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
-            ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.OriginalMessageId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
+            ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
             Data.LastUpdateCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
         }
     }
@@ -97,6 +99,8 @@ namespace SmsCoordinator
         public Guid ScheduleMessageId { get; set; }
 
         public DateTime? LastUpdateCommandRequestUtc { get; set; }
+
+        public Guid RequestingCoordinatorId { get; set; }
     }
 
     public class ScheduleSmsTimeout
