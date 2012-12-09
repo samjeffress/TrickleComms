@@ -1,9 +1,8 @@
 using System;
-using NServiceBus;
 
 namespace SmsTrackingMessages.Messages
 {
-    public class ScheduleResumed : IMessage
+    public class ScheduleResumed
     {
         public Guid ScheduleId { get; set; }
 

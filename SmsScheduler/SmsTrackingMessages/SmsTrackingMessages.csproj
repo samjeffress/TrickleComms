@@ -33,15 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus">
-      <HintPath>..\packages\NServiceBus.Interfaces.3.3.0\lib\net40\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Core">
-      <HintPath>..\packages\NServiceBus.3.3.0\lib\net40\NServiceBus.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -63,9 +54,6 @@
     <Compile Include="Messages\ScheduleCreated.cs" />
     <Compile Include="Messages\SchedulePaused.cs" />
     <Compile Include="Messages\ScheduleResumed.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">

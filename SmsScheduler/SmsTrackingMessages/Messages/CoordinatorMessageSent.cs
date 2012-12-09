@@ -1,9 +1,8 @@
 using System;
-using NServiceBus;
 
 namespace SmsTrackingMessages.Messages
 {
-    public class CoordinatorMessageSent : IMessage
+    public class CoordinatorMessageSent
     {
         public Guid CoordinatorId { get; set; }
 

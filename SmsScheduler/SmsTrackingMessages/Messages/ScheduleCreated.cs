@@ -1,10 +1,9 @@
 using System;
-using NServiceBus;
 using SmsMessages.CommonData;
 
 namespace SmsTrackingMessages.Messages
 {
-    public class ScheduleCreated : IMessage
+    public class ScheduleCreated
     {
         public SmsData SmsData { get; set; }
 

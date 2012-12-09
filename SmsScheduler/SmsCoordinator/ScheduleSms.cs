@@ -64,7 +64,7 @@ namespace SmsCoordinator
 
         public void Handle(PauseScheduledMessageIndefinitely pauseScheduling)
         {
-            if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc < pauseScheduling.MessageRequestTimeUtc)
+            if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc > pauseScheduling.MessageRequestTimeUtc)
                 return;
             Data.SchedulingPaused = true;
             var schedulePaused = new SchedulePaused {ScheduleId = pauseScheduling.ScheduleMessageId};

@@ -131,7 +131,7 @@ namespace SmsCoordinatorTests
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
                     .ExpectSend<ScheduleResumed>()
                     .ExpectReplyToOrginator<MessageRescheduled>()
-                .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
+                .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan()) { MessageRequestTimeUtc = DateTime.Now }))
                     //.ExpectSend<SchedulePaused>()
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty) { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-10)}))
                     .ExpectSend<SendOneMessageNow>()

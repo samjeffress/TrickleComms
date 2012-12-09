@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using NServiceBus;
 
 namespace SmsTrackingMessages.Messages
 {
-    public class CoordinatorCreated : IMessage
+    public class CoordinatorCreated
     {
         public Guid CoordinatorId { get; set; }
 
