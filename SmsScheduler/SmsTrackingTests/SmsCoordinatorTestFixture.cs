@@ -4,7 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsTracking;
-using SmsTrackingMessages;
+using SmsTrackingMessages.Messages;
 
 namespace SmsTrackingTests
 {

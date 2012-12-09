@@ -7,7 +7,7 @@ using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsMessages.Scheduling.Commands;
 using SmsMessages.Scheduling.Events;
-using SmsTrackingMessages;
+using SmsTrackingMessages.Messages;
 
 namespace SmsCoordinator
 {
