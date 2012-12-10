@@ -98,7 +98,7 @@ namespace SmsCoordinatorTests
                 .WhenSagaTimesOut()
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
                     .ExpectSend<ScheduleResumed>()
-                    .ExpectReplyToOrginator<MessageRescheduled>()
+                    .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
@@ -130,7 +130,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
                     .ExpectSend<ScheduleResumed>()
-                    .ExpectReplyToOrginator<MessageRescheduled>()
+                    .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan()) { MessageRequestTimeUtc = DateTime.Now }))
                     //.ExpectSend<SchedulePaused>()
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty) { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-10)}))
@@ -168,7 +168,7 @@ namespace SmsCoordinatorTests
                         return s.ScheduleId == scheduleMessageId &&
                         s.RescheduledTime == resheduledTime;
                     })
-                    .ExpectReplyToOrginator<MessageRescheduled>()
+                    .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(rescheduleMessage));
         }
 
@@ -222,7 +222,7 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = data)
                 .WhenReceivesMessageFrom("address")
-                    .ExpectReplyToOrginator<SmsScheduled>(m => m.CoordinatorId == data.Id && m.ScheduleMessageId == originalMessage.ScheduleMessageId)
+                    .ExpectPublish<SmsScheduled>(m => m.CoordinatorId == data.Id && m.ScheduleMessageId == originalMessage.ScheduleMessageId)
                     .ExpectSend<ScheduleCreated>(m => m.ScheduleId == originalMessage.ScheduleMessageId && m.SmsData == originalMessage.SmsData && m.SmsMetaData == originalMessage.SmsMetaData && m.CallerId == data.Id)
                 .When(s => s.Handle(originalMessage));
 

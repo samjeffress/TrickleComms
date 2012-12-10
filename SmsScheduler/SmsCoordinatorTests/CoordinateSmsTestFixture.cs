@@ -356,12 +356,12 @@ namespace SmsCoordinatorTests
             var smsScheduled = new SmsScheduled { ScheduleMessageId = scheduleMessageId };
 
             var bus = MockRepository.GenerateMock<IBus>();
-            var coordinatorMessageScheduled = new CoordinatorMessageScheduled();
+            var coordinatorMessageScheduled = new CoordinatorMessageScheduled { CoordinatorId = Guid.NewGuid() };
             bus.Expect(b => b.Send(Arg<CoordinatorMessageScheduled>.Is.Anything))
                 .WhenCalled(i => coordinatorMessageScheduled = (CoordinatorMessageScheduled)((object[])(i.Arguments[0]))[0])
                 .Return(null);
 
-            var smsScheduledForLater = new ScheduleSmsForSendingLater(DateTime.Now.AddMinutes(10), new SmsData("mobile", "message"), new SmsMetaData()) { ScheduleMessageId = scheduleMessageId};
+            var smsScheduledForLater = new ScheduleSmsForSendingLater(DateTime.Now.AddMinutes(10), new SmsData("mobile", "message"), new SmsMetaData(), coordinatorMessageScheduled.CoordinatorId) { ScheduleMessageId = scheduleMessageId};
             var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = new List<ScheduledMessageStatus>
             {
                 new ScheduledMessageStatus(smsScheduledForLater)

@@ -38,13 +38,14 @@ namespace SmsCoordinator
         public void Handle(TrickleSmsOverCalculatedIntervalsBetweenSetDates message)
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
+            Data.OriginalScheduleStartTime = message.StartTimeUTC;
             var messageTiming = TimingManager.CalculateTiming(message.StartTimeUTC, message.Duration, message.Messages.Count);
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i].ToUniversalTime(), smsData, message.MetaData);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i].ToUniversalTime(), smsData, message.MetaData, Data.CoordinatorId);
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
@@ -61,13 +62,14 @@ namespace SmsCoordinator
         public void Handle(TrickleSmsWithDefinedTimeBetweenEachMessage message)
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
+            Data.OriginalScheduleStartTime = message.StartTimeUTC;
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for(int i = 0; i < message.Messages.Count; i++)
             {
                 var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUTC.Add(extraTime), smsData, message.MetaData)
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUTC.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId)
                 {
                     CorrelationId = Data.CoordinatorId
                 };

@@ -32,7 +32,7 @@ namespace SmsCoordinator
             Data.RequestingCoordinatorId = scheduleSmsForSendingLater.CorrelationId;
             var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout<ScheduleSmsTimeout>(timeout);
-            ReplyToOriginator(new SmsScheduled { ScheduleMessageId = Data.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
+            Bus.Publish(new SmsScheduled { ScheduleMessageId = Data.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
             Bus.Send(new ScheduleCreated
             {
                 CallerId = Data.Id,
@@ -70,7 +70,7 @@ namespace SmsCoordinator
             Data.SchedulingPaused = true;
             var schedulePaused = new SchedulePaused {ScheduleId = pauseScheduling.ScheduleMessageId};
             Bus.Send(schedulePaused);
-            ReplyToOriginator(new MessageSchedulePaused { CoordinatorId = Data.RequestingCoordinatorId, ScheduleId = pauseScheduling.ScheduleMessageId });
+            Bus.Publish(new MessageSchedulePaused { CoordinatorId = Data.RequestingCoordinatorId, ScheduleId = pauseScheduling.ScheduleMessageId });
             Data.LastUpdateCommandRequestUtc = pauseScheduling.MessageRequestTimeUtc;
         }
 
@@ -82,7 +82,7 @@ namespace SmsCoordinator
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
             Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
-            ReplyToOriginator(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
+            Bus.Publish(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
             Data.LastUpdateCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
         }
     }
