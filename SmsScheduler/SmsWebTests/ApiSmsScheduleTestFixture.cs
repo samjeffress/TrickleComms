@@ -8,6 +8,7 @@ using SmsTracking;
 using SmsWeb.API;
 using SmsWeb.Models;
 using IRavenDocStore = SmsWeb.IRavenDocStore;
+using Schedule = SmsWeb.API.Schedule;
 
 namespace SmsWebTests
 {
