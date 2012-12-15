@@ -13,16 +13,19 @@ namespace SmsCoordinator
                 .DefiningMessagesAs(t => t.Namespace != null && t.Namespace.EndsWith("Messages"))
                 .DefiningMessagesAs(t => t.Namespace == "SmsMessages")
                 .DefiningMessagesAs(t => t.Namespace == "SmsTrackingMessages.Messages")
-                .RunTimeoutManager()
-                .Log4Net()
+            .RunTimeoutManager()
+            .Log4Net()
             .XmlSerializer()
             .MsmqTransport()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
+            .RavenPersistence()
             .Sagas()
                 .RavenSagaPersister()
             .UnicastBus()
+                .ImpersonateSender(false)
                 .LoadMessageHandlers();
+//                .RavenSubscriptionStorage();
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);

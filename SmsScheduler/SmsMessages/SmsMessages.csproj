@@ -51,7 +51,7 @@
     <Compile Include="Coordinator\Commands\PauseTrickledMessagesIndefinitely.cs" />
     <Compile Include="Scheduling\Commands\ResumeScheduledMessageWithOffset.cs" />
     <Compile Include="Coordinator\Commands\ResumeTrickledMessages.cs" />
-    <Compile Include="Scheduling\Commands\ScheduledSmsSent.cs" />
+    <Compile Include="Scheduling\Events\ScheduledSmsSent.cs" />
     <Compile Include="Coordinator\Commands\TrickleSmsWithDefinedTimeBetweenEachMessage.cs" />
     <Compile Include="Scheduling\Commands\ScheduleSmsForSendingLater.cs" />
     <Compile Include="MessageSending\Commands\SendOneMessageNow.cs" />

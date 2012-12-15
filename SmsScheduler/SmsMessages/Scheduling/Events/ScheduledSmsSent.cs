@@ -1,7 +1,7 @@
 using System;
 using SmsMessages.CommonData;
 
-namespace SmsMessages.Scheduling.Commands
+namespace SmsMessages.Scheduling.Events
 {
     public class ScheduledSmsSent
     {

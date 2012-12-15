@@ -22,8 +22,8 @@ namespace SmsCoordinatorTests
         {
             var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1) };
             var sagaId = Guid.NewGuid();
-            var messageSent = new MessageSent { CorrelationId = sagaId };
-
+            var messageSent = new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") };
+            
             var scheduledSmsData = new ScheduledSmsData 
             {
                 Id = sagaId, 
@@ -40,7 +40,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
-                    .ExpectReplyToOrginator<ScheduledSmsSent>()
+                    .ExpectPublish<ScheduledSmsSent>()
                     .ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(messageSent))
                     .AssertSagaCompletionIs(true);
@@ -102,9 +102,9 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
-                    .ExpectReplyToOrginator<ScheduledSmsSent>()
+                    .ExpectPublish<ScheduledSmsSent>()
                     .ExpectSend<ScheduleComplete>()
-                .When(s => s.Handle(new MessageSent()))
+                .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2")}))
                     .AssertSagaCompletionIs(true);
         }
 
@@ -136,9 +136,9 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty) { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-10)}))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
-                    .ExpectReplyToOrginator<ScheduledSmsSent>()
+                    .ExpectPublish<ScheduledSmsSent>()
                     .ExpectSend<ScheduleComplete>()
-                .When(s => s.Handle(new MessageSent()))
+                .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") }))
                     .AssertSagaCompletionIs(true);
         }
 

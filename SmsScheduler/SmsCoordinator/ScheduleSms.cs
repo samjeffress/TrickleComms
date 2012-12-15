@@ -58,7 +58,8 @@ namespace SmsCoordinator
 
         public void Handle(MessageSent message)
         {
-            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId });
+            Bus.Publish(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile});
+            //ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId });
             Bus.Send(new ScheduleComplete {ScheduleId = Data.ScheduleMessageId});
             MarkAsComplete();
         }
