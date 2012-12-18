@@ -36,6 +36,13 @@ namespace SmsCoordinator
 
         private SmsStatus ProcessSms(SMSMessage createdSmsMessage)
         {
+            if ((string.IsNullOrWhiteSpace(createdSmsMessage.Status) && createdSmsMessage.RestException != null)
+                || createdSmsMessage.Status.Equals("failed", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var e = createdSmsMessage.RestException;
+                return new SmsFailed(createdSmsMessage.Sid, e.Code, e.Message, e.MoreInfo, e.Status);
+            } 
+            
             if (createdSmsMessage.Status.Equals("sent", StringComparison.CurrentCultureIgnoreCase))
                 return new SmsSent(new SmsConfirmationData(createdSmsMessage.Sid, createdSmsMessage.DateSent, createdSmsMessage.Price)); 
 
@@ -44,11 +51,7 @@ namespace SmsCoordinator
                 return new SmsSending(createdSmsMessage.Sid);
             }
 
-            if (createdSmsMessage.Status.Equals("failed", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var e = createdSmsMessage.RestException;
-                return new SmsFailed(createdSmsMessage.Sid, e.Code, e.Message, e.MoreInfo, e.Status);
-            }
+            
 
             if (createdSmsMessage.Status.Equals("queued", StringComparison.CurrentCultureIgnoreCase))
                 return new SmsQueued(createdSmsMessage.Sid);
