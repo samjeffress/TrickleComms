@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using NServiceBus;
 using SmsMessages.CommonData;
-using SmsMessages.Coordinator;
 using SmsMessages.Coordinator.Commands;
 using SmsTracking;
 using SmsWeb.Models;
@@ -57,7 +55,7 @@ namespace SmsWeb.Controllers
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
 
-                return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
+                return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString(), awaitingCreation = true});
             }
             return View("Create", coordinatedMessages);
         }
@@ -100,14 +98,18 @@ namespace SmsWeb.Controllers
             return true;
         }
 
-        public ActionResult Details(string coordinatorid)
+        public ActionResult Details(string coordinatorid, bool awaitingCreation = false)
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
                 if (coordinatorTrackingData == null)
+                {
+                    if (awaitingCreation)
+                        return View("DetailsNotCreated", coordinatorid);
                     throw new NotImplementedException();
-                    //return View("DetailsNotCreated", scheduleId);
+                }
+
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState"] != null && HttpContext.Session["CoordinatorState"] is CoordinatorStatusTracking)
                     coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState"];
                 return View("Details", coordinatorTrackingData);
