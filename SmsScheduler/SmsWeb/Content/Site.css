@@ -105,7 +105,7 @@ h5, h6 {
 }
 
     .main-content {
-        background: url("../Images/accent.png") no-repeat;
+        /*background: url("../Images/accent.png") no-repeat;*/
         padding-left: 10px;
         padding-top: 30px;
     }
@@ -181,7 +181,7 @@ footer {
 ----------------------------------------------------------*/
 ul#menu {
     font-size: 1.3em;
-    font-weight: 600;
+    /*font-weight: 600;*/
     margin: 0 0 5px;
     padding: 0;
     text-align: right;
@@ -190,7 +190,7 @@ ul#menu {
     ul#menu li {
         display: inline;
         list-style: none;
-        padding-left: 15px;
+        /*padding-left: 15px;*/
     }
 
         ul#menu li a {
@@ -453,12 +453,12 @@ textarea {
     input[type="button"],
     button {
         background-color: #d3dce0;
-        border: 1px solid #787878;
+        /*border: 1px solid #787878;*/
         cursor: pointer;
-        font-size: 1.2em;
-        font-weight: 600;
-        padding: 7px;
-        margin-right: 8px;
+        /*font-size: 1.2em;*/
+        /*font-weight: 600;*/
+        /*padding: 7px;*/
+        /*margin-right: 8px;*/
         width: auto;
     }
 
