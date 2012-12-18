@@ -12,7 +12,8 @@
 @*<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />*@
 @*@Scripts.Render("~/bundles/jqueryval")*@
 @*}*@
-
+<script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
+@Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
     $(document).ready(function () {
 
@@ -20,6 +21,9 @@
         //    addToNumberList($('#tag').val());
         //    $('#tag').val("");
         //});
+
+        $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
+        $('input[name="SendAllBy"]').datetimepicker({dateFormat: 'dd/mm/yy'});
 
         $('input[name="coordinationStrategy"]').bind('click', function() {
             if ($('input[name="coordinationStrategy"]:checked').val() == 'timeSeparated') {
