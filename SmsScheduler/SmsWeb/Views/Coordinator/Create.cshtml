@@ -15,6 +15,30 @@
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
+    function ShowSendAll() {
+        $('#SendAllByDiv').show();
+        $('#TimeSeparatedDiv').hide();
+        $('#TimeSeparator').val('');
+    }
+    
+    function ShowTimeSeparated() {
+        $('#TimeSeparatedDiv').show();
+        $('#SendAllByDiv').hide();
+        $('#SendAllBy').val('');
+    }
+    
+    function CheckSendAll() {
+        if ($('#SendAllBy').val().length == 0) {
+            $('#SendAllByDiv').hide();
+        }
+    }
+    
+    function CheckTimeSeparated() {
+        if ($('#TimeSeparator').val().length == 0) {
+            $('#TimeSeparatedDiv').hide();
+        }
+    }
+    
     $(document).ready(function () {
 
         //$('#tag').bind('change, blur', function() {
@@ -25,21 +49,16 @@
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
         $('input[name="SendAllBy"]').datetimepicker({dateFormat: 'dd/mm/yy'});
 
-        $('input[name="coordinationStrategy"]').bind('click', function() {
-            if ($('input[name="coordinationStrategy"]:checked').val() == 'timeSeparated') {
-                $('#timeSeparated').show();
-                $('#sendAllBy').hide();
-                $('#sendAllBy input').val('');
-            } else {
-                $('#sendAllBy').show();
-                $('#timeSeparated').hide();
-                $('#timeSeparated input').val('');
-            }
+        $('#TimeSeparatedButton').bind('click', function() {
+            ShowTimeSeparated();
         });
-        
-        $("#messageSeparator").accordion({
-            collapsible: true, icons: null
+
+        $('#SendAllByButton').bind('click', function() {
+            ShowSendAll();
         });
+
+        CheckSendAll();
+        CheckTimeSeparated();
         
     });
     
@@ -100,19 +119,18 @@
         
         <div>
             <h3>Select how you want to coordinate the timing:</h3>
-            <div id="messageSeparator">
-                <h3>Time Separated</h3>
-                <div>
-                        @Html.EditorFor(model => model.TimeSeparator)
-                        @Html.ValidationMessageFor(model => model.TimeSeparator)
-                </div>
-                <h3>Send All By Set Time</h3>
-                <div>
-                        @Html.EditorFor(model => model.SendAllBy, "blah")
-                        @Html.ValidationMessageFor(model => model.SendAllBy)
-                </div>
+            <input type="button" value="Time Separated" id="TimeSeparatedButton" />
+            <input type="button" value="Send All By Time" id="SendAllByButton" />
+            <div id="TimeSeparatedDiv">
+                @Html.LabelFor(model => model.TimeSeparator, "Time Separated")
+                @Html.EditorFor(model => model.TimeSeparator)
+                @Html.ValidationMessageFor(model => model.TimeSeparator)
             </div>
-
+            <div id="SendAllByDiv">
+                @Html.LabelFor(model => model.SendAllBy, "Send All By")
+                @Html.EditorFor(model => model.SendAllBy)
+                @Html.ValidationMessageFor(model => model.SendAllBy)
+            </div>
         </div>
 
         
