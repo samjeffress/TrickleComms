@@ -65,7 +65,59 @@ namespace SmsCoordinatorTests
 
             timingManager.VerifyAllExpectations();
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
-            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void TrickleThreeMessagesOverTenMinutesOneMessageFailsCoordinatorStillCompletes()
+        {
+            var startTime = DateTime.Now.AddHours(3);
+            var duration = new TimeSpan(0, 10, 0);
+            var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
+            {
+                StartTimeUTC = startTime,
+                Messages = new List<SmsData>
+                {
+                    new SmsData("mobile#1", "message"), 
+                    new SmsData("mobile#2", "message2"),
+                    new SmsData("mobile#3", "message3")
+                },
+                Duration = duration
+            };
+
+            var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
+            var messageTiming = new List<DateTime> { startTime, startTime.AddMinutes(5), startTime.AddMinutes(10) };
+            timingManager.Expect(t => t.CalculateTiming(startTime, duration, 3))
+                .Return(messageTiming);
+
+            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(s =>
+                    {
+                        s.TimingManager = timingManager;
+                        s.Data = sagaData;
+                    })
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
+                    .ExpectSend<CoordinatorCreated>()
+                .When(s => s.Handle(trickleMultipleMessages))
+                    .AssertSagaCompletionIs(false)
+                    .ExpectSend<CoordinatorMessageSent>()
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
+                    .AssertSagaCompletionIs(false)
+                    .ExpectSend<CoordinatorMessageSent>()
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
+                    .AssertSagaCompletionIs(false)
+                    .ExpectSend<CoordinatorMessageFailed>()
+                    .ExpectSend<CoordinatorCompleted>()
+                .When(s => s.Handle(new ScheduledSmsFailed { ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
+                    .AssertSagaCompletionIs(true);
+
+            timingManager.VerifyAllExpectations();
+            Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
         }
 
         [Test]
@@ -106,7 +158,7 @@ namespace SmsCoordinatorTests
                     .AssertSagaCompletionIs(true);
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
-            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
         }
 
         [Test]
@@ -153,7 +205,7 @@ namespace SmsCoordinatorTests
                     .AssertSagaCompletionIs(true);
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
-            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
         }
 
         [Test]
@@ -207,7 +259,7 @@ namespace SmsCoordinatorTests
                     .AssertSagaCompletionIs(true);
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
-            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
         }
         
         [Test]
@@ -252,7 +304,7 @@ namespace SmsCoordinatorTests
                     .AssertSagaCompletionIs(true);
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
-            Assert.That(sagaData.MessagesConfirmedSent, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
         }
 
         [Test]
@@ -559,6 +611,36 @@ namespace SmsCoordinatorTests
             Assert.That(coordinatorMessageSent.Number, Is.EqualTo(scheduledSmsSent.Number));
             Assert.That(coordinatorMessageSent.ScheduleMessageId, Is.EqualTo(scheduledSmsSent.ScheduledSmsId));
             Assert.That(coordinatorMessageSent.TimeSentUtc, Is.EqualTo(scheduledSmsSent.ConfirmationData.SentAtUtc));
+
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void ScheduledSmsFailed_Data()
+        {
+            var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj"), new SmsData("mobile", "sent") };
+            var bus = MockRepository.GenerateMock<IBus>();
+            var coordinatorMessageFailed = new CoordinatorMessageFailed();
+            bus.Expect(b => b.Send(Arg<CoordinatorMessageSent>.Is.Anything))
+                .WhenCalled(i => coordinatorMessageFailed = (CoordinatorMessageFailed)((object[])(i.Arguments[0]))[0])
+                .Return(null);
+
+            var scheduledMessageStatuses = new List<ScheduledMessageStatus> 
+            {
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]})
+            };
+
+            var sagaData = new CoordinateSmsSchedulingData { ScheduledMessageStatus = scheduledMessageStatuses, CoordinatorId = Guid.NewGuid() };
+            var smsScheduler = new CoordinateSmsScheduler { Data = sagaData, Bus = bus };
+
+            var scheduledSmsFailed = new ScheduledSmsFailed {ScheduledSmsId = scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId, CoordinatorId = sagaData.CoordinatorId, Number = messageList[0].Mobile, SmsFailedData = new SmsFailed(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty)};
+            smsScheduler.Handle(scheduledSmsFailed);
+
+            Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Failed));
+            Assert.That(coordinatorMessageFailed.CoordinatorId, Is.EqualTo(scheduledSmsFailed.CoordinatorId));
+            Assert.That(coordinatorMessageFailed.Number, Is.EqualTo(scheduledSmsFailed.Number));
+            Assert.That(coordinatorMessageFailed.ScheduleMessageId, Is.EqualTo(scheduledSmsFailed.ScheduledSmsId));
+            Assert.That(coordinatorMessageFailed.SmsFailureData, Is.EqualTo(scheduledSmsFailed.SmsFailedData));
 
             bus.VerifyAllExpectations();
         }

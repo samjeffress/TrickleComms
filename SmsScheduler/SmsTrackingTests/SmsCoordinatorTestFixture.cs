@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Rhino.Mocks;
+using SmsMessages.CommonData;
 using SmsTracking;
 using SmsTrackingMessages.Messages;
 
@@ -122,9 +123,54 @@ namespace SmsTrackingTests
             {
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
-                Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Completed));
+                Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.CompletedSuccess));
                 Assert.That(updatedMessageData.ActualSentTime, Is.EqualTo(coordinatorMessageSent.TimeSentUtc));
                 Assert.That(updatedMessageData.Cost, Is.EqualTo(coordinatorMessageSent.Cost));
+            }
+        }
+
+        [Test]
+        public void CoordinateMessagesOneMessageFailed()
+        {
+            var coordinatorId = Guid.NewGuid();
+            const string updatedNumber = "04040044";
+            using (var session = DocumentStore.OpenSession())
+            {
+                var message = new CoordinatorCreated
+                {
+                    CoordinatorId = coordinatorId,
+                    ScheduledMessages = new List<MessageSchedule> { 
+                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                }
+                };
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = message.CoordinatorId,
+                    MessageStatuses = message.ScheduledMessages
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        ToList()
+                };
+                session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
+                session.SaveChanges();
+            }
+
+            var coordinatorMessageFailed = new CoordinatorMessageFailed { CoordinatorId = coordinatorId, Number = updatedNumber, SmsFailureData = new SmsFailed(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty) };
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
+            coordinatorTracker.Handle(coordinatorMessageFailed);
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
+                var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
+                Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.CompletedFailure));
+                Assert.That(updatedMessageData.ActualSentTime, Is.Null);
+                Assert.That(updatedMessageData.Cost, Is.Null);
+                Assert.That(updatedMessageData.FailureData.Message, Is.EqualTo(coordinatorMessageFailed.SmsFailureData.Message));
+                Assert.That(updatedMessageData.FailureData.MoreInfo, Is.EqualTo(coordinatorMessageFailed.SmsFailureData.MoreInfo));
             }
         }
 
@@ -239,7 +285,7 @@ namespace SmsTrackingTests
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.Completed }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.CompletedSuccess }).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -288,7 +334,7 @@ namespace SmsTrackingTests
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = coordinatorId,
-                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTime = DateTime.Now, ActualSentTime = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.Completed } }
+                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTime = DateTime.Now, ActualSentTime = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.CompletedSuccess } }
                 };
                 session.Store(coordinatorTrackingData, coordinatorId.ToString());
                 session.SaveChanges();

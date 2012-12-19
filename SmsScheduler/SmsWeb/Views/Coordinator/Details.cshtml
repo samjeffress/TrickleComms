@@ -53,14 +53,14 @@
     {
         colour = "orange";
     }
-    if (message.Status == MessageStatusTracking.Completed)
+    if (message.Status == MessageStatusTracking.CompletedSuccess)
     {
         colour = "green";
     }
     <li style="border-left: 5px solid @colour; margin-bottom: 10px; padding-left: 5px; list-style-type: none;">
         Number: @message.Number<br/>
         Status: @message.Status.ToString()<br />
-        @if(message.Status != MessageStatusTracking.Completed){
+        @if(message.Status != MessageStatusTracking.CompletedSuccess){
             @: ScheduledTime: @message.ScheduledSendingTime <br />
         }else
         {

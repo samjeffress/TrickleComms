@@ -135,7 +135,7 @@ namespace SmsWebTests
             Assert.That(response.RequestId, Is.EqualTo(_coordinatorId));
             Assert.That(response.Messages.Count, Is.EqualTo(2));
             Assert.That(response.Messages[0].Number, Is.EqualTo("12313"));
-            Assert.That(response.Messages[0].Status, Is.EqualTo(MessageStatusTracking.Completed));
+            Assert.That(response.Messages[0].Status, Is.EqualTo(MessageStatusTracking.CompletedSuccess));
             Assert.That(response.Messages[1].Number, Is.EqualTo("434039"));
             Assert.That(response.Messages[1].Status, Is.EqualTo(MessageStatusTracking.Scheduled));
 
@@ -171,7 +171,7 @@ namespace SmsWebTests
                         new MessageSendingStatus
                         {
                             Number = "12313",
-                            Status = MessageStatusTracking.Completed
+                            Status = MessageStatusTracking.CompletedSuccess
                         },
                         new MessageSendingStatus
                         {

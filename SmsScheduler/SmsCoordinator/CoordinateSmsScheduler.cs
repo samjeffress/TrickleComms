@@ -17,6 +17,7 @@ namespace SmsCoordinator
         IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
         IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
+        IHandleMessages<ScheduledSmsFailed>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
         IHandleMessages<ResumeTrickledMessages>,
         IHandleMessages<MessageSchedulePaused>,
@@ -162,7 +163,7 @@ namespace SmsCoordinator
 
         public void Handle(ScheduledSmsSent smsSent)
         {
-            Data.MessagesConfirmedSent++;
+            Data.MessagesConfirmedSentOrFailed++;
 
             var scheduledMessageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsSent.ScheduledSmsId);
             if (scheduledMessageStatus == null)
@@ -179,15 +180,37 @@ namespace SmsCoordinator
                 Number = smsSent.Number
             });
 
-            // TODO: sending of a coordinator complete event?
-            if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
+            if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
                 Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
                 MarkAsComplete();
             }
         }
 
-        // TODO : handle messages not sent as well, track appropriately
+        public void Handle(ScheduledSmsFailed failureMessage)
+        {
+            Data.MessagesConfirmedSentOrFailed++;
+
+            var scheduledMessageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == failureMessage.ScheduledSmsId);
+            if (scheduledMessageStatus == null)
+                throw new Exception("Can't find scheduled message");
+
+            scheduledMessageStatus.MessageStatus = MessageStatus.Failed;
+
+            Bus.Send(new CoordinatorMessageFailed
+            {
+                CoordinatorId = Data.CoordinatorId,
+                ScheduleMessageId = failureMessage.ScheduledSmsId,
+                Number = failureMessage.Number,
+                SmsFailureData = failureMessage.SmsFailedData
+            });
+
+            if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
+            {
+                Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
+                MarkAsComplete();
+            }
+        }
     }
 
     public class CoordinateSmsSchedulingData : ISagaEntity
@@ -197,7 +220,7 @@ namespace SmsCoordinator
         public string OriginalMessageId { get; set; }
 
         public int MessagesScheduled { get; set; }
-        public int MessagesConfirmedSent { get; set; }
+        public int MessagesConfirmedSentOrFailed { get; set; }
 
         public List<ScheduledMessageStatus> ScheduledMessageStatus { get; set; }
 

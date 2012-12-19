@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Messages\CoordinatorCompleted.cs" />
     <Compile Include="Messages\CoordinatorCreated.cs" />
+    <Compile Include="Messages\CoordinatorMessageFailed.cs" />
     <Compile Include="Messages\CoordinatorMessagePaused.cs" />
     <Compile Include="Messages\CoordinatorMessageResumed.cs" />
     <Compile Include="Messages\CoordinatorMessageScheduled.cs" />

@@ -12,6 +12,7 @@ namespace SmsTracking
         IHandleMessages<CoordinatorMessagePaused>,
         IHandleMessages<CoordinatorMessageResumed>,
         IHandleMessages<CoordinatorMessageSent>,
+        IHandleMessages<CoordinatorMessageFailed>,
         IHandleMessages<CoordinatorCompleted>
     {
         public IRavenDocStore RavenStore { get; set; }
@@ -40,7 +41,7 @@ namespace SmsTracking
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageSent.ScheduleMessageId);
                 messageSendingStatus.ActualSentTime = coordinatorMessageSent.TimeSentUtc;
                 messageSendingStatus.Cost = coordinatorMessageSent.Cost;
-                messageSendingStatus.Status = MessageStatusTracking.Completed;
+                messageSendingStatus.Status = MessageStatusTracking.CompletedSuccess;
                 session.SaveChanges();
             }
         }
@@ -51,7 +52,7 @@ namespace SmsTracking
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessagePaused.CoordinatorId.ToString());
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessagePaused.ScheduleMessageId);
-                if (messageSendingStatus.Status == MessageStatusTracking.Completed)
+                if (messageSendingStatus.Status == MessageStatusTracking.CompletedSuccess)
                     throw new Exception("Cannot record pausing of message - it is already recorded as complete.");
                 messageSendingStatus.Status = MessageStatusTracking.Paused;
                 session.SaveChanges();
@@ -98,6 +99,18 @@ namespace SmsTracking
                 session.SaveChanges();
             }
         }
+
+        public void Handle(CoordinatorMessageFailed coordinatorMessageFailed)
+        {
+            using (var session = RavenStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageFailed.CoordinatorId.ToString());
+                var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageFailed.ScheduleMessageId);
+                messageSendingStatus.Status = MessageStatusTracking.CompletedFailure;
+                messageSendingStatus.FailureData = new FailureData { Message = coordinatorMessageFailed.SmsFailureData.Message, MoreInfo = coordinatorMessageFailed.SmsFailureData.MoreInfo };
+                session.SaveChanges();
+            }
+        }
     }
 
     public class CoordinatorTrackingData
@@ -124,6 +137,8 @@ namespace SmsTracking
         public Decimal? Cost { get; set; }
 
         public DateTime? ActualSentTime { get; set; }
+
+        public FailureData FailureData { get; set; }
     }
 
     public enum MessageStatusTracking
@@ -131,7 +146,8 @@ namespace SmsTracking
         WaitingForScheduling,
         Scheduled,
         Paused,
-        Completed
+        CompletedSuccess,
+        CompletedFailure
     }
 
     public enum CoordinatorStatusTracking
@@ -139,5 +155,12 @@ namespace SmsTracking
         Started,
         Paused,
         Completed
+    }
+
+    public class FailureData
+    {
+        public string Message { get; set; }
+
+        public string MoreInfo { get; set; }
     }
 }
