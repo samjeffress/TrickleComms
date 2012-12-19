@@ -415,9 +415,18 @@ fieldset {
         }
 
 label {
-    display: block;
+    /*display: block;
     font-size: 1.2em;
-    font-weight: 600;
+    font-weight: 600;*/
+    text-align: left;
+    width: 120px;
+    float: left;
+    font-weight: normal;
+    padding-right: 5px;
+    padding-top: 5px;
+    word-wrap: break-word;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 label.checkbox {

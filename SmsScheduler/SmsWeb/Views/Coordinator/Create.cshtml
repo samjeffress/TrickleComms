@@ -92,33 +92,31 @@
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <legend>CoordinatedSharedMessageModel</legend>
-
-        <div class="editor-label">
+        <legend>Content</legend>
+        <div>
             @Html.LabelFor(model => model.Message)
-        </div>
-        <div class="editor-field">
             @Html.TextAreaFor(model => model.Message)
             @Html.ValidationMessageFor(model => model.Message)
         </div>
-        <div class="editor-label">
+
+        <div>
             @Html.LabelFor(model => model.Numbers)
-        </div>
-        <div class="editor-field">
             @Html.TextArea("numberList")
             @Html.ValidationMessageFor(model => model.Numbers)
         </div>
-
-        <div class="editor-label">
+    </fieldset>
+    
+    <fieldset>
+        <legend>Scheduling</legend>
+        
+        <div>
             @Html.LabelFor(model => model.StartTime)
-        </div>
-        <div class="editor-field">
             @Html.EditorFor(model => model.StartTime)
             @Html.ValidationMessageFor(model => model.StartTime)
         </div>
         
         <div>
-            <h3>Select how you want to coordinate the timing:</h3>
+            <span>Select how you want to coordinate the timing:</span>
             <input type="button" value="Time Separated" id="TimeSeparatedButton" />
             <input type="button" value="Send All By Time" id="SendAllByButton" />
             <div id="TimeSeparatedDiv">
@@ -127,28 +125,25 @@
                 @Html.ValidationMessageFor(model => model.TimeSeparator)
             </div>
             <div id="SendAllByDiv">
-                @Html.LabelFor(model => model.SendAllBy, "Send All By")
+                @Html.LabelFor(model => model.SendAllBy, "Send All By Time")
                 @Html.EditorFor(model => model.SendAllBy)
                 @Html.ValidationMessageFor(model => model.SendAllBy)
             </div>
         </div>
+    </fieldset>
 
+    <fieldset>
+        <legend>Meta</legend>
         
-
         <div>
-            <div class="editor-label">
+            <div>
                 @Html.LabelFor(model => model.Topic)
-            </div>
-            <div class="editor-field">
                 @Html.EditorFor(model => model.Topic)
                 @Html.ValidationMessageFor(model => model.Topic)
             </div>
         
-            <div class="editor-label">
+            <div>
                 @Html.Label("Tags")
-            </div>
-            
-            <div class="editor-field">
                 <input name="tag" id="tag"/>
             </div>
         
@@ -162,10 +157,10 @@
                 }
             </ul>
         </div>
-        <p>
-            <input type="submit" value="Create" />
-        </p>
     </fieldset>
+    <p>
+        <input type="submit" value="Create" />
+    </p>
 }
 
 

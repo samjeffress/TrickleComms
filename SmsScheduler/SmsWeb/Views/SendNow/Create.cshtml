@@ -12,26 +12,20 @@
     <fieldset>
         <legend>SendNowModel</legend>
 
-        <div class="editor-label">
+        <div>
             @Html.LabelFor(model => model.Number)
-        </div>
-        <div class="editor-field">
             @Html.EditorFor(model => model.Number)
             @Html.ValidationMessageFor(model => model.Number)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.MessageBody)
-        </div>
-        <div class="editor-field">
+        <div>
+            @Html.LabelFor(model => model.MessageBody, "Message Body")
             @Html.TextAreaFor(model => model.MessageBody)
             @Html.ValidationMessageFor(model => model.MessageBody)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.ConfirmationEmail)
-        </div>
-        <div class="editor-field">
+        <div>
+            @Html.LabelFor(model => model.ConfirmationEmail, "Confirmation Email")
             @Html.EditorFor(model => model.ConfirmationEmail)
             @Html.ValidationMessageFor(model => model.ConfirmationEmail)
         </div>
