@@ -47,6 +47,35 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
+        public void ScheduleSmsForSendingLaterButFails()
+        {
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1) };
+            var sagaId = Guid.NewGuid();
+            var messageFailed = new MessageFailedSending { SmsData = new SmsData("1", "2"), SmsFailed = new SmsFailed(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty) };
+            
+            var scheduledSmsData = new ScheduledSmsData 
+            {
+                Id = sagaId, 
+                Originator = "place", 
+                OriginalMessageId = Guid.NewGuid().ToString(),
+                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
+            };
+
+            Test.Initialize();
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
+                    .ExpectSend<ScheduleCreated>()
+                .When(s => s.Handle(scheduleSmsForSendingLater))
+                    .ExpectSend<SendOneMessageNow>()
+                .WhenSagaTimesOut()
+                    .ExpectPublish<ScheduledSmsFailed>()
+                    .ExpectSend<ScheduleFailed>()
+                .When(s => s.Handle(messageFailed))
+                    .AssertSagaCompletionIs(true);
+        }
+
+        [Test]
         public void ScheduleSmsForSendingLaterButIsPaused()
         {
             var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1) };

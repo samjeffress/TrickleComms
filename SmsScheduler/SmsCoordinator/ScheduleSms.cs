@@ -15,7 +15,8 @@ namespace SmsCoordinator
         IHandleTimeouts<ScheduleSmsTimeout>,
         IHandleMessages<PauseScheduledMessageIndefinitely>,
         IHandleMessages<ResumeScheduledMessageWithOffset>,
-        IHandleMessages<MessageSent>
+        IHandleMessages<MessageSent>,
+        IHandleMessages<MessageFailedSending>
     {
         public override void ConfigureHowToFindSaga()
         {
@@ -59,7 +60,6 @@ namespace SmsCoordinator
         public void Handle(MessageSent message)
         {
             Bus.Publish(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile});
-            //ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId });
             Bus.Send(new ScheduleComplete {ScheduleId = Data.ScheduleMessageId});
             MarkAsComplete();
         }
@@ -85,6 +85,13 @@ namespace SmsCoordinator
             Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
             Bus.Publish(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
             Data.LastUpdateCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
+        }
+
+        public void Handle(MessageFailedSending failedMessage)
+        {
+            Bus.Publish(new ScheduledSmsFailed { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, Number = failedMessage.SmsData.Mobile });
+            Bus.Send(new ScheduleFailed { ScheduleId = Data.ScheduleMessageId });
+            MarkAsComplete();
         }
     }
 

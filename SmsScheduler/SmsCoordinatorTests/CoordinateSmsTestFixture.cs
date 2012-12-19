@@ -59,6 +59,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
+                    .ExpectSend<CoordinatorCompleted>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
@@ -100,6 +101,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
+                    .ExpectSend<CoordinatorCompleted>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
@@ -146,6 +148,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
+                    .ExpectSend<CoordinatorCompleted>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
@@ -199,6 +202,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
+                    .ExpectSend<CoordinatorCompleted>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
@@ -243,6 +247,7 @@ namespace SmsCoordinatorTests
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
                     .ExpectSend<CoordinatorMessageSent>()
+                    .ExpectSend<CoordinatorCompleted>()
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 

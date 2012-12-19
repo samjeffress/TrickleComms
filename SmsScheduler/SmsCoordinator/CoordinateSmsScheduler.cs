@@ -181,8 +181,13 @@ namespace SmsCoordinator
 
             // TODO: sending of a coordinator complete event?
             if (Data.MessagesScheduled == Data.MessagesConfirmedSent)
+            {
+                Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
                 MarkAsComplete();
+            }
         }
+
+        // TODO : handle messages not sent as well, track appropriately
     }
 
     public class CoordinateSmsSchedulingData : ISagaEntity

@@ -1,6 +1,5 @@
 ﻿using System;
 using SmsMessages.CommonData;
-using SmsMessages.MessageSending;
 using SmsMessages.MessageSending.Commands;
 using Twilio;
 
