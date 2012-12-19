@@ -6,6 +6,7 @@ namespace SmsMessages.CommonData
         Scheduled,
         Sent,
         Paused,
-        Cancelled
+        Cancelled,
+        Failed
     }
 }

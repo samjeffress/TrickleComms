@@ -48,6 +48,7 @@
     <Compile Include="Messages\CoordinatorMessageResumed.cs" />
     <Compile Include="Messages\CoordinatorMessageScheduled.cs" />
     <Compile Include="Messages\CoordinatorMessageSent.cs" />
+    <Compile Include="Messages\ScheduleFailed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Messages\ScheduleCancelled.cs" />
     <Compile Include="Messages\ScheduleComplete.cs" />

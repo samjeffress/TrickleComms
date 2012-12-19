@@ -46,6 +46,7 @@
     <Compile Include="MessageSending\Events\MessageFailedSending.cs" />
     <Compile Include="Scheduling\Events\MessageRescheduled.cs" />
     <Compile Include="Scheduling\Events\MessageSchedulePaused.cs" />
+    <Compile Include="Scheduling\Events\ScheduledSmsFailed.cs" />
     <Compile Include="Scheduling\Events\SmsScheduled.cs" />
     <Compile Include="Scheduling\Commands\PauseScheduledMessageIndefinitely.cs" />
     <Compile Include="Coordinator\Commands\PauseTrickledMessagesIndefinitely.cs" />

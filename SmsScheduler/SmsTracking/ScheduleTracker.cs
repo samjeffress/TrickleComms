@@ -10,7 +10,8 @@ namespace SmsTracking
         IHandleMessages<SchedulePaused>,
         IHandleMessages<ScheduleResumed>,
         IHandleMessages<ScheduleCancelled>,
-        IHandleMessages<ScheduleComplete>
+        IHandleMessages<ScheduleComplete>,
+        IHandleMessages<ScheduleFailed>
     {
         public IRavenDocStore RavenStore { get; set; }
 
@@ -73,6 +74,17 @@ namespace SmsTracking
                 var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
                 if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
                 scheduleTracking.MessageStatus = MessageStatus.Sent;
+                session.SaveChanges();
+            }
+        }
+
+        public void Handle(ScheduleFailed message)
+        {
+            using (var session = RavenStore.GetStore().OpenSession())
+            {
+                var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
+                if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
+                scheduleTracking.MessageStatus = MessageStatus.Failed;
                 session.SaveChanges();
             }
         }

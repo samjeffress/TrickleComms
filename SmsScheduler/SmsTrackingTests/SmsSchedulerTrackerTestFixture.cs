@@ -124,13 +124,38 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var scheduleCreated = new ScheduleComplete { ScheduleId = scheduleId };
-            tracker.Handle(scheduleCreated);
+            var scheduleComplete = new ScheduleComplete { ScheduleId = scheduleId };
+            tracker.Handle(scheduleComplete);
 
             using (var session = DocumentStore.OpenSession())
             {
                 var scheduleTracking = session.Load<ScheduleTrackingData>(scheduleId.ToString());
                 Assert.That(scheduleTracking.MessageStatus, Is.EqualTo(MessageStatus.Sent));
+            }
+        }
+
+        [Test]
+        public void HandleMessageFailed()
+        {
+            var scheduleId = Guid.NewGuid();
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+            var tracker = new ScheduleTracker { RavenStore = ravenDocStore };
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                session.Store(new ScheduleTrackingData { ScheduleId = scheduleId, MessageStatus = MessageStatus.Scheduled }, scheduleId.ToString());
+                session.SaveChanges();
+            }
+
+            var scheduleFailed = new ScheduleFailed { ScheduleId = scheduleId };
+            tracker.Handle(scheduleFailed);
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var scheduleTracking = session.Load<ScheduleTrackingData>(scheduleId.ToString());
+                Assert.That(scheduleTracking.MessageStatus, Is.EqualTo(MessageStatus.Failed));
             }
         }
     }
