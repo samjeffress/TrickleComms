@@ -21,6 +21,7 @@ namespace SmsCoordinator
         public override void ConfigureHowToFindSaga()
         {
             ConfigureMapping<MessageSent>(data => data.Id, message => message.CorrelationId);
+            ConfigureMapping<MessageFailedSending>(data => data.Id, message => message.CorrelationId);
             ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
             ConfigureMapping<ResumeScheduledMessageWithOffset>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
             base.ConfigureHowToFindSaga();
@@ -89,7 +90,13 @@ namespace SmsCoordinator
 
         public void Handle(MessageFailedSending failedMessage)
         {
-            Bus.Publish(new ScheduledSmsFailed { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, Number = failedMessage.SmsData.Mobile });
+            Bus.Publish(new ScheduledSmsFailed
+                            {
+                                CoordinatorId = Data.RequestingCoordinatorId, 
+                                ScheduledSmsId = Data.ScheduleMessageId, 
+                                Number = failedMessage.SmsData.Mobile,
+                                SmsFailedData = failedMessage.SmsFailed
+                            });
             Bus.Send(new ScheduleFailed { ScheduleId = Data.ScheduleMessageId });
             MarkAsComplete();
         }

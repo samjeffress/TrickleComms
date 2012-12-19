@@ -28,6 +28,7 @@ namespace SmsCoordinator
         public override void ConfigureHowToFindSaga()
         {
             ConfigureMapping<ScheduledSmsSent>(data => data.CoordinatorId, message => message.CoordinatorId);
+            ConfigureMapping<ScheduledSmsFailed>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<PauseTrickledMessagesIndefinitely>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<SmsScheduled>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<ResumeTrickledMessages>(data => data.CoordinatorId, message => message.CoordinatorId);

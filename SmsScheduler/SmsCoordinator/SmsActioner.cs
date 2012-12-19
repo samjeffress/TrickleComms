@@ -1,7 +1,6 @@
 ﻿using System;
 using NServiceBus.Saga;
 using SmsMessages.CommonData;
-using SmsMessages.MessageSending;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Events;
 

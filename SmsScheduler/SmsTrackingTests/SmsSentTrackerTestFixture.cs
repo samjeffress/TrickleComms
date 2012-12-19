@@ -86,7 +86,7 @@ namespace SmsTrackingTests
             };
             
             var emailService = MockRepository.GenerateMock<IEmailService>();
-            emailService.Expect(e => e.SendSmsSentConfirmation(messageFailedSending));
+            emailService.Expect(e => e.SendSmsFailedConfirmation(messageFailedSending));
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);

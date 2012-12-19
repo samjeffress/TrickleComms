@@ -38,7 +38,7 @@ namespace SmsTracking
 
             if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
             {
-                EmailService.SendSmsSentConfirmation(message);
+                EmailService.SendSmsFailedConfirmation(message);
             }
         }
     }

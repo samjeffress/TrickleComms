@@ -5,7 +5,7 @@ namespace SmsTracking
     public interface IEmailService
     {
         void SendSmsSentConfirmation(MessageSent message);
-        void SendSmsSentConfirmation(MessageFailedSending messageFailedSending);
+        void SendSmsFailedConfirmation(MessageFailedSending message);
     }
 
     public class EmailService : IEmailService
@@ -15,7 +15,7 @@ namespace SmsTracking
             throw new System.NotImplementedException();
         }
 
-        public void SendSmsSentConfirmation(MessageFailedSending messageFailedSending)
+        public void SendSmsFailedConfirmation(MessageFailedSending message)
         {
             throw new System.NotImplementedException();
         }
