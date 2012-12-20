@@ -38,7 +38,9 @@ namespace SmsWeb.Controllers
         {
             var coordinatedMessages = ParseFormData(collection);
             var isValid = TryValidateModel(coordinatedMessages);
-            if (isValid && SecondaryValidation(coordinatedMessages))
+            
+            SecondaryValidation(coordinatedMessages);
+            if (isValid && ModelState.IsValid)
             {
                 var coordinatorId = Guid.NewGuid();
 
@@ -85,17 +87,18 @@ namespace SmsWeb.Controllers
             return false;
         }
 
-        private bool SecondaryValidation(CoordinatedSharedMessageModel coordinatedMessages)
+        private void SecondaryValidation(CoordinatedSharedMessageModel coordinatedMessages)
         {
+            if (coordinatedMessages.Numbers == null || coordinatedMessages.Numbers.Count == 0)
+                ModelState.AddModelError("numberList", "Please include the numbers you want to send to.");
             if (coordinatedMessages.StartTime < DateTime.Now)
-                return false;
+                ModelState.AddModelError("StartTime", "Start Time must be in the future");
             if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.SendAllBy.Value <= coordinatedMessages.StartTime)
-                return false;
+                ModelState.AddModelError("SendAllBy", "SendAllBy time must be after StartTime");
             if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.TimeSeparator.HasValue)
-                return false;
+                ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot pick both");
             if (!coordinatedMessages.SendAllBy.HasValue && !coordinatedMessages.TimeSeparator.HasValue)
-                return false;
-            return true;
+                ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot have none");
         }
 
         public ActionResult Details(string coordinatorid, bool awaitingCreation = false)

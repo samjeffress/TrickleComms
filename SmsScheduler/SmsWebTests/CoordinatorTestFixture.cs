@@ -72,6 +72,23 @@ namespace SmsWebTests
         }
 
         [Test]
+        public void CoordinatorContainsNoNumbersError()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
+            var model = new FormCollection
+            {
+                {"numberList", "" },
+                {"Message", "message" },
+                {"StartTime", DateTime.Now.AddHours(2).ToString()},
+                {"SendAllBy", DateTime.Now.AddHours(3).ToString()}
+            };
+            var actionResult = (ViewResult)controller.Create(model);
+
+            Assert.That(actionResult.ViewName, Is.EqualTo("Create"));
+        }
+
+        [Test]
         public void CoordinatorContainsNoMessagesError()
         {
             var bus = MockRepository.GenerateMock<IBus>();

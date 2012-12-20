@@ -16,14 +16,14 @@
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
     function ShowSendAll() {
-        $('#SendAllByDiv').show();
-        $('#TimeSeparatedDiv').hide();
+        $('#TimeSeparatedDiv').hide(200);
+        $('#SendAllByDiv').show(200);
         $('#TimeSeparator').val('');
     }
     
     function ShowTimeSeparated() {
-        $('#TimeSeparatedDiv').show();
-        $('#SendAllByDiv').hide();
+        $('#SendAllByDiv').hide(200);
+        $('#TimeSeparatedDiv').show(200);
         $('#SendAllBy').val('');
     }
     
@@ -41,11 +41,6 @@
     
     $(document).ready(function () {
 
-        //$('#tag').bind('change, blur', function() {
-        //    addToNumberList($('#tag').val());
-        //    $('#tag').val("");
-        //});
-
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
         $('input[name="SendAllBy"]').datetimepicker({dateFormat: 'dd/mm/yy'});
 
@@ -61,31 +56,9 @@
         CheckTimeSeparated();
         
     });
-    
-    
-
-    //$(document).ready(function () {
-    //    $('#tag').keypress(function () {
-    //        var inputValue = $('#tag').val();
-    //        if (inputValue.lastIndexOf(',') != -1) {
-    //            var splitInput = inputValue.split(",");
-    //            for(var i = 0; i < splitInput.length - 1; i++) {
-    //                addToNumberList(splitInput[i]);
-    //            }
-    //            $('#tag').val(splitInput[splitInput.length]);
-    //        }
-    //    });
-    //});
-
-    function addToNumberList(number) {
-        if ($('li:contains("' + number + '")').length == 0) {
-            var input = '<input type="hidden" style="display:none;" value="' + number + '" name="Tags">';
-            $('#tags').append("<li>" + number + input + "</li>");
-        }
-    }
 </script>
 
-<h2>Create</h2>
+<h2>Create Coordinated Messages</h2>
 
 
 @using (Html.BeginForm()) {
@@ -100,9 +73,9 @@
         </div>
 
         <div>
-            @Html.LabelFor(model => model.Numbers)
+            @Html.Label("numberList", "Numbers")
             @Html.TextArea("numberList")
-            @Html.ValidationMessageFor(model => model.Numbers)
+            @Html.ValidationMessage("numberList")
         </div>
     </fieldset>
     
@@ -116,18 +89,18 @@
         </div>
         
         <div>
-            <span>Select how you want to coordinate the timing:</span>
+            <div>Select how you want to coordinate the timing:</div>
             <input type="button" value="Time Separated" id="TimeSeparatedButton" />
             <input type="button" value="Send All By Time" id="SendAllByButton" />
+            @Html.ValidationMessageFor(model => model.SendAllBy)
+            @Html.ValidationMessageFor(model => model.TimeSeparator)
             <div id="TimeSeparatedDiv">
                 @Html.LabelFor(model => model.TimeSeparator, "Time Separated")
                 @Html.EditorFor(model => model.TimeSeparator)
-                @Html.ValidationMessageFor(model => model.TimeSeparator)
             </div>
             <div id="SendAllByDiv">
                 @Html.LabelFor(model => model.SendAllBy, "Send All By Time")
                 @Html.EditorFor(model => model.SendAllBy)
-                @Html.ValidationMessageFor(model => model.SendAllBy)
             </div>
         </div>
     </fieldset>
@@ -143,19 +116,9 @@
             </div>
         
             <div>
-                @Html.Label("Tags")
+                @Html.Label("tag", "Tags")
                 <input name="tag" id="tag"/>
             </div>
-        
-            <ul id="tags">
-                @if(Model!= null && Model.Tags.Count > 0)
-                {
-                    foreach(var tag in Model.Tags)
-                    {
-                        <li>@tag<input type="hidden" style="display:none;" value="@tag" name="Tags"></li>
-                    }
-                }
-            </ul>
         </div>
     </fieldset>
     <p>
