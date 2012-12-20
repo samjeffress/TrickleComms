@@ -31,7 +31,7 @@ namespace SmsWebTests
             Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
             Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
-            Assert.That(message.StartTimeUTC, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
             Assert.That(message.TimeSpacing, Is.EqualTo(model.TimeSeparator));
         }
 

@@ -64,14 +64,14 @@ namespace SmsCoordinator
         public void Handle(TrickleSmsWithDefinedTimeBetweenEachMessage message)
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
-            Data.OriginalScheduleStartTime = message.StartTimeUTC;
+            Data.OriginalScheduleStartTime = message.StartTimeUtc;
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for(int i = 0; i < message.Messages.Count; i++)
             {
                 var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUTC.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId)
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId)
                 {
                     CorrelationId = Data.CoordinatorId
                 };

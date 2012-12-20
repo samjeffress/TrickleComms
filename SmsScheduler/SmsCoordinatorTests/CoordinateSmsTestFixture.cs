@@ -127,7 +127,7 @@ namespace SmsCoordinatorTests
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                StartTimeUTC = startTime,
+                StartTimeUtc = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -168,7 +168,7 @@ namespace SmsCoordinatorTests
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                StartTimeUTC = startTime,
+                StartTimeUtc = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -215,7 +215,7 @@ namespace SmsCoordinatorTests
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                StartTimeUTC = startTime,
+                StartTimeUtc = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -269,7 +269,7 @@ namespace SmsCoordinatorTests
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                StartTimeUTC = startTime,
+                StartTimeUtc = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -363,7 +363,7 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesSpacedByTimespan_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj") };
-            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTimeUTC = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTimeUtc = DateTime.Now };
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
@@ -377,12 +377,12 @@ namespace SmsCoordinatorTests
                 })
                     .ExpectSend<ScheduleSmsForSendingLater>(l =>
                         //l.Count == 2 &&
-                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks &&
+                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => 
-                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
+                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
@@ -392,12 +392,12 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
                         c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[0].ScheduledTime.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks &&
+                        c.ScheduledMessages[0].ScheduledTime.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks &&
 
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[1].ScheduledTime.Ticks == trickleMessagesOverTime.StartTimeUTC.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
+                        c.ScheduledMessages[1].ScheduledTime.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
