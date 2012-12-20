@@ -75,7 +75,11 @@ namespace SmsWeb.Controllers
             if (hasValue(formCollection, "tag"))
                 coordinatedSharedMessageModel.Tags = formCollection["tag"].Split(',').ToList().Select(t => t.Trim()).ToList();
             if (hasValue(formCollection, "TimeSeparator"))
-                coordinatedSharedMessageModel.TimeSeparator = TimeSpan.Parse(formCollection["TimeSeparator"]);
+            {
+                var minutes = Double.Parse(formCollection["TimeSeparator"].Trim());
+                coordinatedSharedMessageModel.TimeSeparator = TimeSpan.FromMinutes(minutes);
+            }
+                
             coordinatedSharedMessageModel.Topic = formCollection["Topic"];
             return coordinatedSharedMessageModel;
         }

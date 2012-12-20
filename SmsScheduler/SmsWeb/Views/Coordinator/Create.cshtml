@@ -95,7 +95,7 @@
             @Html.ValidationMessageFor(model => model.SendAllBy)
             @Html.ValidationMessageFor(model => model.TimeSeparator)
             <div id="TimeSeparatedDiv">
-                @Html.LabelFor(model => model.TimeSeparator, "Time Separated")
+                @Html.LabelFor(model => model.TimeSeparator, "Time Separated (minutes)")
                 @Html.EditorFor(model => model.TimeSeparator)
             </div>
             <div id="SendAllByDiv">
