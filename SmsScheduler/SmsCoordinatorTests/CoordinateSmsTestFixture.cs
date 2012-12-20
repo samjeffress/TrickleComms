@@ -23,7 +23,7 @@ namespace SmsCoordinatorTests
             var duration = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
-                StartTimeUTC = startTime,
+                StartTimeUtc = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -75,7 +75,7 @@ namespace SmsCoordinatorTests
             var duration = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
-                StartTimeUTC = startTime,
+                StartTimeUtc = startTime,
                 Messages = new List<SmsData>
                 {
                     new SmsData("mobile#1", "message"), 
@@ -311,13 +311,13 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesOverPeriod_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj")};
-            var trickleMessagesOverTime = new TrickleSmsOverCalculatedIntervalsBetweenSetDates { Duration = new TimeSpan(1000), Messages = messageList, StartTimeUTC = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsOverCalculatedIntervalsBetweenSetDates { Duration = new TimeSpan(1000), Messages = messageList, StartTimeUtc = DateTime.Now };
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
             var datetimeSpacing = new List<DateTime> { DateTime.Now.AddMinutes(10), DateTime.Now.AddMinutes(20) };
             timingManager
-                .Expect(t => t.CalculateTiming(trickleMessagesOverTime.StartTimeUTC, trickleMessagesOverTime.Duration, trickleMessagesOverTime.Messages.Count))
+                .Expect(t => t.CalculateTiming(trickleMessagesOverTime.StartTimeUtc, trickleMessagesOverTime.Duration, trickleMessagesOverTime.Messages.Count))
                 .Return(datetimeSpacing);
 
 

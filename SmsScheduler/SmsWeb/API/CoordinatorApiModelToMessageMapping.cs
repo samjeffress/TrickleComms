@@ -23,7 +23,7 @@ namespace SmsWeb.API
                 Messages =
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
-                StartTimeUTC = model.StartTimeUtc.ToUniversalTime(),
+                StartTimeUtc = model.StartTimeUtc.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
                 CoordinatorId = requestId
             };

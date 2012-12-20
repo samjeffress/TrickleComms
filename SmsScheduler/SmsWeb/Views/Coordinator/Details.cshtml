@@ -39,7 +39,7 @@
 }
 @if(Model.CompletionDate.HasValue)
 {
-    <div>Completion Date: @Model.CompletionDate.Value</div>
+    <div>Completion Date: @Model.CompletionDate.Value.ToLocalTime()</div>
 }
 <ul>
 @foreach(var message in Model.MessageStatuses)
@@ -68,7 +68,7 @@
         {
             case MessageStatusTracking.CompletedSuccess:
             {
-                @: ScheduledTime: @message.ScheduledSendingTime <br />
+                @: ScheduledTime: @message.ScheduledSendingTime.ToLocalTime() <br />
                 break;
             }
             case MessageStatusTracking.CompletedFailure:
@@ -78,7 +78,7 @@
             }
             default:
             {
-                @: Time Sent: @message.ActualSentTime <br />
+                @: Time Sent: @message.ActualSentTime.Value.ToLocalTime() <br />
                 @: Cost: $@message.Cost <br />
                 break;
             }

@@ -40,8 +40,8 @@ namespace SmsCoordinator
         public void Handle(TrickleSmsOverCalculatedIntervalsBetweenSetDates message)
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
-            Data.OriginalScheduleStartTime = message.StartTimeUTC;
-            var messageTiming = TimingManager.CalculateTiming(message.StartTimeUTC, message.Duration, message.Messages.Count);
+            Data.OriginalScheduleStartTime = message.StartTimeUtc;
+            var messageTiming = TimingManager.CalculateTiming(message.StartTimeUtc, message.Duration, message.Messages.Count);
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for (int i = 0; i < message.Messages.Count; i++)
