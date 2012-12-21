@@ -1,0 +1,53 @@
+﻿@using System.Globalization
+@model SmsWeb.Models.CoordinatorPagedResults
+
+@{
+    ViewBag.Title = "History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<fieldset>
+    <legend>CoordinatorPagedResults</legend>
+    <h2>Coordinated Messages</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Coordinator Id</th>
+                <th>Current Status</th>
+                <th>Message Count</th>
+                <th>Creation Date</th>
+                <th>Completion Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var result in Model.CoordinatorOverviews)
+            {
+                <tr>
+                    <td>@result.CoordinatorId</td>
+                    <td>@result.CurrentStatus.ToString()</td>
+                    <td>@result.MessageCount</td>
+                    <td>@result.CreationDate.ToLocalTime()</td>
+                    <td>@(result.CompletionDate.HasValue ? result.CompletionDate.Value.ToLocalTime().ToString(CultureInfo.InvariantCulture) : string.Empty)</td>
+                </tr>    
+            }
+        </tbody>
+    </table>
+    <div>
+        @{
+            if (Model.TotalPages > 1)
+            {
+                for (int i = 0; i < Model.TotalPages; i++)
+                {
+                    if (i == Model.Page)
+                    {
+                        @(i + 1);
+                    }
+                    else
+                    {
+                        @Html.ActionLink((i+1).ToString(), "History", "Coordinator", new { page = i, resultsPerPage = Model.ResultsPerPage}, null)
+                    }
+                }
+            }
+        }
+    </div>
+</fieldset>

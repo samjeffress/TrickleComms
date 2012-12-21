@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using NServiceBus;
+using Raven.Client;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsTracking;
@@ -57,9 +58,40 @@ namespace SmsWeb.Controllers
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
 
-                return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString(), awaitingCreation = true});
+                return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }
             return View("Create", coordinatedMessages);
+        }
+
+        public ActionResult History(int page = 0, int resultsPerPage = 20)
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                RavenQueryStatistics stats;
+                var pagedResults = session.Query<CoordinatorTrackingData>()
+                    .Statistics(out stats)
+                    .Skip(page * resultsPerPage)
+                    .Take(resultsPerPage)
+                    .Select(c => new CoordinatorOverview
+                    {
+                        CurrentStatus = c.CurrentStatus, 
+                        MessageCount = c.MessageStatuses.Count, 
+                        CoordinatorId = c.CoordinatorId, 
+                        CreationDate = c.CreationDate, 
+                        CompletionDate = c.CompletionDate
+                    })
+                    .ToList();
+                var totalResults = stats.TotalResults;
+                var coordinatorPagedResults = new CoordinatorPagedResults
+                {
+                    CoordinatorOverviews = pagedResults, 
+                    Page = page, 
+                    ResultsPerPage = resultsPerPage, 
+                    TotalResults = totalResults, 
+                    TotalPages = (int) Math.Ceiling((double) totalResults/(double) resultsPerPage)
+                };
+                return View("CoordinatorPagedOverview", coordinatorPagedResults);
+            }
         }
 
         private CoordinatedSharedMessageModel ParseFormData(FormCollection formCollection)
@@ -105,16 +137,14 @@ namespace SmsWeb.Controllers
                 ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot have none");
         }
 
-        public ActionResult Details(string coordinatorid, bool awaitingCreation = false)
+        public ActionResult Details(string coordinatorid)
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
                 if (coordinatorTrackingData == null)
                 {
-                    if (awaitingCreation)
-                        return View("DetailsNotCreated", coordinatorid);
-                    throw new NotImplementedException();
+                    return View("DetailsNotCreated", model: coordinatorid);
                 }
 
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState"] != null && HttpContext.Session["CoordinatorState"] is CoordinatorStatusTracking)

@@ -8,6 +8,8 @@ namespace SmsTrackingMessages.Messages
         public Guid CoordinatorId { get; set; }
 
         public List<MessageSchedule> ScheduledMessages { get; set; }
+
+        public DateTime CreationDate { get; set; }
     }
 
     public class MessageSchedule

@@ -26,7 +26,8 @@ namespace SmsTracking
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
                         .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, ScheduleMessageId = s.ScheduleMessageId }).
-                        ToList()
+                        ToList(),
+                    CreationDate = message.CreationDate
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
                 session.SaveChanges();
@@ -122,6 +123,8 @@ namespace SmsTracking
         public List<MessageSendingStatus> MessageStatuses { get; set; }
 
         public DateTime? CompletionDate { get; set; }
+
+        public DateTime CreationDate { get; set; }
     }
 
     public class MessageSendingStatus
