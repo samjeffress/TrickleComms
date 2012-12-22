@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using NServiceBus;
@@ -72,13 +73,16 @@ namespace SmsWeb.Controllers
                     .Statistics(out stats)
                     .Skip(page * resultsPerPage)
                     .Take(resultsPerPage)
+                    .ToList()
                     .Select(c => new CoordinatorOverview
                     {
-                        CurrentStatus = c.CurrentStatus, 
-                        MessageCount = c.MessageStatuses.Count, 
-                        CoordinatorId = c.CoordinatorId, 
-                        CreationDate = c.CreationDate, 
-                        CompletionDate = c.CompletionDate
+                        CurrentStatus = c.CurrentStatus,
+                        MessageCount = c.MessageStatuses.Count,
+                        CoordinatorId = c.CoordinatorId,
+                        CreationDate = c.CreationDate,
+                        CompletionDate = c.CompletionDate,
+                        Tags = c.MetaData != null && c.MetaData.Tags != null ? c.MetaData.Tags : new List<string>(),
+                        Topic = c.MetaData != null ? c.MetaData.Topic : string.Empty
                     })
                     .ToList();
                 var totalResults = stats.TotalResults;

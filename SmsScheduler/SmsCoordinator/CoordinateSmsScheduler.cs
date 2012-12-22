@@ -57,7 +57,8 @@ namespace SmsCoordinator
             {
                 CoordinatorId = Data.CoordinatorId,
                 ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
-                CreationDate = DateTime.Now
+                CreationDate = DateTime.Now,
+                MetaData = message.MetaData
             };
             Bus.Send(coordinatorCreated);
         }
@@ -85,7 +86,8 @@ namespace SmsCoordinator
             {
                 CoordinatorId = Data.CoordinatorId,
                 ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTime = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
-                CreationDate = DateTime.Now
+                CreationDate = DateTime.Now,
+                MetaData = message.MetaData
             };
             Bus.Send(coordinatorCreated);
         }

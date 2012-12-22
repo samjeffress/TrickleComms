@@ -240,6 +240,7 @@
     <Compile Include="Controllers\TwilioConfigController.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModel.cs" />
+    <Compile Include="Models\CoordinatorOverview.cs" />
     <Compile Include="Models\ScheduleModel.cs" />
     <Compile Include="Models\SendNowModel.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
@@ -384,7 +385,6 @@
     <Content Include="Views\Home\NoResults.cshtml" />
     <Content Include="Views\Coordinator\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\CoordinatorPagedOverview.cshtml" />
-    <Content Include="Views\Home\History.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

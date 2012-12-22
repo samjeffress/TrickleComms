@@ -68,7 +68,8 @@
         {
             case MessageStatusTracking.CompletedSuccess:
             {
-                @: ScheduledTime: @message.ScheduledSendingTime.ToLocalTime() <br />
+                @: Time Sent: @message.ActualSentTime.Value.ToLocalTime() <br />
+                @: Cost: $@message.Cost <br />
                 break;
             }
             case MessageStatusTracking.CompletedFailure:
@@ -78,8 +79,7 @@
             }
             default:
             {
-                @: Time Sent: @message.ActualSentTime.Value.ToLocalTime() <br />
-                @: Cost: $@message.Cost <br />
+                @: ScheduledTime: @message.ScheduledSendingTime.ToLocalTime() <br />
                 break;
             }
         }

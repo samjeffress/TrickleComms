@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NServiceBus;
+using SmsMessages.CommonData;
 using SmsTrackingMessages.Messages;
 
 namespace SmsTracking
@@ -27,7 +28,8 @@ namespace SmsTracking
                     MessageStatuses = message.ScheduledMessages
                         .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, ScheduleMessageId = s.ScheduleMessageId }).
                         ToList(),
-                    CreationDate = message.CreationDate
+                    CreationDate = message.CreationDate,
+                    MetaData = message.MetaData
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
                 session.SaveChanges();
@@ -125,6 +127,8 @@ namespace SmsTracking
         public DateTime? CompletionDate { get; set; }
 
         public DateTime CreationDate { get; set; }
+
+        public SmsMetaData MetaData { get; set; }
     }
 
     public class MessageSendingStatus
