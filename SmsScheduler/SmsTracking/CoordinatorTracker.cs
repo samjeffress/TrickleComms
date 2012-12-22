@@ -26,9 +26,9 @@ namespace SmsTracking
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, ScheduleMessageId = s.ScheduleMessageId }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc, ScheduleMessageId = s.ScheduleMessageId }).
                         ToList(),
-                    CreationDate = message.CreationDate,
+                    CreationDateUtc = message.CreationDateUtc,
                     MetaData = message.MetaData
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -42,7 +42,7 @@ namespace SmsTracking
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorMessageSent.CoordinatorId.ToString());
                 var messageSendingStatus = coordinatorTrackingData.MessageStatuses.First(m => m.ScheduleMessageId == coordinatorMessageSent.ScheduleMessageId);
-                messageSendingStatus.ActualSentTime = coordinatorMessageSent.TimeSentUtc;
+                messageSendingStatus.ActualSentTimeUtc = coordinatorMessageSent.TimeSentUtc;
                 messageSendingStatus.Cost = coordinatorMessageSent.Cost;
                 messageSendingStatus.Status = MessageStatusTracking.CompletedSuccess;
                 session.SaveChanges();
@@ -71,7 +71,7 @@ namespace SmsTracking
                 if (incompleteMessageCount > 0)
                     throw new Exception("Cannot complete coordinator - some messages are not yet complete.");
                 coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Completed;
-                coordinatorTrackingData.CompletionDate = coordinatorCompleted.CompletionDate;
+                coordinatorTrackingData.CompletionDateUtc = coordinatorCompleted.CompletionDate;
                 session.SaveChanges();
             }
         }
@@ -98,7 +98,7 @@ namespace SmsTracking
                 if (messageSendingStatus.Status != MessageStatusTracking.Paused)
                     throw new Exception("Cannot record resumption of message - it is no longer paused.");
                 messageSendingStatus.Status = MessageStatusTracking.Scheduled;
-                messageSendingStatus.ScheduledSendingTime = coordinatorMessageResumed.RescheduledTimeUtc;
+                messageSendingStatus.ScheduledSendingTimeUtc = coordinatorMessageResumed.RescheduledTimeUtc;
                 session.SaveChanges();
             }
         }
@@ -124,9 +124,9 @@ namespace SmsTracking
 
         public List<MessageSendingStatus> MessageStatuses { get; set; }
 
-        public DateTime? CompletionDate { get; set; }
+        public DateTime? CompletionDateUtc { get; set; }
 
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDateUtc { get; set; }
 
         public SmsMetaData MetaData { get; set; }
     }
@@ -137,13 +137,13 @@ namespace SmsTracking
         
         public string Number { get; set; }
 
-        public DateTime ScheduledSendingTime { get; set; }
+        public DateTime ScheduledSendingTimeUtc { get; set; }
 
         public MessageStatusTracking Status { get; set; }
 
         public Decimal? Cost { get; set; }
 
-        public DateTime? ActualSentTime { get; set; }
+        public DateTime? ActualSentTimeUtc { get; set; }
 
         public FailureData FailureData { get; set; }
     }

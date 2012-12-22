@@ -37,9 +37,9 @@
         // show resume button
     }
 }
-@if(Model.CompletionDate.HasValue)
+@if(Model.CompletionDateUtc.HasValue)
 {
-    <div>Completion Date: @Model.CompletionDate.Value.ToLocalTime()</div>
+    <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
 }
 <ul>
 @foreach(var message in Model.MessageStatuses)
@@ -68,7 +68,7 @@
         {
             case MessageStatusTracking.CompletedSuccess:
             {
-                @: Time Sent: @message.ActualSentTime.Value.ToLocalTime() <br />
+                @: Time Sent: @message.ActualSentTimeUtc.Value <br />
                 @: Cost: $@message.Cost <br />
                 break;
             }
@@ -79,7 +79,7 @@
             }
             default:
             {
-                @: ScheduledTime: @message.ScheduledSendingTime.ToLocalTime() <br />
+                @: ScheduledTime: @message.ScheduledSendingTimeUtc.ToLocalTime() <br />
                 break;
             }
         }

@@ -79,8 +79,8 @@ namespace SmsWeb.Controllers
                         CurrentStatus = c.CurrentStatus,
                         MessageCount = c.MessageStatuses.Count,
                         CoordinatorId = c.CoordinatorId,
-                        CreationDate = c.CreationDate,
-                        CompletionDate = c.CompletionDate,
+                        CreationDate = c.CreationDateUtc,
+                        CompletionDate = c.CompletionDateUtc,
                         Tags = c.MetaData != null && c.MetaData.Tags != null ? c.MetaData.Tags : new List<string>(),
                         Topic = c.MetaData != null ? c.MetaData.Topic : string.Empty
                     })

@@ -9,10 +9,10 @@ namespace SmsMessages.CommonData
 
     public class SmsConfirmationData
     {
-        public SmsConfirmationData(string receipt, DateTime sentAt, Decimal price)
+        public SmsConfirmationData(string receipt, DateTime sentAtUtc, Decimal price)
         {
             Receipt = receipt;
-            SentAtUtc = sentAt.ToUniversalTime();
+            SentAtUtc = sentAtUtc;
             Price = price;
         }
 

@@ -10,7 +10,7 @@ namespace SmsTrackingMessages.Messages
 
         public List<MessageSchedule> ScheduledMessages { get; set; }
 
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDateUtc { get; set; }
 
         public SmsMetaData MetaData { get; set; }
     }
@@ -19,7 +19,7 @@ namespace SmsTrackingMessages.Messages
     {
         public string Number { get; set; }
 
-        public DateTime ScheduledTime { get; set; }
+        public DateTime ScheduledTimeUtc { get; set; }
 
         public Guid ScheduleMessageId { get; set; }
     }

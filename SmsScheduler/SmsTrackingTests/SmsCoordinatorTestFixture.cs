@@ -19,8 +19,8 @@ namespace SmsTrackingTests
             {
                 CoordinatorId = Guid.NewGuid(),
                 ScheduledMessages = new List<MessageSchedule> { 
-                new MessageSchedule { Number = "04040044", ScheduledTime = DateTime.Now.AddMinutes(5)},
-                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                new MessageSchedule { Number = "04040044", ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
             }
             };
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -35,10 +35,10 @@ namespace SmsTrackingTests
                 Assert.That(coordinatorTrackingData.CoordinatorId, Is.EqualTo(coordinatorCreated.CoordinatorId));
                 Assert.That(coordinatorTrackingData.MessageStatuses.Count, Is.EqualTo(2));
                 Assert.That(coordinatorTrackingData.MessageStatuses[0].Number, Is.EqualTo(coordinatorCreated.ScheduledMessages[0].Number));
-                Assert.That(coordinatorTrackingData.MessageStatuses[0].ScheduledSendingTime, Is.EqualTo(coordinatorCreated.ScheduledMessages[0].ScheduledTime));
+                Assert.That(coordinatorTrackingData.MessageStatuses[0].ScheduledSendingTimeUtc, Is.EqualTo(coordinatorCreated.ScheduledMessages[0].ScheduledTimeUtc));
                 Assert.That(coordinatorTrackingData.MessageStatuses[0].Status, Is.EqualTo(MessageStatusTracking.WaitingForScheduling));
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].Number, Is.EqualTo(coordinatorCreated.ScheduledMessages[1].Number));
-                Assert.That(coordinatorTrackingData.MessageStatuses[1].ScheduledSendingTime, Is.EqualTo(coordinatorCreated.ScheduledMessages[1].ScheduledTime));
+                Assert.That(coordinatorTrackingData.MessageStatuses[1].ScheduledSendingTimeUtc, Is.EqualTo(coordinatorCreated.ScheduledMessages[1].ScheduledTimeUtc));
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].Status, Is.EqualTo(MessageStatusTracking.WaitingForScheduling));
             }
         }
@@ -54,15 +54,15 @@ namespace SmsTrackingTests
                 {
                     CoordinatorId = coordinatorId,
                     ScheduledMessages = new List<MessageSchedule> { 
-                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
-                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                new MessageSchedule { Number = updatedNumber, ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
                 }
                 };
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc }).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -81,7 +81,7 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Scheduled));
-                Assert.That(updatedMessageData.ActualSentTime, Is.Null);
+                Assert.That(updatedMessageData.ActualSentTimeUtc, Is.Null);
                 Assert.That(updatedMessageData.Cost, Is.Null);
             }
         }
@@ -97,15 +97,15 @@ namespace SmsTrackingTests
                 {
                     CoordinatorId = coordinatorId,
                     ScheduledMessages = new List<MessageSchedule> { 
-                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
-                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                new MessageSchedule { Number = updatedNumber, ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
                 }
                 };
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc }).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -124,7 +124,7 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.CompletedSuccess));
-                Assert.That(updatedMessageData.ActualSentTime, Is.EqualTo(coordinatorMessageSent.TimeSentUtc));
+                Assert.That(updatedMessageData.ActualSentTimeUtc, Is.EqualTo(coordinatorMessageSent.TimeSentUtc));
                 Assert.That(updatedMessageData.Cost, Is.EqualTo(coordinatorMessageSent.Cost));
             }
         }
@@ -140,15 +140,15 @@ namespace SmsTrackingTests
                 {
                     CoordinatorId = coordinatorId,
                     ScheduledMessages = new List<MessageSchedule> { 
-                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
-                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                new MessageSchedule { Number = updatedNumber, ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
                 }
                 };
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc }).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -167,7 +167,7 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.CompletedFailure));
-                Assert.That(updatedMessageData.ActualSentTime, Is.Null);
+                Assert.That(updatedMessageData.ActualSentTimeUtc, Is.Null);
                 Assert.That(updatedMessageData.Cost, Is.Null);
                 Assert.That(updatedMessageData.FailureData.Message, Is.EqualTo(coordinatorMessageFailed.SmsFailureData.Message));
                 Assert.That(updatedMessageData.FailureData.MoreInfo, Is.EqualTo(coordinatorMessageFailed.SmsFailureData.MoreInfo));
@@ -185,15 +185,15 @@ namespace SmsTrackingTests
                 {
                     CoordinatorId = coordinatorId,
                     ScheduledMessages = new List<MessageSchedule> { 
-                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
-                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                new MessageSchedule { Number = updatedNumber, ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
                 }
                 };
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc }).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -212,7 +212,7 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Paused));
-                Assert.That(updatedMessageData.ActualSentTime, Is.Null);
+                Assert.That(updatedMessageData.ActualSentTimeUtc, Is.Null);
                 Assert.That(updatedMessageData.Cost, Is.Null);
             }
         }
@@ -233,15 +233,15 @@ namespace SmsTrackingTests
                     CoordinatorId = coordinatorId,
                     ScheduledMessages = new List<MessageSchedule> 
                     { 
-                        new MessageSchedule { ScheduleMessageId = scheduleId, Number = updatedNumber, ScheduledTime = scheduledTime},
-                        new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                        new MessageSchedule { ScheduleMessageId = scheduleId, Number = updatedNumber, ScheduledTimeUtc = scheduledTime},
+                        new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
                     }
                  };
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.Paused, ScheduleMessageId = s.ScheduleMessageId}).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc, Status = MessageStatusTracking.Paused, ScheduleMessageId = s.ScheduleMessageId}).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -260,8 +260,8 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Scheduled));
-                Assert.That(updatedMessageData.ScheduledSendingTime, Is.EqualTo(rescheduledTime));
-                Assert.That(updatedMessageData.ActualSentTime, Is.Null);
+                Assert.That(updatedMessageData.ScheduledSendingTimeUtc, Is.EqualTo(rescheduledTime));
+                Assert.That(updatedMessageData.ActualSentTimeUtc, Is.Null);
                 Assert.That(updatedMessageData.Cost, Is.Null);
             }
         }
@@ -277,15 +277,15 @@ namespace SmsTrackingTests
                 {
                     CoordinatorId = coordinatorId,
                     ScheduledMessages = new List<MessageSchedule> { 
-                new MessageSchedule { Number = updatedNumber, ScheduledTime = DateTime.Now.AddMinutes(5)},
-                new MessageSchedule { Number = "07777777", ScheduledTime = DateTime.Now.AddMinutes(10)} 
+                new MessageSchedule { Number = updatedNumber, ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
+                new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
                 }
                 };
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
                     MessageStatuses = message.ScheduledMessages
-                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTime = s.ScheduledTime, Status = MessageStatusTracking.CompletedSuccess }).
+                        .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc, Status = MessageStatusTracking.CompletedSuccess }).
                         ToList()
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -310,7 +310,7 @@ namespace SmsTrackingTests
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = coordinatorId,
-                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTime = DateTime.Now, ActualSentTime = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.Paused } }
+                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTimeUtc = DateTime.Now, ActualSentTimeUtc = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.Paused } }
                 };
                 session.Store(coordinatorTrackingData, coordinatorId.ToString());
                 session.SaveChanges();
@@ -334,7 +334,7 @@ namespace SmsTrackingTests
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = coordinatorId,
-                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTime = DateTime.Now, ActualSentTime = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.CompletedSuccess } }
+                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTimeUtc = DateTime.Now, ActualSentTimeUtc = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.CompletedSuccess } }
                 };
                 session.Store(coordinatorTrackingData, coordinatorId.ToString());
                 session.SaveChanges();
