@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Web.Mvc;
 using NServiceBus;
 using SmsMessages.CommonData;
@@ -20,8 +21,9 @@ namespace SmsWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(ScheduleModel schedule)
+        public ActionResult Create(FormCollection collection)
         {
+            var schedule = ParseFormData(collection);
             var isValid = TryValidateModel(schedule);
             if (isValid && schedule.ScheduledTime > DateTime.Now)
             {
@@ -29,12 +31,35 @@ namespace SmsWeb.Controllers
                 {
                     SendMessageAtUtc = schedule.ScheduledTime.ToUniversalTime(),
                     SmsData = new SmsData(schedule.Number, schedule.MessageBody),
-                    ScheduleMessageId = Guid.NewGuid()
+                    ScheduleMessageId = Guid.NewGuid(),
+                    SmsMetaData = new SmsMetaData { Tags = schedule.Tags, Topic = schedule.Topic },
+                    ConfirmationEmail = schedule.ConfirmationEmail
                 };
                 Bus.Send(scheduleMessage);
                 return RedirectToAction("Details", "Schedule", new { scheduleId = scheduleMessage.ScheduleMessageId.ToString() });
             }
             return View("Create", schedule);
+        }
+
+        private ScheduleModel ParseFormData(FormCollection formCollection)
+        {
+            var scheduleModel = new ScheduleModel();
+            scheduleModel.MessageBody = formCollection["MessageBody"];
+            scheduleModel.Number = formCollection["Number"];
+            if (hasValue(formCollection, "ScheduledTime"))
+                scheduleModel.ScheduledTime = DateTime.Parse(formCollection["ScheduledTime"]);
+            if (hasValue(formCollection, "tag"))
+                scheduleModel.Tags = formCollection["tag"].Split(',').ToList().Select(t => t.Trim()).ToList();
+            scheduleModel.Topic = formCollection["Topic"];
+            scheduleModel.ConfirmationEmail = formCollection["ConfirmationEmail"];
+            return scheduleModel;
+        }
+
+        private bool hasValue(FormCollection formCollection, string key)
+        {
+            if (formCollection[key] != null && !string.IsNullOrWhiteSpace(formCollection[key]))
+                return true;
+            return false;
         }
 
         public ActionResult Details(string scheduleId)
@@ -43,7 +68,7 @@ namespace SmsWeb.Controllers
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(scheduleId);
                 if (scheduleTrackingData == null)
-                    return View("DetailsNotCreated", scheduleId);
+                    return View("DetailsNotCreated", (object)scheduleId);
                 return View("Details", scheduleTrackingData);
             }
         }

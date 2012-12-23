@@ -47,6 +47,17 @@
                 @Html.EditorFor(model => model.ConfirmationEmail)
                 @Html.ValidationMessageFor(model => model.ConfirmationEmail)
             </div>
+    
+                    <div>
+                @Html.LabelFor(model => model.Topic)
+                @Html.EditorFor(model => model.Topic)
+                @Html.ValidationMessageFor(model => model.Topic)
+            </div>
+        
+            <div>
+                @Html.Label("tag", "Tags")
+                <input name="tag" id="tag"/>
+            </div>
 
             <p>
                 <input type="submit" value="Create" />

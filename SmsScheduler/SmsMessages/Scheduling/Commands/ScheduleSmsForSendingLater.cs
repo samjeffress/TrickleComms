@@ -26,5 +26,7 @@ namespace SmsMessages.Scheduling.Commands
         public Guid ScheduleMessageId { get; set; }
 
         public Guid CorrelationId { get; set; }
+
+        public string ConfirmationEmail { get; set; }
     }
 }

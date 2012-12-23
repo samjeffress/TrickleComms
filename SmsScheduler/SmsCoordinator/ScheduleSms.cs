@@ -52,7 +52,8 @@ namespace SmsCoordinator
                 {
                     CorrelationId = Data.Id,
                     SmsData = Data.OriginalMessage.SmsData,
-                    SmsMetaData = Data.OriginalMessage.SmsMetaData
+                    SmsMetaData = Data.OriginalMessage.SmsMetaData,
+                    ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmail
                 };
                 Bus.Send(sendOneMessageNow);
             }

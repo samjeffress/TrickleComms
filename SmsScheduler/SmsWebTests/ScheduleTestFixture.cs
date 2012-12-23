@@ -16,7 +16,7 @@ namespace SmsWebTests
         public void ScheduleInvalidReturnsToCreatePage()
         {
             var controller = new ScheduleController { ControllerContext = new ControllerContext() };
-            var sendNowModel = new ScheduleModel { Number = "number", ScheduledTime = DateTime.Now.AddHours(1)};
+            var sendNowModel = new FormCollection { { "Number", "number" }, { "ScheduledTime", DateTime.Now.AddHours(1).ToString() } };
             var result = (ViewResult)controller.Create(sendNowModel);
 
             Assert.That(result.ViewName, Is.EqualTo("Create"));
@@ -26,7 +26,7 @@ namespace SmsWebTests
         public void ScheduleInvalidDateNotInFutureReturnsToCreatePage()
         {
             var controller = new ScheduleController { ControllerContext = new ControllerContext() };
-            var sendNowModel = new ScheduleModel { Number = "number", ScheduledTime = DateTime.Now.AddHours(-3), MessageBody = "abc"};
+            var sendNowModel = new FormCollection { { "Number", "number" }, { "ScheduledTime", DateTime.Now.AddHours(-3).ToString() }, { "MessageBody", "abc" } };
             var result = (ViewResult)controller.Create(sendNowModel);
 
             Assert.That(result.ViewName, Is.EqualTo("Create"));
@@ -37,7 +37,8 @@ namespace SmsWebTests
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var controller = new ScheduleController { ControllerContext = new ControllerContext(), Bus = bus};
-            var sendNowModel = new ScheduleModel { Number = "number", MessageBody = "m", ScheduledTime = DateTime.Now.AddHours(1) };
+            var scheduledTime = DateTime.Now.AddHours(1);
+            var sendNowModel = new FormCollection { { "Number", "number" }, { "MessageBody", "m" }, { "ScheduledTime", scheduledTime.ToString() } };
 
             var scheduledMessage = new ScheduleSmsForSendingLater();
             bus.Expect(b => b.Send(Arg<ScheduleSmsForSendingLater>.Is.NotNull))
@@ -46,9 +47,9 @@ namespace SmsWebTests
             var result = (RedirectToRouteResult)controller.Create(sendNowModel);
             
             Assert.That(result.RouteValues["action"], Is.EqualTo("Details"));
-            Assert.That(scheduledMessage.SendMessageAtUtc, Is.EqualTo(sendNowModel.ScheduledTime.ToUniversalTime()));
-            Assert.That(scheduledMessage.SmsData.Mobile, Is.EqualTo(sendNowModel.Number));
-            Assert.That(scheduledMessage.SmsData.Message, Is.EqualTo(sendNowModel.MessageBody));
+            Assert.That(scheduledMessage.SendMessageAtUtc.ToString(), Is.EqualTo(scheduledTime.ToUniversalTime().ToString()));
+            Assert.That(scheduledMessage.SmsData.Mobile, Is.EqualTo(sendNowModel["Number"]));
+            Assert.That(scheduledMessage.SmsData.Message, Is.EqualTo(sendNowModel["MessageBody"]));
         }
     }
 }
