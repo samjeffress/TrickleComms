@@ -92,6 +92,10 @@
     <Compile Include="TwilioConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ConfigurationModels\ConfigurationModels.csproj">
+      <Project>{39DA47DF-B0BF-4C61-975D-F4C3E93B1BC8}</Project>
+      <Name>ConfigurationModels</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
       <Project>{024BB854-56C8-4A03-A9DE-68FF4FE1FBA7}</Project>
       <Name>SmsMessages</Name>

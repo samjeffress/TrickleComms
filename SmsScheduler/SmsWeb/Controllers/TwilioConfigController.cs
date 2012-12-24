@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using ConfigurationModels;
 using SmsCoordinator;
 
 namespace SmsWeb.Controllers

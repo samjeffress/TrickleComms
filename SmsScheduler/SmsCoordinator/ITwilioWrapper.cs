@@ -1,4 +1,5 @@
 ﻿using System;
+using ConfigurationModels;
 using Raven.Client;
 using Raven.Client.Document;
 using Raven.Client.Extensions; // Used for EnsureDatabaseExists
