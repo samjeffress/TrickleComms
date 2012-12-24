@@ -15,5 +15,7 @@ namespace SmsMessages.Coordinator.Commands
         public TimeSpan Duration { get; set; }
 
         public SmsMetaData MetaData { get; set; }
+
+        public string ConfirmationEmail { get; set; }
     }
 }

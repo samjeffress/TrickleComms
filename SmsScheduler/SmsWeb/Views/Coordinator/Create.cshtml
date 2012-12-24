@@ -107,6 +107,11 @@
 
     <fieldset>
         <legend>Meta</legend>
+        <div>
+            @Html.LabelFor(model => model.ConfirmationEmail, "Confirmation Email")
+            @Html.EditorFor(model => model.ConfirmationEmail)
+            @Html.ValidationMessageFor(model => model.ConfirmationEmail)
+        </div>
         
         <div>
             <div>
@@ -120,6 +125,7 @@
                 <input name="tag" id="tag"/>
             </div>
         </div>
+
     </fieldset>
     <p>
         <input type="submit" value="Create" />

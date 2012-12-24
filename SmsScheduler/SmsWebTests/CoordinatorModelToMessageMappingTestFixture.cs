@@ -19,7 +19,8 @@ namespace SmsWebTests
                     StartTime = DateTime.Now.AddHours(2),
                     TimeSeparator = new TimeSpan(5000),
                     Tags = new List<string> {"tag1", "tag2"},
-                    Topic = "Dance Dance Revolution!"
+                    Topic = "Dance Dance Revolution!",
+                    ConfirmationEmail = "confirmation"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var message = mapper.MapToTrickleSpacedByPeriod(model);
@@ -33,6 +34,7 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
             Assert.That(message.TimeSpacing, Is.EqualTo(model.TimeSeparator));
+            Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }
 
         [Test]
@@ -45,7 +47,8 @@ namespace SmsWebTests
                     StartTime = DateTime.Now.AddHours(2),
                     SendAllBy = DateTime.Now.AddHours(3),
                     Tags = new List<string> { "tag1", "tag2" },
-                    Topic = "Dance Dance Revolution!"
+                    Topic = "Dance Dance Revolution!",
+                    ConfirmationEmail = "toby@toby.com"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var message = mapper.MapToTrickleOverPeriod(model);
@@ -61,6 +64,7 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
+            Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }
     }
 }

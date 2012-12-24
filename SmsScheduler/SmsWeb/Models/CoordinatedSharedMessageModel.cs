@@ -22,5 +22,7 @@ namespace SmsWeb.Models
         public List<string> Tags { get; set; }
 
         public string Topic { get; set; }
+
+        public string ConfirmationEmail { get; set; }
     }
 }

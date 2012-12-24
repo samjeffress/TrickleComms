@@ -117,6 +117,7 @@ namespace SmsWeb.Controllers
             }
                 
             coordinatedSharedMessageModel.Topic = formCollection["Topic"];
+            coordinatedSharedMessageModel.ConfirmationEmail = formCollection["ConfirmationEmail"];
             return coordinatedSharedMessageModel;
         }
 
@@ -196,7 +197,8 @@ namespace SmsWeb.Controllers
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
-                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic }
+                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
+                ConfirmationEmail = model.ConfirmationEmail
             };
         }
 
@@ -209,7 +211,8 @@ namespace SmsWeb.Controllers
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
                 TimeSpacing = model.TimeSeparator.Value,
-                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic }
+                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
+                ConfirmationEmail = model.ConfirmationEmail
             };
         }
     }
