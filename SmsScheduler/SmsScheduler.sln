@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsWebTests", "SmsWebTests\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsTrackingMessages", "SmsTrackingMessages\SmsTrackingMessages.csproj", "{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSender", "EmailSender\EmailSender.csproj", "{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

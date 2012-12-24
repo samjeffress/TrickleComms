@@ -8,7 +8,7 @@ namespace SmsTracking
     {
         public IRavenDocStore RavenStore { get; set; }
 
-        public IEmailService EmailService { get; set; }
+        //public IEmailService EmailService { get; set; }
 
         public void Handle(MessageSent message)
         {
@@ -20,10 +20,10 @@ namespace SmsTracking
                 session.SaveChanges();
             }
 
-            if(!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
-            {
-                EmailService.SendSmsSentConfirmation(message);
-            }
+            //if(!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
+            //{
+            //    EmailService.SendSmsSentConfirmation(message);
+            //}
         }
 
         public void Handle(MessageFailedSending message)
@@ -36,10 +36,10 @@ namespace SmsTracking
                 session.SaveChanges();
             }
 
-            if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
-            {
-                EmailService.SendSmsFailedConfirmation(message);
-            }
+            //if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
+            //{
+            //    EmailService.SendSmsFailedConfirmation(message);
+            //}
         }
     }
 

@@ -27,7 +27,6 @@ namespace SmsTracking
                 .LoadMessageHandlers();
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
-            Configure.Instance.Configurer.ConfigureComponent<EmailService>(DependencyLifecycle.InstancePerUnitOfWork);
      
             configure.CreateBus()
             .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
