@@ -1,4 +1,5 @@
 using SmsMessages.MessageSending.Events;
+using SmsTrackingMessages.Messages;
 
 namespace SmsTracking
 {
@@ -6,6 +7,7 @@ namespace SmsTracking
     {
         void SendSmsSentConfirmation(MessageSent message);
         void SendSmsFailedConfirmation(MessageFailedSending message);
+        void SendCoordinatorComplete(CoordinatorCompleteEmail message);
     }
 
     public class EmailService : IEmailService
@@ -16,6 +18,11 @@ namespace SmsTracking
         }
 
         public void SendSmsFailedConfirmation(MessageFailedSending message)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SendCoordinatorComplete(CoordinatorCompleteEmail message)
         {
             throw new System.NotImplementedException();
         }

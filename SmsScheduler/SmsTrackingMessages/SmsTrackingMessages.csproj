@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Messages\CoordinatorCompleted.cs" />
+    <Compile Include="Messages\CoordinatorCompleteEmail.cs" />
     <Compile Include="Messages\CoordinatorCreated.cs" />
     <Compile Include="Messages\CoordinatorMessageFailed.cs" />
     <Compile Include="Messages\CoordinatorMessagePaused.cs" />

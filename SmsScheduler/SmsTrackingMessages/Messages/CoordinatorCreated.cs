@@ -13,6 +13,8 @@ namespace SmsTrackingMessages.Messages
         public DateTime CreationDateUtc { get; set; }
 
         public SmsMetaData MetaData { get; set; }
+
+        public string ConfirmationEmailAddress { get; set; }
     }
 
     public class MessageSchedule

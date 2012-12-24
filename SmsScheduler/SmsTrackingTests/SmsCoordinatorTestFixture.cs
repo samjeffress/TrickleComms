@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
@@ -18,10 +19,12 @@ namespace SmsTrackingTests
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Guid.NewGuid(),
-                ScheduledMessages = new List<MessageSchedule> { 
-                new MessageSchedule { Number = "04040044", ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
-                new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
-            }
+                ScheduledMessages = new List<MessageSchedule> 
+                { 
+                    new MessageSchedule { Number = "04040044", ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
+                    new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
+                },
+                ConfirmationEmailAddress = "tony"
             };
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
@@ -40,6 +43,7 @@ namespace SmsTrackingTests
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].Number, Is.EqualTo(coordinatorCreated.ScheduledMessages[1].Number));
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].ScheduledSendingTimeUtc, Is.EqualTo(coordinatorCreated.ScheduledMessages[1].ScheduledTimeUtc));
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].Status, Is.EqualTo(MessageStatusTracking.WaitingForScheduling));
+                Assert.That(coordinatorTrackingData.ConfirmationEmailAddress, Is.EqualTo(coordinatorCreated.ConfirmationEmailAddress));
             }
         }
 
@@ -301,7 +305,7 @@ namespace SmsTrackingTests
         }
 
         [Test]
-        public void CoordinateMessagesCompleteWithAllMessagesComplete()
+        public void CoordinateMessagesCompleteWithSomeIncompleteMessagesThrowsException()
         {
             var coordinatorId = Guid.NewGuid();
 
@@ -325,7 +329,7 @@ namespace SmsTrackingTests
         }
 
         [Test]
-        public void CoordinateMessagesCompleteWithSomeIncompleteMessagesThrowsException()
+        public void CoordinateMessagesCompleteWithAllMessagesComplete()
         {
             var coordinatorId = Guid.NewGuid();
 
@@ -352,6 +356,41 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 Assert.That(trackingData.CurrentStatus, Is.EqualTo(CoordinatorStatusTracking.Completed));
             }
+        }
+
+        [Test]
+        public void CoordinateMessagesCompleteWithAllMessagesCompleteAndSendsConfirmationEmail()
+        {
+            var coordinatorId = Guid.NewGuid();
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = coordinatorId,
+                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTimeUtc = DateTime.Now, ActualSentTimeUtc = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.CompletedSuccess } },
+                    ConfirmationEmailAddress = "email"
+                };
+                session.Store(coordinatorTrackingData, coordinatorId.ToString());
+                session.SaveChanges();
+            }
+
+            var coordinatorCompleted = new CoordinatorCompleted { CoordinatorId = coordinatorId };
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var bus = MockRepository.GenerateMock<IBus>();
+            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
+            bus.Expect(b => b.Send(Arg<CoordinatorCompleteEmail>.Is.Anything));
+
+            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore, Bus = bus};
+            coordinatorTracker.Handle(coordinatorCompleted);
+
+            using (var session = DocumentStore.OpenSession())
+            {
+                var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
+                Assert.That(trackingData.CurrentStatus, Is.EqualTo(CoordinatorStatusTracking.Completed));
+            }
+            bus.VerifyAllExpectations();
         }
     }
 }

@@ -18,6 +18,8 @@ namespace SmsTracking
     {
         public IRavenDocStore RavenStore { get; set; }
 
+        public IBus Bus { get; set; }
+
         public void Handle(CoordinatorCreated message)
         {
             using (var session = RavenStore.GetStore().OpenSession())
@@ -29,7 +31,8 @@ namespace SmsTracking
                         .Select(s => new MessageSendingStatus { Number = s.Number, ScheduledSendingTimeUtc = s.ScheduledTimeUtc, ScheduleMessageId = s.ScheduleMessageId }).
                         ToList(),
                     CreationDateUtc = message.CreationDateUtc,
-                    MetaData = message.MetaData
+                    MetaData = message.MetaData,
+                    ConfirmationEmailAddress = message.ConfirmationEmailAddress
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
                 session.SaveChanges();
@@ -72,6 +75,36 @@ namespace SmsTracking
                     throw new Exception("Cannot complete coordinator - some messages are not yet complete.");
                 coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Completed;
                 coordinatorTrackingData.CompletionDateUtc = coordinatorCompleted.CompletionDate;
+                if (!string.IsNullOrWhiteSpace(coordinatorTrackingData.ConfirmationEmailAddress))
+                {
+                    var coordinatorCompleteEmail = new CoordinatorCompleteEmail();
+                    coordinatorCompleteEmail.CoordinatorId = coordinatorTrackingData.CoordinatorId;
+                    coordinatorCompleteEmail.EmailAddress = coordinatorTrackingData.ConfirmationEmailAddress;
+                    coordinatorCompleteEmail.FinishTimeUtc = coordinatorTrackingData.CompletionDateUtc.Value;
+                    coordinatorCompleteEmail.StartTimeUtc = coordinatorTrackingData.CreationDateUtc;
+                    coordinatorCompleteEmail.SendingData = new SendingData
+                    {
+                        SuccessfulMessages = coordinatorTrackingData.MessageStatuses
+                            .Where(m => m.Status == MessageStatusTracking.CompletedSuccess)
+                            .Select(m => new SuccessfulMessage
+                            {
+                                Cost = m.Cost.Value, 
+                                ScheduleId = m.ScheduleMessageId, 
+                                TimeSentUtc = m.ActualSentTimeUtc.Value
+                            })
+                            .ToList(),
+                        UnsuccessfulMessageses = coordinatorTrackingData.MessageStatuses
+                            .Where(m => m.Status == MessageStatusTracking.CompletedFailure)
+                            .Select(m => new UnsuccessfulMessage
+                            {
+                                ScheduleId = m.ScheduleMessageId, 
+                                FailureReason = new FailureReason { Message = m.FailureData.Message, MoreInfo = m.FailureData.MoreInfo }, 
+                                ScheduleSendingTimeUtc = m.ScheduledSendingTimeUtc
+                            })
+                            .ToList(),
+                    };
+                    Bus.Send(coordinatorCompleteEmail);
+                }
                 session.SaveChanges();
             }
         }
@@ -129,6 +162,8 @@ namespace SmsTracking
         public DateTime CreationDateUtc { get; set; }
 
         public SmsMetaData MetaData { get; set; }
+
+        public string ConfirmationEmailAddress { get; set; }
     }
 
     public class MessageSendingStatus
