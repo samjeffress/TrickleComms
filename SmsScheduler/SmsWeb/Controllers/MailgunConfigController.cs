@@ -1,9 +1,9 @@
-﻿using System.Web.Mvc;
+using System.Web.Mvc;
 using ConfigurationModels;
 
 namespace SmsWeb.Controllers
 {
-    public class TwilioConfigController : Controller
+    public class MailgunConfigController : Controller
     {
         public IRavenDocStore DocumentStore { get; set; }
 
@@ -18,20 +18,20 @@ namespace SmsWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(TwilioConfiguration configuration)
+        public ActionResult Create(MailgunConfiguration configuration)
         {
             var isValid = TryUpdateModel(configuration);
             if (isValid)
             {
                 using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
                 {
-                    var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
-                    if (twilioConfiguration != null)
+                    var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                    if (mailgunConfiguration != null)
                     {
-                        ModelState.AddModelError("General", "Twilio Config is already setup");
-                        return View("Create", twilioConfiguration);
+                        ModelState.AddModelError("General", "Mailgun Config is already setup");
+                        return View("Create", mailgunConfiguration);
                     }
-                    session.Store(configuration, "TwilioConfig");
+                    session.Store(configuration, "MailgunConfig");
                     session.SaveChanges();
                     return View("Details", configuration);
                 }
@@ -43,30 +43,30 @@ namespace SmsWeb.Controllers
         {
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
-                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
-                return View("Edit", twilioConfiguration);
+                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                return View("Edit", mailgunConfiguration);
             }
         }
 
         [HttpPost]
-        public ActionResult Edit(TwilioConfiguration configuration)
+        public ActionResult Edit(MailgunConfiguration configuration)
         {
             var isValid = TryUpdateModel(configuration);
             if (!isValid)
                 return View("Edit", configuration);
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
-                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
-                if (twilioConfiguration == null)
+                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                if (mailgunConfiguration == null)
                 {
-                    session.Store(configuration, "TwilioConfig");
+                    session.Store(configuration, "MailgunConfig");
                 }
                 else
                 {
-                    twilioConfiguration = configuration;
+                    mailgunConfiguration = configuration;
                 }
                 session.SaveChanges();
-                return View("Edit", twilioConfiguration);
+                return View("Edit", mailgunConfiguration);
             }
         }
     }

@@ -235,6 +235,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CoordinatorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\MailgunConfigController.cs" />
     <Compile Include="Controllers\ScheduleController.cs" />
     <Compile Include="Controllers\SendNowController.cs" />
     <Compile Include="Controllers\TwilioConfigController.cs" />
@@ -385,6 +386,9 @@
     <Content Include="Views\Home\NoResults.cshtml" />
     <Content Include="Views\Coordinator\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\CoordinatorPagedOverview.cshtml" />
+    <Content Include="Views\MailgunConfig\Create.cshtml" />
+    <Content Include="Views\MailgunConfig\Edit.cshtml" />
+    <Content Include="Views\MailgunConfig\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

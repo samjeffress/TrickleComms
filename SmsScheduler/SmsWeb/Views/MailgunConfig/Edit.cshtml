@@ -1,0 +1,46 @@
+﻿@model ConfigurationModels.MailgunConfiguration
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>MailgunConfiguration</legend>
+
+        <div>
+            @Html.LabelFor(model => model.ApiKey)
+            @Html.EditorFor(model => model.ApiKey)
+            @Html.ValidationMessageFor(model => model.ApiKey)
+        </div>
+
+        <div>
+            @Html.LabelFor(model => model.DomainName)
+            @Html.EditorFor(model => model.DomainName)
+            @Html.ValidationMessageFor(model => model.DomainName)
+        </div>
+
+        <div>
+            @Html.LabelFor(model => model.DefaultFrom)
+            @Html.EditorFor(model => model.DefaultFrom)
+            @Html.ValidationMessageFor(model => model.DefaultFrom)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

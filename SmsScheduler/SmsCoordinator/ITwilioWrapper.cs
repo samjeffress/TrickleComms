@@ -1,8 +1,7 @@
 ﻿using System;
 using ConfigurationModels;
 using Raven.Client;
-using Raven.Client.Document;
-using Raven.Client.Extensions; // Used for EnsureDatabaseExists
+    // Used for EnsureDatabaseExists
 using Twilio;
 
 namespace SmsCoordinator
@@ -24,7 +23,7 @@ namespace SmsCoordinator
             DocumentStore = documentStore;
             string accountSid;
             string authToken;
-            using (var session = DocumentStore.GetStore().OpenSession("TwilioConfiguration"))
+            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
                 if (twilioConfiguration == null)
@@ -40,7 +39,7 @@ namespace SmsCoordinator
 
         public SMSMessage SendSmsMessage(string to, string message)
         {
-            using (var session = DocumentStore.GetStore().OpenSession("TwilioConfiguration"))
+            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
                 if (twilioConfiguration == null)
@@ -56,26 +55,5 @@ namespace SmsCoordinator
         {
             return _restClient.GetSmsMessage(sid);
         }
-    }
-
-    public class RavenDocStore : IRavenDocStore
-    {
-        private readonly IDocumentStore _documentStore;
-        public RavenDocStore()
-        {
-            _documentStore = new DocumentStore { Url = "http://localhost:8080" };
-            _documentStore.Initialize();
-            _documentStore.DatabaseCommands.EnsureDatabaseExists("TwilioConfiguration");
-        }
-
-        public IDocumentStore GetStore()
-        {
-            return _documentStore;
-        }
-    }
-
-    public interface IRavenDocStore
-    {
-        IDocumentStore GetStore();
     }
 }

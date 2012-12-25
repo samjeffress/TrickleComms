@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ConfigurationModels
 {
-    public class MailGunConfiguration
+    public class MailgunConfiguration
     {
         [Required]
         public string ApiKey { get; set; }

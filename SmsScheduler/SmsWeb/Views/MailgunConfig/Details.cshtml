@@ -1,0 +1,30 @@
+﻿@model ConfigurationModels.MailgunConfiguration
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>MailgunConfiguration</legend>
+
+    <div>
+         @Html.DisplayNameFor(model => model.ApiKey)
+        @Html.DisplayFor(model => model.ApiKey)
+    </div>
+
+    <div>
+         @Html.DisplayNameFor(model => model.DomainName)
+        @Html.DisplayFor(model => model.DomainName)
+    </div>
+
+    <div>
+         @Html.DisplayNameFor(model => model.DefaultFrom)
+        @Html.DisplayFor(model => model.DefaultFrom)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { /* id=Model.PrimaryKey */ }) |
+</p>
