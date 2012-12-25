@@ -40,7 +40,7 @@ namespace SmsWebTests
         [Test]
         public void PostInvalidNoMessage()
         {
-            var request = new Coordinator { Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now, SendAllByUtc = DateTime.Now.AddDays(1) };
+            var request = new Coordinator { Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddMinutes(1), SendAllByUtc = DateTime.Now.AddDays(1) };
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 

@@ -33,7 +33,7 @@ namespace SmsWeb.Controllers
                     }
                     session.Store(configuration, "TwilioConfig");
                     session.SaveChanges();
-                    return View("Details", configuration);
+                    return RedirectToAction("Details");
                 }
             }
             return View("Create", configuration);
@@ -63,10 +63,21 @@ namespace SmsWeb.Controllers
                 }
                 else
                 {
-                    twilioConfiguration = configuration;
+                    twilioConfiguration.AccountSid = configuration.AccountSid;
+                    twilioConfiguration.AuthToken = configuration.AuthToken;
+                    twilioConfiguration.From = configuration.From;
                 }
                 session.SaveChanges();
-                return View("Edit", twilioConfiguration);
+                return RedirectToAction("Details");
+            }
+        }
+
+        public ActionResult Details()
+        {
+            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
+            {
+                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
+                return View("Details", twilioConfiguration);
             }
         }
     }

@@ -375,7 +375,6 @@
     <Content Include="Views\SendNow\Index.cshtml" />
     <Content Include="Views\TwilioConfig\Edit.cshtml" />
     <Content Include="Views\TwilioConfig\Create.cshtml" />
-    <Content Include="Views\TwilioConfig\Details.cshtml" />
     <Content Include="Views\Schedule\Create.cshtml" />
     <Content Include="Views\Schedule\Details.cshtml" />
     <Content Include="Views\Schedule\DetailsNotCreated.cshtml" />
@@ -389,6 +388,8 @@
     <Content Include="Views\MailgunConfig\Create.cshtml" />
     <Content Include="Views\MailgunConfig\Edit.cshtml" />
     <Content Include="Views\MailgunConfig\Details.cshtml" />
+    <Content Include="Views\Home\ConfigMenu.cshtml" />
+    <Content Include="Views\TwilioConfig\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

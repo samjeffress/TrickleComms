@@ -29,6 +29,11 @@ namespace SmsWeb.Controllers
             return View();
         }
 
+        public ActionResult Configuration()
+        {
+            return View("ConfigMenu");
+        }
+
         [HttpPost]
         public ActionResult Search(string id)
         {

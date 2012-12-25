@@ -1,0 +1,9 @@
+﻿@{
+    ViewBag.Title = "ConfigMenu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>ConfigMenu</h2>
+
+@Html.ActionLink("Twilio Configuration", "Edit", "TwilioConfig")
+@Html.ActionLink("Mailgun Configuration", "Edit", "MailgunConfig")

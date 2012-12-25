@@ -40,9 +40,10 @@
                     </nav>
                 </div>
                 <div class="float-right">
-     @*               <section id="login">
-                        @Html.Partial("_LoginPartial")
-                    </section>*@
+                    <section id="login">
+                        @*                   @Html.Partial("_LoginPartial")*@
+                        @Html.ActionLink("Configuration", "Configuration", "Home")
+                    </section>
                     <section id="search">
                         @using(Html.BeginForm("Search", "Home"))
                         {

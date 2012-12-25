@@ -33,7 +33,7 @@ namespace SmsWeb.Controllers
                     }
                     session.Store(configuration, "MailgunConfig");
                     session.SaveChanges();
-                    return View("Details", configuration);
+                    return RedirectToAction("Details");
                 }
             }
             return View("Create", configuration);
@@ -63,10 +63,21 @@ namespace SmsWeb.Controllers
                 }
                 else
                 {
-                    mailgunConfiguration = configuration;
+                    mailgunConfiguration.ApiKey = configuration.ApiKey;
+                    mailgunConfiguration.DefaultFrom = configuration.DefaultFrom;
+                    mailgunConfiguration.DomainName = configuration.DomainName;
                 }
                 session.SaveChanges();
-                return View("Edit", mailgunConfiguration);
+                return RedirectToAction("Details");
+            }
+        }
+
+        public ActionResult Details()
+        {
+            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
+            {
+                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                return View("Details", mailgunConfiguration);
             }
         }
     }

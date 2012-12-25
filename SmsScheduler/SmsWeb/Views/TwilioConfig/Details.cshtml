@@ -1,13 +1,30 @@
-﻿
-<!DOCTYPE html>
+﻿@model ConfigurationModels.TwilioConfiguration
 
-<html>
-    <head>
-        <title>title</title>
-    </head>
-    <body>
-        <div>
-              <h1>Nice 1</h1>
-        </div>
-    </body>
-</html>
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<fieldset>
+    <legend>TwilioConfiguration</legend>
+
+    <div>
+         @Html.DisplayNameFor(model => model.AuthToken)
+        @Html.DisplayFor(model => model.AuthToken)
+    </div>
+
+    <div>
+         @Html.DisplayNameFor(model => model.AccountSid)
+        @Html.DisplayFor(model => model.AccountSid)
+    </div>
+
+    <div>
+         @Html.DisplayNameFor(model => model.From)
+        @Html.DisplayFor(model => model.From)
+    </div>
+</fieldset>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { /* id=Model.PrimaryKey */ }) |
+</p>
