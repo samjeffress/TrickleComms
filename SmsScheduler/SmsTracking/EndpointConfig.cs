@@ -40,7 +40,6 @@ namespace SmsTracking
         {
             _documentStore = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "SmsTracking" };
             _documentStore.Initialize();
-            //_documentStore.DatabaseCommands.EnsureDatabaseExists("TwilioConfiguration");
             _documentStore.DatabaseCommands.EnsureDatabaseExists("SmsTracking");
         }
 

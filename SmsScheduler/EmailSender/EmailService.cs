@@ -66,7 +66,7 @@ namespace EmailSender
                 builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
                 builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
                 builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " +
-                                   message.SendingData.SuccessfulMessages + message.SendingData.UnsuccessfulMessageses +
+                                   message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count +
                                    " sent.");
                 var body = builder.ToString();
                 var mailMessage = new MailMessage(mailgunConfiguration.DefaultFrom, message.EmailAddress, subject, body);

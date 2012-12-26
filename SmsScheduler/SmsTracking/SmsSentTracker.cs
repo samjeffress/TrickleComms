@@ -10,6 +10,7 @@ namespace SmsTracking
 
         //public IEmailService EmailService { get; set; }
 
+        // TODO: Check why RavenStore is always being set as null through container
         public void Handle(MessageSent message)
         {
             using (var session = RavenStore.GetStore().OpenSession())
