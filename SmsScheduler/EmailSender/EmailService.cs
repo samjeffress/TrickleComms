@@ -30,7 +30,7 @@ namespace EmailSender
 
                 var body = string.Format("Message '{0}' sent to number {1}. \r\nCost: ${2} \r\nSent (UTC): {3}", message.SmsData.Message, message.SmsData.Mobile, message.ConfirmationData.Price, message.ConfirmationData.SentAtUtc.ToString());
                 var mailMessage = new MailMessage(mailgunConfiguration.DefaultFrom, message.ConfirmationEmailAddress, subject, body);
-                MailActioner.Send(mailMessage);
+                MailActioner.Send(mailgunConfiguration, mailMessage);
             }
         }
 
@@ -47,7 +47,7 @@ namespace EmailSender
 
                 var body = string.Format("Message '{0}' failed sending to number {1}. \r\nFailure Reason: {2} \r\n<a href src='{3}'>More Information</a>", message.SmsData.Message, message.SmsData.Mobile, message.SmsFailed.Message, message.SmsFailed.MoreInfo);
                 var mailMessage = new MailMessage(mailgunConfiguration.DefaultFrom, message.ConfirmationEmailAddress, subject, body);
-                MailActioner.Send(mailMessage);
+                MailActioner.Send(mailgunConfiguration, mailMessage);
             }
         }
 
@@ -70,7 +70,7 @@ namespace EmailSender
                                    " sent.");
                 var body = builder.ToString();
                 var mailMessage = new MailMessage(mailgunConfiguration.DefaultFrom, message.EmailAddress, subject, body);
-                MailActioner.Send(mailMessage);
+                MailActioner.Send(mailgunConfiguration, mailMessage);
             }
         }
     }

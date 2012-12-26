@@ -1,28 +1,27 @@
-using System.Collections.Generic;
+using System;
 using System.Net.Mail;
 using ConfigurationModels;
 using EmailSender;
 using NUnit.Framework;
 using Raven.Client;
 using Rhino.Mocks;
-using SmsMessages.CommonData;
-using SmsMessages.MessageSending.Events;
+using SmsTrackingMessages.Messages;
 
 namespace EmailSenderTests
 {
     [TestFixture]
-    public class MessageNotSentTestFixture
+    public class CoordinatorCompleteTestFixture
     {
         [Test]
-        public void MessageNotSentNoEmailNoAction()
+        public void CoordinatorCompleteNoEmailNoAction()
         {
             var emailService = new EmailService();
-            var messageFailedSending = new MessageFailedSending();
-            emailService.Handle(messageFailedSending);
+            var coordinatorComplete = new CoordinatorCompleteEmail();
+            emailService.Handle(coordinatorComplete);
         }
 
         [Test]
-        public void MessageNotSentWithEmailDefaultFromNotSentThrowsException()
+        public void CoordinatorCompleteWithEmailDefaultFromNotSentThrowsException()
         {
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             var session = MockRepository.GenerateMock<IDocumentSession>();
@@ -32,12 +31,12 @@ namespace EmailSenderTests
             session.Expect(s => s.Load<MailgunConfiguration>("MailgunConfig")).Return(mailgunConfig);
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore };
-            var messageFailedSending = new MessageFailedSending { ConfirmationEmailAddress = "toby@tobyindustries.com", SmsData = new SmsData("mobile", "message"), SmsMetaData = new SmsMetaData { Tags = new List<string> { "a" }, Topic = "topic" } };
-            Assert.That(() => emailService.Handle(messageFailedSending), Throws.Exception.With.Message.EqualTo("Could not find the default 'From' sender."));
+            var coordinatorComplete = new CoordinatorCompleteEmail { EmailAddress = "email@confirmation.com" };
+            Assert.That(() => emailService.Handle(coordinatorComplete), Throws.Exception.With.Message.EqualTo("Could not find the default 'From' sender."));
         }
 
         [Test]
-        public void MessageSentWithEmailSendsEmail()
+        public void CoordinatorCompleteWithEmailSendsEmail()
         {
             var mailActioner = MockRepository.GenerateMock<IMailActioner>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -51,12 +50,19 @@ namespace EmailSenderTests
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
             
             var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore };
-            var messageFailedSending = new MessageFailedSending { ConfirmationEmailAddress = "toby@tobyindustries.com", SmsData = new SmsData("mobile", "message"), SmsMetaData = new SmsMetaData { Tags = new List<string> { "a" }, Topic = "topic"}, SmsFailed = new SmsFailed("sid", "code", "message", "moreinfo", "status")};
-            emailService.Handle(messageFailedSending);
+            var coordinatorComplete = new CoordinatorCompleteEmail
+                                          {
+                                              CoordinatorId = Guid.NewGuid(), 
+                                              EmailAddress = "to@email.com", 
+                                              FinishTimeUtc = DateTime.Now, 
+                                              StartTimeUtc = DateTime.Now.AddMinutes(-10),
+                                              SendingData = new SendingData()
+                                          };
+            emailService.Handle(coordinatorComplete);
 
             mailActioner.VerifyAllExpectations();
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
-            Assert.That(message.To.ToString(), Is.EqualTo(messageFailedSending.ConfirmationEmailAddress));
+            Assert.That(message.To.ToString(), Is.EqualTo(coordinatorComplete.EmailAddress));
         }
     }
 }

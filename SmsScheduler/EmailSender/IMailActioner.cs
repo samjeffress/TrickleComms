@@ -1,17 +1,23 @@
+using System;
 using System.Net.Mail;
+using ConfigurationModels;
+using Typesafe.Mailgun;
 
 namespace EmailSender
 {
     public interface IMailActioner
     {
-        void Send(MailMessage message);
+        void Send(MailgunConfiguration configuration, MailMessage message);
     }
 
     public class MailActioner : IMailActioner
     {
-        public void Send(MailMessage message)
+        public void Send(MailgunConfiguration configuration, MailMessage message)
         {
-            throw new System.NotImplementedException();
+            var mailgunClient = new MailgunClient(configuration.DomainName, configuration.ApiKey);
+            var commandResult = mailgunClient.SendMail(message);
+            var s = commandResult.Message;
+            Console.Write(s);
         }
     }
 }

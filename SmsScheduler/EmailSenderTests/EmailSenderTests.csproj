@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoordinatorCompleteTestFixture.cs" />
     <Compile Include="MessageNotSentTestFixture.cs" />
     <Compile Include="MessageSentTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
