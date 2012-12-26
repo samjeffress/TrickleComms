@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Mail;
+using System.Text;
 using ConfigurationModels;
 using NServiceBus;
 using SmsMessages.MessageSending.Events;
@@ -51,7 +53,25 @@ namespace EmailSender
 
         public void Handle(CoordinatorCompleteEmail message)
         {
-            throw new System.NotImplementedException();
+            if (string.IsNullOrWhiteSpace(message.EmailAddress))
+                return;
+            using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
+            {
+                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                if (mailgunConfiguration == null || string.IsNullOrWhiteSpace(mailgunConfiguration.DefaultFrom))
+                    throw new ArgumentException("Could not find the default 'From' sender.");
+                var subject = "Coordinator " + message.CoordinatorId + " complete.";
+
+                var builder = new StringBuilder();
+                builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
+                builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
+                builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " +
+                                   message.SendingData.SuccessfulMessages + message.SendingData.UnsuccessfulMessageses +
+                                   " sent.");
+                var body = builder.ToString();
+                var mailMessage = new MailMessage(mailgunConfiguration.DefaultFrom, message.EmailAddress, subject, body);
+                MailActioner.Send(mailMessage);
+            }
         }
     }
 }

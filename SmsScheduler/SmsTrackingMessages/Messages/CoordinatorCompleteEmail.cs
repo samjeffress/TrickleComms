@@ -14,6 +14,12 @@ namespace SmsTrackingMessages.Messages
 
     public class SendingData
     {
+        public SendingData()
+        {
+            SuccessfulMessages = new List<SuccessfulMessage>();
+            UnsuccessfulMessageses = new List<UnsuccessfulMessage>();
+        }
+
         public List<SuccessfulMessage> SuccessfulMessages { get; set; }
 
         public List<UnsuccessfulMessage> UnsuccessfulMessageses { get; set; }
