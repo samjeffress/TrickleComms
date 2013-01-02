@@ -104,6 +104,8 @@ namespace SmsWeb.Controllers
         {
             var coordinatedSharedMessageModel = new CoordinatedSharedMessageModel();
             coordinatedSharedMessageModel.Message = formCollection["Message"];
+            if (coordinatedSharedMessageModel.Message.Length > 160)
+                coordinatedSharedMessageModel.Message = coordinatedSharedMessageModel.Message.Substring(0, 160);
             if (hasValue(formCollection, "numberList"))
                 coordinatedSharedMessageModel.Numbers = formCollection["numberList"].Split(',').Select(n => n.Trim()).ToList();
             if (hasValue(formCollection, "SendAllBy"))

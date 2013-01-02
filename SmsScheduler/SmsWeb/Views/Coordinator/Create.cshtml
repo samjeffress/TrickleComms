@@ -39,6 +39,17 @@
         }
     }
     
+    function CountMessageChar(text) {
+        var len = text.length;
+        var maxLenthSms = 160;
+        //var messageCount = Math.ceil(len / maxLenthSms);
+        //var partOfMessageCount = len % maxLenthSms;
+        //var message = partOfMessageCount + " of " + maxLenthSms + " - " + (maxLenthSms - partOfMessageCount) + " characters remaining."
+        //    + messageCount + " messages";
+        var message = maxLenthSms - len + " characters remaining.";
+        $('#messageCounter').text(message);
+    };
+    
     $(document).ready(function () {
 
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
@@ -52,8 +63,13 @@
             ShowSendAll();
         });
 
+        $('#Message').bind('keyup', function () {   
+            CountMessageChar($('#Message').val());
+        });
+
         CheckSendAll();
         CheckTimeSeparated();
+        CountMessageChar($('#Message').val());
         
     });
 </script>
@@ -70,7 +86,9 @@
             @Html.LabelFor(model => model.Message)
             @Html.TextAreaFor(model => model.Message)
             @Html.ValidationMessageFor(model => model.Message)
+            
         </div>
+        <div id="messageCounter"></div>
 
         <div>
             @Html.Label("numberList", "Numbers")

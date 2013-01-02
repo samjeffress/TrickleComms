@@ -72,6 +72,38 @@ namespace SmsWebTests
         }
 
         [Test]
+        public void CoordinatorOverTimespanLongMessageIsShortenedReturnsDetails()
+        {
+            var model = new FormCollection
+            {
+                {"numberList", "04040404040" },
+                {"Message", "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj"},
+                {"StartTime", DateTime.Now.AddHours(2).ToString()},
+                {"SendAllBy", DateTime.Now.AddHours(3).ToString()}
+            };
+
+            var bus = MockRepository.GenerateMock<IBus>();
+            var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
+
+            var coordinatorMessage = new CoordinatedSharedMessageModel();
+            mapper.Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything))
+                .Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates())
+                .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]));
+            var trickleMessage = new TrickleSmsOverCalculatedIntervalsBetweenSetDates();
+            bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull))
+                .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)((object[])(i.Arguments[0]))[0]);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper };
+            var actionResult = (RedirectToRouteResult)controller.Create(model);
+
+            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
+            Assert.That(coordinatorMessage.Message, Is.EqualTo(model["Message"].Substring(0, 160)));
+
+            bus.VerifyAllExpectations();
+            mapper.VerifyAllExpectations();
+        }
+
+        [Test]
         public void CoordinatorContainsNoNumbersError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
