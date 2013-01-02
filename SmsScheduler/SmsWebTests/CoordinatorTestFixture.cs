@@ -19,7 +19,7 @@ namespace SmsWebTests
             { { "numberList", "04040404040" },
                 { "Message", "Message" },
                 { "StartTime", DateTime.Now.AddHours(2).ToString() },
-                { "TimeSeparator", "5000" },
+                { "TimeSeparatorSeconds", "5000" },
                 { "tag", "tag1, tag2" },
                 { "Topic", "New Feature!"}
             };

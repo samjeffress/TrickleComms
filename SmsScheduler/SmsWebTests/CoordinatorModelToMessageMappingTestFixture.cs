@@ -17,7 +17,7 @@ namespace SmsWebTests
                     Numbers = new List<string> { "04040404040", "11111111111"},
                     Message = "Message",
                     StartTime = DateTime.Now.AddHours(2),
-                    TimeSeparator = new TimeSpan(5000),
+                    TimeSeparatorSeconds = 90,
                     Tags = new List<string> {"tag1", "tag2"},
                     Topic = "Dance Dance Revolution!",
                     ConfirmationEmail = "confirmation"
@@ -33,7 +33,7 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
-            Assert.That(message.TimeSpacing, Is.EqualTo(model.TimeSeparator));
+            Assert.That(message.TimeSpacing, Is.EqualTo(TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value)));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }
 

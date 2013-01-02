@@ -46,13 +46,13 @@ namespace SmsWeb.Controllers
             {
                 var coordinatorId = Guid.NewGuid();
 
-                if (coordinatedMessages.TimeSeparator.HasValue && !coordinatedMessages.SendAllBy.HasValue)
+                if (coordinatedMessages.TimeSeparatorSeconds.HasValue && !coordinatedMessages.SendAllBy.HasValue)
                 {
                     var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages);
                     trickleSmsSpacedByTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsSpacedByTimePeriod);
                 }
-                if (!coordinatedMessages.TimeSeparator.HasValue && coordinatedMessages.SendAllBy.HasValue)
+                if (!coordinatedMessages.TimeSeparatorSeconds.HasValue && coordinatedMessages.SendAllBy.HasValue)
                 {
                     var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages);
                     trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
@@ -61,6 +61,8 @@ namespace SmsWeb.Controllers
 
                 return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }
+            ViewBag.numberList = collection["numberList"];
+            ViewBag.tags = collection["tag"];
             return View("Create", coordinatedMessages);
         }
 
@@ -110,10 +112,9 @@ namespace SmsWeb.Controllers
                 coordinatedSharedMessageModel.StartTime = DateTime.Parse(formCollection["StartTime"]);
             if (hasValue(formCollection, "tag"))
                 coordinatedSharedMessageModel.Tags = formCollection["tag"].Split(',').ToList().Select(t => t.Trim()).ToList();
-            if (hasValue(formCollection, "TimeSeparator"))
+            if (hasValue(formCollection, "TimeSeparatorSeconds"))
             {
-                var minutes = Double.Parse(formCollection["TimeSeparator"].Trim());
-                coordinatedSharedMessageModel.TimeSeparator = TimeSpan.FromMinutes(minutes);
+                coordinatedSharedMessageModel.TimeSeparatorSeconds = int.Parse(formCollection["TimeSeparatorSeconds"].Trim());
             }
                 
             coordinatedSharedMessageModel.Topic = formCollection["Topic"];
@@ -136,9 +137,9 @@ namespace SmsWeb.Controllers
                 ModelState.AddModelError("StartTime", "Start Time must be in the future");
             if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.SendAllBy.Value <= coordinatedMessages.StartTime)
                 ModelState.AddModelError("SendAllBy", "SendAllBy time must be after StartTime");
-            if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.TimeSeparator.HasValue)
+            if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.TimeSeparatorSeconds.HasValue)
                 ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot pick both");
-            if (!coordinatedMessages.SendAllBy.HasValue && !coordinatedMessages.TimeSeparator.HasValue)
+            if (!coordinatedMessages.SendAllBy.HasValue && !coordinatedMessages.TimeSeparatorSeconds.HasValue)
                 ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot have none");
         }
 
@@ -210,7 +211,7 @@ namespace SmsWeb.Controllers
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
-                TimeSpacing = model.TimeSeparator.Value,
+                TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
                 ConfirmationEmail = model.ConfirmationEmail
             };

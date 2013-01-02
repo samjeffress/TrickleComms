@@ -18,7 +18,7 @@
     function ShowSendAll() {
         $('#TimeSeparatedDiv').hide(200);
         $('#SendAllByDiv').show(200);
-        $('#TimeSeparator').val('');
+        $('#TimeSeparatorSeconds').val('');
     }
     
     function ShowTimeSeparated() {
@@ -34,7 +34,7 @@
     }
     
     function CheckTimeSeparated() {
-        if ($('#TimeSeparator').val().length == 0) {
+        if ($('#TimeSeparatorSeconds').val().length == 0) {
             $('#TimeSeparatedDiv').hide();
         }
     }
@@ -74,7 +74,7 @@
 
         <div>
             @Html.Label("numberList", "Numbers")
-            @Html.TextArea("numberList")
+            @Html.TextArea("numberList", (string)ViewBag.numberList)
             @Html.ValidationMessage("numberList")
         </div>
     </fieldset>
@@ -93,10 +93,10 @@
             <input type="button" value="Time Separated" id="TimeSeparatedButton" />
             <input type="button" value="Send All By Time" id="SendAllByButton" />
             @Html.ValidationMessageFor(model => model.SendAllBy)
-            @Html.ValidationMessageFor(model => model.TimeSeparator)
+            @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
             <div id="TimeSeparatedDiv">
-                @Html.LabelFor(model => model.TimeSeparator, "Time Separated (minutes)")
-                @Html.EditorFor(model => model.TimeSeparator)
+                @Html.LabelFor(model => model.TimeSeparatorSeconds, "Time Separated (seconds)")
+                @Html.EditorFor(model => model.TimeSeparatorSeconds)
             </div>
             <div id="SendAllByDiv">
                 @Html.LabelFor(model => model.SendAllBy, "Send All By Time")
@@ -122,7 +122,7 @@
         
             <div>
                 @Html.Label("tag", "Tags")
-                <input name="tag" id="tag"/>
+                <input name="tag" id="tag" value="@ViewBag.tags"/>
             </div>
         </div>
 

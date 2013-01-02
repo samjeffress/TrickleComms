@@ -15,7 +15,7 @@ namespace SmsWeb.Models
         [Required]
         public DateTime StartTime { get; set; }
 
-        public TimeSpan? TimeSeparator { get; set; }
+        public int? TimeSeparatorSeconds { get; set; }
 
         public DateTime? SendAllBy { get; set; }
 
