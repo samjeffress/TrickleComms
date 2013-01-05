@@ -448,9 +448,9 @@ textarea {
     width: 500px;
 }
 
-    input:focus, textarea:focus {
+    /*input:focus, textarea:focus {
         border: 1px solid #7ac0da;
-    }
+    }*/
 
     input[type="checkbox"] {
         background: transparent;
@@ -762,4 +762,14 @@ tr.pager td {
         footer p {
             margin: 0;
         }
+}
+
+
+/* Custom input styling */
+.messageInputValid:focus {
+    box-shadow:0 0 10px #9ecaed;
+}
+
+.messageInputInvalid:focus {
+    box-shadow:0 0 10px red;
 }

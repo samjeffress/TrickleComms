@@ -24,8 +24,10 @@ namespace SmsWeb.Controllers
         public ActionResult Create(FormCollection collection)
         {
             var schedule = ParseFormData(collection);
+            if (schedule.ScheduledTime < DateTime.Now)
+                ModelState.AddModelError("ScheduledTime", "Schedule time must be in the future");
             var isValid = TryValidateModel(schedule);
-            if (isValid && schedule.ScheduledTime > DateTime.Now)
+            if (isValid)
             {
                 var scheduleMessage = new ScheduleSmsForSendingLater
                 {
@@ -38,6 +40,7 @@ namespace SmsWeb.Controllers
                 Bus.Send(scheduleMessage);
                 return RedirectToAction("Details", "Schedule", new { scheduleId = scheduleMessage.ScheduleMessageId.ToString() });
             }
+            ViewBag.tags = collection["tag"];
             return View("Create", schedule);
         }
 

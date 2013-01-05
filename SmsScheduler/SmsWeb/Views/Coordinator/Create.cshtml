@@ -13,43 +13,10 @@
 @*@Scripts.Render("~/bundles/jqueryval")*@
 @*}*@
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
+<script type="text/javascript" src="~/Scripts/Coordinator.js" ></script>
+<script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
-    function ShowSendAll() {
-        $('#TimeSeparatedDiv').hide(200);
-        $('#SendAllByDiv').show(200);
-        $('#TimeSeparatorSeconds').val('');
-    }
-    
-    function ShowTimeSeparated() {
-        $('#SendAllByDiv').hide(200);
-        $('#TimeSeparatedDiv').show(200);
-        $('#SendAllBy').val('');
-    }
-    
-    function CheckSendAll() {
-        if ($('#SendAllBy').val().length == 0) {
-            $('#SendAllByDiv').hide();
-        }
-    }
-    
-    function CheckTimeSeparated() {
-        if ($('#TimeSeparatorSeconds').val().length == 0) {
-            $('#TimeSeparatedDiv').hide();
-        }
-    }
-    
-    function CountMessageChar(text) {
-        var len = text.length;
-        var maxLenthSms = 160;
-        //var messageCount = Math.ceil(len / maxLenthSms);
-        //var partOfMessageCount = len % maxLenthSms;
-        //var message = partOfMessageCount + " of " + maxLenthSms + " - " + (maxLenthSms - partOfMessageCount) + " characters remaining."
-        //    + messageCount + " messages";
-        var message = maxLenthSms - len + " characters remaining.";
-        $('#messageCounter').text(message);
-    };
-    
     $(document).ready(function () {
 
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
@@ -64,12 +31,12 @@
         });
 
         $('#Message').bind('keyup', function () {   
-            CountMessageChar($('#Message').val());
+            CountMessageChar($('#Message'));
         });
+        CountMessageChar($('#Message'));
 
         CheckSendAll();
         CheckTimeSeparated();
-        CountMessageChar($('#Message').val());
         
     });
 </script>
@@ -84,11 +51,11 @@
         <legend>Content</legend>
         <div>
             @Html.LabelFor(model => model.Message)
-            @Html.TextAreaFor(model => model.Message)
+            @{var messageValidationClass = Model != null && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid";}
+            @Html.TextAreaFor(model => model.Message, new Dictionary<string, object> { {"class", @messageValidationClass}})
             @Html.ValidationMessageFor(model => model.Message)
-            
+            <div id="messageCounter"></div>
         </div>
-        <div id="messageCounter"></div>
 
         <div>
             @Html.Label("numberList", "Numbers")

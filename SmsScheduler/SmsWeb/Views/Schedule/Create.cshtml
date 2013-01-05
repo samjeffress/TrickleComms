@@ -6,10 +6,16 @@
 @Scripts.Render("~/bundles/jqueryui")
 @Styles.Render("~/Content/themes/base/jquery-ui.css")
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
+<script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">   
-    $(document).ready(function () {
-        $('input[name="ScheduledTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
+$(document).ready(function () {
+    $('input[name="ScheduledTime"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
+
+    $('#MessageBody').bind('keyup', function () {
+        CountMessageChar($('#MessageBody'));
+    });
+    CountMessageChar($('#MessageBody'));
     });
 </script>
 <html>
@@ -32,8 +38,10 @@
 
             <div>
                 @Html.LabelFor(model => model.MessageBody, "Message Body")
-                @Html.TextAreaFor(model => model.MessageBody)
+                @{var messageValidationClass = Model != null && Model.MessageBody.Length <= 160 ? "messageInputValid" : "messageInputInvalid";}
+                @Html.TextAreaFor(model => model.MessageBody, new Dictionary<string, object> { { "class", @messageValidationClass } })
                 @Html.ValidationMessageFor(model => model.MessageBody)
+                <div id="messageCounter"></div>
             </div>
 
             <div>
@@ -56,7 +64,7 @@
         
             <div>
                 @Html.Label("tag", "Tags")
-                <input name="tag" id="tag"/>
+                <input name="tag" id="tag" value="@ViewBag.tags"/>
             </div>
 
             <p>
