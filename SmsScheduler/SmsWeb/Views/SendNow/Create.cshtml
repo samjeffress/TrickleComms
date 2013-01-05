@@ -42,6 +42,16 @@ $(document).ready(function () {
             @Html.ValidationMessageFor(model => model.ConfirmationEmail)
         </div>
 
+        <div>
+            @Html.LabelFor(model => model.Topic)
+            @Html.EditorFor(model => model.Topic)
+            @Html.ValidationMessageFor(model => model.Topic)
+        </div>
+
+        <div>
+            @Html.Label("tag", "Tags")
+            <input name="tag" id="tag" value="@ViewBag.tags"/>
+        </div>
         <p>
             <input type="submit" value="Create" />
         </p>
