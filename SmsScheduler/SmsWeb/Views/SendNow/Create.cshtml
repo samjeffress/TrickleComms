@@ -4,6 +4,16 @@
     ViewBag.Title = "Create";
 }
 
+@Scripts.Render("~/bundles/jquery")
+<script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
+<script type="text/javascript">   
+$(document).ready(function () {
+    $('#MessageBody').bind('keyup', function () {
+        CountMessageChar($('#MessageBody'));
+    });
+    CountMessageChar($('#MessageBody'));
+});
+</script>
 <h2>Create a message to send now</h2>
 
 @using (Html.BeginForm()) {
@@ -20,8 +30,10 @@
 
         <div>
             @Html.LabelFor(model => model.MessageBody, "Message Body")
-            @Html.TextAreaFor(model => model.MessageBody)
+            @{var messageValidationClass = Model != null && Model.MessageBody.Length <= 160 ? "messageInputValid" : "messageInputInvalid";}
+            @Html.TextAreaFor(model => model.MessageBody, new Dictionary<string, object> { { "class", @messageValidationClass } })
             @Html.ValidationMessageFor(model => model.MessageBody)
+            <div id="messageCounter"></div>
         </div>
 
         <div>
