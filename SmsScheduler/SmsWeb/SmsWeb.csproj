@@ -392,6 +392,7 @@
     <Content Include="Views\MailgunConfig\Details.cshtml" />
     <Content Include="Views\Home\ConfigMenu.cshtml" />
     <Content Include="Views\TwilioConfig\Details.cshtml" />
+    <Content Include="Views\SendNow\DetailsNotCreated.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

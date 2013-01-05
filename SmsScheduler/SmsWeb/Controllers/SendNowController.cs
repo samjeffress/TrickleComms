@@ -42,7 +42,8 @@ namespace SmsWeb.Controllers
                     SmsMetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic }
                 };
                 Bus.Send(sendOneMessageNow);
-                return View("Details", model);
+                return RedirectToAction("Details", "SendNow", new { requestId = model.MessageId.ToString()});
+                //return View("Details", model);
             }
             ViewBag.tags = collection["tag"];
             return View("Create", model);
@@ -80,8 +81,7 @@ namespace SmsWeb.Controllers
             {
                 var smsTrackingData = session.Load<SmsTrackingData>(requestId);
                 if (smsTrackingData == null)
-                    throw new NotImplementedException();
-                //return View("DetailsNotCreated", scheduleId);
+                    return View("DetailsNotCreated", model: requestId);
                 return View("TrackingDetails", smsTrackingData);
             }
         }
