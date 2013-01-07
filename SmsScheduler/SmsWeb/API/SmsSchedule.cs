@@ -58,28 +58,30 @@ namespace SmsWeb.API
 
         public override object OnPost(Schedule request)
         {
-            if (IsValidRequest(request))
-            {
-                var scheduleMessage = new ScheduleSmsForSendingLater
-                {
-                    SendMessageAtUtc = request.ScheduledTimeUtc.ToUniversalTime(),
-                    SmsData = new SmsData(request.Number, request.MessageBody),
-                    SmsMetaData = new SmsMetaData { Tags = request.Tags, Topic = request.Topic },
-                    ScheduleMessageId = Guid.NewGuid()
-                };
-                Bus.Send(scheduleMessage);
-                return new SmsScheduleResponse { RequestId = scheduleMessage.ScheduleMessageId };
-            }
-            return new SmsScheduleResponse { ResponseStatus = new ResponseStatus("InvalidRequest") };
-        }
+            var response = new ResponseStatus { Errors = new List<ResponseError>() };
+            if (request.ScheduledTimeUtc == DateTime.MinValue)
+                response.Errors.Add(new ResponseError { Message = "Start time must be set" });
+            if (request.ScheduledTimeUtc < DateTime.Now.ToUniversalTime())
+                response.Errors.Add(new ResponseError { Message = "Start time must not be in the past" });
+            if (string.IsNullOrWhiteSpace(request.MessageBody))
+                response.Errors.Add(new ResponseError { Message = "Sms message required" });
+            else if (request.MessageBody.Length > 160)
+                response.Errors.Add(new ResponseError { Message = "Sms message exceeds 160 character length" });
+            if (request.Number == null)
+                response.Errors.Add(new ResponseError { Message = "Number required" });
 
-        private bool IsValidRequest(Schedule request)
-        {
-            if (string.IsNullOrWhiteSpace(request.Number) || string.IsNullOrWhiteSpace(request.MessageBody) || request.ScheduledTimeUtc <= DateTime.Now)
+            if (response.Errors.Count > 0)
+                return new SmsScheduleResponse {ResponseStatus = response};
+
+            var scheduleMessage = new ScheduleSmsForSendingLater
             {
-                return false;
-            }
-            return true;
+                SendMessageAtUtc = request.ScheduledTimeUtc.ToUniversalTime(),
+                SmsData = new SmsData(request.Number, request.MessageBody),
+                SmsMetaData = new SmsMetaData { Tags = request.Tags, Topic = request.Topic },
+                ScheduleMessageId = Guid.NewGuid()
+            };
+            Bus.Send(scheduleMessage);
+            return new SmsScheduleResponse { RequestId = scheduleMessage.ScheduleMessageId };
         }
     }
 }

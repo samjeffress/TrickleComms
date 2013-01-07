@@ -4,7 +4,6 @@ using NServiceBus;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
 using SmsMessages.CommonData;
-using SmsMessages.MessageSending;
 using SmsMessages.MessageSending.Commands;
 using SmsTracking;
 
@@ -42,9 +41,16 @@ namespace SmsWeb.API
 
         public override object OnPost(Sms request)
         {
-            if (string.IsNullOrWhiteSpace(request.Number) || string.IsNullOrWhiteSpace(request.Message))
-                return new SmsResponse { ResponseStatus = new ResponseStatus("InvalidSms", "Sms must contain both mobile number and a message") };
-            
+            var responseStatus = new ResponseStatus {Errors = new List<ResponseError>()};
+            if (string.IsNullOrWhiteSpace(request.Number))
+                responseStatus.Errors.Add(new ResponseError { FieldName = "Number", Message = "Sms number must be set" });
+            if (string.IsNullOrWhiteSpace(request.Message))
+                responseStatus.Errors.Add(new ResponseError { FieldName = "Message", Message = "Sms message must be set" });
+            else if (request.Message.Length > 160)
+                responseStatus.Errors.Add(new ResponseError { FieldName = "Message", Message = "Sms message must not exceed 160 characters"});
+            if (responseStatus.Errors.Count > 0)
+                return new SmsResponse {ResponseStatus = responseStatus};
+
             if (request.RequestId == Guid.Empty)
                 request.RequestId = Guid.NewGuid();
 

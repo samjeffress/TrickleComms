@@ -43,9 +43,9 @@ namespace SmsWebTests
 
             var controller = new SendNowController { ControllerContext = new ControllerContext(), Bus = bus };
             var sendNowModel = new FormCollection { { "MessageBody", "asdflj" }, { "Number", "number" }, {"ConfirmationEmail", "sdakflj"} };
-            var result = (ViewResult)controller.Create(sendNowModel);
+            var result = (RedirectToRouteResult)controller.Create(sendNowModel);
 
-            Assert.That(result.ViewName, Is.EqualTo("Details"));
+            Assert.That(result.RouteValues["action"], Is.EqualTo("Details"));
             Assert.That(sentMessage.SmsData.Mobile, Is.EqualTo(sendNowModel["Number"]));
             Assert.That(sentMessage.SmsData.Message, Is.EqualTo(sendNowModel["MessageBody"]));
             Assert.That(sentMessage.ConfirmationEmailAddress, Is.EqualTo(sendNowModel["ConfirmationEmail"]));

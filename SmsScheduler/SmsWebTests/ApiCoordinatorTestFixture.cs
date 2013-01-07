@@ -49,6 +49,17 @@ namespace SmsWebTests
         }
 
         [Test]
+        public void PostInvalidMessageExceedsLength()
+        {
+            var request = new Coordinator { Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddMinutes(1), SendAllByUtc = DateTime.Now.AddDays(1), Message = "sdf;lkj asd;vlkja sdvklja v;lka jsdvlka jsdvalsjk sdf;lkj asd;vlkja sdvklja v;lka jsdvlka jsdvalsjk sdf;lkj asd;vlkja sdvklja v;lka jsdvlka jsdvalsjk sdf;lkj asd;vlkja sdvklja v;lka jsdvlka jsdvalsjk sdf;lkj asd;vlkja sdvklja v;lka jsdvlka jsdvalsjk" };
+            var service = new CoordinatorService();
+            var response = service.OnPost(request) as CoordinatorResponse;
+
+            Assert.That(response.ResponseStatus.ErrorCode, Is.EqualTo("InvalidMessage"));
+            Assert.That(response.ResponseStatus.Errors[0].Message, Is.EqualTo("Sms exceeds 160 character length"));
+        }
+
+        [Test]
         public void PostInvalidNoNumbers()
         {
             var request = new Coordinator { Message = "msg", StartTimeUtc = DateTime.Now, SendAllByUtc = DateTime.Now.AddDays(1) };

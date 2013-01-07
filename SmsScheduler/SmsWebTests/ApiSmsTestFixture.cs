@@ -88,13 +88,33 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void PostInvalidRequest()
+        public void PostInvalidRequestMessageEmpty()
         {
             var smsService = new SmsService();
-            var request = new Sms { Message = string.Empty, Number = string.Empty, RequestId = Guid.Empty };
+            var request = new Sms { Message = string.Empty, Number = "123", RequestId = Guid.Empty };
             var response = smsService.OnPost(request) as SmsResponse;
 
-            Assert.That(response.ResponseStatus.ErrorCode, Is.EqualTo("InvalidSms"));
+            Assert.That(response.ResponseStatus.Errors[0].Message, Is.EqualTo("Sms message must be set"));
+        }
+
+        [Test]
+        public void PostInvalidRequestMessageExceeds160Characters()
+        {
+            var smsService = new SmsService();
+            var request = new Sms { Message = "blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah", Number = "123", RequestId = Guid.Empty };
+            var response = smsService.OnPost(request) as SmsResponse;
+
+            Assert.That(response.ResponseStatus.Errors[0].Message, Is.EqualTo("Sms message must not exceed 160 characters"));
+        }
+
+        [Test]
+        public void PostInvalidRequestNumberEmpty()
+        {
+            var smsService = new SmsService();
+            var request = new Sms { Message = "blah blah blah", Number = string.Empty, RequestId = Guid.Empty };
+            var response = smsService.OnPost(request) as SmsResponse;
+
+            Assert.That(response.ResponseStatus.Errors[0].Message, Is.EqualTo("Sms number must be set"));
         }
 
         [SetUp]

@@ -68,10 +68,12 @@ namespace SmsWeb.API
             var response = new ResponseStatus { Errors = new List<ResponseError>() };
             if (request.StartTimeUtc == DateTime.MinValue)
                 response.Errors.Add(new ResponseError { Message = "Start time must be set" });
-            if (request.StartTimeUtc < DateTime.Now)
+            if (request.StartTimeUtc < DateTime.Now.ToUniversalTime())
                 response.Errors.Add(new ResponseError { Message = "Start time must not be in the past" });
             if (string.IsNullOrWhiteSpace(request.Message))
                 response.Errors.Add(new ResponseError {Message = "Sms Message Required"});
+            else if (request.Message.Length > 160)
+                response.Errors.Add(new ResponseError { Message = "Sms exceeds 160 character length"});
             if (request.Numbers == null || request.Numbers.Count == 0)
                 response.Errors.Add(new ResponseError {Message = "List of numbers required"});
             if ((request.SendAllByUtc.HasValue && request.TimeSeparator.HasValue) || (!request.SendAllByUtc.HasValue && !request.TimeSeparator.HasValue))

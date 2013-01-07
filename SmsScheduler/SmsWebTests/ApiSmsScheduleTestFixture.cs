@@ -18,14 +18,53 @@ namespace SmsWebTests
         private Guid scheduleMessageId = Guid.NewGuid();
 
         [Test]
-        public void PostInvalidRequest()
+        public void PostInvalidRequestNoNumber()
         {
-            var scheduleModel = new Schedule { Number = "number", ScheduledTimeUtc = DateTime.Now.AddHours(1) };
+            var scheduleModel = new Schedule { Number = null, MessageBody = "body", ScheduledTimeUtc = DateTime.Now.AddHours(1) };
             var smsScheduleService = new SmsScheduleService();
             var result = smsScheduleService.OnPost(scheduleModel) as SmsScheduleResponse;
 
-            Assert.That(result.RequestId, Is.EqualTo(Guid.Empty));
-            Assert.That(result.ResponseStatus.ErrorCode, Is.EqualTo("InvalidRequest"));
+            Assert.That(result.ResponseStatus.Errors[0].Message, Is.EqualTo("Number required"));
+        }
+
+        [Test]
+        public void PostInvalidRequestNoMessage()
+        {
+            var scheduleModel = new Schedule { Number = "number", MessageBody = null, ScheduledTimeUtc = DateTime.Now.AddHours(1) };
+            var smsScheduleService = new SmsScheduleService();
+            var result = smsScheduleService.OnPost(scheduleModel) as SmsScheduleResponse;
+
+            Assert.That(result.ResponseStatus.Errors[0].Message, Is.EqualTo("Sms message required"));
+        }
+
+        [Test]
+        public void PostInvalidRequestMessageTooLong()
+        {
+            var scheduleModel = new Schedule { Number = "number", MessageBody = "blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah", ScheduledTimeUtc = DateTime.Now.AddHours(1) };
+            var smsScheduleService = new SmsScheduleService();
+            var result = smsScheduleService.OnPost(scheduleModel) as SmsScheduleResponse;
+
+            Assert.That(result.ResponseStatus.Errors[0].Message, Is.EqualTo("Sms message exceeds 160 character length"));
+        }
+
+        [Test]
+        public void PostInvalidRequestScheduleInPast()
+        {
+            var scheduleModel = new Schedule { Number = "number", MessageBody = "body", ScheduledTimeUtc = DateTime.Now.AddDays(-11) };
+            var smsScheduleService = new SmsScheduleService();
+            var result = smsScheduleService.OnPost(scheduleModel) as SmsScheduleResponse;
+
+            Assert.That(result.ResponseStatus.Errors[0].Message, Is.EqualTo("Start time must not be in the past"));
+        }
+
+        [Test]
+        public void PostInvalidRequestScheduleNotSet()
+        {
+            var scheduleModel = new Schedule { Number = "number", MessageBody = "body" };
+            var smsScheduleService = new SmsScheduleService();
+            var result = smsScheduleService.OnPost(scheduleModel) as SmsScheduleResponse;
+
+            Assert.That(result.ResponseStatus.Errors[0].Message, Is.EqualTo("Start time must be set"));
         }
 
         [Test]
