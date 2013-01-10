@@ -75,6 +75,7 @@ namespace SmsWeb.Controllers
                     .Statistics(out stats)
                     .Skip(page * resultsPerPage)
                     .Take(resultsPerPage)
+                    .OrderByDescending(c => c.CreationDateUtc)
                     .ToList()
                     .Select(c => new CoordinatorOverview
                     {
