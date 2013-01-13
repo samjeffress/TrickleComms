@@ -69,7 +69,7 @@
         {
             case MessageStatusTracking.CompletedSuccess:
             {
-                @: Time Sent: @message.ActualSentTimeUtc.Value <br />
+                @: Time Sent: @message.ActualSentTimeUtc.Value.ToLocalTime() <br />
                 @: Cost: $@message.Cost <br />
                 break;
             }

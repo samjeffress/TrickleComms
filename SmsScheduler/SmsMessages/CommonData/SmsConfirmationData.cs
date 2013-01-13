@@ -12,7 +12,7 @@ namespace SmsMessages.CommonData
         public SmsConfirmationData(string receipt, DateTime sentAtUtc, Decimal price)
         {
             Receipt = receipt;
-            SentAtUtc = sentAtUtc;
+            SentAtUtc = new DateTime(sentAtUtc.Ticks, DateTimeKind.Utc);
             Price = price;
         }
 

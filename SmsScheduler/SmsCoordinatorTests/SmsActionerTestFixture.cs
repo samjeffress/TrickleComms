@@ -119,5 +119,17 @@ namespace SmsCoordinatorTests
                     .ExpectPublish<MessageSent>()
                 .WhenSagaTimesOut();
         }
+
+        [Test]
+        public void SmsSentUsesUtc()
+        {
+            var now = DateTime.Now;
+            var smsConfirmationData = new SmsConfirmationData("receipt", now, 2m);
+            Assert.That(smsConfirmationData.SentAtUtc.Hour, Is.EqualTo(now.Hour));
+            Assert.That(smsConfirmationData.SentAtUtc.Minute, Is.EqualTo(now.Minute));
+            Assert.That(smsConfirmationData.SentAtUtc.Second, Is.EqualTo(now.Second));
+            Assert.That(smsConfirmationData.SentAtUtc.Kind, Is.Not.EqualTo(now.Kind));
+            Assert.That(smsConfirmationData.SentAtUtc.Kind, Is.EqualTo(DateTimeKind.Utc));
+        }
     }
 }
