@@ -70,6 +70,7 @@ namespace NavigationRoutes
             if (route.Children.Count() > 0)
             {
                 //TODO: create a UL of child routes here.
+                //TODO: think about adding a link to top level item
                 li.AddCssClass("dropdown");
                 li.InnerHtml = "<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">" + route.DisplayName +"<b class=\"caret\"></b></a>";
                 var ul = new TagBuilder("ul");

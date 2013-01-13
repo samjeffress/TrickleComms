@@ -7,10 +7,11 @@
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
-@*@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jquery")
 @Scripts.Render("~/bundles/jqueryui")
 @Styles.Render("~/Content/themes/base/jquery-ui.css")
-@Styles.Render("~/Content/timepicker.css")*@
+@Styles.Render("~/Content/timepicker.css")
+<script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
 <script type="text/javascript">   
 $(document).ready(function () {
     $('input[name="ScheduledTime"]').datetimepicker({ dateFormat: 'dd/mm/yy' });

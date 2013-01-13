@@ -10,7 +10,7 @@
         <link href="@Styles.Url("~/content/css")" rel="stylesheet"/>        
         @Scripts.Render("~/bundles/jquery")
         @Scripts.Render("~/bundles/jqueryui")
-
+        @Scripts.Render("~/js")
         <style type="text/css">
           body {
             padding-top: 60px;
@@ -45,10 +45,9 @@
             @RenderBody()   
             <hr>
             <footer>
-                <p>&copy; Company @System.DateTime.Now.ToString("yyyy")</p>
+                <p>&copy; Sam Jeffress @System.DateTime.Now.ToString("yyyy")</p>
             </footer> 
         </div>
-         @Scripts.Render("~/js")
          @RenderSection("Scripts", required: false)
 
         @Styles.Render("~/Content/themes/base/jquery-ui.css")
