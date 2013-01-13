@@ -45,7 +45,7 @@ $(document).ready(function () {
                     @{var messageValidationClass = Model != null && Model.MessageBody.Length <= 160 ? "messageInputValid" : "messageInputInvalid";}
                     @Html.TextAreaFor(model => model.MessageBody, new Dictionary<string, object> { { "class", @messageValidationClass } })
                     @Html.ValidationMessageFor(model => model.MessageBody)
-                    <div id="messageCounter"></div>
+                    <div id="messageCounter" style="display: inline-block;"></div>
                 </div>
 
                 <div>

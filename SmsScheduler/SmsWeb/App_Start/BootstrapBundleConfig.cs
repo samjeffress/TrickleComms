@@ -11,9 +11,9 @@ namespace BootstrapSupport
             bundles.Add(new ScriptBundle("~/js").Include(
                 "~/Scripts/jquery-1.*",
                 "~/Scripts/bootstrap.js",
-                "~/Scripts/jquery.validate.js",
-                "~/scripts/jquery.validate.unobtrusive.js",
-                "~/Scripts/jquery.validate.unobtrusive-custom-for-bootstrap.js"
+                "~/Scripts/jquery.validate.js"
+                //"~/scripts/jquery.validate.unobtrusive.js",
+                //"~/Scripts/jquery.validate.unobtrusive-custom-for-bootstrap.js"
                 ));
 
             bundles.Add(new StyleBundle("~/content/css").Include(
