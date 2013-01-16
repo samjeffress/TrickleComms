@@ -21,6 +21,6 @@ namespace SmsWeb.Models
 
         public string Topic { get; set; }
 
-        public List<string> Tags { get; set; }
+        public string Tags { get; set; }
     }
 }

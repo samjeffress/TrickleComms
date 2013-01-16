@@ -7,7 +7,7 @@ namespace SmsWeb.Models
     public class CoordinatedSharedMessageModel
     {
         [Required]
-        public List<string> Numbers { get; set; }
+        public string Numbers { get; set; }
 
         [Required]
         public string Message { get; set; }
@@ -19,7 +19,7 @@ namespace SmsWeb.Models
 
         public DateTime? SendAllBy { get; set; }
 
-        public List<string> Tags { get; set; }
+        public string Tags { get; set; }
 
         public string Topic { get; set; }
 

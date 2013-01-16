@@ -15,13 +15,14 @@ namespace SmsWebTests
         [Test]        
         public void CoordinatorSeparatedByTimeSpanReturnsDetails()
         {
-            var model = new FormCollection
-            { { "numberList", "04040404040" },
-                { "Message", "Message" },
-                { "StartTime", DateTime.Now.AddHours(2).ToString() },
-                { "TimeSeparatorSeconds", "5000" },
-                { "tag", "tag1, tag2" },
-                { "Topic", "New Feature!"}
+            var model = new CoordinatedSharedMessageModel
+            {
+                Numbers= "04040404040",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                TimeSeparatorSeconds = 5000,
+                Tags = "tag1, tag2",
+                Topic = "New Feature!"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -45,12 +46,12 @@ namespace SmsWebTests
         [Test]
         public void CoordinatorOverTimespanReturnsDetails()
         {
-            var model = new FormCollection
+            var model = new CoordinatedSharedMessageModel
             {
-                {"numberList", "04040404040" },
-                {"Message", "Message"},
-                {"StartTime", DateTime.Now.AddHours(2).ToString()},
-                {"SendAllBy", DateTime.Now.AddHours(3).ToString()}
+                Numbers = "04040404040",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllBy = DateTime.Now.AddHours(3)
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -74,12 +75,12 @@ namespace SmsWebTests
         [Test]
         public void CoordinatorOverTimespanLongMessageIsShortenedReturnsDetails()
         {
-            var model = new FormCollection
+            var model = new CoordinatedSharedMessageModel
             {
-                {"numberList", "04040404040" },
-                {"Message", "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj"},
-                {"StartTime", DateTime.Now.AddHours(2).ToString()},
-                {"SendAllBy", DateTime.Now.AddHours(3).ToString()}
+                Numbers = "04040404040",
+                Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllBy = DateTime.Now.AddHours(3)
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -97,7 +98,7 @@ namespace SmsWebTests
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
-            Assert.That(coordinatorMessage.Message, Is.EqualTo(model["Message"].Substring(0, 160)));
+            Assert.That(coordinatorMessage.Message, Is.EqualTo(model.Message.Substring(0, 160)));
 
             bus.VerifyAllExpectations();
             mapper.VerifyAllExpectations();
@@ -108,12 +109,12 @@ namespace SmsWebTests
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
-            var model = new FormCollection
+            var model = new CoordinatedSharedMessageModel
             {
-                {"numberList", "" },
-                {"Message", "message" },
-                {"StartTime", DateTime.Now.AddHours(2).ToString()},
-                {"SendAllBy", DateTime.Now.AddHours(3).ToString()}
+                Numbers = "",
+                Message = "message",
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllBy = DateTime.Now.AddHours(3)
             };
             var actionResult = (ViewResult)controller.Create(model);
 
@@ -125,12 +126,12 @@ namespace SmsWebTests
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
-            var model = new FormCollection
+            var model = new CoordinatedSharedMessageModel
             {
-                {"numberList", "04040404040" },
-                {"Message", string.Empty },
-                {"StartTime", DateTime.Now.AddHours(2).ToString()},
-                {"SendAllBy", DateTime.Now.AddHours(3).ToString()}
+                Numbers = "04040404040",
+                Message = string.Empty,
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllBy = DateTime.Now.AddHours(3)
             };
             var actionResult = (ViewResult)controller.Create(model);
 
@@ -142,12 +143,12 @@ namespace SmsWebTests
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
-            var model = new FormCollection
+            var model = new CoordinatedSharedMessageModel
             {
-                {"numberList", "04040404040" },
-                {"Message", "Message"},
-                {"StartTime", DateTime.Now.AddHours(-2).ToString()},
-                {"SendAllBy", DateTime.Now.AddHours(3).ToString()}
+                Numbers = "04040404040",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(-2),
+                SendAllBy = DateTime.Now.AddHours(3)
             };
             var actionResult = (ViewResult)controller.Create(model);
 
@@ -159,11 +160,11 @@ namespace SmsWebTests
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
-            var model = new FormCollection
+            var model = new CoordinatedSharedMessageModel
             {
-                {"Numbers", "04040404040" },
-                {"Message", "Message"},
-                {"StartTime", DateTime.Now.AddHours(2).ToString() }
+                Numbers = "04040404040",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2)
             };
             var actionResult = (ViewResult)controller.Create(model);
 

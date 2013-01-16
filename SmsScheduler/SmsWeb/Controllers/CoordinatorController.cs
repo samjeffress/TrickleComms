@@ -36,16 +36,15 @@ namespace SmsWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        public ActionResult Create(CoordinatedSharedMessageModel coordinatedMessages)
         {
-            var coordinatedMessages = ParseFormData(collection);
             var isValid = TryValidateModel(coordinatedMessages);
-            
             SecondaryValidation(coordinatedMessages);
             if (isValid && ModelState.IsValid)
             {
                 var coordinatorId = Guid.NewGuid();
-
+                if (coordinatedMessages.Message.Length > 160)
+                    coordinatedMessages.Message = coordinatedMessages.Message.Substring(0, 160);
                 if (coordinatedMessages.TimeSeparatorSeconds.HasValue && !coordinatedMessages.SendAllBy.HasValue)
                 {
                     var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages);
@@ -61,8 +60,6 @@ namespace SmsWeb.Controllers
 
                 return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }
-            ViewBag.numberList = collection["numberList"];
-            ViewBag.tags = collection["tag"];
             return View("Create", coordinatedMessages);
         }
 
@@ -101,40 +98,9 @@ namespace SmsWeb.Controllers
             }
         }
 
-        private CoordinatedSharedMessageModel ParseFormData(FormCollection formCollection)
-        {
-            var coordinatedSharedMessageModel = new CoordinatedSharedMessageModel();
-            coordinatedSharedMessageModel.Message = formCollection["Message"];
-            if (coordinatedSharedMessageModel.Message.Length > 160)
-                coordinatedSharedMessageModel.Message = coordinatedSharedMessageModel.Message.Substring(0, 160);
-            if (hasValue(formCollection, "numberList"))
-                coordinatedSharedMessageModel.Numbers = formCollection["numberList"].Split(',').Select(n => n.Trim()).ToList();
-            if (hasValue(formCollection, "SendAllBy"))
-                coordinatedSharedMessageModel.SendAllBy = DateTime.Parse(formCollection["SendAllBy"]);
-            if (hasValue(formCollection, "StartTime"))
-                coordinatedSharedMessageModel.StartTime = DateTime.Parse(formCollection["StartTime"]);
-            if (hasValue(formCollection, "tag"))
-                coordinatedSharedMessageModel.Tags = formCollection["tag"].Split(',').ToList().Select(t => t.Trim()).ToList();
-            if (hasValue(formCollection, "TimeSeparatorSeconds"))
-            {
-                coordinatedSharedMessageModel.TimeSeparatorSeconds = int.Parse(formCollection["TimeSeparatorSeconds"].Trim());
-            }
-                
-            coordinatedSharedMessageModel.Topic = formCollection["Topic"];
-            coordinatedSharedMessageModel.ConfirmationEmail = formCollection["ConfirmationEmail"];
-            return coordinatedSharedMessageModel;
-        }
-
-        private bool hasValue(FormCollection formCollection, string key)
-        {
-            if (formCollection[key] != null && !string.IsNullOrWhiteSpace(formCollection[key]))
-                return true;
-            return false;
-        }
-
         private void SecondaryValidation(CoordinatedSharedMessageModel coordinatedMessages)
         {
-            if (coordinatedMessages.Numbers == null || coordinatedMessages.Numbers.Count == 0)
+            if (coordinatedMessages.Numbers == null || coordinatedMessages.Numbers.Split(',').Length == 0)
                 ModelState.AddModelError("numberList", "Please include the numbers you want to send to.");
             if (coordinatedMessages.StartTime < DateTime.Now)
                 ModelState.AddModelError("StartTime", "Start Time must be in the future");
@@ -198,10 +164,14 @@ namespace SmsWeb.Controllers
             {
                 Duration = model.SendAllBy.Value.Subtract(model.StartTime),
                 Messages =
-                    model.Numbers.Select(n => new SmsData(n, model.Message)).
+                    model.Numbers.Split(',').ToList().Select(n => new SmsData(n.Trim(), model.Message)).
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
-                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
+                MetaData = new SmsMetaData
+                {
+                    Tags = string.IsNullOrWhiteSpace(model.Tags) ? null : model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList(), 
+                    Topic = model.Topic
+                },
                 ConfirmationEmail = model.ConfirmationEmail
             };
         }
@@ -211,11 +181,11 @@ namespace SmsWeb.Controllers
             return new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 Messages =
-                    model.Numbers.Select(n => new SmsData(n, model.Message)).
+                    model.Numbers.Split(',').ToList().Select(n => new SmsData(n.Trim(), model.Message)).
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
                 TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
-                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
+                MetaData = new SmsMetaData { Tags = model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList(), Topic = model.Topic },
                 ConfirmationEmail = model.ConfirmationEmail
             };
         }

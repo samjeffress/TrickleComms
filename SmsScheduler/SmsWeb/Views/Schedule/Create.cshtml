@@ -67,8 +67,11 @@ $(document).ready(function () {
                 </div>
         
                 <div>
-                    @Html.Label("tag", "Tags")
-                    <input name="tag" id="tag" value="@ViewBag.tags"/>
+                    @Html.LabelFor(model => model.Tags)
+                    @Html.EditorFor(model => model.Tags)
+                    @Html.ValidationMessageFor(model => model.Tags)
+                    @*@Html.Label("tag", "Tags")
+                    <input name="tag" id="tag" value="@ViewBag.tags"/>*@
                 </div>
 
                 <p>
