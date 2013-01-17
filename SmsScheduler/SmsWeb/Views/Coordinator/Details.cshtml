@@ -18,11 +18,10 @@
             @using(Html.BeginForm("Pause", "Coordinator"))
             {
                 @Html.HiddenFor(m => m.CoordinatorId)
-                <label>Pause message sending</label>
-                <input type="submit" value="go"/>
+                @*<label>Pause message sending</label>*@
+                <input type="submit" value="Pause Message Sending"/>
             }
         </div>
-        // show pause button
     }
     if (Model.CurrentStatus == CoordinatorStatusTracking.Paused)
     {
@@ -32,10 +31,9 @@
                 @Html.HiddenFor(m => m.CoordinatorId)
                 <label>Time to resume</label>
                 <input name="timeToResume" type="datetime-local" value="@DateTime.Now"/>
-                <input type="submit" value="go"/>
+                <input type="submit" value="Resume Messages"/>
             }
         </div>
-        // show resume button
     }
 }
 @if(Model.CompletionDateUtc.HasValue)

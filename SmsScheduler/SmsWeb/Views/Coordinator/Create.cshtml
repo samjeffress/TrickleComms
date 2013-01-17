@@ -47,10 +47,9 @@
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <legend>Content</legend>
         <div>
             @Html.LabelFor(model => model.Message)
-            @{var messageValidationClass = Model != null && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid";}
+            @{ var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.Message) && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid"; }
             @Html.TextAreaFor(model => model.Message, new Dictionary<string, object> { {"class", @messageValidationClass}})
             @Html.ValidationMessageFor(model => model.Message)
             <div id="messageCounter"></div>
@@ -67,8 +66,6 @@
     </fieldset>
     
     <fieldset>
-        <legend>Scheduling</legend>
-        
         <div>
             @Html.LabelFor(model => model.StartTime)
             @Html.EditorFor(model => model.StartTime)
@@ -93,7 +90,6 @@
     </fieldset>
 
     <fieldset>
-        <legend>Meta</legend>
         <div>
             @Html.LabelFor(model => model.ConfirmationEmail, "Confirmation Email")
             @Html.EditorFor(model => model.ConfirmationEmail)
