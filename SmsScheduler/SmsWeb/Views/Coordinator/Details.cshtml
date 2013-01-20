@@ -5,6 +5,26 @@
     ViewBag.Title = "title";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
+<script type="text/javascript">
+    $(function () {      
+        var status = $.connection.scheduleStatus;
+
+        status.client.updateSchedule = function (message) {
+            $('#' + message.ScheduleId).html(message.Body);
+            $('#' + message.ScheduleId).removeClass();
+            $('#' + message.ScheduleId).addClass(message.Class);
+        };
+
+        // Start the connection
+        $.connection.hub.start().done(function() {
+            $("#broadcast").click(function () {
+                // Call the chat method on the server
+                status.server.send($('#msg').val());
+            });
+        });
+    });
+</script>
+
 
 <h2>Coordinated Messages</h2>
 <div>ID : @Model.CoordinatorId</div>
@@ -43,24 +63,13 @@
 <ul>
 @foreach(var message in Model.MessageStatuses)
 {
-    var colour = "";
-    if (message.Status == MessageStatusTracking.WaitingForScheduling)
-    {
-        colour = "beige";
-    }
-    if (message.Status == MessageStatusTracking.Scheduled)
-    {
-        colour = "orange";
-    }
-    if (message.Status == MessageStatusTracking.CompletedSuccess)
-    {
-        colour = "green";
-    }
-    if (message.Status == MessageStatusTracking.CompletedFailure)
-    {
-        colour = "red";
-    }
-    <li style="border-left: 5px solid @colour; margin-bottom: 10px; padding-left: 5px; list-style-type: none;">
+    var liClass = "";
+    if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "waitingForSchedule"; }
+    if (message.Status == MessageStatusTracking.Scheduled){ liClass = "scheduled"; }
+    if (message.Status == MessageStatusTracking.Paused){ liClass = "paused"; }
+    if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "success"; }
+    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "fail"; }
+    <li class="@liClass" id="@message.ScheduleMessageId">
         Number: @message.Number<br/>
         Status: @message.Status.ToString()<br />
         @switch(message.Status)

@@ -7,7 +7,8 @@
         <meta charset="utf-8">
         <title>@ViewBag.Title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="@Styles.Url("~/content/css")" rel="stylesheet"/>        
+        <link href="@Styles.Url("~/content/css")" rel="stylesheet"/>   
+        <link href="~/Content/Scheduling.css" rel="stylesheet" />     
         @Scripts.Render("~/bundles/jquery")
         @Scripts.Render("~/bundles/jqueryui")
         @Scripts.Render("~/js")
@@ -21,6 +22,8 @@
         @RenderSection("head", required: false)
         @Html.Partial("_html5shiv")
         @* favicons and touch icons go here *@
+        <script src="~/Scripts/jquery.signalR-1.0.0-rc2.js"></script>
+      <script src="~/signalr/hubs"></script>
     </head>
     <body>
         <div class="navbar navbar-inverse navbar-fixed-top">
