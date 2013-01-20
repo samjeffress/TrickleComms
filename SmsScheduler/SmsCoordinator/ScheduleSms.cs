@@ -34,14 +34,21 @@ namespace SmsCoordinator
             Data.RequestingCoordinatorId = scheduleSmsForSendingLater.CorrelationId;
             var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout<ScheduleSmsTimeout>(timeout);
-            Bus.Publish(new SmsScheduled { ScheduleMessageId = Data.ScheduleMessageId, CoordinatorId = scheduleSmsForSendingLater.CorrelationId });
-            Bus.Send(new ScheduleCreated
+            Bus.Publish(new SmsScheduled
             {
-                CallerId = Data.Id,
-                ScheduleId = Data.ScheduleMessageId,
+                ScheduleMessageId = Data.ScheduleMessageId, 
+                CoordinatorId = scheduleSmsForSendingLater.CorrelationId,
                 SmsData = scheduleSmsForSendingLater.SmsData,
-                SmsMetaData = scheduleSmsForSendingLater.SmsMetaData
+                SmsMetaData = scheduleSmsForSendingLater.SmsMetaData,
+                ScheduleSendingTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc
             });
+            //Bus.Send(new ScheduleCreated
+            //{
+            //    CallerId = Data.Id,
+            //    ScheduleId = Data.ScheduleMessageId,
+            //    SmsData = scheduleSmsForSendingLater.SmsData,
+            //    SmsMetaData = scheduleSmsForSendingLater.SmsMetaData
+            //});
         }
 
         public void Timeout(ScheduleSmsTimeout state)
@@ -62,7 +69,7 @@ namespace SmsCoordinator
         public void Handle(MessageSent message)
         {
             Bus.Publish(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile});
-            Bus.Send(new ScheduleComplete {ScheduleId = Data.ScheduleMessageId});
+            //Bus.Send(new ScheduleComplete {ScheduleId = Data.ScheduleMessageId});
             MarkAsComplete();
         }
 
@@ -71,8 +78,8 @@ namespace SmsCoordinator
             if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc > pauseScheduling.MessageRequestTimeUtc)
                 return;
             Data.SchedulingPaused = true;
-            var schedulePaused = new SchedulePaused {ScheduleId = pauseScheduling.ScheduleMessageId};
-            Bus.Send(schedulePaused);
+            //var schedulePaused = new SchedulePaused {ScheduleId = pauseScheduling.ScheduleMessageId};
+            //Bus.Send(schedulePaused);
             Bus.Publish(new MessageSchedulePaused { CoordinatorId = Data.RequestingCoordinatorId, ScheduleId = pauseScheduling.ScheduleMessageId });
             Data.LastUpdateCommandRequestUtc = pauseScheduling.MessageRequestTimeUtc;
         }
@@ -84,7 +91,7 @@ namespace SmsCoordinator
             Data.SchedulingPaused = false;
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             RequestUtcTimeout<ScheduleSmsTimeout>(rescheduledTime);
-            Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
+            //Bus.Send(new ScheduleResumed {ScheduleId = Data.ScheduleMessageId, RescheduledTime = rescheduledTime});
             Bus.Publish(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime });
             Data.LastUpdateCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
         }
@@ -98,7 +105,7 @@ namespace SmsCoordinator
                                 Number = failedMessage.SmsData.Mobile,
                                 SmsFailedData = failedMessage.SmsFailed
                             });
-            Bus.Send(new ScheduleFailed { ScheduleId = Data.ScheduleMessageId });
+            //Bus.Send(new ScheduleFailed { ScheduleId = Data.ScheduleMessageId });
             MarkAsComplete();
         }
     }

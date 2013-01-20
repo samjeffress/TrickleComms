@@ -5,6 +5,7 @@ using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
+using SmsMessages.Scheduling.Events;
 using SmsTracking;
 using SmsTrackingMessages.Messages;
 
@@ -73,18 +74,19 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessageSent = new CoordinatorMessageScheduled { CoordinatorId = coordinatorId, Number = updatedNumber };
+            var smsScheduled = new SmsScheduled { CoordinatorId = coordinatorId, ScheduleSendingTimeUtc = DateTime.UtcNow };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
-            coordinatorTracker.Handle(coordinatorMessageSent);
+            var coordinatorTracker = new ScheduleTracker { RavenStore = ravenDocStore };
+            coordinatorTracker.Handle(smsScheduled);
 
             using (var session = DocumentStore.OpenSession())
             {
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.Scheduled));
+                Assert.That(updatedMessageData.ScheduledSendingTimeUtc, Is.EqualTo(smsScheduled.ScheduleSendingTimeUtc));
                 Assert.That(updatedMessageData.ActualSentTimeUtc, Is.Null);
                 Assert.That(updatedMessageData.Cost, Is.Null);
             }
@@ -116,20 +118,20 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessageSent = new CoordinatorMessageSent { CoordinatorId = coordinatorId, Number = updatedNumber, TimeSentUtc = DateTime.Now.AddMinutes(7), Cost = 0.33m };
+            var scheduledSmsSent = new ScheduledSmsSent { CoordinatorId = coordinatorId, Number = updatedNumber, ConfirmationData = new SmsConfirmationData("receipt", DateTime.Now.AddMinutes(7), 0.33m) };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
-            coordinatorTracker.Handle(coordinatorMessageSent);
+            var coordinatorTracker = new ScheduleTracker() { RavenStore = ravenDocStore };
+            coordinatorTracker.Handle(scheduledSmsSent);
 
             using (var session = DocumentStore.OpenSession())
             {
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 var updatedMessageData = trackingData.MessageStatuses.First(m => m.Number == updatedNumber);
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.CompletedSuccess));
-                Assert.That(updatedMessageData.ActualSentTimeUtc, Is.EqualTo(coordinatorMessageSent.TimeSentUtc));
-                Assert.That(updatedMessageData.Cost, Is.EqualTo(coordinatorMessageSent.Cost));
+                Assert.That(updatedMessageData.ActualSentTimeUtc, Is.EqualTo(scheduledSmsSent.ConfirmationData.SentAtUtc));
+                Assert.That(updatedMessageData.Cost, Is.EqualTo(scheduledSmsSent.ConfirmationData.Price));
             }
         }
 
@@ -159,12 +161,12 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessageFailed = new CoordinatorMessageFailed { CoordinatorId = coordinatorId, Number = updatedNumber, SmsFailureData = new SmsFailed(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty) };
+            var messageFailed = new ScheduledSmsFailed { CoordinatorId = coordinatorId, Number = updatedNumber, SmsFailedData = new SmsFailed(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty) };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
-            coordinatorTracker.Handle(coordinatorMessageFailed);
+            var coordinatorTracker = new ScheduleTracker { RavenStore = ravenDocStore };
+            coordinatorTracker.Handle(messageFailed);
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -173,8 +175,8 @@ namespace SmsTrackingTests
                 Assert.That(updatedMessageData.Status, Is.EqualTo(MessageStatusTracking.CompletedFailure));
                 Assert.That(updatedMessageData.ActualSentTimeUtc, Is.Null);
                 Assert.That(updatedMessageData.Cost, Is.Null);
-                Assert.That(updatedMessageData.FailureData.Message, Is.EqualTo(coordinatorMessageFailed.SmsFailureData.Message));
-                Assert.That(updatedMessageData.FailureData.MoreInfo, Is.EqualTo(coordinatorMessageFailed.SmsFailureData.MoreInfo));
+                Assert.That(updatedMessageData.FailureData.Message, Is.EqualTo(messageFailed.SmsFailedData.Message));
+                Assert.That(updatedMessageData.FailureData.MoreInfo, Is.EqualTo(messageFailed.SmsFailedData.MoreInfo));
             }
         }
 
@@ -204,12 +206,12 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessagePaused = new CoordinatorMessagePaused { CoordinatorId = coordinatorId, Number = updatedNumber };
+            var messagePaused = new MessageSchedulePaused { CoordinatorId = coordinatorId };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
-            coordinatorTracker.Handle(coordinatorMessagePaused);
+            var coordinatorTracker = new ScheduleTracker { RavenStore = ravenDocStore };
+            coordinatorTracker.Handle(messagePaused);
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -252,12 +254,12 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessageResumed = new CoordinatorMessageResumed { CoordinatorId = coordinatorId, ScheduleMessageId = scheduleId, Number = updatedNumber, RescheduledTimeUtc = rescheduledTime };
+            var messageResumed = new MessageRescheduled { CoordinatorId = coordinatorId, ScheduleMessageId = scheduleId, RescheduledTimeUtc = rescheduledTime };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
-            coordinatorTracker.Handle(coordinatorMessageResumed);
+            var coordinatorTracker = new ScheduleTracker { RavenStore = ravenDocStore };
+            coordinatorTracker.Handle(messageResumed);
 
             using (var session = DocumentStore.OpenSession())
             {
@@ -296,12 +298,12 @@ namespace SmsTrackingTests
                 session.SaveChanges();
             }
 
-            var coordinatorMessagePaused = new CoordinatorMessagePaused { CoordinatorId = coordinatorId, Number = updatedNumber };
+            var messagePaused = new MessageSchedulePaused { CoordinatorId = coordinatorId };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
-            Assert.That(() => coordinatorTracker.Handle(coordinatorMessagePaused), Throws.Exception.With.Message.EqualTo("Cannot record pausing of message - it is already recorded as complete."));
+            var coordinatorTracker = new ScheduleTracker { RavenStore = ravenDocStore };
+            Assert.That(() => coordinatorTracker.Handle(messagePaused), Throws.Exception.With.Message.EqualTo("Cannot record pausing of message - it is already recorded as complete."));
         }
 
         [Test]
@@ -348,7 +350,7 @@ namespace SmsTrackingTests
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore };
+            var coordinatorTracker = new CoordinatorTracker() { RavenStore = ravenDocStore };
             coordinatorTracker.Handle(coordinatorCompleted);
 
             using (var session = DocumentStore.OpenSession())

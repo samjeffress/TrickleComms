@@ -36,12 +36,12 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    .ExpectSend<ScheduleCreated>()
+                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectPublish<ScheduledSmsSent>()
-                    .ExpectSend<ScheduleComplete>()
+                    //.ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(messageSent))
                     .AssertSagaCompletionIs(true);
         }
@@ -65,12 +65,12 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    .ExpectSend<ScheduleCreated>()
+                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectPublish<ScheduledSmsFailed>()
-                    .ExpectSend<ScheduleFailed>()
+                    //.ExpectSend<ScheduleFailed>()
                 .When(s => s.Handle(messageFailed))
                     .AssertSagaCompletionIs(true);
         }
@@ -93,9 +93,10 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    .ExpectSend<ScheduleCreated>()
+                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
-                    .ExpectSend<SchedulePaused>()
+                    //.ExpectSend<SchedulePaused>()
+                    .ExpectPublish<MessageSchedulePaused>()
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
                     .ExpectNotSend<SendOneMessageNow>(now => false)
                 .WhenSagaTimesOut();
@@ -119,20 +120,21 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    .ExpectSend<ScheduleCreated>()
+                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
-                    .ExpectSend<SchedulePaused>()
+                    //.ExpectSend<SchedulePaused>()
+                    .ExpectPublish<MessageSchedulePaused>()
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
                     .ExpectNotSend<SendOneMessageNow>(now => false)
                 .WhenSagaTimesOut()
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
-                    .ExpectSend<ScheduleResumed>()
+                    //.ExpectSend<ScheduleResumed>()
                     .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectPublish<ScheduledSmsSent>()
-                    .ExpectSend<ScheduleComplete>()
+                    //.ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2")}))
                     .AssertSagaCompletionIs(true);
         }
@@ -155,10 +157,10 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    .ExpectSend<ScheduleCreated>()
+                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>()
-                    .ExpectSend<ScheduleResumed>()
+                    //.ExpectSend<ScheduleResumed>()
                     .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan()) { MessageRequestTimeUtc = DateTime.Now }))
                     //.ExpectSend<SchedulePaused>()
@@ -166,7 +168,7 @@ namespace SmsCoordinatorTests
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectPublish<ScheduledSmsSent>()
-                    .ExpectSend<ScheduleComplete>()
+                    //.ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") }))
                     .AssertSagaCompletionIs(true);
         }
@@ -192,11 +194,11 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, span) => span == resheduledTime)
-                    .ExpectSend<ScheduleResumed>(s =>
-                    {
-                        return s.ScheduleId == scheduleMessageId &&
-                        s.RescheduledTime == resheduledTime;
-                    })
+                    //.ExpectSend<ScheduleResumed>(s =>
+                    //{
+                    //    return s.ScheduleId == scheduleMessageId &&
+                    //    s.RescheduledTime == resheduledTime;
+                    //})
                     .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(rescheduleMessage));
         }
@@ -252,7 +254,7 @@ namespace SmsCoordinatorTests
                 .WithExternalDependencies(a => a.Data = data)
                 .WhenReceivesMessageFrom("address")
                     .ExpectPublish<SmsScheduled>(m => m.CoordinatorId == data.Id && m.ScheduleMessageId == originalMessage.ScheduleMessageId)
-                    .ExpectSend<ScheduleCreated>(m => m.ScheduleId == originalMessage.ScheduleMessageId && m.SmsData == originalMessage.SmsData && m.SmsMetaData == originalMessage.SmsMetaData && m.CallerId == data.Id)
+                    //.ExpectSend<ScheduleCreated>(m => m.ScheduleId == originalMessage.ScheduleMessageId && m.SmsData == originalMessage.SmsData && m.SmsMetaData == originalMessage.SmsMetaData && m.CallerId == data.Id)
                 .When(s => s.Handle(originalMessage));
 
             Assert.That(data.OriginalMessage, Is.EqualTo(originalMessage));
@@ -269,7 +271,7 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = data)
                 .WhenReceivesMessageFrom("place")
-                    .ExpectSend<SchedulePaused>(s => s.ScheduleId == scheduleId)
+                    //.ExpectSend<SchedulePaused>(s => s.ScheduleId == scheduleId)
                 .When(s => s.Handle(pauseScheduledMessageIndefinitely));
 
             Assert.IsTrue(data.SchedulingPaused);

@@ -11,8 +11,14 @@ namespace SmsTracking
 
         public Guid ScheduleId { get; set; }
 
-        public Guid CallerId { get; set; }
+        //public Guid CallerId { get; set; }
+
+        public DateTime ScheduleTimeUtc { get; set; }
 
         public MessageStatus MessageStatus { get; set; }
+
+        public SmsConfirmationData ConfirmationData { get; set; }
+
+        public SmsFailed SmsFailureData { get; set; }
     }
 }
