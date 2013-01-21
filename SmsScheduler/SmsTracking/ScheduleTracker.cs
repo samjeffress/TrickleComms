@@ -7,13 +7,6 @@ using SmsMessages.Scheduling.Events;
 namespace SmsTracking
 {
     public class ScheduleTracker : 
-        //IHandleMessages<ScheduleCreated>,
-        
-    //IHandleMessages<SchedulePaused>,
-    //    IHandleMessages<ScheduleResumed>,
-    //    IHandleMessages<ScheduleCancelled>,
-    //    IHandleMessages<ScheduleComplete>,
-    //    IHandleMessages<ScheduleFailed>
         IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
         IHandleMessages<MessageSchedulePaused>,
@@ -22,25 +15,6 @@ namespace SmsTracking
         // TODO : Add some sort of 'Cancelled Message' handler?
     {
         public IRavenDocStore RavenStore { get; set; }
-
-        //public void Handle(ScheduleCreated message)
-        //{
-        //    //using (var session = RavenStore.GetStore().OpenSession())
-        //    //{
-        //    //    var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId);
-        //    //    if (scheduleTracking != null) return;
-        //    //    var tracker = new ScheduleTrackingData
-        //    //    {
-        //    //        CallerId = message.CallerId,
-        //    //        MessageStatus = MessageStatus.Scheduled,
-        //    //        ScheduleId = message.ScheduleId,
-        //    //        SmsData = message.SmsData,
-        //    //        SmsMetaData = message.SmsMetaData
-        //    //    };
-        //    //    session.Store(tracker, message.ScheduleId.ToString());
-        //    //    session.SaveChanges();
-        //    //}
-        //}
 
         public void Handle(SmsScheduled message)
         {
@@ -67,7 +41,7 @@ namespace SmsTracking
                 {
                     var coordinator = session.Load<CoordinatorTrackingData>(message.CoordinatorId.ToString());    
                     if (coordinator == null) throw new ArgumentException("Coordinator not created yet.");
-                    var messageSendingStatus = coordinator.MessageStatuses.Where(m => m.ScheduleMessageId == message.ScheduleMessageId).First();
+                    var messageSendingStatus = coordinator.MessageStatuses.First(m => m.ScheduleMessageId == message.ScheduleMessageId);
                     messageSendingStatus.Status = MessageStatusTracking.Scheduled;
                     messageSendingStatus.ScheduledSendingTimeUtc = message.ScheduleSendingTimeUtc;
                     session.SaveChanges();
@@ -101,50 +75,6 @@ namespace SmsTracking
             }
         }
 
-        //public void Handle(SchedulePaused message)
-        //{
-        //    using (var session = RavenStore.GetStore().OpenSession())
-        //    {
-        //        var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
-        //        if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
-        //        scheduleTracking.MessageStatus = MessageStatus.Paused;
-        //        session.SaveChanges();
-        //    }
-        //}
-
-        //public void Handle(ScheduleResumed message)
-        //{
-        //    using (var session = RavenStore.GetStore().OpenSession())
-        //    {
-        //        var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
-        //        if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
-        //        scheduleTracking.MessageStatus = MessageStatus.Scheduled;
-        //        session.SaveChanges();
-        //    }
-        //}
-
-        //public void Handle(ScheduleCancelled message)
-        //{
-        //    using (var session = RavenStore.GetStore().OpenSession())
-        //    {
-        //        var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
-        //        if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
-        //        scheduleTracking.MessageStatus = MessageStatus.Cancelled;
-        //        session.SaveChanges();
-        //    }
-        //}
-
-        //public void Handle(ScheduleComplete message)
-        //{
-        //    using (var session = RavenStore.GetStore().OpenSession())
-        //    {
-        //        var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
-        //        if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
-        //        scheduleTracking.MessageStatus = MessageStatus.Sent;
-        //        session.SaveChanges();
-        //    }
-        //}
-
         public void Handle(MessageSchedulePaused message)
         {
             using (var session =  RavenStore.GetStore().OpenSession())
@@ -167,17 +97,6 @@ namespace SmsTracking
                 }
             }
         }
-
-        //public void Handle(ScheduleFailed message)
-        //{
-        //    using (var session = RavenStore.GetStore().OpenSession())
-        //    {
-        //        var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
-        //        if (scheduleTracking == null) throw new Exception("Could not find schedule id " + message.ScheduleId);
-        //        scheduleTracking.MessageStatus = MessageStatus.Failed;
-        //        session.SaveChanges();
-        //    }
-        //}
 
         public void Handle(MessageRescheduled message)
         {
