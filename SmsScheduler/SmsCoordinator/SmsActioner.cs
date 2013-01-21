@@ -74,7 +74,7 @@ namespace SmsCoordinator
         public SendOneMessageNow OriginalMessage { get; set; }
     }
 
-    public class SmsPendingTimeout : TimeoutMessage
+    public class SmsPendingTimeout
     {
     }
 }
