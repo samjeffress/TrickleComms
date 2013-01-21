@@ -1,5 +1,5 @@
-using System.Web.Mvc;
 using NServiceBus;
+using System.Web.Mvc;
 using ServiceStack.CacheAccess;
 using ServiceStack.CacheAccess.Providers;
 using ServiceStack.Mvc;
@@ -8,7 +8,6 @@ using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.WebHost.Endpoints;
 using SmsWeb.API;
 using SmsWeb.Controllers;
-using SmsWeb.Models;
 using Schedule = SmsWeb.API.Schedule;
 
 [assembly: WebActivator.PreApplicationStartMethod(typeof(SmsWeb.App_Start.AppHost), "Start")]
@@ -68,6 +67,7 @@ namespace SmsWeb.App_Start
 		    container.Register<IRavenDocStore>(new RavenDocStore());
 		    container.Register<ICoordinatorModelToMessageMapping>(new CoordinatorModelToMessageMapping());
 		    container.Register<ICoordinatorApiModelToMessageMapping>(new CoordinatorApiModelToMessageMapping());
+
 
             var bus = NServiceBus.Configure.With()
                 .DefineEndpointName("SmsWeb")

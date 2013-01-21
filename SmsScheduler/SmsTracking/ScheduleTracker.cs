@@ -3,7 +3,6 @@ using System.Linq;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Scheduling.Events;
-using SmsTrackingMessages.Messages;
 
 namespace SmsTracking
 {
@@ -148,7 +147,7 @@ namespace SmsTracking
 
         public void Handle(MessageSchedulePaused message)
         {
-            using (var session = RavenStore.GetStore().OpenSession())
+            using (var session =  RavenStore.GetStore().OpenSession())
             {
                 if(message.CoordinatorId == Guid.Empty)
                 {

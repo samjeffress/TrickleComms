@@ -43,7 +43,7 @@ namespace SmsCoordinator
                 });
                 MarkAsComplete();
             }
-            if (confirmationData is SmsSent)
+            else if (confirmationData is SmsSent)
             {
                 var sentMessage = confirmationData as SmsSent;
                 Bus.Publish<MessageSent>(m =>
@@ -58,7 +58,7 @@ namespace SmsCoordinator
             }
             else
             {
-                RequestUtcTimeout<SmsPendingTimeout>(new TimeSpan(0,0,0,10));
+                RequestUtcTimeout<SmsPendingTimeout>(new TimeSpan(0, 0, 0, 10));
             }
         }
     }
