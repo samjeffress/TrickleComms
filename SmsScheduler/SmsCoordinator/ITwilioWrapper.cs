@@ -46,7 +46,7 @@ namespace SmsCoordinator
                 {
                     throw new NotImplementedException();
                 }
-                _restClient.UpdateAccountName("toby toogood");
+                //_restClient.UpdateAccountName("toby toogood");
                 return _restClient.SendSmsMessage(twilioConfiguration.From, to, message);
             }
             
