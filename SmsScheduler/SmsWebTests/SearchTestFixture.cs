@@ -5,6 +5,7 @@ using Raven.Client;
 using Raven.Client.Embedded;
 using Rhino.Mocks;
 using SmsTracking;
+using SmsTrackingModels;
 using SmsWeb.Controllers;
 
 namespace SmsWebTests

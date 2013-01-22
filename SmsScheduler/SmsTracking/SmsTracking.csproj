@@ -90,6 +90,10 @@
       <Project>{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}</Project>
       <Name>SmsTrackingMessages</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SmsTrackingModels\SmsTrackingModels.csproj">
+      <Project>{bd305005-40fd-4c3a-a893-6e7e5989c66a}</Project>
+      <Name>SmsTrackingModels</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

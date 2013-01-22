@@ -5,7 +5,7 @@ using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
 using SmsMessages.CommonData;
 using SmsMessages.Scheduling.Commands;
-using SmsTracking;
+using SmsTrackingModels;
 using SmsWeb.Models;
 
 namespace SmsWeb.API

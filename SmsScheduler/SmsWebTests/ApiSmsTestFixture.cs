@@ -5,6 +5,7 @@ using Rhino.Mocks;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using SmsTracking;
+using SmsTrackingModels;
 using SmsWeb.API;
 using IRavenDocStore = SmsWeb.IRavenDocStore;
 

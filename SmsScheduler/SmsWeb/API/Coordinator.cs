@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NServiceBus;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
-using SmsTracking;
+using SmsTrackingModels;
 
 namespace SmsWeb.API
 {

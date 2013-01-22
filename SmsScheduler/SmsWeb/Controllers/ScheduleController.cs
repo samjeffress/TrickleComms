@@ -4,7 +4,7 @@ using System.Web.Mvc;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Scheduling.Commands;
-using SmsTracking;
+using SmsTrackingModels;
 using SmsWeb.Models;
 
 namespace SmsWeb.Controllers

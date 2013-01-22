@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SmsTracking;
+using SmsTrackingModels;
 
 namespace SmsWeb.Models
 {

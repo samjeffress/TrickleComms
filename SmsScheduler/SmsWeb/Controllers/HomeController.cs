@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
-using SmsTracking;
+using SmsTrackingModels;
 
 namespace SmsWeb.Controllers
 {

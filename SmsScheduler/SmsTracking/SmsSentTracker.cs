@@ -1,5 +1,6 @@
 ﻿using NServiceBus;
 using SmsMessages.MessageSending.Events;
+using SmsTrackingModels;
 
 namespace SmsTracking
 {
@@ -44,8 +45,4 @@ namespace SmsTracking
         }
     }
 
-    public enum MessageTrackedStatus
-    {
-        Sent, Failed
-    }
 }

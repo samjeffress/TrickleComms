@@ -6,7 +6,7 @@ using NServiceBus;
 using Raven.Client;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
-using SmsTracking;
+using SmsTrackingModels;
 using SmsWeb.Models;
 
 namespace SmsWeb.Controllers

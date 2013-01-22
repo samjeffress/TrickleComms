@@ -3,6 +3,7 @@ using System.Linq;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Scheduling.Events;
+using SmsTrackingModels;
 
 namespace SmsTracking
 {
