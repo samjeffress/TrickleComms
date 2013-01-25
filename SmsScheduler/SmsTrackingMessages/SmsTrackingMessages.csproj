@@ -45,11 +45,6 @@
     <Compile Include="Messages\CoordinatorCompleted.cs" />
     <Compile Include="Messages\CoordinatorCompleteEmail.cs" />
     <Compile Include="Messages\CoordinatorCreated.cs" />
-    <Compile Include="Messages\CoordinatorMessageFailed.cs" />
-    <Compile Include="Messages\CoordinatorMessagePaused.cs" />
-    <Compile Include="Messages\CoordinatorMessageResumed.cs" />
-    <Compile Include="Messages\CoordinatorMessageScheduled.cs" />
-    <Compile Include="Messages\CoordinatorMessageSent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

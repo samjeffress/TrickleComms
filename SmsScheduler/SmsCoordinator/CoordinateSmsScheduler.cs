@@ -137,7 +137,6 @@ namespace SmsCoordinator
             if (messageStatus.MessageStatus == MessageStatus.Sent)
                 throw new Exception("Message already sent.");
             messageStatus.MessageStatus = MessageStatus.Scheduled;
-            Bus.Send(new CoordinatorMessageScheduled { CoordinatorId = Data.CoordinatorId, ScheduleMessageId = smsScheduled.ScheduleMessageId, Number = messageStatus.ScheduledSms.SmsData.Mobile });
         }
 
         public void Handle(MessageSchedulePaused message)
@@ -148,7 +147,6 @@ namespace SmsCoordinator
             if (messageStatus.MessageStatus == MessageStatus.Sent)
                 throw new Exception("Scheduled message " + message.ScheduleId + " is already sent.");
             messageStatus.MessageStatus = MessageStatus.Paused;
-            Bus.Send(new CoordinatorMessagePaused { CoordinatorId = Data.CoordinatorId, ScheduleMessageId = message.ScheduleId });
         }
 
         public void Handle(MessageRescheduled message)
@@ -159,13 +157,6 @@ namespace SmsCoordinator
             if (messageStatus.MessageStatus == MessageStatus.Sent)
                 throw new Exception("Scheduled message " + message.ScheduleMessageId + " is already sent.");
             messageStatus.MessageStatus = MessageStatus.Scheduled;
-            Bus.Send(new CoordinatorMessageResumed
-                         {
-                             ScheduleMessageId = message.ScheduleMessageId,
-                             CoordinatorId = Data.CoordinatorId,
-                             Number = messageStatus.ScheduledSms.SmsData.Mobile,
-                             RescheduledTimeUtc = message.RescheduledTimeUtc
-                         });
         }
 
         public void Handle(ScheduledSmsSent smsSent)
@@ -177,15 +168,6 @@ namespace SmsCoordinator
                 throw new Exception("Can't find scheduled message");
 
             scheduledMessageStatus.MessageStatus = MessageStatus.Sent;
-
-            Bus.Send(new CoordinatorMessageSent
-            {
-                CoordinatorId = Data.CoordinatorId,
-                ScheduleMessageId = smsSent.ScheduledSmsId,
-                Cost = smsSent.ConfirmationData.Price,
-                TimeSentUtc = smsSent.ConfirmationData.SentAtUtc,
-                Number = smsSent.Number
-            });
 
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
@@ -204,14 +186,6 @@ namespace SmsCoordinator
                 throw new Exception("Can't find scheduled message");
 
             scheduledMessageStatus.MessageStatus = MessageStatus.Failed;
-
-            Bus.Send(new CoordinatorMessageFailed
-            {
-                CoordinatorId = Data.CoordinatorId,
-                ScheduleMessageId = failureMessage.ScheduledSmsId,
-                Number = failureMessage.Number,
-                SmsFailureData = failureMessage.SmsFailedData
-            });
 
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
