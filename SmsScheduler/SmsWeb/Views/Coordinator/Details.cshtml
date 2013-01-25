@@ -52,7 +52,11 @@
             $('#' + message.ScheduleId).addClass(message.Class);
         };
         
-        // TODO: Add coordinator completed
+        status.client.coordinatorComplete = function (message) {
+            var coordinatorSummary = "<div>Current Status: Complete</div>" +
+                "<div>Completion Date: " + message.CompletedAt + "</div>";
+            $('#' + message.CoordinatorId).html(coordinatorSummary);
+        };
 
         // Start the connection
         $.connection.hub.start().done(function() {
@@ -67,38 +71,40 @@
 
 <h2>Coordinated Messages</h2>
 <div>ID : @Model.CoordinatorId</div>
-<div>Current Status: @Model.CurrentStatus.ToString()</div>
 
-@if (Model.CurrentStatus != CoordinatorStatusTracking.Completed)
-{
-    if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
+<div id="@Model.CoordinatorId">
+    <div>Current Status: @Model.CurrentStatus.ToString()</div>
+    @if (Model.CurrentStatus != CoordinatorStatusTracking.Completed)
     {
-        <div>
-            @using(Html.BeginForm("Pause", "Coordinator"))
-            {
-                @Html.HiddenFor(m => m.CoordinatorId)
+        if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
+        {
+            <div>
+                @using(Html.BeginForm("Pause", "Coordinator"))
+                {
+                    @Html.HiddenFor(m => m.CoordinatorId)
                 @*<label>Pause message sending</label>*@
-                <input type="submit" value="Pause Message Sending"/>
-            }
-        </div>
+                    <input type="submit" value="Pause Message Sending"/>
+                }
+            </div>
+        }
+        if (Model.CurrentStatus == CoordinatorStatusTracking.Paused)
+        {
+            <div>
+                @using(Html.BeginForm("Resume", "Coordinator"))
+                {
+                    @Html.HiddenFor(m => m.CoordinatorId)
+                    <label>Time to resume</label>
+                    <input name="timeToResume" type="datetime-local" value="@DateTime.Now"/>
+                    <input type="submit" value="Resume Messages"/>
+                }
+            </div>
+        }
     }
-    if (Model.CurrentStatus == CoordinatorStatusTracking.Paused)
+    @if(Model.CompletionDateUtc.HasValue)
     {
-        <div>
-            @using(Html.BeginForm("Resume", "Coordinator"))
-            {
-                @Html.HiddenFor(m => m.CoordinatorId)
-                <label>Time to resume</label>
-                <input name="timeToResume" type="datetime-local" value="@DateTime.Now"/>
-                <input type="submit" value="Resume Messages"/>
-            }
-        </div>
+        <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
     }
-}
-@if(Model.CompletionDateUtc.HasValue)
-{
-    <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
-}
+</div>
 <ul>
 @foreach(var message in Model.MessageStatuses)
 {
