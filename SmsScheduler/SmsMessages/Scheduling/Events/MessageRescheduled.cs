@@ -9,5 +9,7 @@ namespace SmsMessages.Scheduling.Events
         public Guid ScheduleMessageId { get; set; }
 
         public DateTime RescheduledTimeUtc { get; set; }
+
+        public string Number { get; set; }
     }
 }

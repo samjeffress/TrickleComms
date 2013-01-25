@@ -15,6 +15,45 @@
             $('#' + message.ScheduleId).addClass(message.Class);
         };
 
+        status.client.scheduleSent = function (message) {
+            var scheduleBody = "Number: " + message.Number + " </br>" +
+                "Status: Completed Success <br/> " +
+                "Time Sent: " + message.SentAt + " <br />" +
+                "Cost: " + message.Cost;
+            $('#' + message.ScheduleId).html(scheduleBody);
+            $('#' + message.ScheduleId).removeClass();
+            $('#' + message.ScheduleId).addClass(message.Class);
+        };
+        
+
+        status.client.scheduleFailed = function (message) {
+            var scheduleBody = "Number: " + message.Number + " </br>" +
+                "Status: Completed Failure <br/> " +
+                "Sending Failed: " + message.SendFailMessage;
+            $('#' + message.ScheduleId).html(scheduleBody);
+            $('#' + message.ScheduleId).removeClass();
+            $('#' + message.ScheduleId).addClass(message.Class);
+        };
+        
+        status.client.messageScheduled = function (message) {
+            var scheduleBody = "Number: " + message.Number + " </br>" +
+                "Status: Scheduled <br/> " +
+                "Scheduled Time: " + message.ScheduledTime;
+            $('#' + message.ScheduleId).html(scheduleBody);
+            $('#' + message.ScheduleId).removeClass();
+            $('#' + message.ScheduleId).addClass(message.Class);
+        };
+        
+        status.client.messagePaused = function (message) {
+            var scheduleBody = "Number: " + message.Number + " </br>" +
+                "Status: Paused <br/> ";
+            $('#' + message.ScheduleId).html(scheduleBody);
+            $('#' + message.ScheduleId).removeClass();
+            $('#' + message.ScheduleId).addClass(message.Class);
+        };
+        
+        // TODO: Add coordinator completed
+
         // Start the connection
         $.connection.hub.start().done(function() {
             $("#broadcast").click(function () {

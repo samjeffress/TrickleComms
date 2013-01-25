@@ -190,6 +190,7 @@ namespace SmsCoordinator
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
                 Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
+                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
                 MarkAsComplete();
             }
         }
@@ -215,6 +216,7 @@ namespace SmsCoordinator
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
                 Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
+                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
                 MarkAsComplete();
             }
         }
