@@ -1,13 +1,11 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Web;
 
 namespace SmsWeb.Models
 {
-    public class CoordinatedSharedMessageModel
+    public class CoordinatedSharedMessageModelFromCsv
     {
-        [Required]
-        public string Numbers { get; set; }
-
         [Required]
         public string Message { get; set; }
 
@@ -23,5 +21,9 @@ namespace SmsWeb.Models
         public string Topic { get; set; }
 
         public string ConfirmationEmail { get; set; }
+
+        [Required]
+        [FileTypes("csv,xls,xlsx")]
+        public HttpPostedFileBase UploadedFile { get; set; }
     }
 }
