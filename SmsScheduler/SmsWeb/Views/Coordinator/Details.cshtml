@@ -109,7 +109,7 @@
 @foreach(var message in Model.MessageStatuses)
 {
     var liClass = "";
-    if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "waitingForSchedule"; }
+    if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "waitingforschedule"; }
     if (message.Status == MessageStatusTracking.Scheduled){ liClass = "scheduled"; }
     if (message.Status == MessageStatusTracking.Paused){ liClass = "paused"; }
     if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "success"; }

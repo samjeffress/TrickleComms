@@ -43,7 +43,8 @@
 <h2>Create Coordinated Messages</h2>
 
 
-@using (Html.BeginForm()) {
+@using (Html.BeginForm("Create", "Coordinator", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
     @Html.ValidationSummary(true)
 
     <fieldset>
@@ -59,9 +60,6 @@
             @Html.LabelFor(model => model.Numbers)
             @Html.TextAreaFor(model => model.Numbers)
             @Html.ValidationMessageFor(model => model.Numbers)
-            @*@Html.Label("numberList", "Numbers")
-            @Html.TextArea("numberList", (string)ViewBag.numberList)
-            @Html.ValidationMessage("numberList")*@
         </div>
     </fieldset>
     
@@ -107,8 +105,11 @@
                 @Html.LabelFor(model => model.Tags)
                 @Html.EditorFor(model => model.Tags)
                 @Html.ValidationMessageFor(model => model.Tags)
-                @*@Html.Label("tag", "Tags")
-                <input name="tag" id="tag" value="@ViewBag.tags"/>*@
+            </div>
+            
+            <div>
+                <label for="UploadedFile"></label>
+                <input type="file" name="UploadedFile"/>
             </div>
         </div>
 

@@ -28,7 +28,7 @@ namespace SmsWeb
         public void Handle(ScheduledSmsFailed message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.updateSchedule(new
+            context.Clients.All.scheduleFailed(new
                 {
                     ScheduleId = message.ScheduledSmsId, 
                     Number = message.Number,
@@ -45,7 +45,7 @@ namespace SmsWeb
                     ScheduleId = message.ScheduleMessageId, 
                     Number = message.SmsData.Mobile,
                     ScheduledTime = message.ScheduleSendingTimeUtc.ToLocalTime(),
-                    Class = "waiting"
+                    Class = "scheduled"
                 });
         }
 
@@ -57,7 +57,7 @@ namespace SmsWeb
                     ScheduleId = message.ScheduleMessageId, 
                     Number = message.Number,
                     ScheduledTime = message.RescheduledTimeUtc.ToLocalTime(),
-                    Class = "waiting"
+                    Class = "scheduled"
                 });
         }
 
@@ -72,6 +72,7 @@ namespace SmsWeb
                 });
         }
 
+        // TODO: Check why this isn't subscribed
         public void Handle(CoordinatorCompleted message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
