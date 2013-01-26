@@ -265,7 +265,9 @@
     <Compile Include="Controllers\TwilioConfigController.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModel.cs" />
+    <Compile Include="Models\CoordinatedSharedMessageModelFromCsv.cs" />
     <Compile Include="Models\CoordinatorOverview.cs" />
+    <Compile Include="Models\FileTypesAttribute.cs" />
     <Compile Include="Models\HomeInputModel.cs" />
     <Compile Include="Models\ScheduleModel.cs" />
     <Compile Include="Models\SendNowModel.cs" />
