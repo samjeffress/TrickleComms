@@ -5,6 +5,7 @@ using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
+using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Commands;
 using SmsMessages.Scheduling.Events;
 using SmsTrackingMessages.Messages;
@@ -171,8 +172,8 @@ namespace SmsCoordinator
 
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
-                Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
-                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
+                //Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
+                Bus.Publish(new SmsMessages.Coordinator.Events.CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
                 MarkAsComplete();
             }
         }
@@ -189,8 +190,8 @@ namespace SmsCoordinator
 
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
-                Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
-                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDate = DateTime.UtcNow });
+                Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
+                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
                 MarkAsComplete();
             }
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using NServiceBus;
+using SmsMessages.Coordinator.Events;
 using SmsTrackingMessages.Messages;
 using SmsTrackingModels;
 
@@ -42,7 +43,7 @@ namespace SmsTracking
                 if (incompleteMessageCount > 0)
                     throw new Exception("Cannot complete coordinator - some messages are not yet complete.");
                 coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Completed;
-                coordinatorTrackingData.CompletionDateUtc = coordinatorCompleted.CompletionDate;
+                coordinatorTrackingData.CompletionDateUtc = coordinatorCompleted.CompletionDateUtc;
                 if (!string.IsNullOrWhiteSpace(coordinatorTrackingData.ConfirmationEmailAddress))
                 {
                     var coordinatorCompleteEmail = new CoordinatorCompleteEmail();

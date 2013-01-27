@@ -5,6 +5,7 @@ using NServiceBus;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
+using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Events;
 using SmsTracking;
 using SmsTrackingMessages.Messages;

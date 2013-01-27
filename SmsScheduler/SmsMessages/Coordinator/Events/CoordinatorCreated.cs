@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using SmsMessages.CommonData;
 
-namespace SmsTrackingMessages.Messages
+namespace SmsMessages.Coordinator.Events
 {
     public class CoordinatorCreated
     {

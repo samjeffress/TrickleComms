@@ -42,9 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Messages\CoordinatorCompleted.cs" />
     <Compile Include="Messages\CoordinatorCompleteEmail.cs" />
-    <Compile Include="Messages\CoordinatorCreated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
