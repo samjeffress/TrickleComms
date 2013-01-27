@@ -19,6 +19,7 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
+                session.Advanced.UseOptimisticConcurrency = true;
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = message.CoordinatorId,
@@ -38,6 +39,7 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
+                session.Advanced.UseOptimisticConcurrency = true;
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorCompleted.CoordinatorId.ToString());
                 var incompleteMessageCount = coordinatorTrackingData.MessageStatuses.Count(m => m.Status == MessageStatusTracking.Paused || m.Status == MessageStatusTracking.Scheduled);
                 if (incompleteMessageCount > 0)

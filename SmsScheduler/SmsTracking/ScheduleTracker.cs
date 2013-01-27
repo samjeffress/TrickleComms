@@ -21,6 +21,7 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
+                session.Advanced.UseOptimisticConcurrency = true;
                 if (message.CoordinatorId == Guid.Empty)
                 {
                     var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleMessageId.ToString());
@@ -54,6 +55,7 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
+                session.Advanced.UseOptimisticConcurrency = true;
                 if (message.CoordinatorId == Guid.Empty)
                 {
                     var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduledSmsId.ToString());
@@ -80,6 +82,7 @@ namespace SmsTracking
         {
             using (var session =  RavenStore.GetStore().OpenSession())
             {
+                session.Advanced.UseOptimisticConcurrency = true;
                 if(message.CoordinatorId == Guid.Empty)
                 {
                     var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
@@ -103,6 +106,7 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
+                session.Advanced.UseOptimisticConcurrency = true;
                 if (message.CoordinatorId == Guid.Empty)
                 {
                     var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduleMessageId.ToString());
@@ -128,6 +132,7 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
+                session.Advanced.UseOptimisticConcurrency = true;
                 if (message.CoordinatorId == Guid.Empty)
                 {
                     var scheduleTracking = session.Load<ScheduleTrackingData>(message.ScheduledSmsId.ToString());

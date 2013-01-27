@@ -178,6 +178,7 @@ namespace SmsWeb.Controllers
 
         public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model)
         {
+            var tags = string.IsNullOrWhiteSpace(model.Tags) ? null : model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList();
             return new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 Messages =
@@ -185,7 +186,7 @@ namespace SmsWeb.Controllers
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
                 TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
-                MetaData = new SmsMetaData { Tags = model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList(), Topic = model.Topic },
+                MetaData = new SmsMetaData { Tags = tags, Topic = model.Topic },
                 ConfirmationEmail = model.ConfirmationEmail
             };
         }

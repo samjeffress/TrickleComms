@@ -7,15 +7,15 @@
 }
 <script type="text/javascript">
     $(function () {      
-        var status = $.connection.scheduleStatus;
+        var schedule = $.connection.scheduleStatus;
 
-        status.client.updateSchedule = function (message) {
+        schedule.client.updateSchedule = function (message) {
             $('#' + message.ScheduleId).html(message.Body);
             $('#' + message.ScheduleId).removeClass();
             $('#' + message.ScheduleId).addClass(message.Class);
         };
 
-        status.client.scheduleSent = function (message) {
+        schedule.client.scheduleSent = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Completed Success <br/> " +
                 "Time Sent: " + message.SentAt + " <br />" +
@@ -25,8 +25,7 @@
             $('#' + message.ScheduleId).addClass(message.Class);
         };
         
-
-        status.client.scheduleFailed = function (message) {
+        schedule.client.scheduleFailed = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Completed Failure <br/> " +
                 "Sending Failed: " + message.SendFailMessage;
@@ -35,7 +34,7 @@
             $('#' + message.ScheduleId).addClass(message.Class);
         };
         
-        status.client.messageScheduled = function (message) {
+        schedule.client.messageScheduled = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Scheduled <br/> " +
                 "Scheduled Time: " + message.ScheduledTime;
@@ -44,7 +43,7 @@
             $('#' + message.ScheduleId).addClass(message.Class);
         };
         
-        status.client.messagePaused = function (message) {
+        schedule.client.messagePaused = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Paused <br/> ";
             $('#' + message.ScheduleId).html(scheduleBody);
@@ -52,10 +51,10 @@
             $('#' + message.ScheduleId).addClass(message.Class);
         };
         
-        status.client.coordinatorCompleted = function (message) {
+        schedule.client.coordinatorCompleted = function (message) {
             var coordinatorSummary = "<div>Current Status: Complete</div>" +
                 "<div>Completion Date: " + message.CompletedAt + "</div>";
-            $('"#' + message.CoordinatorId + '"').html(coordinatorSummary);
+            $('#' + message.CoordinatorId).html(coordinatorSummary);
         };
 
         // Start the connection

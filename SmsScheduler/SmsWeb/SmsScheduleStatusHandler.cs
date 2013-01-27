@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using System.Threading;
+using Microsoft.AspNet.SignalR;
 using NServiceBus;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Events;
@@ -11,6 +12,7 @@ namespace SmsWeb
         , IHandleMessages<MessageRescheduled>
         , IHandleMessages<SmsScheduled>
         , IHandleMessages<CoordinatorCompleted>
+        , IHandleMessages<CoordinatorCreated>
     {
         public void Handle(ScheduledSmsSent message)
         {
@@ -80,6 +82,16 @@ namespace SmsWeb
                 CoordinatorId = message.CoordinatorId,
                 CompletedAt = message.CompletionDateUtc,
                 Class = "completed"
+            });
+        }
+
+        public void Handle(CoordinatorCreated message)
+        {
+            Thread.Sleep(1000);
+            var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
+            context.Clients.All.coordinatorStarted(new
+            {
+                message.CoordinatorId
             });
         }
     }
