@@ -72,7 +72,6 @@ namespace SmsWeb
                 });
         }
 
-        // TODO: Check why this isn't subscribed
         public void Handle(CoordinatorCompleted message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();

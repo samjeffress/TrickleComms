@@ -52,10 +52,10 @@
             $('#' + message.ScheduleId).addClass(message.Class);
         };
         
-        status.client.coordinatorComplete = function (message) {
+        status.client.coordinatorCompleted = function (message) {
             var coordinatorSummary = "<div>Current Status: Complete</div>" +
                 "<div>Completion Date: " + message.CompletedAt + "</div>";
-            $('#' + message.CoordinatorId).html(coordinatorSummary);
+            $('"#' + message.CoordinatorId + '"').html(coordinatorSummary);
         };
 
         // Start the connection
