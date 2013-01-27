@@ -106,7 +106,7 @@ namespace SmsCoordinatorTests
                     .AssertSagaCompletionIs(false)
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
-                    .ExpectSend<CoordinatorCompleted>()
+                    .ExpectPublish<CoordinatorCompleted>()
                 .When(s => s.Handle(new ScheduledSmsFailed { ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(true);
 
@@ -364,7 +364,7 @@ namespace SmsCoordinatorTests
                         l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
-                    .ExpectSend<CoordinatorCreated>(c =>
+                    .ExpectPublish<CoordinatorCreated>(c =>
                         c.CoordinatorId == sagaData.Id &&
                         c.ScheduledMessages.Count == 2 &&
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&

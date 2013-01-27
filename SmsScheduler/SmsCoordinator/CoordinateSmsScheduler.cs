@@ -92,7 +92,7 @@ namespace SmsCoordinator
                 MetaData = message.MetaData,
                 ConfirmationEmailAddress = message.ConfirmationEmail
             };
-            Bus.Send(coordinatorCreated);
+            Bus.Publish(coordinatorCreated);
         }
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
@@ -190,7 +190,7 @@ namespace SmsCoordinator
 
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
-                Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
+                //Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
                 Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
                 MarkAsComplete();
             }
