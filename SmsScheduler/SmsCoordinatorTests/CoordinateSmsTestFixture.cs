@@ -50,7 +50,7 @@ namespace SmsCoordinatorTests
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
-                    .ExpectSend<CoordinatorCreated>()
+                    .ExpectPublish<CoordinatorCreated>()
                 .When(s => s.Handle(trickleMultipleMessages))
                     .AssertSagaCompletionIs(false)
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
@@ -99,7 +99,7 @@ namespace SmsCoordinatorTests
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
-                    .ExpectSend<CoordinatorCreated>()
+                    .ExpectPublish<CoordinatorCreated>()
                 .When(s => s.Handle(trickleMultipleMessages))
                     .AssertSagaCompletionIs(false)
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
@@ -317,7 +317,7 @@ namespace SmsCoordinatorTests
                         l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
-                    .ExpectSend<CoordinatorCreated>(c => 
+                    .ExpectPublish<CoordinatorCreated>(c => 
                         c.CoordinatorId == sagaData.Id && 
                         c.ScheduledMessages.Count == 2 &&
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&

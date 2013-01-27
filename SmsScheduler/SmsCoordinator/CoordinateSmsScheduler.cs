@@ -62,7 +62,7 @@ namespace SmsCoordinator
                 MetaData = message.MetaData,
                 ConfirmationEmailAddress = message.ConfirmationEmail
             };
-            Bus.Send(coordinatorCreated);
+            Bus.Publish(coordinatorCreated);
         }
 
         public void Handle(TrickleSmsWithDefinedTimeBetweenEachMessage message)
