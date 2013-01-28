@@ -1,0 +1,42 @@
+﻿@model ConfigurationModels.MailgunConfiguration
+
+<script src="~/Scripts/jquery-1.8.3.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+
+@using (Ajax.BeginForm("EditAjax", "MailgunConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "MailgunConfigDiv"})) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>MailgunConfiguration</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.ApiKey)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.ApiKey)
+            @Html.ValidationMessageFor(model => model.ApiKey)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.DomainName)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.DomainName)
+            @Html.ValidationMessageFor(model => model.DomainName)
+        </div>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.DefaultFrom)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.DefaultFrom)
+            @Html.ValidationMessageFor(model => model.DefaultFrom)
+        </div>
+
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+    </fieldset>
+}

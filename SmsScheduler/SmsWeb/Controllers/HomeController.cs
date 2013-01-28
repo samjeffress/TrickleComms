@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.Mvc;
+using ConfigurationModels;
 using SmsTrackingModels;
 
 namespace SmsWeb.Controllers
@@ -10,9 +11,17 @@ namespace SmsWeb.Controllers
 
         public ActionResult Index()
         {
-            ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
+            using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
+            {
+                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
+                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
 
-            return View();
+                if (twilioConfiguration == null || mailgunConfiguration == null)
+                {
+                    return View("IndexConfigNotSet");
+                }
+            }
+            return View("Index");
         }
 
         public ActionResult About()

@@ -1,0 +1,26 @@
+﻿@model ConfigurationModels.MailgunConfiguration
+
+<fieldset>
+    <legend>MailgunConfiguration</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.ApiKey)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.ApiKey)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.DomainName)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DomainName)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.DefaultFrom)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.DefaultFrom)
+    </div>
+</fieldset>

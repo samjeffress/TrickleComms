@@ -459,6 +459,11 @@
     <Content Include="Views\ExampleLayouts\Narrow.cshtml" />
     <Content Include="Views\ExampleLayouts\Marketing.cshtml" />
     <Content Include="Views\ExampleLayouts\Fluid.cshtml" />
+    <Content Include="Views\Home\IndexConfigNotSet.cshtml" />
+    <Content Include="Views\Shared\_TwilioConfigCreate.cshtml" />
+    <Content Include="Views\Shared\_MailgunConfigCreate.cshtml" />
+    <Content Include="Views\Shared\_MailgunConfigDetails.cshtml" />
+    <Content Include="Views\Shared\_TwilioConfigDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

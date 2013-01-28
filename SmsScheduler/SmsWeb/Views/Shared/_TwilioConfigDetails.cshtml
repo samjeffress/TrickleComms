@@ -1,0 +1,27 @@
+﻿
+@model ConfigurationModels.TwilioConfiguration
+
+<fieldset>
+    <legend>TwilioConfiguration</legend>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.AuthToken)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.AuthToken)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.AccountSid)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.AccountSid)
+    </div>
+
+    <div class="display-label">
+         @Html.DisplayNameFor(model => model.From)
+    </div>
+    <div class="display-field">
+        @Html.DisplayFor(model => model.From)
+    </div>
+</fieldset>

@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_BootstrapLayout.basic.cshtml";
+}
+
+<div class="hero-unit">
+    <h1>Send The Message!</h1>
+    <p>We help sending SMS' to your customers, particularly trickling large volumes over time so your call centre can keep up with the demand</p>
+    <p>To get started you'll need to setup a <a href="http://www.twilio.com">Twilio</a> and <a href="http://www.mailgun.com">Mailgun</a> account. We use these to deliver your SMS' and confirmation emails.</p>
+    <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+</div>
+
+<div>
+    <div style="float: left; width: 50%" id="TwilioConfigDiv">
+        @Html.Action("EditAjax", "TwilioConfig")
+    </div>
+    <div style="float: left; width: 50%" id="MailgunConfigDiv">
+        @Html.Action("EditAjax", "MailgunConfig")
+    </div>
+</div>
+
