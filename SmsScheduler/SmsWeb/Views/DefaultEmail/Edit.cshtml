@@ -1,0 +1,31 @@
+﻿@model SmsWeb.Models.DefaultEmailModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_BootstrapLayout.basic.cshtml";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm()) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>DefaultEmailModel</legend>
+
+        <div class="editor-label">
+            @Html.LabelFor(model => model.DefaultEmails)
+        </div>
+        <div class="editor-field">
+            @Html.EditorFor(model => model.DefaultEmails)
+            @Html.ValidationMessageFor(model => model.DefaultEmails)
+        </div>
+
+        <p>
+            <input type="submit" value="Save" />
+        </p>
+    </fieldset>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

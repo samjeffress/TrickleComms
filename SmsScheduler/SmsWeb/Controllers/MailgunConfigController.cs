@@ -55,7 +55,7 @@ namespace SmsWeb.Controllers
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null)
                     return PartialView("_MailgunConfigCreate");
-                return PartialView("_MailgunConfigDetail", mailgunConfiguration);
+                return PartialView("_MailgunConfigDetails", mailgunConfiguration);
             }
         }
 
