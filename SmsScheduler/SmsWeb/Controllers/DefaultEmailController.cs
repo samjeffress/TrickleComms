@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Mvc;
 using ConfigurationModels;
 using ServiceStack.Common;
@@ -45,15 +46,16 @@ namespace SmsWeb.Controllers
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var emailAddresses = configuration.DefaultEmails.Split(',');
+                var cleanedEmailInList = emailAddresses.ToList().Select(e => e.Trim()).ToList();
                 var emailDefaultNotification = session.Load<EmailDefaultNotification>("EmailDefaultConfig");
                 if (emailDefaultNotification == null)
                 {
-                    var defaultNotification = new EmailDefaultNotification {EmailAddresses = new List<string>(emailAddresses)};
+                    var defaultNotification = new EmailDefaultNotification {EmailAddresses = cleanedEmailInList};
                     session.Store(defaultNotification, "EmailDefaultConfig");
                 }
                 else
                 {
-                    emailDefaultNotification.EmailAddresses = new List<string>(emailAddresses);
+                    emailDefaultNotification.EmailAddresses = cleanedEmailInList;
                 }
                 session.SaveChanges();
                 return RedirectToAction("Details");
