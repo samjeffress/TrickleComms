@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Mail;
 using ConfigurationModels;
@@ -23,7 +24,6 @@ namespace EmailSenderTests
 
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore };
-            // expect call to default email config - no value returned.
             var coordinatorComplete = new CoordinatorCreated();
             emailService.Handle(coordinatorComplete);
         }
@@ -39,7 +39,6 @@ namespace EmailSenderTests
 
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore };
-            // expect call to default email config - no value returned.
             var coordinatorComplete = new CoordinatorCreated();
             emailService.Handle(coordinatorComplete);
         }
@@ -61,8 +60,7 @@ namespace EmailSenderTests
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner };
-            // expect call to default email config - no value returned.
-            var coordinatorComplete = new CoordinatorCreated();
+            var coordinatorComplete = new CoordinatorCreated { ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now }}};
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
@@ -87,8 +85,7 @@ namespace EmailSenderTests
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner };
-            // expect call to default email config - no value returned.
-            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com"};
+            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } } };
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
@@ -113,8 +110,7 @@ namespace EmailSenderTests
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner };
-            // expect call to default email config - no value returned.
-            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com"};
+            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now }}};
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));

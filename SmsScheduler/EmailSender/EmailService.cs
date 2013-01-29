@@ -55,10 +55,12 @@ namespace EmailSender
 
         public void Handle(CoordinatorCompleteEmail message)
         {
-            if (string.IsNullOrWhiteSpace(message.EmailAddress))
-                return;
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
+                var emailDefaultNotification = session.Load<EmailDefaultNotification>("EmailDefaultConfig");
+                if (string.IsNullOrWhiteSpace(message.EmailAddress) && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
+                    return;
+
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null || string.IsNullOrWhiteSpace(mailgunConfiguration.DefaultFrom))
                     throw new ArgumentException("Could not find the default 'From' sender.");
@@ -71,7 +73,14 @@ namespace EmailSender
                                    message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count +
                                    " sent.");
                 var body = builder.ToString();
-                var mailMessage = new MailMessage(mailgunConfiguration.DefaultFrom, message.EmailAddress, subject, body);
+                var mailMessage = new MailMessage(); // (mailgunConfiguration.DefaultFrom, message.EmailAddress, subject, body);
+                mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom);
+                mailMessage.Body = body;
+                mailMessage.Subject = subject;
+                if (!string.IsNullOrWhiteSpace(message.EmailAddress))
+                    mailMessage.To.Add(message.EmailAddress);
+                if (emailDefaultNotification != null)
+                    emailDefaultNotification.EmailAddresses.ForEach(e => mailMessage.To.Add(e));
                 MailActioner.Send(mailgunConfiguration, mailMessage);
             }
         }
@@ -89,18 +98,15 @@ namespace EmailSender
                     throw new ArgumentException("Could not find the default 'From' sender.");
                 var subject = "Coordinator " + message.CoordinatorId + " created.";
 
-                //var builder = new StringBuilder();
-                //builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
-                //builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
-                //builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " +
-                //                   message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count +
-                //                   " sent.");
-                //var body = builder.ToString();
+                var builder = new StringBuilder();
+                builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") created at " + message.CreationDateUtc + " (UTC).");
+                builder.AppendLine("Message count " + message.ScheduledMessages.Count + " scheduled between " + message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Min()
+                    + " (UTC) and " + message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max() + " (UTC).");
+                var body = builder.ToString();
 
-                // TODO: Implement body of "coordinator created"
                 var mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom); 
-                mailMessage.Body = "not yet implemented";
+                mailMessage.Body = body;
                 mailMessage.Subject = subject;
                 if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
                     mailMessage.To.Add(message.ConfirmationEmailAddress);
