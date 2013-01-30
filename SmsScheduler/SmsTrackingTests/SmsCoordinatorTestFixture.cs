@@ -372,7 +372,11 @@ namespace SmsTrackingTests
                 var coordinatorTrackingData = new CoordinatorTrackingData
                 {
                     CoordinatorId = coordinatorId,
-                    MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "2323", ScheduledSendingTimeUtc = DateTime.Now, ActualSentTimeUtc = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.CompletedSuccess } },
+                    MessageStatuses = new List<MessageSendingStatus>
+                        {
+                            new MessageSendingStatus { Number = "2323", ScheduledSendingTimeUtc = DateTime.Now, ActualSentTimeUtc = DateTime.Now, Cost = 0.33m, Status = MessageStatusTracking.CompletedSuccess },
+                            new MessageSendingStatus { Number = "2324", ScheduledSendingTimeUtc = DateTime.Now, Status = MessageStatusTracking.CompletedFailure, FailureData = new FailureData() }
+                        },
                     ConfirmationEmailAddress = "email"
                 };
                 session.Store(coordinatorTrackingData, coordinatorId.ToString());
@@ -384,7 +388,8 @@ namespace SmsTrackingTests
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             var bus = MockRepository.GenerateMock<IBus>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            bus.Expect(b => b.Send(Arg<CoordinatorCompleteEmail>.Is.Anything));
+            CoordinatorCompleteEmail message;
+            bus.Expect(b => b.Send(Arg<CoordinatorCompleteEmail>.Is.Anything)).WhenCalled(a => message = (CoordinatorCompleteEmail)(((Object[])(a.Arguments[0]))[0])); ;
 
             var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore, Bus = bus};
             coordinatorTracker.Handle(coordinatorCompleted);

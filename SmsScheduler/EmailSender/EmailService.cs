@@ -69,11 +69,10 @@ namespace EmailSender
                 var builder = new StringBuilder();
                 builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
                 builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
-                builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " +
-                                   message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count +
-                                   " sent.");
+                var totalMessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count;
+                builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " + totalMessageCount + " sent.");
                 var body = builder.ToString();
-                var mailMessage = new MailMessage(); // (mailgunConfiguration.DefaultFrom, message.EmailAddress, subject, body);
+                var mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom);
                 mailMessage.Body = body;
                 mailMessage.Subject = subject;
