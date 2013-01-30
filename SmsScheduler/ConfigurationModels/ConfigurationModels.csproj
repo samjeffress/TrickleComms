@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CountryCodeReplacement.cs" />
     <Compile Include="EmailDefaultNotification.cs" />
     <Compile Include="MailGunConfiguration.cs" />
     <Compile Include="TwilioConfiguration.cs" />

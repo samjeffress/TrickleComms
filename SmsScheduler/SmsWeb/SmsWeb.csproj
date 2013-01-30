@@ -257,6 +257,7 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BootstrapBaseController.cs" />
     <Compile Include="Controllers\CoordinatorController.cs" />
+    <Compile Include="Controllers\CountryCodeConfigController.cs" />
     <Compile Include="Controllers\DefaultEmailController.cs" />
     <Compile Include="Controllers\ExampleLayoutsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -468,6 +469,9 @@
     <Content Include="Views\Shared\_TwilioConfigDetails.cshtml" />
     <Content Include="Views\DefaultEmail\Edit.cshtml" />
     <Content Include="Views\DefaultEmail\Details.cshtml" />
+    <Content Include="Views\Shared\_CountryCodeConfigDetails.cshtml" />
+    <Content Include="Views\Shared\_CountryCodeConfigCreate.cshtml" />
+    <Content Include="Views\CountryCodeConfig\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

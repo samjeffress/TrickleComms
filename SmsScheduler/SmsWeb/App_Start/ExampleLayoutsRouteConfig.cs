@@ -16,7 +16,8 @@ namespace BootstrapMvcSample
             routes.MapNavigationRoute<HomeController>("Configuration", c => c.Configuration())
                 .AddChildRoute<TwilioConfigController>("Twilio", t => t.Details())
                 .AddChildRoute<MailgunConfigController>("Mailgun", m => m.Details())
-                .AddChildRoute<DefaultEmailController>("Email Notifications", e => e.Details());
+                .AddChildRoute<DefaultEmailController>("Email Notifications", e => e.Details())
+                .AddChildRoute<CountryCodeConfigController>("Country Code Default", e => e.Index());
         }
     }
 }
