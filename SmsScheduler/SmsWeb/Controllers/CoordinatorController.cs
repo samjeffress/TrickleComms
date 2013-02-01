@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Mvc;
+using ConfigurationModels;
 using NServiceBus;
 using Raven.Client;
 using SmsMessages.CommonData;
@@ -42,18 +44,24 @@ namespace SmsWeb.Controllers
             SecondaryValidation(coordinatedMessages);
             if (isValid && ModelState.IsValid)
             {
+                CountryCodeReplacement countryCodeReplacement;
+                using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
+                {
+                    countryCodeReplacement = session.Load<CountryCodeReplacement>("CountryCodeConfig");
+                }
+
                 var coordinatorId = Guid.NewGuid();
                 if (coordinatedMessages.Message.Length > 160)
                     coordinatedMessages.Message = coordinatedMessages.Message.Substring(0, 160);
                 if (coordinatedMessages.TimeSeparatorSeconds.HasValue && !coordinatedMessages.SendAllBy.HasValue)
                 {
-                    var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages);
+                    var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages, countryCodeReplacement);
                     trickleSmsSpacedByTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsSpacedByTimePeriod);
                 }
                 if (!coordinatedMessages.TimeSeparatorSeconds.HasValue && coordinatedMessages.SendAllBy.HasValue)
                 {
-                    var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages);
+                    var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages, countryCodeReplacement);
                     trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
@@ -151,39 +159,41 @@ namespace SmsWeb.Controllers
 
     public interface ICoordinatorModelToMessageMapping
     {
-        TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model);
+        TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement);
 
-        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model);
+        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement);
     }
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
     {
-        public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model)
+        public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement)
         {
+            var numbers = new NumberParser(countryCodeReplacement).InternationaliseAndClean(model.Numbers.Split(','));
+            var tags = string.IsNullOrWhiteSpace(model.Tags) ? null : model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList();
             return new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
                 Duration = model.SendAllBy.Value.Subtract(model.StartTime),
-                Messages =
-                    model.Numbers.Split(',').ToList().Select(n => new SmsData(n.Trim(), model.Message)).
+                Messages = numbers
+                    .Select(n => new SmsData(n, model.Message)).
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
                 MetaData = new SmsMetaData
                 {
-                    Tags = string.IsNullOrWhiteSpace(model.Tags) ? null : model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList(), 
+                    Tags = tags, 
                     Topic = model.Topic
                 },
                 ConfirmationEmail = model.ConfirmationEmail
             };
         }
 
-        public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model)
+        public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement)
         {
             var tags = string.IsNullOrWhiteSpace(model.Tags) ? null : model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList();
+            var numbers = new NumberParser(countryCodeReplacement).InternationaliseAndClean(model.Numbers.Split(','));
+
             return new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                Messages =
-                    model.Numbers.Split(',').ToList().Select(n => new SmsData(n.Trim(), model.Message)).
-                    ToList(),
+                Messages = numbers.Select(n => new SmsData(n, model.Message)).ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
                 TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                 MetaData = new SmsMetaData { Tags = tags, Topic = model.Topic },
