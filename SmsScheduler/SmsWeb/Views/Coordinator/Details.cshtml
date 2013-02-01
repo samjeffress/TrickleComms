@@ -28,7 +28,7 @@
         schedule.client.scheduleFailed = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Completed Failure <br/> " +
-                "Sending Failed: " + message.SendFailMessage;
+                "Sending Failed: " + message.SendFailedMessage;
             $('#' + message.ScheduleId).html(scheduleBody);
             $('#' + message.ScheduleId).removeClass();
             $('#' + message.ScheduleId).addClass(message.Class);
