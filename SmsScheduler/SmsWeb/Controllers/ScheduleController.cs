@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using ConfigurationModels;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.Scheduling.Commands;
@@ -30,10 +31,16 @@ namespace SmsWeb.Controllers
             {
                 if (schedule.MessageBody.Length > 160)
                     schedule.MessageBody = schedule.MessageBody.Substring(0, 160);
+                CountryCodeReplacement countryCodeReplacement;
+                using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
+                {
+                    countryCodeReplacement = session.Load<CountryCodeReplacement>("CountryCodeConfig");
+                }
+                var cleanInternationalNumber = countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(schedule.Number) : schedule.Number.Trim();
                 var scheduleMessage = new ScheduleSmsForSendingLater
                 {
                     SendMessageAtUtc = schedule.ScheduledTime.ToUniversalTime(),
-                    SmsData = new SmsData(schedule.Number, schedule.MessageBody),
+                    SmsData = new SmsData(cleanInternationalNumber, schedule.MessageBody),
                     ScheduleMessageId = Guid.NewGuid(),
                     SmsMetaData = new SmsMetaData
                     {

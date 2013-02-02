@@ -168,12 +168,13 @@ namespace SmsWeb.Controllers
     {
         public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement)
         {
-            var numbers = new NumberParser(countryCodeReplacement).InternationaliseAndClean(model.Numbers.Split(','));
+            var rawNumberList = model.Numbers.Split(',');
+            var cleanedInternationalisedNumbers = rawNumberList.Select(number => countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(number) : number.Trim()).ToList();
             var tags = string.IsNullOrWhiteSpace(model.Tags) ? null : model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList();
             return new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
                 Duration = model.SendAllBy.Value.Subtract(model.StartTime),
-                Messages = numbers
+                Messages = cleanedInternationalisedNumbers
                     .Select(n => new SmsData(n, model.Message)).
                     ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
@@ -189,11 +190,13 @@ namespace SmsWeb.Controllers
         public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement)
         {
             var tags = string.IsNullOrWhiteSpace(model.Tags) ? null : model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList();
-            var numbers = new NumberParser(countryCodeReplacement).InternationaliseAndClean(model.Numbers.Split(','));
+
+            var rawNumberList = model.Numbers.Split(',');
+            var cleanedInternationalisedNumbers = rawNumberList.Select(number => countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(number) : number.Trim()).ToList();
 
             return new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
-                Messages = numbers.Select(n => new SmsData(n, model.Message)).ToList(),
+                Messages = cleanedInternationalisedNumbers.Select(n => new SmsData(n, model.Message)).ToList(),
                 StartTimeUtc = model.StartTime.ToUniversalTime(),
                 TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                 MetaData = new SmsMetaData { Tags = tags, Topic = model.Topic },

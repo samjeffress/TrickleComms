@@ -1,4 +1,6 @@
-﻿namespace ConfigurationModels
+﻿using System.Text.RegularExpressions;
+
+namespace ConfigurationModels
 {
     public class CountryCodeReplacement
     {
@@ -14,6 +16,17 @@
                     return false;
                 return true;
             }
+        }
+
+        public string CleanAndInternationaliseNumber(string number)
+        {
+            var cleanNumber = number.Trim();
+            if (IsValid)
+            {
+                var regex = new Regex(LeadingNumberToReplace);
+                return regex.Replace(cleanNumber, CountryCode, 1);
+            }
+            return cleanNumber;
         }
     }
 }

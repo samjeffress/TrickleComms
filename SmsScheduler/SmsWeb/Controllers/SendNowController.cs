@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
+using ConfigurationModels;
 using NServiceBus;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
@@ -34,10 +35,16 @@ namespace SmsWeb.Controllers
                 model.MessageId = Guid.NewGuid();
                 if (model.MessageBody.Length > 160)
                     model.MessageBody = model.MessageBody.Substring(0, 160);
+                CountryCodeReplacement countryCodeReplacement;
+                using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
+                {
+                    countryCodeReplacement = session.Load<CountryCodeReplacement>("CountryCodeConfig");
+                }
+                var cleanInternationalNumber = countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(model.Number) : model.Number.Trim();
                 var sendOneMessageNow = new SendOneMessageNow
                 {
                     CorrelationId = model.MessageId,
-                    SmsData = new SmsData(model.Number, model.MessageBody), 
+                    SmsData = new SmsData(cleanInternationalNumber, model.MessageBody), 
                     ConfirmationEmailAddress = model.ConfirmationEmail,
                     SmsMetaData = new SmsMetaData
                     {

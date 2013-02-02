@@ -261,7 +261,6 @@
     <Compile Include="Controllers\DefaultEmailController.cs" />
     <Compile Include="Controllers\ExampleLayoutsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="NumberParser.cs" />
     <Compile Include="Controllers\MailgunConfigController.cs" />
     <Compile Include="Controllers\ScheduleController.cs" />
     <Compile Include="Controllers\SendNowController.cs" />
