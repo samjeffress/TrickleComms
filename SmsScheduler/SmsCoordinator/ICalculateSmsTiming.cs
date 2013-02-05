@@ -21,7 +21,8 @@ namespace SmsCoordinator
                 var durationSplit = duration.Ticks / (numberOfItemsToSchedule - 1);
                 for (int i = 0; i < numberOfItemsToSchedule - 2; i++)
                 {
-                    dateTimes.Add(new DateTime(startTime.Ticks + durationSplit * (i+1)));
+                    var dateTime = new DateTime(startTime.Ticks + durationSplit*(i + 1), DateTimeKind.Utc);
+                    dateTimes.Add(dateTime);
                 }
             }
 

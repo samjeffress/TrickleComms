@@ -47,7 +47,7 @@ namespace SmsCoordinator
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i].ToUniversalTime(), smsData, message.MetaData, Data.CoordinatorId);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId);
                 messageList.Add(smsForSendingLater);
                 Data.MessagesScheduled++;
                 Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));

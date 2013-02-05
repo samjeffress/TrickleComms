@@ -8,10 +8,10 @@ namespace SmsMessages.Scheduling.Commands
         public ScheduleSmsForSendingLater()
         {}
 
-        public ScheduleSmsForSendingLater(DateTime sendMessageAt, SmsData smsData, SmsMetaData smsMetaData, Guid coorelationId)
+        public ScheduleSmsForSendingLater(DateTime sendMessageAtUtc, SmsData smsData, SmsMetaData smsMetaData, Guid coorelationId)
         {
             ScheduleMessageId = Guid.NewGuid();
-            SendMessageAtUtc = sendMessageAt.ToUniversalTime();
+            SendMessageAtUtc = sendMessageAtUtc;
             SmsData = smsData;
             SmsMetaData = smsMetaData;
             CorrelationId = coorelationId;

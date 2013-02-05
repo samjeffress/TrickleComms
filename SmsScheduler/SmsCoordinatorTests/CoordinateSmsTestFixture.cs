@@ -308,12 +308,12 @@ namespace SmsCoordinatorTests
                     s.Data = sagaData;
                 })
                     .ExpectSend<ScheduleSmsForSendingLater>(l => 
-                        l.SendMessageAtUtc == datetimeSpacing[0].ToUniversalTime() &&
+                        l.SendMessageAtUtc == datetimeSpacing[0] &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
                     .ExpectSend<ScheduleSmsForSendingLater>(l =>     
-                        l.SendMessageAtUtc == datetimeSpacing[1].ToUniversalTime() &&
+                        l.SendMessageAtUtc == datetimeSpacing[1] &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
@@ -323,12 +323,12 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
                         c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && 
-                        c.ScheduledMessages[0].ScheduledTimeUtc == datetimeSpacing[0].ToUniversalTime() &&
+                        c.ScheduledMessages[0].ScheduledTimeUtc == datetimeSpacing[0] &&
 
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && 
-                        c.ScheduledMessages[1].ScheduledTimeUtc == datetimeSpacing[1].ToUniversalTime())
+                        c.ScheduledMessages[1].ScheduledTimeUtc == datetimeSpacing[1])
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -355,12 +355,12 @@ namespace SmsCoordinatorTests
                 })
                     .ExpectSend<ScheduleSmsForSendingLater>(l =>
                         //l.Count == 2 &&
-                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks &&
+                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => 
-                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
+                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
                         l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
                         l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
                         l.SmsMetaData == trickleMessagesOverTime.MetaData)
@@ -370,12 +370,12 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
                         c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[0].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks &&
+                        c.ScheduledMessages[0].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks &&
 
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[1].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.ToUniversalTime().Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
+                        c.ScheduledMessages[1].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
