@@ -1,0 +1,2 @@
+$nunit = ".\SmsScheduler\packages\NUnit.Runners.2.6.2\tools\nunit-console.exe"
+& $nunit .\build_output\tests\EmailSenderTests.dll .\build_output\tests\SmsCoordinatorTests.dll .\build_output\tests\SmsTrackingTests.dll .\build_output\tests\SmsWebTests.dll
