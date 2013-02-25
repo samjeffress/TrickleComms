@@ -1,12 +1,12 @@
 powershell.exe Set-ExecutionPolicy remotesigned
-powershell.exe .\Build.ps1
+powershell.exe %~dp0UninstallEndpoints.ps1
 powershell.exe Set-ExecutionPolicy remotesigned
-powershell.exe .\RunTests.ps1
+powershell.exe %~dp0Build.ps1
 powershell.exe Set-ExecutionPolicy remotesigned
-powershell.exe .\SetupInfrastructure.ps1
+powershell.exe %~dp0RunTests.ps1
 powershell.exe Set-ExecutionPolicy remotesigned
-powershell.exe .\UninstallEndpoints.ps1
+powershell.exe %~dp0SetupInfrastructure.ps1
 powershell.exe Set-ExecutionPolicy remotesigned
-powershell.exe .\InstallEndpoints.ps1
+powershell.exe %~dp0InstallEndpoints.ps1
 powershell.exe Set-ExecutionPolicy remotesigned
-powershell.exe .\InstallWeb.ps1
+powershell.exe %~dp0InstallWeb.ps1
