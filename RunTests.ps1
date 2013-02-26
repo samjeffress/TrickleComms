@@ -18,8 +18,9 @@ $SmsWebTests = Join-Path $path -childpath "\build_output\tests\SmsWebTests.dll"
 $results = "TestResult.xml"
 [xml]$testOutput = Get-Content $results
 $failureCount = $testOutput.'test-results'.failures
-echo $failureCount
-if (!($failureCount -eq "0"))
+$errorCount = $testOutput.'test-results'.errors
+echo "Failures: " + $failureCount + " Errors: " + $errorCount
+if (!(($failureCount -eq "0") -and ($errorCount -eq "0")))
 {
     throw "Tests Failure"
 }
