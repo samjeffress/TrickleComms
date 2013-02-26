@@ -1,6 +1,5 @@
 $installFolder = "c:\SmsServices"
 
-
 function Get-ScriptDirectory
 {
     $Invocation = (Get-Variable MyInvocation -Scope 1).Value
