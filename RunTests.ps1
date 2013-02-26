@@ -13,9 +13,9 @@ $SmsCoordinatorTests = Join-Path $path -childpath "\build_output\tests\SmsCoordi
 $SmsTrackingTests = Join-Path $path -childpath "\build_output\tests\SmsTrackingTests.dll"
 $SmsWebTests = Join-Path $path -childpath "\build_output\tests\SmsWebTests.dll"
 
-#& $nunit $EmailSender $SmsCoordinatorTests $SmsTrackingTests $SmsWebTests 
+& $nunit $EmailSender $SmsCoordinatorTests $SmsTrackingTests $SmsWebTests 
 
-$results = Join-Path $path -childpath "TestResult.xml"
+$results = "TestResult.xml"
 [xml]$testOutput = Get-Content $results
 $failureCount = $testOutput.'test-results'.failures
 echo $failureCount
