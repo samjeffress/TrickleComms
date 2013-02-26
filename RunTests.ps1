@@ -19,7 +19,7 @@ $results = "TestResult.xml"
 [xml]$testOutput = Get-Content $results
 $failureCount = $testOutput.'test-results'.failures
 $errorCount = $testOutput.'test-results'.errors
-echo "Failures: " + $failureCount + " Errors: " + $errorCount
+#echo "Failures: " + $failureCount + " Errors: " + $errorCount
 if (!(($failureCount -eq "0") -and ($errorCount -eq "0")))
 {
     throw "Tests Failure"
