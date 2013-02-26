@@ -7,6 +7,7 @@ function Get-ScriptDirectory
 
 $installFolder = "c:\SmsServices"
 $path = Get-ScriptDirectory Installer.ps1
+$build_output = $path + '\..\build_output\'
 
 function InstallEndpoints
 {
@@ -17,9 +18,9 @@ function InstallEndpoints
 	[System.IO.Directory]::CreateDirectory($installFolder)
 
 	# move all the service files that were built to the output folder
-	[System.IO.Directory]::Move($path + '\..\build_output\EmailSender', $installFolder + '\EmailSender')
-	[System.IO.Directory]::Move($path + '\..\build_output\SmsCoordinator', $installFolder + '\SmsCoordinator')
-	[System.IO.Directory]::Move($path + '\..\build_output\SmsTracking', $installFolder + '\SmsTracking')
+	[System.IO.Directory]::Move($build_output + 'EmailSender', $installFolder + '\EmailSender')
+	[System.IO.Directory]::Move($build_output + 'SmsCoordinator', $installFolder + '\SmsCoordinator')
+	[System.IO.Directory]::Move($build_output + 'SmsTracking', $installFolder + '\SmsTracking')
 
 	$nsbHost = Join-Path $installFolder -childpath  '\EmailSender\NServiceBus.Host.exe'
 	& $nsbHost ("/install", "/serviceName:SmsEmailSender", "/displayName:Sms Email Sender", "/description:Service for sending emails from Sms Coordinator", "NServiceBus.Production")
@@ -37,7 +38,8 @@ function InstallEndpoints
 
 function SetupInfrastructure
 {
-	Import-Module Join-Path $path -childpath "\..\build_output\SmsCoordinator\NServiceBus.Core.dll"
+    $nserviceBusCore = Join-Path $build_output -childpath "SmsCoordinator\NServiceBus.Core.dll"
+	Import-Module $nserviceBusCore
 	Install-Dtc
 	Install-Msmq
 	Install-RavenDB
@@ -53,16 +55,21 @@ function Build
 
 	Invoke-Expression $clean
 	Invoke-Expression $build
+    $ps1Files = Join-Path $path -childpath '\*.ps1'
+    Copy-Item $ps1Files $build_output
+    $batFiles = Join-Path $path -childpath '\*.bat'
+    Copy-Item $batFiles $build_output
+    echo "Build_Output folder: " $build_output
 }
 
 function UnitTests
 {
 	$nunit = $path + "\packages\NUnit.Runners.2.6.2\tools\nunit-console.exe"
 
-	$EmailSender = Join-Path $path -childpath "\..\build_output\tests\EmailSenderTests\EmailSenderTests.dll"
-	$SmsCoordinatorTests = Join-Path $path -childpath "\..\build_output\tests\SmsCoordinatorTests\SmsCoordinatorTests.dll"
-	$SmsTrackingTests = Join-Path $path -childpath "\..\build_output\tests\SmsTrackingTests\SmsTrackingTests.dll"
-	$SmsWebTests = Join-Path $path -childpath "\..\build_output\tests\SmsWebTests\SmsWebTests.dll"
+	$EmailSender = Join-Path $build_output -childpath "tests\EmailSenderTests\EmailSenderTests.dll"
+	$SmsCoordinatorTests = Join-Path $build_output -childpath "tests\SmsCoordinatorTests\SmsCoordinatorTests.dll"
+	$SmsTrackingTests = Join-Path $build_output -childpath "tests\SmsTrackingTests\SmsTrackingTests.dll"
+	$SmsWebTests = Join-Path $build_output -childpath "tests\SmsWebTests\SmsWebTests.dll"
 
 	$xmlResultsFile = Join-Path $path -childpath "TestResult.xml"
 	& $nunit /xml:$xmlResultsFile $EmailSender $SmsCoordinatorTests $SmsTrackingTests $SmsWebTests 
