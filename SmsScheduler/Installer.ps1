@@ -52,9 +52,11 @@ function Build
 
 	$clean = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Clean"
 	$build = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Build"
+    $webPackage = $msbuild + " " + $path + "\SmsWeb\SmsWeb.csproj /p:Configuration=Release /t:Package"
 
 	Invoke-Expression $clean
 	Invoke-Expression $build
+    Invoke-Expression $webPackage
     $installFiles = Join-Path $path -childpath '\Install*.*'
     Copy-Item $installFiles $build_output
 }
