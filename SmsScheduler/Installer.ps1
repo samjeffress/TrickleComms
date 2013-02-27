@@ -36,6 +36,21 @@ function InstallEndpoints
 	Start-Service SmsTracking
 }
 
+function InstallWeb
+{
+    echo $path
+    $webDeploy = Join-Path $build_output -childpath '\SmsWeb.zip'
+    echo $webDeploy
+    $ps = new-object System.Diagnostics.Process
+    $ps.StartInfo.Filename = $msDeploy
+    $ps.StartInfo.Arguments = " -source:package=""$webDeploy"" -dest:auto -verb:sync"
+    $ps.StartInfo.RedirectStandardOutput = $True
+    $ps.StartInfo.UseShellExecute = $false
+    $ps.Start()
+    $ps.WaitForExit()
+    [string] $Out = $ps.StandardOutput.ReadToEnd();
+}
+
 function SetupInfrastructure
 {
     $nserviceBusCore = Join-Path $build_output -childpath "SmsCoordinator\NServiceBus.Core.dll"
