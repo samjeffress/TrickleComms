@@ -7,7 +7,7 @@ function Get-ScriptDirectory
 
 $installFolder = "c:\SmsServices"
 $path = Get-ScriptDirectory Installer.ps1
-$build_output = $path + '\..\build_output\'
+$build_output = (Get-Item $path).parent.FullName + '\build_output\'
 
 function InstallEndpoints
 {

@@ -23,3 +23,4 @@ To extend the usages of events (e.g. a MessageSent event), just subscribe to the
 
 Please contact me if you've got any questions!
 
+If you get warnings about the .net version being higher than powershell you'll need to create some config files - http://tfl09.blogspot.com.au/2010/08/using-newer-versions-of-net-with.html.
