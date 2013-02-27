@@ -55,11 +55,8 @@ function Build
 
 	Invoke-Expression $clean
 	Invoke-Expression $build
-    $ps1Files = Join-Path $path -childpath '\*.ps1'
-    Copy-Item $ps1Files $build_output
-    $batFiles = Join-Path $path -childpath '\*.bat'
-    Copy-Item $batFiles $build_output
-    echo "Build_Output folder: " $build_output
+    $installFiles = Join-Path $path -childpath '\Install*.*'
+    Copy-Item $installFiles $build_output
 }
 
 function UnitTests
