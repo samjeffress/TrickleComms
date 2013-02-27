@@ -49,6 +49,14 @@ function InstallWeb
     $ps.Start()
     $ps.WaitForExit()
     [string] $Out = $ps.StandardOutput.ReadToEnd();
+    echo ".............................."
+    $exitCode = $ps.ExitCode
+    echo $exitCode
+     
+    if (!($exitCode -eq 0))
+	{
+		throw "Errors installing website"
+	}
 }
 
 function SetupInfrastructure
