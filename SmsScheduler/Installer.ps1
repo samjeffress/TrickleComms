@@ -24,41 +24,72 @@ function InstallEndpoints
 	[System.IO.Directory]::Move($build_output + 'SmsTracking', $installFolder + '\SmsTracking')
 
 	$nsbHost = Join-Path $installFolder -childpath  '\EmailSender\NServiceBus.Host.exe'
-	& $nsbHost ("/install", "/serviceName:SmsEmailSender", "/displayName:Sms Email Sender", "/description:Service for sending emails from Sms Coordinator", "NServiceBus.Production")
-	Start-Service SmsEmailSender
+	#& $nsbHost ("/install", "/serviceName:SmsEmailSender", "/displayName:Sms Email Sender", "/description:Service for sending emails from Sms Coordinator", "NServiceBus.Production")
+    $argList = '/install /serviceName:SmsEmailSender /displayName:"Sms Email Sender" /description:"Service for sending emails from Sms Coordinator" NServiceBus.Production'
+    #$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
+    RunCommand $nsbHost $argList
+    
+    Start-Service SmsEmailSender
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
-	& $nsbHost ("/install", "/serviceName:SmsCoordinator", "/displayName:Sms Coordinator", "/description:Service for coordinating and sending Sms", "NServiceBus.Production")
-	Start-Service SmsCoordinator
+	#& $nsbHost ("/install", "/serviceName:SmsCoordinator", "/displayName:Sms Coordinator", "/description:Service for coordinating and sending Sms", "NServiceBus.Production")
+    $argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
+	#$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
+    RunCommand $nsbHost $argList
+    #echo $processInfo
+    Start-Service SmsCoordinator
 
 	#.\build_output\SmsTracking\NServiceBus.Host.exe /install /serviceName:"SmsTracking" /displayName:"Sms Tracking" /description:"Service for tracking status of coordinated and Sms"
 	$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
-	& $nsbHost ("/install", "/serviceName:SmsTracking", "/displayName:Sms Tracking",  "/description:Service for tracking status of coordinated and Sms", "NServiceBus.Production")
+	#& $nsbHost ("/install", "/serviceName:SmsTracking", "/displayName:Sms Tracking",  "/description:Service for tracking status of coordinated and Sms", "NServiceBus.Production")
+    $argList = '/install /serviceName:SmsTracking displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
+    #$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
+    RunCommand $nsbHost $argList
+    #echo $processInfo
 	Start-Service SmsTracking
 }
 
 function InstallWeb
 {
-    $msDeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V2"
-    echo $path
-    $webDeploy = Join-Path $build_output -childpath '\SmsWeb.zip'
-    echo $webDeploy
+    $msDeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V2\msdeploy.exe"
+    $webDeployPackage = Join-Path $build_output -childpath '\SmsWeb.zip'
+    echo $webDeployPackage
+    $arg = " -verb:sync -source:package=$webDeployPackage -dest:auto -verbose"
+    
+    echo $arg
+    #$arg = ""
+    #$retArr = RunCommand $msdeploy $arg
+    RunCommand $msdeploy $arg
+    #$exitCode = $retArr[0]
+    #Write-Host "arr1: " $retArr[1]
+    #Write-Host "arr2: " $retArr[2]
+
+}
+
+function RunCommand([string]$fileName, [string]$arg)
+{
+    #echo "Filename: $fileName"
+    #echo "Arg: $arg"
     $ps = new-object System.Diagnostics.Process
-    $ps.StartInfo.Filename = $msDeploy
-    $ps.StartInfo.Arguments = " -source:package=""$webDeploy"" -dest:auto -verb:sync"
+    $ps.StartInfo.Filename = $fileName
+    $ps.StartInfo.Arguments = $arg
     $ps.StartInfo.RedirectStandardOutput = $True
+    $ps.StartInfo.RedirectStandardError = $True
     $ps.StartInfo.UseShellExecute = $false
-    $ps.Start()
-    $ps.WaitForExit()
+    #echo $ps.StartInfo
+    $null = $ps.Start()
+    $null = $ps.WaitForExit()
     [string] $Out = $ps.StandardOutput.ReadToEnd();
-    echo ".............................."
+    [string] $Err = $ps.StandardError.ReadToEnd();
     $exitCode = $ps.ExitCode
-    echo $exitCode
-     
+    $exitCode
+    $Out
+    $Err
     if (!($exitCode -eq 0))
 	{
-		throw "Errors installing website"
+		throw ("Errors Running Command" + $fileName + $arg + "`r`n" + $Err)
 	}
+    return
 }
 
 function SetupInfrastructure
