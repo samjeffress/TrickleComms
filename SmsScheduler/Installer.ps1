@@ -54,7 +54,7 @@ function InstallWeb
     $msDeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V2\msdeploy.exe"
     $webDeployPackage = Join-Path $build_output -childpath '\SmsWeb.zip'
     echo $webDeployPackage
-    $arg = " -verb:sync -source:package=$webDeployPackage -dest:auto -verbose"
+    $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose"
     
     echo $arg
     #$arg = ""
