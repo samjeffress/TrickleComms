@@ -5,6 +5,7 @@ function Get-ScriptDirectory
     Split-Path $Invocation.MyCommand.Path
 }
 
+$msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 $installFolder = "c:\SmsServices"
 $path = Get-ScriptDirectory Installer.ps1
 $build_output = (Get-Item $path).parent.FullName + '\build_output\'
@@ -71,8 +72,6 @@ function SetupInfrastructure
 
 function Build
 {
-	$msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
-
 	$clean = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Clean"
 	$build = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Build"
     $webPackage = $msbuild + " " + $path + "\SmsWeb\SmsWeb.csproj /p:Configuration=Release /t:Package"
