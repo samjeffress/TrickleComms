@@ -39,6 +39,7 @@ function InstallEndpoints
 
 function InstallWeb
 {
+    $msDeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V2"
     echo $path
     $webDeploy = Join-Path $build_output -childpath '\SmsWeb.zip'
     echo $webDeploy
