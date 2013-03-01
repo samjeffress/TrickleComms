@@ -89,7 +89,7 @@ function RunCommand([string]$fileName, [string]$arg)
     $ps.StartInfo.UseShellExecute = $false
     #echo $ps.StartInfo
     $null = $ps.Start()
-    $null = $ps.WaitForExit()
+    #$null = $ps.WaitForExit()
     [string] $Out = $ps.StandardOutput.ReadToEnd();
     [string] $Err = $ps.StandardError.ReadToEnd();
     $exitCode = $ps.ExitCode
