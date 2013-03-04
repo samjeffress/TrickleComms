@@ -9,7 +9,7 @@ $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 $installFolder = "c:\SmsServices"
 $path = Get-ScriptDirectory Installer.ps1
 $build_output = (Get-Item $path).parent.FullName + '\build_output\'
-$go_environment = (get-item env:$GO_ENVIRONMENT_NAME).Value
+$go_environment = (get-item env:GO_ENVIRONMENT_NAME).Value
 
 function InstallEndpoints
 {
