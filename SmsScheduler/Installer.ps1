@@ -70,7 +70,7 @@ function InstallWeb
     if ($go_environment -ne $null)
     {
         Write-Host "Go environment set to $go_environment, copying appropriate web.config"
-        $environmentConfig = $build_output + '\SmsWeb\Configuration\' + $go_environment + '.SmsWeb.SetParameters.xml'
+        $environmentConfig = $build_output + '\Configuration\' + $go_environment + '.SmsWeb.SetParameters.xml'
         $environmentParametersFile = $build_output + 'SmsWeb.SetParameters.xml'
         Copy-Item $environmentConfig $environmentParametersFile
     }
@@ -81,6 +81,7 @@ function InstallWeb
     
     echo $webDeployPackage
     $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose -setParamFile=""$environmentParametersFile"""
+    
     
     echo $arg
     #$arg = ""

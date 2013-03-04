@@ -36,6 +36,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsTrackingModels", "SmsTrackingModels\SmsTrackingModels.csproj", "{BD305005-40FD-4C3A-A893-6E7E5989C66A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configuration", "{9AA0C743-808E-4E85-A3CE-8E459B823087}"
+	ProjectSection(SolutionItems) = preProject
+		Configuration\Production.SmsWeb.SetParameters.xml = Configuration\Production.SmsWeb.SetParameters.xml
+		Configuration\uat.SmsWeb.SetParameters.xml = Configuration\uat.SmsWeb.SetParameters.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
