@@ -36,25 +36,18 @@ function InstallEndpoints
     }
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
-	#& $nsbHost ("/install", "/serviceName:SmsCoordinator", "/displayName:Sms Coordinator", "/description:Service for coordinating and sending Sms", "NServiceBus.Production")
-    $argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
-	#$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
-    RunCommand $nsbHost $argList
-    #echo $processInfo
+	$argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
+	RunCommand $nsbHost $argList
     Start-Service SmsCoordinator -ErrorVariable error
     if (!($error -eq $null))
     {
         throw "Exception starting SmsEmailSender service: $error"
     }
 
-	#.\build_output\SmsTracking\NServiceBus.Host.exe /install /serviceName:"SmsTracking" /displayName:"Sms Tracking" /description:"Service for tracking status of coordinated and Sms"
 	$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
-	#& $nsbHost ("/install", "/serviceName:SmsTracking", "/displayName:Sms Tracking",  "/description:Service for tracking status of coordinated and Sms", "NServiceBus.Production")
-    $argList = '/install /serviceName:SmsTracking displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
-    #$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
+	$argList = '/install /serviceName:SmsTracking displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
     RunCommand $nsbHost $argList
-    #echo $processInfo
-	Start-Service SmsTracking -ErrorVariable error
+    Start-Service SmsTracking -ErrorVariable error
     if (!($error -eq $null))
     {
         throw "Exception starting SmsEmailSender service: $error"
@@ -82,15 +75,8 @@ function InstallWeb
     echo $webDeployPackage
     $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose -setParamFile=""$environmentParametersFile"""
     
-    
     echo $arg
-    #$arg = ""
-    #$retArr = RunCommand $msdeploy $arg
     RunCommand $msdeploy $arg
-    #$exitCode = $retArr[0]
-    #Write-Host "arr1: " $retArr[1]
-    #Write-Host "arr2: " $retArr[2]
-
 }
 
 function RunCommand([string]$fileName, [string]$arg)
@@ -140,6 +126,7 @@ function Build
     Invoke-Expression $webPackage
     $installFiles = Join-Path $path -childpath '\Install*.*'
     Copy-Item $installFiles $build_output
+    [System.IO.Directory]::Move($path + 'Configuration', $build_output + '\Configuration')
 }
 
 function UnitTests
