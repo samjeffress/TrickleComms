@@ -9,6 +9,7 @@ $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 $installFolder = "c:\SmsServices"
 $path = Get-ScriptDirectory Installer.ps1
 $build_output = (Get-Item $path).parent.FullName + '\build_output\'
+$go_environment = (get-item env:GO_ENVIRONMENT_NAME).Value
 
 function InstallEndpoints
 {
@@ -24,40 +25,84 @@ function InstallEndpoints
 	[System.IO.Directory]::Move($build_output + 'SmsTracking', $installFolder + '\SmsTracking')
 
 	$nsbHost = Join-Path $installFolder -childpath  '\EmailSender\NServiceBus.Host.exe'
-	& $nsbHost ("/install", "/serviceName:SmsEmailSender", "/displayName:Sms Email Sender", "/description:Service for sending emails from Sms Coordinator", "NServiceBus.Production")
-	Start-Service SmsEmailSender
+	#& $nsbHost ("/install", "/serviceName:SmsEmailSender", "/displayName:Sms Email Sender", "/description:Service for sending emails from Sms Coordinator", "NServiceBus.Production")
+    $argList = '/install /serviceName:SmsEmailSender /displayName:"Sms Email Sender" /description:"Service for sending emails from Sms Coordinator" NServiceBus.Production'
+    #$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
+    RunCommand $nsbHost $argList
+    Start-Service SmsEmailSender -ErrorVariable error
+    if (!($error -eq $null))
+    {
+        throw "Exception starting SmsEmailSender service: $error"
+    }
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
-	& $nsbHost ("/install", "/serviceName:SmsCoordinator", "/displayName:Sms Coordinator", "/description:Service for coordinating and sending Sms", "NServiceBus.Production")
-	Start-Service SmsCoordinator
+	$argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
+	RunCommand $nsbHost $argList
+    Start-Service SmsCoordinator -ErrorVariable error
+    if (!($error -eq $null))
+    {
+        throw "Exception starting SmsEmailSender service: $error"
+    }
 
-	#.\build_output\SmsTracking\NServiceBus.Host.exe /install /serviceName:"SmsTracking" /displayName:"Sms Tracking" /description:"Service for tracking status of coordinated and Sms"
 	$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
-	& $nsbHost ("/install", "/serviceName:SmsTracking", "/displayName:Sms Tracking",  "/description:Service for tracking status of coordinated and Sms", "NServiceBus.Production")
-	Start-Service SmsTracking
+	$argList = '/install /serviceName:SmsTracking displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
+    RunCommand $nsbHost $argList
+    Start-Service SmsTracking -ErrorVariable error
+    if (!($error -eq $null))
+    {
+        throw "Exception starting SmsEmailSender service: $error"
+    }
 }
 
 function InstallWeb
 {
-    echo $path
-    $webDeploy = Join-Path $build_output -childpath '\SmsWeb.zip'
-    echo $webDeploy
+    $msDeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V2\msdeploy.exe"
+    $webDeployPackage = Join-Path $build_output -childpath '\SmsWeb.zip'
+    
+    $environmentParametersFile
+    if ($go_environment -ne $null)
+    {
+        Write-Host "Go environment set to $go_environment, copying appropriate web.config"
+        $environmentConfig = $build_output + '\Configuration\' + $go_environment + '.SmsWeb.SetParameters.xml'
+        $environmentParametersFile = $build_output + 'SmsWeb.SetParameters.xml'
+        Copy-Item $environmentConfig $environmentParametersFile
+    }
+    else
+    {
+        Write-Host "No Go environment set in $go_environment, leaving default web.config"
+    }
+    
+    echo $webDeployPackage
+    $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose -setParamFile=""$environmentParametersFile"""
+    
+    echo $arg
+    RunCommand $msdeploy $arg
+}
+
+function RunCommand([string]$fileName, [string]$arg)
+{
+    #echo "Filename: $fileName"
+    #echo "Arg: $arg"
     $ps = new-object System.Diagnostics.Process
-    $ps.StartInfo.Filename = $msDeploy
-    $ps.StartInfo.Arguments = " -source:package=""$webDeploy"" -dest:auto -verb:sync"
+    $ps.StartInfo.Filename = $fileName
+    $ps.StartInfo.Arguments = $arg
     $ps.StartInfo.RedirectStandardOutput = $True
+    $ps.StartInfo.RedirectStandardError = $True
     $ps.StartInfo.UseShellExecute = $false
-    $ps.Start()
-    $ps.WaitForExit()
+    #echo $ps.StartInfo
+    $null = $ps.Start()
+    #$null = $ps.WaitForExit()
     [string] $Out = $ps.StandardOutput.ReadToEnd();
-    echo ".............................."
+    [string] $Err = $ps.StandardError.ReadToEnd();
     $exitCode = $ps.ExitCode
-    echo $exitCode
-     
+    $exitCode
+    $Out
+    $Err
     if (!($exitCode -eq 0))
 	{
-		throw "Errors installing website"
+		throw ("Errors Running Command" + $fileName + $arg + "`r`n" + $Err)
 	}
+    return
 }
 
 function SetupInfrastructure
@@ -73,14 +118,24 @@ function SetupInfrastructure
 function Build
 {
 	$clean = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Clean"
-	$build = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Build"
+	$build = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /p:VisualStudioVersion=11.0 /t:Build"
     $webPackage = $msbuild + " " + $path + "\SmsWeb\SmsWeb.csproj /p:Configuration=Release /t:Package"
 
 	Invoke-Expression $clean
 	Invoke-Expression $build
     Invoke-Expression $webPackage
     $installFiles = Join-Path $path -childpath '\Install*.*'
+    $configFiles = Join-Path $path -childpath '\Configuration\*.*'
+    $configDestination = Join-Path $build_output -childpath '\Configuration'
+    
+    if ([System.IO.Directory]::Exists($configDestination))
+	{
+	 [System.IO.Directory]::Delete($configDestination, 1)
+	}
+	[System.IO.Directory]::CreateDirectory($configDestination)
+    
     Copy-Item $installFiles $build_output
+    Copy-Item $configFiles $configDestination
 }
 
 function UnitTests
