@@ -125,8 +125,17 @@ function Build
 	Invoke-Expression $build
     Invoke-Expression $webPackage
     $installFiles = Join-Path $path -childpath '\Install*.*'
+    $configFiles = Join-Path $path -childpath '\Configuration\*.*'
+    $configDestination = Join-Path $build_output -childpath '\Configuration'
+    
+    if ([System.IO.Directory]::Exists($configDestination))
+	{
+	 [System.IO.Directory]::Delete($configDestination, 1)
+	}
+	[System.IO.Directory]::CreateDirectory($configDestination)
+    
     Copy-Item $installFiles $build_output
-    [System.IO.Directory]::Move($path + 'Configuration', $build_output + '\Configuration')
+    Copy-Item $configFiles $configDestination
 }
 
 function UnitTests
