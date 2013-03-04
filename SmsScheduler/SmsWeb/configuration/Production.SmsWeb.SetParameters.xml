@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <setParameter name="SmsCoordinatorQueue" value="smscoordinator@ausbus" />
+  <setParameter name="RavenUrl_Configuration" value="http://ausbus:8080" />
+</parameters>

@@ -9,6 +9,7 @@ $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 $installFolder = "c:\SmsServices"
 $path = Get-ScriptDirectory Installer.ps1
 $build_output = (Get-Item $path).parent.FullName + '\build_output\'
+$go_environment = (get-item env:$GO_ENVIRONMENT_NAME).Value
 
 function InstallEndpoints
 {
@@ -64,6 +65,19 @@ function InstallWeb
 {
     $msDeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V2\msdeploy.exe"
     $webDeployPackage = Join-Path $build_output -childpath '\SmsWeb.zip'
+    
+    if (!$go_environment -eq null)
+    {
+        Write-Host "Go environment set to $go_environment, copying appropriate web.config"
+        $environmentConfig = $build_output + '\SmsWeb\Configuration\' + $go_environment + '.SmsWeb.SetParameters.xml'
+        $environmentParametersFile = $build_output + 'SmsWeb.SetParameters.xml'
+        Copy-Item $environmentConfig $environmentParametersFile
+    }
+    else
+    {
+        Write-Host "No Go environment set in $go_environment, leaving default web.config"
+    }
+    
     echo $webDeployPackage
     $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose"
     

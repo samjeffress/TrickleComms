@@ -12,7 +12,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SmsWeb</RootNamespace>
-	<IgnoreDeployManagedRuntimeVersion>True</IgnoreDeployManagedRuntimeVersion> 
+    <IgnoreDeployManagedRuntimeVersion>True</IgnoreDeployManagedRuntimeVersion>
     <AssemblyName>SmsWeb</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>true</MvcBuildViews>
@@ -295,6 +295,12 @@
     <Compile Include="SmsScheduleStatusHandler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Configuration\Production.SmsWeb.SetParameters.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Configuration\uat.SmsWeb.SetParameters.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\bootstrap-responsive.css" />
     <Content Include="Content\bootstrap-responsive.min.css" />
     <Content Include="Content\bootstrap.css" />
