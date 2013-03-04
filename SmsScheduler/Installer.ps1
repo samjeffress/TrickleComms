@@ -79,7 +79,7 @@ function InstallWeb
     }
     
     echo $webDeployPackage
-    $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose"
+    $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose -setParamFile=SmsWeb.SetParameters.xml"
     
     echo $arg
     #$arg = ""
