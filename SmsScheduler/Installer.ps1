@@ -66,7 +66,7 @@ function InstallWeb
     $msDeploy = "C:\Program Files (x86)\IIS\Microsoft Web Deploy V2\msdeploy.exe"
     $webDeployPackage = Join-Path $build_output -childpath '\SmsWeb.zip'
     
-    if (!$go_environment -eq null)
+    if ($go_environment -ne $null)
     {
         Write-Host "Go environment set to $go_environment, copying appropriate web.config"
         $environmentConfig = $build_output + '\SmsWeb\Configuration\' + $go_environment + '.SmsWeb.SetParameters.xml'
