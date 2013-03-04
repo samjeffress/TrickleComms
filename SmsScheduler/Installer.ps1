@@ -132,7 +132,7 @@ function SetupInfrastructure
 function Build
 {
 	$clean = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Clean"
-	$build = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Build"
+	$build = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /p:VisualStudioVersion=11.0 /t:Build"
     $webPackage = $msbuild + " " + $path + "\SmsWeb\SmsWeb.csproj /p:Configuration=Release /t:Package"
 
 	Invoke-Expression $clean
