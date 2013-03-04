@@ -1,0 +1,18 @@
+<parameters>
+  <parameter
+  name="SmsCoordinatorQueue"
+  description="Configures the Queue to it's Destination MSMQ"
+  defaultValue="smscoordinator">
+    <parameterEntry kind="XmlFile"
+		scope="obj\\Release\\Package\\PackageTmp\\Web\.config$"
+		match="/configuration/UnicastBusConfig/MessageEndpointMappings/add[@Messages=&quot;SmsMessages&quot;]/@Endpoint" />
+  </parameter>
+  <parameter
+		name="RavenUrl_Configuration"
+		description="Configures the Raven DB URL to use"
+		defaultValue="http://localhost:8080">
+    <parameterEntry kind="XmlFile"
+		scope="obj\\Release\\Package\\PackageTmp\\Web\.config$"
+		match="/configuration/appSettings/add[@key='RAVENHQ_CONNECTION_STRING']/@value" />
+  </parameter>  
+</parameters>
