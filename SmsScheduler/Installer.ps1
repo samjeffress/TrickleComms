@@ -80,7 +80,7 @@ function InstallWeb
     }
     
     echo $webDeployPackage
-    $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose -setParamFile='$environmentParametersFile'"
+    $arg = " -verb:sync -source:package='$webDeployPackage' -dest:auto -verbose -setParamFile=""$environmentParametersFile"""
     
     echo $arg
     #$arg = ""
