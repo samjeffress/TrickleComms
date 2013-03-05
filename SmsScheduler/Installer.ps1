@@ -29,28 +29,28 @@ function InstallEndpoints
     $argList = '/install /serviceName:SmsEmailSender /displayName:"Sms Email Sender" /description:"Service for sending emails from Sms Coordinator" NServiceBus.Production'
     #$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
     RunCommand $nsbHost $argList
-    Start-Service SmsEmailSender -ErrorVariable error
-    if (!($error -eq $null))
+    Start-Service SmsEmailSender -ErrorVariable err
+    if (!($err -eq $null))
     {
-        throw "Exception starting SmsEmailSender service: $error"
+        throw "Exception starting SmsEmailSender service: $err"
     }
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
 	$argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
 	RunCommand $nsbHost $argList
-    Start-Service SmsCoordinator -ErrorVariable error
-    if (!($error -eq $null))
+    Start-Service SmsCoordinator -ErrorVariable err
+    if (!($err -eq $null))
     {
-        throw "Exception starting SmsEmailSender service: $error"
+        throw "Exception starting SmsEmailSender service: $err"
     }
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
 	$argList = '/install /serviceName:SmsTracking displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
     RunCommand $nsbHost $argList
-    Start-Service SmsTracking -ErrorVariable error
-    if (!($error -eq $null))
+    Start-Service SmsTracking -ErrorVariable err
+    if (!($err -eq $null))
     {
-        throw "Exception starting SmsEmailSender service: $error"
+        throw "Exception starting SmsEmailSender service: $err"
     }
 }
 
