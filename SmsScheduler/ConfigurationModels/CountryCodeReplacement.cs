@@ -24,7 +24,8 @@ namespace ConfigurationModels
             if (IsValid)
             {
                 var regex = new Regex(LeadingNumberToReplace);
-                return regex.Replace(cleanNumber, CountryCode, 1);
+                var leadingNumberReplacement = regex.Replace(cleanNumber.Substring(0, 1), CountryCode, 1);
+                return leadingNumberReplacement + cleanNumber.Substring(1);
             }
             return cleanNumber;
         }
