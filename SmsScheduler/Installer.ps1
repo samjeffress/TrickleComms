@@ -16,6 +16,7 @@ function InstallEndpoints
 	if ([System.IO.Directory]::Exists($installFolder))
 	{
 	 [System.IO.Directory]::Delete($installFolder, 1)
+     echo "Deleting $installFolder"
 	}
 	[System.IO.Directory]::CreateDirectory($installFolder)
 
@@ -24,33 +25,31 @@ function InstallEndpoints
 	[System.IO.Directory]::Move($build_output + 'SmsCoordinator', $installFolder + '\SmsCoordinator')
 	[System.IO.Directory]::Move($build_output + 'SmsTracking', $installFolder + '\SmsTracking')
 
-	$nsbHost = Join-Path $installFolder -childpath  '\EmailSender\NServiceBus.Host.exe'
-	#& $nsbHost ("/install", "/serviceName:SmsEmailSender", "/displayName:Sms Email Sender", "/description:Service for sending emails from Sms Coordinator", "NServiceBus.Production")
-    $argList = '/install /serviceName:SmsEmailSender /displayName:"Sms Email Sender" /description:"Service for sending emails from Sms Coordinator" NServiceBus.Production'
-    #$processInfo = Start-Process -Wait -NoNewWindow -FilePath $nsbHost -ArgumentList $argList
-    RunCommand $nsbHost $argList
-    Start-Service SmsEmailSender -ErrorVariable error
-    if (!($error -eq $null))
-    {
-        throw "Exception starting SmsEmailSender service: $error"
-    }
-
 	$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
 	$argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
 	RunCommand $nsbHost $argList
-    Start-Service SmsCoordinator -ErrorVariable error
-    if (!($error -eq $null))
+    Start-Service SmsCoordinator -ErrorVariable err
+    if ($err -ne $null)
     {
-        throw "Exception starting SmsEmailSender service: $error"
+        throw "Exception starting SmsEmailSender service: $err"
+    }
+
+	$nsbHost = Join-Path $installFolder -childpath  '\EmailSender\NServiceBus.Host.exe'
+	$argList = '/install /serviceName:SmsEmailSender /displayName:"Sms Email Sender" /description:"Service for sending emails from Sms Coordinator" NServiceBus.Production'
+    RunCommand $nsbHost $argList
+    Start-Service SmsEmailSender -ErrorVariable err
+    if ($err -ne $null)
+    {
+        throw "Exception starting SmsEmailSender service: $err"
     }
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
 	$argList = '/install /serviceName:SmsTracking displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
     RunCommand $nsbHost $argList
-    Start-Service SmsTracking -ErrorVariable error
-    if (!($error -eq $null))
+    Start-Service SmsTracking -ErrorVariable err
+    if ($err -ne $null)
     {
-        throw "Exception starting SmsEmailSender service: $error"
+        throw "Exception starting SmsEmailSender service: $err"
     }
 }
 
@@ -81,17 +80,13 @@ function InstallWeb
 
 function RunCommand([string]$fileName, [string]$arg)
 {
-    #echo "Filename: $fileName"
-    #echo "Arg: $arg"
     $ps = new-object System.Diagnostics.Process
     $ps.StartInfo.Filename = $fileName
     $ps.StartInfo.Arguments = $arg
     $ps.StartInfo.RedirectStandardOutput = $True
     $ps.StartInfo.RedirectStandardError = $True
     $ps.StartInfo.UseShellExecute = $false
-    #echo $ps.StartInfo
     $null = $ps.Start()
-    #$null = $ps.WaitForExit()
     [string] $Out = $ps.StandardOutput.ReadToEnd();
     [string] $Err = $ps.StandardError.ReadToEnd();
     $exitCode = $ps.ExitCode
