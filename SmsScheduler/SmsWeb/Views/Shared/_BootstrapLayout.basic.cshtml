@@ -34,7 +34,8 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                    <a class="brand" href="/">SMS Coordinator</a>
+                    @Html.ActionLink("SMS Coordinator", "Index", "Home", null,  new { Class = "brand" })
+                    <!--<a class="brand" href="/">SMS Coordinator</a> -->
                     <div class="nav-collapse">
                         <ul class="nav">
                             @Html.Navigation()
@@ -52,7 +53,7 @@
             @RenderBody()   
             <hr>
             <footer>
-                <p>&copy; Sam Jeffress @System.DateTime.Now.ToString("yyyy")</p>
+                <p>&copy; Sam Jeffress @DateTime.Now.ToString("yyyy")</p>
             </footer> 
         </div>
          @RenderSection("Scripts", required: false)
