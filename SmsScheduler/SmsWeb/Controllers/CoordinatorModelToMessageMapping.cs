@@ -12,7 +12,7 @@ namespace SmsWeb.Controllers
     {
         TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
 
-        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> equal);
+        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
     }
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
@@ -22,7 +22,11 @@ namespace SmsWeb.Controllers
             return new TrickleSmsOverCalculatedIntervalsBetweenSetDates
                 {
                     Duration = model.SendAllBy.Value.Subtract(model.StartTime),
-                    Messages = model.GetCleanInternationalisedNumbers(countryCodeReplacement).Select(n => new SmsData(n, model.Message)).ToList(),
+                    Messages = model
+                                    .GetCleanInternationalisedNumbers(countryCodeReplacement)
+                                    .Where(n => !excludedNumbers.Contains(n))
+                                    .Select(n => new SmsData(n, model.Message))
+                                    .ToList(),
                     StartTimeUtc = model.StartTime.ToUniversalTime(),
                     MetaData = new SmsMetaData
                         {
@@ -33,11 +37,15 @@ namespace SmsWeb.Controllers
                 };
         }
 
-        public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> equal)
+        public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers)
         {
             return new TrickleSmsWithDefinedTimeBetweenEachMessage
                 {
-                    Messages = model.GetCleanInternationalisedNumbers(countryCodeReplacement).Select(n => new SmsData(n, model.Message)).ToList(),
+                    Messages = model
+                                    .GetCleanInternationalisedNumbers(countryCodeReplacement)
+                                    .Where(n => !excludedNumbers.Contains(n))
+                                    .Select(n => new SmsData(n, model.Message))
+                                    .ToList(),
                     StartTimeUtc = model.StartTime.ToUniversalTime(),
                     TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                     MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },

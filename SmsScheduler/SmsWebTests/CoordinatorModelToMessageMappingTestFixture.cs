@@ -157,7 +157,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void MapToTrickleOverTimePeriodWithoutExcludedNumbers()
+        public void MapToTrickleOverTimePeriodRemovingExcludedNumbers()
         {
             var model = new CoordinatedSharedMessageModel
                 {
@@ -181,6 +181,33 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
+            Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
+        }
+
+        [Test]
+        public void MapToTrickleSetDurationBetweenMessagesRemovingExcludedNumbers()
+        {
+            var timeSpacing = 3;
+            var model = new CoordinatedSharedMessageModel
+                {
+                    Numbers = "04040404040, 11111111111",
+                    Message = "Message",
+                    StartTime = DateTime.Now.AddHours(2),
+                    TimeSeparatorSeconds = timeSpacing,
+                    Topic = "Dance Dance Revolution!",
+                    ConfirmationEmail = "toby@toby.com"
+                };
+            var mapper = new CoordinatorModelToMessageMapping();
+            var excludedNumbers = new List<string> { "04040404040" };
+            var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement(), excludedNumbers);
+
+            Assert.That(message.Messages.Count, Is.EqualTo(1));
+            Assert.That(message.Messages[0].Mobile, Is.EqualTo(model.Numbers.Split(',')[1].Trim()));
+            Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
+            Assert.That(message.MetaData.Tags, Is.EqualTo(null));
+            Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
+            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.TimeSpacing, Is.EqualTo(new TimeSpan(0, 0, 0, timeSpacing)));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }
     }
