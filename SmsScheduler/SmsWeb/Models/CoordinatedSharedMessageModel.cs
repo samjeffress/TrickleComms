@@ -1,10 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using ConfigurationModels;
 
 namespace SmsWeb.Models
 {
     public class CoordinatedSharedMessageModel
     {
+        public CoordinatedSharedMessageModel()
+        {
+            CoordinatorsToExclude = new List<Guid>();
+        }
+
         [Required]
         public string Numbers { get; set; }
 
@@ -23,5 +31,17 @@ namespace SmsWeb.Models
         public string Topic { get; set; }
 
         public string ConfirmationEmail { get; set; }
+
+        public List<Guid> CoordinatorsToExclude { get; set; }
+
+        public List<string> GetTagList()
+        {
+            return string.IsNullOrWhiteSpace(Tags) ? null : Tags.Split(',').ToList().Select(t => t.Trim()).ToList();
+        }
+
+        public List<string> GetCleanInternationalisedNumbers(CountryCodeReplacement countryCodeReplacement)
+        {
+            return Numbers.Split(',').Select(number => countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(number) : number.Trim()).ToList();
+        }
     }
 }

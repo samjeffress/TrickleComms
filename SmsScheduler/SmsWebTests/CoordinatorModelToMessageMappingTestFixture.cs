@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ConfigurationModels;
 using NUnit.Framework;
@@ -24,7 +25,7 @@ namespace SmsWebTests
                     ConfirmationEmail = "confirmation"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
-            var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement());
+            var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement(), new List<string>());
 
             Assert.That(message.Messages.Count, Is.EqualTo(2));
             Assert.That(message.Messages[0].Mobile, Is.EqualTo(model.Numbers.Split(',')[0].Trim()));
@@ -52,7 +53,7 @@ namespace SmsWebTests
                     ConfirmationEmail = "confirmation"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
-            var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement { CountryCode = "+61", LeadingNumberToReplace = "0"});
+            var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement { CountryCode = "+61", LeadingNumberToReplace = "0"}, new List<string>());
 
             Assert.That(message.Messages.Count, Is.EqualTo(2));
             Assert.That(message.Messages[0].Mobile, Is.EqualTo("+614040404040"));
@@ -80,7 +81,7 @@ namespace SmsWebTests
                     ConfirmationEmail = "toby@toby.com"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
-            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement());
+            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), new List<string>());
 
             var coordinationDuration = model.SendAllBy.Value.Subtract(model.StartTime);
             Assert.That(coordinationDuration, Is.GreaterThan(new TimeSpan(0)));
@@ -110,7 +111,7 @@ namespace SmsWebTests
                     ConfirmationEmail = "toby@toby.com"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
-            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement { CountryCode = "+61", LeadingNumberToReplace = "0"});
+            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement { CountryCode = "+61", LeadingNumberToReplace = "0"}, new List<string>());
 
             var coordinationDuration = model.SendAllBy.Value.Subtract(model.StartTime);
             Assert.That(coordinationDuration, Is.GreaterThan(new TimeSpan(0)));
@@ -139,7 +140,7 @@ namespace SmsWebTests
                     ConfirmationEmail = "toby@toby.com"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
-            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement());
+            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), new List<string>());
 
             var coordinationDuration = model.SendAllBy.Value.Subtract(model.StartTime);
             Assert.That(coordinationDuration, Is.GreaterThan(new TimeSpan(0)));
@@ -148,6 +149,34 @@ namespace SmsWebTests
             Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
             Assert.That(message.Messages[1].Mobile, Is.EqualTo(model.Numbers.Split(',')[1].Trim()));
             Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
+            Assert.That(message.MetaData.Tags, Is.EqualTo(null));
+            Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
+            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
+            Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
+        }
+
+        [Test]
+        public void MapToTrickleOverTimePeriodWithoutExcludedNumbers()
+        {
+            var model = new CoordinatedSharedMessageModel
+                {
+                    Numbers = "04040404040, 11111111111",
+                    Message = "Message",
+                    StartTime = DateTime.Now.AddHours(2),
+                    SendAllBy = DateTime.Now.AddHours(3),
+                    Topic = "Dance Dance Revolution!",
+                    ConfirmationEmail = "toby@toby.com"
+                };
+            var mapper = new CoordinatorModelToMessageMapping();
+            var excludedNumbers = new List<string> { "04040404040" };
+            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), excludedNumbers);
+
+            var coordinationDuration = model.SendAllBy.Value.Subtract(model.StartTime);
+            Assert.That(coordinationDuration, Is.GreaterThan(new TimeSpan(0)));
+            Assert.That(message.Messages.Count, Is.EqualTo(1));
+            Assert.That(message.Messages[0].Mobile, Is.EqualTo(model.Numbers.Split(',')[1].Trim()));
+            Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
             Assert.That(message.MetaData.Tags, Is.EqualTo(null));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
