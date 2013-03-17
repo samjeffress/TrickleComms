@@ -6,7 +6,10 @@ using ConfigurationModels;
 using NServiceBus;
 using NUnit.Framework;
 using Raven.Client;
+using Raven.Client.Embedded;
+using Raven.Client.Linq;
 using Rhino.Mocks;
+using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsTrackingModels;
 using SmsWeb;
@@ -18,6 +21,28 @@ namespace SmsWebTests
     [TestFixture]
     public class CoordinatorTestFixture
     {
+        private IDocumentSession SmsTrackingSession;
+        private Guid Top1CoordinatorId;
+
+        [SetUp]
+        public void Setup()
+        {
+            var _store = new EmbeddableDocumentStore { RunInMemory = true };
+            _store.Initialize();
+            Top1CoordinatorId = Guid.NewGuid();
+            var mostRecentCoordinators = new List<CoordinatorTrackingData>
+                {
+                    new CoordinatorTrackingData { CoordinatorId = Top1CoordinatorId, MetaData = new SmsMetaData { Topic = "barry" }, CreationDateUtc = DateTime.Now.AddDays(-3) },
+                };
+
+            SmsTrackingSession = _store.OpenSession();
+            foreach (var coordinatorTrackingData in mostRecentCoordinators)
+            {
+                SmsTrackingSession.Store(coordinatorTrackingData, coordinatorTrackingData.CoordinatorId.ToString());
+            }
+            SmsTrackingSession.SaveChanges();
+        }
+
         [Test]        
         public void CoordinatorSeparatedByTimeSpanReturnsDetails()
         {
@@ -303,7 +328,13 @@ namespace SmsWebTests
         public void CoordinatorContainsNoNumbersError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, RavenDocStore = ravenDocStore };
             var model = new CoordinatedSharedMessageModel
             {
                 Numbers = "",
@@ -320,7 +351,13 @@ namespace SmsWebTests
         public void CoordinatorContainsNoMessagesError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, RavenDocStore = ravenDocStore };
             var model = new CoordinatedSharedMessageModel
             {
                 Numbers = "04040404040",
@@ -334,16 +371,48 @@ namespace SmsWebTests
         }
 
         [Test]
+        public void ErrorWithSelectedCoordinatorsToExclude()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, RavenDocStore = ravenDocStore };
+            var model = new CoordinatedSharedMessageModel
+            {
+                Numbers = "04040404040",
+                Message = string.Empty,
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllBy = DateTime.Now.AddHours(3),
+                CoordinatorsToExclude = new List<Guid> { Top1CoordinatorId }
+            };
+            var actionResult = (ViewResult)controller.Create(model);
+            var selectListItems = actionResult.ViewData["CoordinatorExcludeList"] as List<SelectListItem>;
+            Assert.That(actionResult.ViewName, Is.EqualTo("Create"));
+            Assert.True(selectListItems.First(s => s.Value == Top1CoordinatorId.ToString()).Selected);
+        }
+
+        [Test]
         public void CoordinatorTimeInPastError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, RavenDocStore = ravenDocStore };
             var model = new CoordinatedSharedMessageModel
             {
                 Numbers = "04040404040",
                 Message = "Message",
                 StartTime = DateTime.Now.AddHours(-2),
-                SendAllBy = DateTime.Now.AddHours(3)
+                SendAllBy = DateTime.Now.AddHours(3),
+                CoordinatorsToExclude = new List<Guid>()
             };
             var actionResult = (ViewResult)controller.Create(model);
 
@@ -354,7 +423,13 @@ namespace SmsWebTests
         public void CoordinatorTimeSeparatorNotDefinedError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus };
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, RavenDocStore = ravenDocStore };
             var model = new CoordinatedSharedMessageModel
             {
                 Numbers = "04040404040",
@@ -364,6 +439,78 @@ namespace SmsWebTests
             var actionResult = (ViewResult)controller.Create(model);
 
             Assert.That(actionResult.ViewName, Is.EqualTo("Create"));
+        }
+
+        [Test]
+        public void CreateNewExcludeCoordinatorTopTenNoCoordinatorsSelected()
+        {
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var trackingSession = MockRepository.GenerateMock<IDocumentSession>();
+
+            var _store = new EmbeddableDocumentStore { RunInMemory = true };
+            _store.Initialize();
+            var mostRecentCoordinators = new List<CoordinatorTrackingData>
+                {
+                    new CoordinatorTrackingData { CoordinatorId = Guid.NewGuid(), MetaData = new SmsMetaData { Topic = "barry" }, CreationDateUtc = DateTime.Now.AddDays(-3) },
+                    new CoordinatorTrackingData { CoordinatorId = Guid.NewGuid(), MetaData = new SmsMetaData { Topic = "simon" }, CreationDateUtc = DateTime.Now.AddDays(-4) }
+                };
+
+            var Session = _store.OpenSession();
+            foreach (var coordinatorTrackingData in mostRecentCoordinators)
+            {
+                Session.Store(coordinatorTrackingData, coordinatorTrackingData.CoordinatorId.ToString());
+            }
+            Session.SaveChanges();
+
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(Session);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), RavenDocStore = ravenDocStore };
+            var actionResult = (ViewResult)controller.Create();
+
+            var coordinatorExcludeList = (actionResult.ViewData["CoordinatorExcludeList"] as List<SelectListItem>);
+            Assert.That(coordinatorExcludeList.Count(), Is.EqualTo(2));
+            Assert.IsFalse(coordinatorExcludeList[0].Selected);
+            Assert.That(coordinatorExcludeList[0].Text, Is.EqualTo("barry"));
+            Assert.IsFalse(coordinatorExcludeList[1].Selected);
+            Assert.That(coordinatorExcludeList[1].Text, Is.EqualTo("simon"));
+
+            ravenDocStore.VerifyAllExpectations();
+            trackingSession.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void CreateEditExcludeCoordinatorTopTenNoCoordinatorsSelected()
+        {
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docSession = MockRepository.GenerateMock<IDocumentSession>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+            var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
+            var bus = MockRepository.GenerateMock<IBus>();
+
+            ravenDocStore.Expect(d => d.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
+            mapper
+                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage());
+            bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.Anything));
+
+            docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
+            var model = new CoordinatedSharedMessageModel
+            {
+                Numbers = "04040404040",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                CoordinatorsToExclude = new List<Guid>(),
+                TimeSeparatorSeconds = 4
+            };
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), RavenDocStore = ravenDocStore, Mapper = mapper, Bus = bus };
+            var actionResult = (RedirectToRouteResult)controller.Create(model);
+
+            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
+
+            ravenDocStore.VerifyAllExpectations();
         }
     }
 }

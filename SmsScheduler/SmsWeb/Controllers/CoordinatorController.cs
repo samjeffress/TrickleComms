@@ -32,6 +32,14 @@ namespace SmsWeb.Controllers
 
         public ActionResult Create()
         {
+            List<CoordinatorTrackingData> coordinatorTrackingDatas;
+            var selectListItems = new List<SelectListItem>();
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var thing = session.Query<CoordinatorTrackingData>().OrderByDescending(c => c.CreationDateUtc).Take(10).ToList();
+                selectListItems = thing.Select(c => new SelectListItem { Selected = false, Text = c.MetaData.Topic, Value = c.CoordinatorId.ToString() }).ToList();
+            }
+            ViewData.Add("CoordinatorExcludeList", selectListItems);
             return View("Create");
         }
 
@@ -50,17 +58,15 @@ namespace SmsWeb.Controllers
 
                 // TODO : Add previous coordinator exclusions
                 var excludeList = new List<string>();
-                if (coordinatedMessages.CoordinatorsToExclude.Count > 0)
+                using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
                 {
-                    using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+                    foreach (var previousCoordinatorId in coordinatedMessages.CoordinatorsToExclude)
                     {
-                        foreach (var previousCoordinatorId in coordinatedMessages.CoordinatorsToExclude)
-                        {
-                            var previousCoordinator = session.Load<CoordinatorTrackingData>(previousCoordinatorId.ToString());
-                            excludeList.AddRange(previousCoordinator.MessageStatuses.Select(p => p.Number).ToList());
-                        }
+                        var previousCoordinator = session.Load<CoordinatorTrackingData>(previousCoordinatorId.ToString());
+                        excludeList.AddRange(previousCoordinator.MessageStatuses.Select(p => p.Number).ToList());
                     }
                 }
+
                 var cleanExcludeList = excludeList.Distinct().ToList();
 
                 var coordinatorId = Guid.NewGuid();
@@ -81,6 +87,27 @@ namespace SmsWeb.Controllers
 
                 return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }
+
+            var selectListItems = new List<SelectListItem>();
+            
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var last10Coordinators = session.Query<CoordinatorTrackingData>().OrderByDescending(c => c.CreationDateUtc).Take(10).ToList();
+                selectListItems = last10Coordinators.Select(c => new SelectListItem { Selected = false, Text = c.MetaData.Topic, Value = c.CoordinatorId.ToString() }).ToList();
+                foreach (var previousCoordinatorId in coordinatedMessages.CoordinatorsToExclude)
+                {
+                    if (last10Coordinators.Any(c => c.CoordinatorId == previousCoordinatorId))
+                    {
+                        selectListItems.First(s => Guid.Parse(s.Value) == previousCoordinatorId).Selected = true;
+                    }
+                    else
+                    {
+                        var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(previousCoordinatorId.ToString());
+                        selectListItems.Add(new SelectListItem { Selected = true, Text = coordinatorTrackingData.MetaData.Topic, Value = coordinatorTrackingData.CoordinatorId.ToString() });
+                    }
+                }
+            }
+            ViewData.Add("CoordinatorExcludeList", selectListItems);
             return View("Create", coordinatedMessages);
         }
 
