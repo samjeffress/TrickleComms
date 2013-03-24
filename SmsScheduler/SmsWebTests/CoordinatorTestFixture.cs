@@ -7,7 +7,6 @@ using NServiceBus;
 using NUnit.Framework;
 using Raven.Client;
 using Raven.Client.Embedded;
-using Raven.Client.Linq;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
@@ -32,7 +31,13 @@ namespace SmsWebTests
             Top1CoordinatorId = Guid.NewGuid();
             var mostRecentCoordinators = new List<CoordinatorTrackingData>
                 {
-                    new CoordinatorTrackingData { CoordinatorId = Top1CoordinatorId, MetaData = new SmsMetaData { Topic = "barry" }, CreationDateUtc = DateTime.Now.AddDays(-3) },
+                    new CoordinatorTrackingData
+                        {
+                            CoordinatorId = Top1CoordinatorId, 
+                            MetaData = new SmsMetaData { Topic = "barry" }, 
+                            CreationDateUtc = DateTime.Now.AddDays(-3),
+                            MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }}
+                        },
                 };
 
             SmsTrackingSession = _store.OpenSession();
@@ -91,7 +96,8 @@ namespace SmsWebTests
                 Numbers = "04040404040",
                 Message = "Message",
                 StartTime = DateTime.Now.AddHours(2),
-                SendAllBy = DateTime.Now.AddHours(3)
+                SendAllBy = DateTime.Now.AddHours(3),
+                Topic = "frank"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -129,7 +135,8 @@ namespace SmsWebTests
                 Numbers = "04040404040",
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
-                SendAllBy = DateTime.Now.AddHours(3)
+                SendAllBy = DateTime.Now.AddHours(3),
+                Topic = "frank"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -174,7 +181,8 @@ namespace SmsWebTests
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
-                CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude }
+                CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude },
+                Topic = "frank"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -223,7 +231,8 @@ namespace SmsWebTests
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
-                CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude1, CoordinatorToExclude2 }
+                CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude1, CoordinatorToExclude2 },
+                Topic = "frank"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -280,7 +289,8 @@ namespace SmsWebTests
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
                 TimeSeparatorSeconds = 3,
-                CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude1, CoordinatorToExclude2 }
+                CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude1, CoordinatorToExclude2 },
+                Topic = "frank"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -420,6 +430,31 @@ namespace SmsWebTests
         }
 
         [Test]
+        public void CoordinatorNoTopicError()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, RavenDocStore = ravenDocStore };
+            var model = new CoordinatedSharedMessageModel
+            {
+                Numbers = "04040404040",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllBy = DateTime.Now.AddHours(3),
+                CoordinatorsToExclude = new List<Guid>(),
+                Topic = string.Empty
+            };
+            var actionResult = (ViewResult)controller.Create(model);
+
+            Assert.That(actionResult.ViewName, Is.EqualTo("Create"));
+        }
+
+        [Test]
         public void CoordinatorTimeSeparatorNotDefinedError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
@@ -451,8 +486,20 @@ namespace SmsWebTests
             _store.Initialize();
             var mostRecentCoordinators = new List<CoordinatorTrackingData>
                 {
-                    new CoordinatorTrackingData { CoordinatorId = Guid.NewGuid(), MetaData = new SmsMetaData { Topic = "barry" }, CreationDateUtc = DateTime.Now.AddDays(-3) },
-                    new CoordinatorTrackingData { CoordinatorId = Guid.NewGuid(), MetaData = new SmsMetaData { Topic = "simon" }, CreationDateUtc = DateTime.Now.AddDays(-4) }
+                    new CoordinatorTrackingData
+                        {
+                            CoordinatorId = Guid.NewGuid(), 
+                            MetaData = new SmsMetaData { Topic = "barry" }, 
+                            CreationDateUtc = DateTime.Now.AddDays(-3),
+                            MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }}
+                        },
+                    new CoordinatorTrackingData
+                        {
+                            CoordinatorId = Guid.NewGuid(), 
+                            MetaData = new SmsMetaData { Topic = "simon" }, 
+                            CreationDateUtc = DateTime.Now.AddDays(-4),
+                            MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }}
+                        }
                 };
 
             var Session = _store.OpenSession();
@@ -470,9 +517,9 @@ namespace SmsWebTests
             var coordinatorExcludeList = (actionResult.ViewData["CoordinatorExcludeList"] as List<SelectListItem>);
             Assert.That(coordinatorExcludeList.Count(), Is.EqualTo(2));
             Assert.IsFalse(coordinatorExcludeList[0].Selected);
-            Assert.That(coordinatorExcludeList[0].Text, Is.EqualTo("barry"));
+            Assert.That(coordinatorExcludeList[0].Text.Contains("barry"));
             Assert.IsFalse(coordinatorExcludeList[1].Selected);
-            Assert.That(coordinatorExcludeList[1].Text, Is.EqualTo("simon"));
+            Assert.That(coordinatorExcludeList[1].Text.Contains("simon"));
 
             ravenDocStore.VerifyAllExpectations();
             trackingSession.VerifyAllExpectations();
@@ -502,7 +549,8 @@ namespace SmsWebTests
                 Message = "Message",
                 StartTime = DateTime.Now.AddHours(2),
                 CoordinatorsToExclude = new List<Guid>(),
-                TimeSeparatorSeconds = 4
+                TimeSeparatorSeconds = 4,
+                Topic = "frank"
             };
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), RavenDocStore = ravenDocStore, Mapper = mapper, Bus = bus };

@@ -11,9 +11,11 @@
 @Styles.Render("~/Content/themes/base/jquery-ui.css")
 @*@Scripts.Render("~/bundles/jqueryval")*@
 @*}*@
+
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
 <script type="text/javascript" src="~/Scripts/Coordinator.js" ></script>
 <script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
+
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
     $(document).ready(function () {
@@ -36,7 +38,6 @@
 
         CheckSendAll();
         CheckTimeSeparated();
-        
     });
 </script>
 
@@ -50,7 +51,10 @@
     <fieldset>
         <div>
             @Html.LabelFor(model => model.Message)
-            @{ var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.Message) && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid"; }
+            @{ 
+                var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.Message) && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
+                messageValidationClass = messageValidationClass + ", span6";
+            }
             @Html.TextAreaFor(model => model.Message, new Dictionary<string, object> { {"class", @messageValidationClass}})
             @Html.ValidationMessageFor(model => model.Message)
             <div id="messageCounter"></div>
@@ -58,7 +62,7 @@
 
         <div>
             @Html.LabelFor(model => model.Numbers)
-            @Html.TextAreaFor(model => model.Numbers)
+            @Html.TextAreaFor(model => model.Numbers, new { Class = "span6"})
             @Html.ValidationMessageFor(model => model.Numbers)
         </div>
     </fieldset>
@@ -71,9 +75,11 @@
         </div>
         
         <div>
-            <div>Select how you want to coordinate the timing:</div>
-            <input type="button" value="Time Separated" id="TimeSeparatedButton" />
-            <input type="button" value="Send All By Time" id="SendAllByButton" />
+            <div style="padding-bottom: 10px;">
+                <p>Select how you want to coordinate the timing:</p>
+                <input type="button" value="Time Separated" id="TimeSeparatedButton" />
+                <input type="button" value="Send All By Time" id="SendAllByButton" />
+            </div>
             @Html.ValidationMessageFor(model => model.SendAllBy)
             @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
             <div id="TimeSeparatedDiv">
@@ -85,6 +91,11 @@
                 @Html.EditorFor(model => model.SendAllBy)
             </div>
         </div>
+    </fieldset>
+    
+    <fieldset>
+        @Html.LabelFor(model => model.CoordinatorsToExclude, "Coordinators To Exclude")
+        @Html.ListBox("CoordinatorsToExclude", ViewData["CoordinatorExcludeList"] as List<SelectListItem>, new { Class = "span6" })
     </fieldset>
 
     <fieldset>

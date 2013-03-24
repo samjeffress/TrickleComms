@@ -32,12 +32,11 @@ namespace SmsWeb.Controllers
 
         public ActionResult Create()
         {
-            List<CoordinatorTrackingData> coordinatorTrackingDatas;
-            var selectListItems = new List<SelectListItem>();
+            List<SelectListItem> selectListItems;
             using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
             {
                 var thing = session.Query<CoordinatorTrackingData>().OrderByDescending(c => c.CreationDateUtc).Take(10).ToList();
-                selectListItems = thing.Select(c => new SelectListItem { Selected = false, Text = c.MetaData.Topic, Value = c.CoordinatorId.ToString() }).ToList();
+                selectListItems = thing.Select(c => new SelectListItem { Selected = false, Text = CoordinatorToExcludeText(c), Value = c.CoordinatorId.ToString() }).ToList();
             }
             ViewData.Add("CoordinatorExcludeList", selectListItems);
             return View("Create");
@@ -56,7 +55,6 @@ namespace SmsWeb.Controllers
                     countryCodeReplacement = session.Load<CountryCodeReplacement>("CountryCodeConfig");
                 }
 
-                // TODO : Add previous coordinator exclusions
                 var excludeList = new List<string>();
                 using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
                 {
@@ -93,7 +91,7 @@ namespace SmsWeb.Controllers
             using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
             {
                 var last10Coordinators = session.Query<CoordinatorTrackingData>().OrderByDescending(c => c.CreationDateUtc).Take(10).ToList();
-                selectListItems = last10Coordinators.Select(c => new SelectListItem { Selected = false, Text = c.MetaData.Topic, Value = c.CoordinatorId.ToString() }).ToList();
+                selectListItems = last10Coordinators.Select(c => new SelectListItem { Selected = false, Text = CoordinatorToExcludeText(c), Value = c.CoordinatorId.ToString() }).ToList();
                 foreach (var previousCoordinatorId in coordinatedMessages.CoordinatorsToExclude)
                 {
                     if (last10Coordinators.Any(c => c.CoordinatorId == previousCoordinatorId))
@@ -109,6 +107,15 @@ namespace SmsWeb.Controllers
             }
             ViewData.Add("CoordinatorExcludeList", selectListItems);
             return View("Create", coordinatedMessages);
+        }
+
+        private string CoordinatorToExcludeText(CoordinatorTrackingData coordinatorTrackingData)
+        {
+            return string.Format(
+                "'{0}', {1} Sent, Started {2}",
+                coordinatorTrackingData.MetaData.Topic,
+                coordinatorTrackingData.MessageStatuses.Count(c => c.Status == MessageStatusTracking.CompletedSuccess).ToString(),
+                coordinatorTrackingData.CreationDateUtc.ToLocalTime().Date);
         }
 
         public ActionResult History(int page = 0, int resultsPerPage = 20)
@@ -148,6 +155,8 @@ namespace SmsWeb.Controllers
 
         private void SecondaryValidation(CoordinatedSharedMessageModel coordinatedMessages)
         {
+            if (string.IsNullOrWhiteSpace(coordinatedMessages.Topic))
+                ModelState.AddModelError("Topic", "Topic must be set");
             if (coordinatedMessages.Numbers == null || coordinatedMessages.Numbers.Split(',').Length == 0)
                 ModelState.AddModelError("numberList", "Please include the numbers you want to send to.");
             if (coordinatedMessages.StartTime < DateTime.Now)

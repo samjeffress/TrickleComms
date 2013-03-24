@@ -78,6 +78,8 @@ namespace SmsWeb.API
                 response.Errors.Add(new ResponseError {Message = "List of numbers required"});
             if ((request.SendAllByUtc.HasValue && request.TimeSeparator.HasValue) || (!request.SendAllByUtc.HasValue && !request.TimeSeparator.HasValue))
                 response.Errors.Add(new ResponseError { Message = "Message must contain either Time Separator OR DateTime to send all messages by." });
+            if (string.IsNullOrWhiteSpace(request.Topic))
+                response.Errors.Add(new ResponseError { Message = "Topic must be set" });
 
             var coordinatorResponse = new CoordinatorResponse {ResponseStatus = response};
             if (response.Errors.Count > 0)
