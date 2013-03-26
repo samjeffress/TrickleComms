@@ -44,7 +44,7 @@ function InstallEndpoints
     }
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
-	$argList = '/install /serviceName:SmsTracking displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
+	$argList = '/install /serviceName:SmsTracking /displayName:"Sms Tracking"  description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
     RunCommand $nsbHost $argList
     Start-Service SmsTracking -ErrorVariable err
     if ($err -ne $null)
