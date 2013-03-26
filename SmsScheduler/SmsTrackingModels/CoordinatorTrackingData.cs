@@ -6,6 +6,12 @@ namespace SmsTrackingModels
 {
     public class CoordinatorTrackingData
     {
+        public CoordinatorTrackingData()
+        {
+            MetaData = new SmsMetaData();
+            MessageStatuses = new List<MessageSendingStatus>();
+        }
+
         public Guid CoordinatorId { get; set; }
 
         public CoordinatorStatusTracking CurrentStatus { get; set; }

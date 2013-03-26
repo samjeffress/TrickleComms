@@ -271,7 +271,9 @@
     <Compile Include="Controllers\MailgunConfigController.cs" />
     <Compile Include="Controllers\ScheduleController.cs" />
     <Compile Include="Controllers\SendNowController.cs" />
+    <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\TwilioConfigController.cs" />
+    <Compile Include="CoordinatorTagList.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModel.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModelFromCsv.cs" />
