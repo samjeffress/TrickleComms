@@ -16,6 +16,9 @@
 <script type="text/javascript" src="~/Scripts/Coordinator.js" ></script>
 <script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
 
+<script type="text/javascript" src="~/Scripts/jquery.tagsinput.js"></script>
+@Styles.Render("~/Content/jquery.tagsinput.css")
+
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
     $(document).ready(function () {
@@ -38,6 +41,8 @@
 
         CheckSendAll();
         CheckTimeSeparated();
+
+        $('#Tags').tagsInput();
     });
 </script>
 
@@ -49,6 +54,12 @@
     @Html.ValidationSummary(true)
 
     <fieldset>
+        <div>
+            @Html.LabelFor(model => model.Topic)
+            @Html.EditorFor(model => model.Topic)
+            @Html.ValidationMessageFor(model => model.Topic)
+        </div>
+
         <div>
             @Html.LabelFor(model => model.Message)
             @{ 
@@ -106,17 +117,9 @@
         </div>
         
         <div>
-            <div>
-                @Html.LabelFor(model => model.Topic)
-                @Html.EditorFor(model => model.Topic)
-                @Html.ValidationMessageFor(model => model.Topic)
-            </div>
-        
-            <div>
-                @Html.LabelFor(model => model.Tags)
-                @Html.EditorFor(model => model.Tags)
-                @Html.ValidationMessageFor(model => model.Tags)
-            </div>
+            @Html.LabelFor(model => model.Tags)
+            @Html.EditorFor(model => model.Tags)
+            @Html.ValidationMessageFor(model => model.Tags)
         </div>
 
     </fieldset>
