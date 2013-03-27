@@ -20,10 +20,10 @@ function InstallEndpoints
 	}
 	[System.IO.Directory]::CreateDirectory($installFolder)
 
-	# move all the service files that were built to the output folder
-	[System.IO.Directory]::Move($build_output + 'EmailSender', $installFolder + '\EmailSender')
-	[System.IO.Directory]::Move($build_output + 'SmsCoordinator', $installFolder + '\SmsCoordinator')
-	[System.IO.Directory]::Move($build_output + 'SmsTracking', $installFolder + '\SmsTracking')
+	# copy all the service files that were built to the output folder
+    Copy-Item $($build_output +"EmailSender") $($installFolder + "\EmailSender") -recurse
+    Copy-Item $($build_output +"SmsCoordinator") $($installFolder + "\SmsCoordinator") -recurse
+    Copy-Item $($build_output +"SmsTracking") $($installFolder + "\SmsTracking") -recurse
 
 	$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
 	$argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
