@@ -115,7 +115,7 @@ namespace SmsWeb.Controllers
                 "'{0}', {1} Sent, Started {2}",
                 coordinatorTrackingData.MetaData.Topic,
                 coordinatorTrackingData.MessageStatuses.Count(c => c.Status == MessageStatusTracking.CompletedSuccess).ToString(),
-                coordinatorTrackingData.CreationDateUtc.ToLocalTime().Date);
+                coordinatorTrackingData.CreationDateUtc.ToLocalTime().ToShortDateString());
         }
 
         public ActionResult History(int page = 0, int resultsPerPage = 20)

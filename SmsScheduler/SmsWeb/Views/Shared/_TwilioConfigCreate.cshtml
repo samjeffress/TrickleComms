@@ -12,26 +12,26 @@
     <fieldset>
         <legend>TwilioConfiguration</legend>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.AuthToken)
+        <div>
+            @Html.LabelFor(model => model.AuthToken, "Auth Token")
         </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.AuthToken)
+        <div>
+            @Html.PasswordFor(model => model.AuthToken)
             @Html.ValidationMessageFor(model => model.AuthToken)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.AccountSid)
+        <div>
+            @Html.LabelFor(model => model.AccountSid, "Account Sid")
         </div>
-        <div class="editor-field">
+        <div>
             @Html.EditorFor(model => model.AccountSid)
             @Html.ValidationMessageFor(model => model.AccountSid)
         </div>
 
-        <div class="editor-label">
+        <div>
             @Html.LabelFor(model => model.From)
         </div>
-        <div class="editor-field">
+        <div>
             @Html.EditorFor(model => model.From)
             @Html.ValidationMessageFor(model => model.From)
         </div>

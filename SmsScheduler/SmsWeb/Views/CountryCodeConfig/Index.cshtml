@@ -3,7 +3,9 @@
     Layout = "~/Views/Shared/_BootstrapLayout.basic.cshtml";
 }
 
-<h2>Country Code Configuration</h2>
-<div style="float: left; width: 50%" id="CountryCodeConfigDiv">
-    @Html.Action("EditAjax", "CountryCodeConfig")
-</div>
+<fieldset>
+    <legend>Country Code Configuration</legend>
+    <div style="float: left; width: 50%" id="CountryCodeConfigDiv">
+        @Html.Action("EditAjax", "CountryCodeConfig")
+    </div>
+</fieldset>

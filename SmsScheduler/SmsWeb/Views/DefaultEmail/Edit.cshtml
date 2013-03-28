@@ -5,19 +5,15 @@
     Layout = "~/Views/Shared/_BootstrapLayout.basic.cshtml";
 }
 
-<h2>Edit</h2>
-
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <legend>DefaultEmailModel</legend>
+        <legend>Default Email Recipients</legend>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.DefaultEmails)
-        </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.DefaultEmails)
+        <div>
+            @Html.LabelFor(model => model.DefaultEmails, "Email Addresses")
+            @Html.TextAreaFor(model => model.DefaultEmails, new { Class = "span7", Rows = 6})
             @Html.ValidationMessageFor(model => model.DefaultEmails)
         </div>
 

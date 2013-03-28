@@ -1,5 +1,4 @@
 ﻿@model ConfigurationModels.CountryCodeReplacement
--
 <script src="~/Scripts/jquery-1.8.3.min.js"></script>
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
@@ -8,23 +7,19 @@
 @using (Ajax.BeginForm("EditAjax", "CountryCodeConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "CountryCodeConfigDiv"})) {
     @Html.ValidationSummary(true)
 
-    <div class="editor-label">
-        @Html.LabelFor(model => model.CountryCode)
-    </div>
-    <div class="editor-field">
+    <div>
+        @Html.LabelFor(model => model.CountryCode, "Country Code")
         @Html.EditorFor(model => model.CountryCode)
         @Html.ValidationMessageFor(model => model.CountryCode)
     </div>
 
-    <div class="editor-label">
-        @Html.LabelFor(model => model.LeadingNumberToReplace)
-    </div>
-    <div class="editor-field">
+    <div>
+        @Html.LabelFor(model => model.LeadingNumberToReplace, "Leading Number To Replace")
         @Html.EditorFor(model => model.LeadingNumberToReplace)
         @Html.ValidationMessageFor(model => model.LeadingNumberToReplace)
     </div>
 
     <p>
-        <input type="submit" value="Create" />
+        <input type="submit" value="Submit" />
     </p>
 }

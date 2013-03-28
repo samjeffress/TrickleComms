@@ -11,26 +11,26 @@
     <fieldset>
         <legend>MailgunConfiguration</legend>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.ApiKey)
+        <div>
+            @Html.LabelFor(model => model.ApiKey, "Api Key")
         </div>
-        <div class="editor-field">
-            @Html.EditorFor(model => model.ApiKey)
+        <div>
+            @Html.PasswordFor(model => model.ApiKey)
             @Html.ValidationMessageFor(model => model.ApiKey)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.DomainName)
+        <div>
+            @Html.LabelFor(model => model.DomainName, "Domain Name")
         </div>
-        <div class="editor-field">
+        <div>
             @Html.EditorFor(model => model.DomainName)
             @Html.ValidationMessageFor(model => model.DomainName)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.DefaultFrom)
+        <div>
+            @Html.LabelFor(model => model.DefaultFrom, "Default From")
         </div>
-        <div class="editor-field">
+        <div>
             @Html.EditorFor(model => model.DefaultFrom)
             @Html.ValidationMessageFor(model => model.DefaultFrom)
         </div>
