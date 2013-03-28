@@ -14,7 +14,7 @@ namespace EmailSender
         private readonly IDocumentStore _documentStore;
         public RavenDocStore()
         {
-            _documentStore = new DocumentStore { Url = "http://localhost:8080", DefaultDatabase = "Configuration" };
+            _documentStore = new DocumentStore { Url = "http://localhost:8080" };
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("Configuration");
         }
