@@ -21,6 +21,7 @@ namespace SmsWeb
             _documentStore.DatabaseCommands.EnsureDatabaseExists("Configuration");
             _documentStore.DatabaseCommands.EnsureDatabaseExists("SmsTracking");
             IndexCreation.CreateIndexes(typeof(CoordinatorTagList).Assembly, _documentStore);
+            IndexCreation.CreateIndexes(typeof(PhoneNumberInCoordinatedMessages).Assembly, _documentStore);
         }
 
         public IDocumentStore GetStore()

@@ -1,0 +1,49 @@
+﻿@model IEnumerable<SmsWeb.Models.SearchByNumberResult>
+
+@{
+    ViewBag.Title = "Results";
+    Layout = "~/Views/Shared/_BootstrapLayout.basic.cshtml";
+}
+
+<h2>Results</h2>
+
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.PhoneNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SendingDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Topic)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CoordinatorId)
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.PhoneNumber)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.SendingDate)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Status)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Topic)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.CoordinatorId)
+        </td>
+    </tr>
+}
+
+</table>
