@@ -210,5 +210,32 @@ namespace SmsWebTests
             Assert.That(message.TimeSpacing, Is.EqualTo(new TimeSpan(0, 0, 0, timeSpacing)));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }
+
+        [Test]
+        public void MapToSendAllAtOnce()
+        {
+            var model = new CoordinatedSharedMessageModel
+            {
+                Numbers = "04040404040, 11111111111",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllAtOnce = true,
+                Tags = "tag1, tag2",
+                Topic = "Dance Dance Revolution!",
+                ConfirmationEmail = "confirmation"
+            };
+            var mapper = new CoordinatorModelToMessageMapping();
+            var message = mapper.MapToSendAllAtOnce(model, new CountryCodeReplacement(), new List<string>());
+
+            Assert.That(message.Messages.Count, Is.EqualTo(2));
+            Assert.That(message.Messages[0].Mobile, Is.EqualTo(model.Numbers.Split(',')[0].Trim()));
+            Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
+            Assert.That(message.Messages[1].Mobile, Is.EqualTo(model.Numbers.Split(',')[1].Trim()));
+            Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
+            Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags.Split(',').ToList().Select(t => t.Trim()).ToList()));
+            Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
+            Assert.That(message.SendTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
+        }
     }
 }

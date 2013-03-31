@@ -88,6 +88,46 @@ namespace SmsWebTests
             mapper.VerifyAllExpectations();
         }
 
+        [Test]        
+        public void CoordinatorSendAllAtOnceReturnsDetails()
+        {
+            var model = new CoordinatedSharedMessageModel
+            {
+                Numbers= "04040404040",
+                Message = "Message",
+                StartTime = DateTime.Now.AddHours(2),
+                SendAllAtOnce = true,
+                Tags = "tag1, tag2",
+                Topic = "New Feature!"
+            };
+
+            var bus = MockRepository.GenerateMock<IBus>();
+            var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+            var docSession = MockRepository.GenerateMock<IDocumentSession>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
+            docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
+
+            mapper
+                .Expect(m => m.MapToSendAllAtOnce(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Return(new SendAllMessagesAtOnce());
+            var trickleMessage = new SendAllMessagesAtOnce();
+            bus.Expect(b => b.Send(Arg<SendAllMessagesAtOnce>.Is.NotNull))
+                .WhenCalled(i => trickleMessage = (SendAllMessagesAtOnce) ((object[]) (i.Arguments[0]))[0]);
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var actionResult = (RedirectToRouteResult)controller.Create(model);
+
+            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
+            Assert.That(trickleMessage.CoordinatorId, Is.Not.EqualTo(Guid.Empty));
+
+            bus.VerifyAllExpectations();
+            mapper.VerifyAllExpectations();
+        }
+
         [Test]
         public void CoordinatorOverTimespanReturnsDetails()
         {

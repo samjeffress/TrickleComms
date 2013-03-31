@@ -13,6 +13,8 @@ namespace SmsWeb.Controllers
         TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
 
         TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
+        
+        SendAllMessagesAtOnce MapToSendAllAtOnce(CoordinatedSharedMessageModel coordinatedSharedMessageModel, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
     }
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
@@ -51,6 +53,21 @@ namespace SmsWeb.Controllers
                     MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
                     ConfirmationEmail = model.ConfirmationEmail
                 };
+        }
+
+        public SendAllMessagesAtOnce MapToSendAllAtOnce(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers)
+        {
+            return new SendAllMessagesAtOnce
+            {
+                Messages = model
+                                .GetCleanInternationalisedNumbers(countryCodeReplacement)
+                                .Where(n => !excludedNumbers.Contains(n))
+                                .Select(n => new SmsData(n, model.Message))
+                                .ToList(),
+                SendTimeUtc = model.StartTime.ToUniversalTime(),
+                MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
+                ConfirmationEmail = model.ConfirmationEmail
+            };
         }
     }
 }

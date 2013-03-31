@@ -15,6 +15,7 @@ namespace SmsCoordinator
         Saga<CoordinateSmsSchedulingData>,
         IAmStartedByMessages<TrickleSmsOverCalculatedIntervalsBetweenSetDates>, 
         IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
+        IAmStartedByMessages<SendAllMessagesAtOnce>,
         IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
         IHandleMessages<ScheduledSmsFailed>,
@@ -75,6 +76,35 @@ namespace SmsCoordinator
                 var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
                 var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId)
+                {
+                    CorrelationId = Data.CoordinatorId
+                };
+                messageList.Add(smsForSendingLater);
+                Data.MessagesScheduled++;
+                Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
+            }
+            Bus.Send(messageList.ToArray());
+            var coordinatorCreated = new CoordinatorCreated
+            {
+                CoordinatorId = Data.CoordinatorId,
+                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTimeUtc = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
+                CreationDateUtc = DateTime.UtcNow,
+                MetaData = message.MetaData,
+                ConfirmationEmailAddress = message.ConfirmationEmail
+            };
+            Bus.Publish(coordinatorCreated);
+        }
+
+        public void Handle(SendAllMessagesAtOnce message)
+        {
+            Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
+            Data.OriginalScheduleStartTime = message.SendTimeUtc;
+            var messageList = new List<ScheduleSmsForSendingLater>();
+            Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
+            for (int i = 0; i < message.Messages.Count; i++)
+            {
+                var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.SendTimeUtc, smsData, message.MetaData, Data.CoordinatorId)
                 {
                     CorrelationId = Data.CoordinatorId
                 };

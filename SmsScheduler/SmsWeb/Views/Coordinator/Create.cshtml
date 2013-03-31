@@ -33,6 +33,10 @@
         $('#SendAllByButton').bind('click', function() {
             ShowSendAll();
         });
+        
+        $('#AllAtOnceButton').bind('click', function () {
+            HideTimingOptions();
+        });
 
         $('#Message').bind('keyup', function () {   
             CountMessageChar($('#Message'));
@@ -90,7 +94,9 @@
                 <p>Select how you want to coordinate the timing:</p>
                 <input type="button" value="Time Separated" id="TimeSeparatedButton" />
                 <input type="button" value="Send All By Time" id="SendAllByButton" />
+                <input type="button" value="All At Once" id="AllAtOnceButton"/>
             </div>
+            @Html.HiddenFor(model => model.SendAllAtOnce)
             @Html.ValidationMessageFor(model => model.SendAllBy)
             @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
             <div id="TimeSeparatedDiv">

@@ -26,6 +26,8 @@ namespace SmsWeb.Models
 
         public DateTime? SendAllBy { get; set; }
 
+        public bool SendAllAtOnce { get; set; }
+
         public string Tags { get; set; }
 
         public string Topic { get; set; }
