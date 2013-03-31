@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using SmsMessages.CommonData;
-using SmsMessages.Coordinator;
 using SmsMessages.Coordinator.Commands;
 
 namespace SmsWeb.API
@@ -11,6 +10,8 @@ namespace SmsWeb.API
         TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(Coordinator model, Guid requestId);
 
         TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(Coordinator model, Guid requestId);
+
+        SendAllMessagesAtOnce MapToSendAllAtOnce(Coordinator model, Guid requestId);
     }
 
     public class CoordinatorApiModelToMessageMapping : ICoordinatorApiModelToMessageMapping
@@ -38,6 +39,19 @@ namespace SmsWeb.API
                     ToList(),
                 StartTimeUtc = model.StartTimeUtc.ToUniversalTime(),
                 TimeSpacing = model.TimeSeparator.Value,
+                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
+                CoordinatorId = requestId
+            };
+        }
+
+        public SendAllMessagesAtOnce MapToSendAllAtOnce(Coordinator model, Guid requestId)
+        {
+            return new SendAllMessagesAtOnce
+            {
+                Messages =
+                    model.Numbers.Select(n => new SmsData(n, model.Message)).
+                    ToList(),
+                SendTimeUtc = model.StartTimeUtc.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
                 CoordinatorId = requestId
             };
