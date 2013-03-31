@@ -42,7 +42,7 @@
         CheckSendAll();
         CheckTimeSeparated();
 
-        $('#Tags').tagsInput({autocomplete_url:"~/Tag/Search/"});
+        $('#Tags').tagsInput({autocomplete_url:"/Tag/Search/"});
     });
 </script>
 
@@ -80,7 +80,7 @@
     
     <fieldset>
         <div>
-            @Html.LabelFor(model => model.StartTime)
+            @Html.LabelFor(model => model.StartTime, "Start Time")
             @Html.EditorFor(model => model.StartTime)
             @Html.ValidationMessageFor(model => model.StartTime)
         </div>

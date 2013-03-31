@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Raven.Abstractions.Indexing;
 using Raven.Client.Indexes;
 using SmsTrackingModels;
 
@@ -15,6 +16,7 @@ namespace SmsWeb
                                   from tag in tags
                                   select new { Tag = tag.ToLower().ToString(), Count = 1 };
 
+
             Reduce = results => from result in results
                                 group result by result.Tag
                                 into g
@@ -23,6 +25,9 @@ namespace SmsWeb
                                         Tag = g.Key,
                                         Count = g.Sum(x => x.Count)
                                     };
+
+            Stores.Add(x => x.Tag, FieldStorage.Yes);
+            Indexes.Add(x => x.Tag, FieldIndexing.Analyzed);
         }
 
         public class ReduceResult
