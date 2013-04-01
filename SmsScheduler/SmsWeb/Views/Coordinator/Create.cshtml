@@ -46,7 +46,8 @@
         CheckSendAll();
         CheckTimeSeparated();
 
-        $('#Tags').tagsInput({ autocomplete_url: "/Tag/Search/" });
+        var tagSearchUrl = '@Url.Action("Search", "Tag")';
+        $('#Tags').tagsInput({ autocomplete_url: tagSearchUrl });
     });
 </script>
 
