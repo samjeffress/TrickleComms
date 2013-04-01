@@ -18,7 +18,7 @@
 
 <script type="text/javascript" src="~/Scripts/jquery.tagsinput.js"></script>
 @Styles.Render("~/Content/jquery.tagsinput.css")
-
+@Styles.Render("~/Content/Homegrown.css")
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
     $(document).ready(function () {
@@ -49,6 +49,7 @@
         $('#Tags').tagsInput({ autocomplete_url: "/Tag/Search/" });
     });
 </script>
+
 
 <h2>Create Coordinated Messages</h2>
 
@@ -90,11 +91,14 @@
         </div>
         
         <div>
-            <div style="padding-bottom: 10px;">
+            <div style="padding-bottom: 10px; display: inline-block">
                 <p>Select how you want to coordinate the timing:</p>
-                <input type="button" value="Time Separated" id="TimeSeparatedButton" />
-                <input type="button" value="Send All By Time" id="SendAllByButton" />
-                <input type="button" value="All At Once" id="AllAtOnceButton"/>
+                @*<div id="TimeSeparatedButton" class="UnSelectedButton">Time Separated</div>*@
+                <input type="button" value="Time Separated" id="TimeSeparatedButton" class="UnSelectedButton" />
+                @*<div id="SendAllByButton" class="UnSelectedButton">Time Separated</div>*@
+                <input type="button" value="Send All By Time" id="SendAllByButton" class="UnSelectedButton" />
+                @*<div id="AllAtOnceButton" class="UnSelectedButton">Time Separated</div>*@
+                <input type="button" value="All At Once" id="AllAtOnceButton" class="UnSelectedButton"/>
             </div>
             @Html.HiddenFor(model => model.SendAllAtOnce)
             @Html.ValidationMessageFor(model => model.SendAllBy)
