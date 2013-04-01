@@ -35,6 +35,7 @@ function CheckTimeSeparated() {
     if ($('#TimeSeparatorSeconds').val().length == 0) {
         $('#TimeSeparatedDiv').hide();
     } else {
+        
         ShowTimeSeparated();
     }
 }
