@@ -282,6 +282,7 @@
     <Compile Include="Models\FileTypesAttribute.cs" />
     <Compile Include="Models\HomeInputModel.cs" />
     <Compile Include="Models\ScheduleModel.cs" />
+    <Compile Include="Models\SearchByNumberResult.cs" />
     <Compile Include="Models\SendNowModel.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
@@ -302,6 +303,7 @@
     <Content Include="Content\bootstrap-responsive.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\Homegrown.css" />
     <Content Include="Content\images\glyphicons-halflings-white.png" />
     <Content Include="Content\images\glyphicons-halflings.png" />
     <Content Include="Content\jquery.tagsinput.css" />
@@ -483,6 +485,7 @@
     <Content Include="Views\Shared\_CountryCodeConfigDetails.cshtml" />
     <Content Include="Views\Shared\_CountryCodeConfigCreate.cshtml" />
     <Content Include="Views\CountryCodeConfig\Index.cshtml" />
+    <Content Include="Views\Home\Results.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

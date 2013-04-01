@@ -82,6 +82,12 @@ namespace SmsWeb.Controllers
                     trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
+                if (coordinatedMessages.SendAllAtOnce)
+                {
+                    var sendAllAtOnce = Mapper.MapToSendAllAtOnce(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
+                    sendAllAtOnce.CoordinatorId = coordinatorId;
+                    Bus.Send(sendAllAtOnce);    
+                }
 
                 return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }
@@ -165,7 +171,7 @@ namespace SmsWeb.Controllers
                 ModelState.AddModelError("SendAllBy", "SendAllBy time must be after StartTime");
             if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.TimeSeparatorSeconds.HasValue)
                 ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot pick both");
-            if (!coordinatedMessages.SendAllBy.HasValue && !coordinatedMessages.TimeSeparatorSeconds.HasValue)
+            if (!coordinatedMessages.SendAllBy.HasValue && !coordinatedMessages.TimeSeparatorSeconds.HasValue && !coordinatedMessages.SendAllAtOnce)
                 ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot have none");
         }
 

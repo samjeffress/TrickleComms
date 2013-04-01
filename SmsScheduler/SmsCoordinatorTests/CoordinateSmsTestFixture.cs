@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using NServiceBus;
 using NServiceBus.Testing;
 using NUnit.Framework;
 using Rhino.Mocks;
@@ -10,7 +9,6 @@ using SmsMessages.Coordinator.Commands;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Commands;
 using SmsMessages.Scheduling.Events;
-using SmsTrackingMessages.Messages;
 
 namespace SmsCoordinatorTests
 {
@@ -330,6 +328,53 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && 
                         c.ScheduledMessages[1].ScheduledTimeUtc == datetimeSpacing[1])
                 .When(s => s.Handle(trickleMessagesOverTime));
+
+            Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
+            Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));
+            Assert.That(sagaData.ScheduledMessageStatus[1].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));
+            timingManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void SendAllAtOnce_Data()
+        {
+            var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj")};
+            var sendTimeUtc = DateTime.Now;
+            var sendAllMessagesAtOnce = new SendAllMessagesAtOnce { Messages = messageList, SendTimeUtc = sendTimeUtc };
+
+            var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
+
+            var sagaData = new CoordinateSmsSchedulingData { Originator = "originator", Id = Guid.NewGuid() };
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(s =>
+                {
+                    s.TimingManager = timingManager;
+                    s.Data = sagaData;
+                })
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => 
+                        l.SendMessageAtUtc == sendTimeUtc &&
+                        l.SmsData.Message == sendAllMessagesAtOnce.Messages[0].Message &&
+                        l.SmsData.Mobile == sendAllMessagesAtOnce.Messages[0].Mobile &&
+                        l.SmsMetaData == sendAllMessagesAtOnce.MetaData)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l =>
+                        l.SendMessageAtUtc == sendTimeUtc &&
+                        l.SmsData.Message == sendAllMessagesAtOnce.Messages[1].Message &&
+                        l.SmsData.Mobile == sendAllMessagesAtOnce.Messages[1].Mobile &&
+                        l.SmsMetaData == sendAllMessagesAtOnce.MetaData)
+                    .ExpectPublish<CoordinatorCreated>(c => 
+                        c.CoordinatorId == sagaData.Id && 
+                        c.ScheduledMessages.Count == 2 &&
+                        c.ScheduledMessages[0].Number == sendAllMessagesAtOnce.Messages[0].Mobile &&
+                        c.ScheduledMessages[0].ScheduleMessageId == sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId && 
+                        c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty &&
+                        c.ScheduledMessages[0].ScheduledTimeUtc == sendTimeUtc &&
+
+                        c.ScheduledMessages[1].Number == sendAllMessagesAtOnce.Messages[1].Mobile &&
+                        c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
+                        c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty &&
+                        c.ScheduledMessages[1].ScheduledTimeUtc == sendTimeUtc)
+                .When(s => s.Handle(sendAllMessagesAtOnce));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
             Assert.That(sagaData.ScheduledMessageStatus[0].MessageStatus, Is.EqualTo(MessageStatus.WaitingForScheduling));

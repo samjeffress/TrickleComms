@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using ConfigurationModels;
+using Raven.Client.Linq;
 using SmsTrackingModels;
+using System.Linq;
+using SmsWeb.Models;
 
 namespace SmsWeb.Controllers
 {
@@ -47,19 +51,41 @@ namespace SmsWeb.Controllers
         public ActionResult Search(string id)
         {
             Guid docId;
-            Guid.TryParse(id, out docId);
-            using (var session = RavenDocStore.GetStore().OpenSession())
+
+            if (Guid.TryParse(id, out docId))
             {
-                var trackingData = session.Load<object>(docId.ToString());
-                if (trackingData != null)
+                using (var session = RavenDocStore.GetStore().OpenSession())
                 {
-                    if (trackingData is CoordinatorTrackingData)
-                        return RedirectToAction("Details", "Coordinator", new {coordinatorId = id});
-                    if (trackingData is ScheduleTrackingData)
-                        return RedirectToAction("Details", "Schedule", new {scheduleId = id});
-                    if (trackingData is SmsTrackingData)
-                        return RedirectToAction("Details", "SendNow", new {requestId = id});
-                    throw new Exception("Type not recognised");
+                    var trackingData = session.Load<object>(docId.ToString());
+                    if (trackingData != null)
+                    {
+                        if (trackingData is CoordinatorTrackingData)
+                            return RedirectToAction("Details", "Coordinator", new {coordinatorId = id});
+                        if (trackingData is ScheduleTrackingData)
+                            return RedirectToAction("Details", "Schedule", new {scheduleId = id});
+                        if (trackingData is SmsTrackingData)
+                            return RedirectToAction("Details", "SendNow", new {requestId = id});
+                        throw new Exception("Type not recognised");
+                    }
+                }
+            }
+            else
+            {
+                using (var session = RavenDocStore.GetStore().OpenSession())
+                {
+                    var reduceResults = session.Query<PhoneNumberInCoordinatedMessages.ReduceResult, PhoneNumberInCoordinatedMessages>()
+                        .Where(p => p.PhoneNumber.StartsWith(id))
+                        .Select(p => new SearchByNumberResult
+                            {
+                                CoordinatorId = p.CoordinatorId,
+                                PhoneNumber = p.PhoneNumber,
+                                SendingDate = p.SendingDate,
+                                Status = p.Status,
+                                Topic = p.Topic,
+
+                            })
+                        .ToList();
+                    return View("Results", reduceResults);
                 }
             }
             return View("NoResults", (object)id);

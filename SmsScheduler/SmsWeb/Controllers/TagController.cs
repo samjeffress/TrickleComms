@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace SmsWeb.Controllers
@@ -12,14 +13,26 @@ namespace SmsWeb.Controllers
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
-                var reduceResults = session.Query<CoordinatorTagList.ReduceResult, CoordinatorTagList>().ToList();
+                var reduceResults = session.Query<CoordinatorTagList.ReduceResult, CoordinatorTagList>()
+                    .OrderByDescending(t => t.Count)
+                    .Select(t => new { Label = t.Tag, Value= t.Tag })
+                    .ToList();
                 return Json(reduceResults, JsonRequestBehavior.AllowGet);
             }
         }
 
-        public ActionResult Search(string query)
+        public ActionResult Search(string term)
         {
-            return View();
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var reduceResults = session
+                    .Query<CoordinatorTagList.ReduceResult, CoordinatorTagList>()
+                    .Where(t => t.Tag.StartsWith(term, true, CultureInfo.CurrentCulture))
+                    .ToList()
+                    .Select(t => new { id = t.Tag, label = t.Tag, value = t.Tag })
+                    .ToList();
+                return Json(reduceResults, JsonRequestBehavior.AllowGet);
+            }
         }
     }
 }

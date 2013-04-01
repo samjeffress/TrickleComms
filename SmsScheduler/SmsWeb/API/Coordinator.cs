@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NServiceBus;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.ServiceModel;
+using SmsMessages.Coordinator.Commands;
 using SmsTrackingModels;
 
 namespace SmsWeb.API
@@ -20,6 +21,8 @@ namespace SmsWeb.API
         public TimeSpan? TimeSeparator { get; set; }
 
         public DateTime? SendAllByUtc { get; set; }
+
+        public bool SendAllAtOnce { get; set; }
 
         public List<string> Tags { get; set; }
 
@@ -76,7 +79,7 @@ namespace SmsWeb.API
                 response.Errors.Add(new ResponseError { Message = "Sms exceeds 160 character length"});
             if (request.Numbers == null || request.Numbers.Count == 0)
                 response.Errors.Add(new ResponseError {Message = "List of numbers required"});
-            if ((request.SendAllByUtc.HasValue && request.TimeSeparator.HasValue) || (!request.SendAllByUtc.HasValue && !request.TimeSeparator.HasValue))
+            if (!MessageTypeValid(request))
                 response.Errors.Add(new ResponseError { Message = "Message must contain either Time Separator OR DateTime to send all messages by." });
             if (string.IsNullOrWhiteSpace(request.Topic))
                 response.Errors.Add(new ResponseError { Message = "Topic must be set" });
@@ -91,19 +94,62 @@ namespace SmsWeb.API
                     coordinatorResponse.RequestId = Guid.NewGuid();
                 else
                     coordinatorResponse.RequestId = request.RequestId;
-                if (request.TimeSeparator.HasValue && !request.SendAllByUtc.HasValue)
+                if (GetMessageTypeFromModel(request) == typeof(TrickleSmsWithDefinedTimeBetweenEachMessage))
                 {
                     var message = Mapper.MapToTrickleSpacedByPeriod(request, coordinatorResponse.RequestId);
                     Bus.Send(message);
                 }
-                if (!request.TimeSeparator.HasValue && request.SendAllByUtc.HasValue)
+                else if (GetMessageTypeFromModel(request) == typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates))
                 {
                     var message = Mapper.MapToTrickleOverPeriod(request, coordinatorResponse.RequestId);
+                    Bus.Send(message);
+                }
+                else if (GetMessageTypeFromModel(request) == typeof (SendAllMessagesAtOnce))
+                {
+                    var message = Mapper.MapToSendAllAtOnce(request, coordinatorResponse.RequestId);
                     Bus.Send(message);
                 }
             }
 
             return coordinatorResponse;
+        }
+
+        private bool MessageTypeValid(Coordinator request)
+        {
+            try
+            {
+                GetMessageTypeFromModel(request);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+             
+        }
+
+        private Type GetMessageTypeFromModel(Coordinator request)
+        {
+            Type requestType = typeof (object);
+            var trueCount = 0;
+            if (request.SendAllByUtc.HasValue)
+            {
+                requestType = typeof (TrickleSmsOverCalculatedIntervalsBetweenSetDates);
+                trueCount++;
+            }
+            if (request.TimeSeparator.HasValue)
+            {
+                requestType = typeof (TrickleSmsWithDefinedTimeBetweenEachMessage);
+                trueCount++;
+            }
+            if (request.SendAllAtOnce)
+            {
+                requestType = typeof (SendAllMessagesAtOnce);
+                trueCount++;
+            }
+            if (trueCount != 1)
+                throw new ArgumentException("Cannot determine which message type to send");
+            return requestType;
         }
     }
 }
