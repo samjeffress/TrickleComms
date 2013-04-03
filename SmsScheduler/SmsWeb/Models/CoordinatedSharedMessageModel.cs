@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using ConfigurationModels;
+using SmsMessages.Coordinator.Commands;
 
 namespace SmsWeb.Models
 {
@@ -44,6 +45,44 @@ namespace SmsWeb.Models
         public List<string> GetCleanInternationalisedNumbers(CountryCodeReplacement countryCodeReplacement)
         {
             return Numbers.Split(',').Select(number => countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(number) : number.Trim()).ToList();
+        }
+
+        public bool IsMessageTypeValid()
+        {
+            try
+            {
+                GetMessageTypeFromModel();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // TODO : Add tests for this method
+        public Type GetMessageTypeFromModel()
+        {
+            Type requestType = typeof(object);
+            var trueCount = 0;
+            if (SendAllBy.HasValue)
+            {
+                requestType = typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates);
+                trueCount++;
+            }
+            if (TimeSeparatorSeconds.HasValue)
+            {
+                requestType = typeof(TrickleSmsWithDefinedTimeBetweenEachMessage);
+                trueCount++;
+            }
+            if (SendAllAtOnce.GetValueOrDefault() || Numbers.Split(',').Count() == 1)
+            {
+                requestType = typeof(SendAllMessagesAtOnce);
+                trueCount++;
+            }
+            if (trueCount != 1)
+                throw new ArgumentException("Cannot determine which message type to send");
+            return requestType;
         }
     }
 }
