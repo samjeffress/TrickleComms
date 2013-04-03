@@ -21,6 +21,24 @@
 @Styles.Render("~/Content/Homegrown.css")
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
+    function MobileNumberCount() {
+        var numbers = $('#Numbers').val().split(',');
+        var numberCount = 0;
+        for (var i = 0; i < numbers.length; i++) {
+            if (numbers[i].replace(" ", "").length > 2)
+                numberCount++;
+        }
+        return numberCount;
+    }
+
+    function showOrHideTiming() {
+        if (MobileNumberCount() > 1) {
+            $('#CoordinationTiming').show(600);
+        } else {
+            $('#CoordinationTiming').hide(600);
+        }
+    }
+
     $(document).ready(function () {
 
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
@@ -38,6 +56,11 @@
             HideTimingOptions();
         });
 
+        $('#Numbers').bind('change keyup blur focus', function() {
+            showOrHideTiming();
+        });
+        showOrHideTiming();
+        
         $('#Message').bind('keyup', function () {   
             CountMessageChar($('#Message'));
         });
@@ -83,21 +106,19 @@
         </div>
     </fieldset>
     
-    <fieldset>
+    <fieldset id="Timing">
+        @*<legend>Timing</legend>*@
         <div>
             @Html.LabelFor(model => model.StartTime, "Start Time")
             @Html.EditorFor(model => model.StartTime)
             @Html.ValidationMessageFor(model => model.StartTime)
         </div>
         
-        <div>
+        <div id="CoordinationTiming">
             <div style="padding-bottom: 10px; display: inline-block">
                 <p>Select how you want to coordinate the timing:</p>
-                @*<div id="TimeSeparatedButton" class="UnSelectedButton">Time Separated</div>*@
                 <input type="button" value="Time Separated" id="TimeSeparatedButton" class="UnSelectedButton" />
-                @*<div id="SendAllByButton" class="UnSelectedButton">Time Separated</div>*@
                 <input type="button" value="Send All By Time" id="SendAllByButton" class="UnSelectedButton" />
-                @*<div id="AllAtOnceButton" class="UnSelectedButton">Time Separated</div>*@
                 <input type="button" value="All At Once" id="AllAtOnceButton" class="UnSelectedButton"/>
             </div>
             @Html.HiddenFor(model => model.SendAllAtOnce)
@@ -115,6 +136,7 @@
     </fieldset>
     
     <fieldset>
+        @*<legend>Exclusions</legend>*@
         @Html.LabelFor(model => model.CoordinatorsToExclude, "Coordinators To Exclude")
         @Html.ListBox("CoordinatorsToExclude", ViewData["CoordinatorExcludeList"] as List<SelectListItem>, new { Class = "span6" })
     </fieldset>

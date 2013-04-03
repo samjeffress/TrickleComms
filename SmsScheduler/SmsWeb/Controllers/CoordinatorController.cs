@@ -76,13 +76,13 @@ namespace SmsWeb.Controllers
                     trickleSmsSpacedByTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsSpacedByTimePeriod);
                 }
-                if (!coordinatedMessages.TimeSeparatorSeconds.HasValue && coordinatedMessages.SendAllBy.HasValue)
+                else if (!coordinatedMessages.TimeSeparatorSeconds.HasValue && coordinatedMessages.SendAllBy.HasValue)
                 {
                     var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
                     trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
-                if (coordinatedMessages.SendAllAtOnce)
+                else if (coordinatedMessages.SendAllAtOnce.GetValueOrDefault() || coordinatedMessages.Numbers.Split(',').Length == 1)
                 {
                     var sendAllAtOnce = Mapper.MapToSendAllAtOnce(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
                     sendAllAtOnce.CoordinatorId = coordinatorId;
@@ -169,10 +169,46 @@ namespace SmsWeb.Controllers
                 ModelState.AddModelError("StartTime", "Start Time must be in the future");
             if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.SendAllBy.Value <= coordinatedMessages.StartTime)
                 ModelState.AddModelError("SendAllBy", "SendAllBy time must be after StartTime");
-            if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.TimeSeparatorSeconds.HasValue)
-                ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot pick both");
-            if (!coordinatedMessages.SendAllBy.HasValue && !coordinatedMessages.TimeSeparatorSeconds.HasValue && !coordinatedMessages.SendAllAtOnce)
-                ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot have none");
+            if (!MessageTypeValid(coordinatedMessages))
+                ModelState.AddModelError("SendAllBy","Message must contain either Time Separator OR DateTime to send all messages by.");
+        }
+
+        private bool MessageTypeValid(CoordinatedSharedMessageModel request)
+        {
+            try
+            {
+                GetMessageTypeFromModel(request);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+
+        }
+
+        private Type GetMessageTypeFromModel(CoordinatedSharedMessageModel request)
+        {
+            Type requestType = typeof(object);
+            var trueCount = 0;
+            if (request.SendAllBy.HasValue)
+            {
+                requestType = typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates);
+                trueCount++;
+            }
+            if (request.TimeSeparatorSeconds.HasValue)
+            {
+                requestType = typeof(TrickleSmsWithDefinedTimeBetweenEachMessage);
+                trueCount++;
+            }
+            if (request.SendAllAtOnce.GetValueOrDefault() || request.Numbers.Split(',').Count() == 1)
+            {
+                requestType = typeof(SendAllMessagesAtOnce);
+                trueCount++;
+            }
+            if (trueCount != 1)
+                throw new ArgumentException("Cannot determine which message type to send");
+            return requestType;
         }
 
         public ActionResult Details(string coordinatorid)

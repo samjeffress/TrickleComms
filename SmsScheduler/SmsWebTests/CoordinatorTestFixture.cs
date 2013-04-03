@@ -53,7 +53,7 @@ namespace SmsWebTests
         {
             var model = new CoordinatedSharedMessageModel
             {
-                Numbers= "04040404040",
+                Numbers= "04040404040, 04040402",
                 Message = "Message",
                 StartTime = DateTime.Now.AddHours(2),
                 TimeSeparatorSeconds = 5000,
@@ -133,7 +133,7 @@ namespace SmsWebTests
         {
             var model = new CoordinatedSharedMessageModel
             {
-                Numbers = "04040404040",
+                Numbers = "04040404040, lskadfjlasdk",
                 Message = "Message",
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
@@ -172,7 +172,7 @@ namespace SmsWebTests
         {
             var model = new CoordinatedSharedMessageModel
             {
-                Numbers = "04040404040",
+                Numbers = "04040404040, 0920939",
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
@@ -311,6 +311,51 @@ namespace SmsWebTests
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
             Assert.That(coordinatorMessage.Message, Is.EqualTo(model.Message.Substring(0, 160)));
             Assert.That(excludeList.ToList(), Is.EqualTo(excludeList1.Union(excludeList2).Distinct().ToList()));
+
+            bus.VerifyAllExpectations();
+            mapper.VerifyAllExpectations();
+            configSession.VerifyAllExpectations();
+            trackingSession.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void CoordinatorSingleNumber_UseSendAllNow()
+        {
+            var model = new CoordinatedSharedMessageModel
+            {
+                Numbers = "04040404040",
+                Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
+                StartTime = DateTime.Now.AddHours(2),
+                Topic = "frank"
+            };
+
+            var bus = MockRepository.GenerateMock<IBus>();
+            var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var docStore = MockRepository.GenerateMock<IDocumentStore>();
+            var configSession = MockRepository.GenerateMock<IDocumentSession>();
+            var trackingSession = MockRepository.GenerateMock<IDocumentSession>();
+
+            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
+            docStore.Expect(d => d.OpenSession("Configuration")).Return(configSession);
+            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(trackingSession);
+            configSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
+
+            var coordinatorMessage = new CoordinatedSharedMessageModel();
+            
+            List<string> excludeList = null;
+            mapper
+                .Expect(m => m.MapToSendAllAtOnce(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Return(new SendAllMessagesAtOnce())
+                .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]))
+                .WhenCalled(t => excludeList = (List<string>)(t.Arguments[2]));
+            bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
+
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var actionResult = (RedirectToRouteResult)controller.Create(model);
+
+            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
+            Assert.That(coordinatorMessage.Message, Is.EqualTo(model.Message.Substring(0, 160)));
 
             bus.VerifyAllExpectations();
             mapper.VerifyAllExpectations();
@@ -585,7 +630,7 @@ namespace SmsWebTests
             docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
             var model = new CoordinatedSharedMessageModel
             {
-                Numbers = "04040404040",
+                Numbers = "04040404040, 3984938",
                 Message = "Message",
                 StartTime = DateTime.Now.AddHours(2),
                 CoordinatorsToExclude = new List<Guid>(),
