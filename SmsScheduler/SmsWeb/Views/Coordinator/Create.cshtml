@@ -77,29 +77,30 @@
 <h2>Create Coordinated Messages</h2>
 
 
-@using (Html.BeginForm("Create", "Coordinator", FormMethod.Post, new { enctype = "multipart/form-data" }))
+
+@using (Html.BeginForm("Create", "Coordinator", FormMethod.Post, new Dictionary<string, object>() {{ "enctype", "multipart/form-data"}, {"class", "form-horizontal" }}))
 {
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Topic)
             @Html.EditorFor(model => model.Topic)
             @Html.ValidationMessageFor(model => model.Topic)
         </div>
 
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Message)
             @{ 
-                var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.Message) && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
-                messageValidationClass = messageValidationClass + ", span6";
+    var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.Message) && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
+    messageValidationClass = messageValidationClass + ", span6";
             }
-            @Html.TextAreaFor(model => model.Message, new Dictionary<string, object> { {"class", @messageValidationClass}})
+            @Html.TextAreaFor(model => model.Message, new Dictionary<string, object> { { "class", @messageValidationClass } })
             @Html.ValidationMessageFor(model => model.Message)
             <div id="messageCounter"></div>
         </div>
 
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Numbers)
             @Html.TextAreaFor(model => model.Numbers, new { Class = "span6"})
             @Html.ValidationMessageFor(model => model.Numbers)
@@ -108,7 +109,7 @@
     
     <fieldset id="Timing">
         @*<legend>Timing</legend>*@
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.StartTime, "Start Time")
             @Html.EditorFor(model => model.StartTime)
             @Html.ValidationMessageFor(model => model.StartTime)
@@ -136,19 +137,22 @@
     </fieldset>
     
     <fieldset>
+        <div class="control-group">
         @*<legend>Exclusions</legend>*@
         @Html.LabelFor(model => model.CoordinatorsToExclude, "Coordinators To Exclude")
         @Html.ListBox("CoordinatorsToExclude", ViewData["CoordinatorExcludeList"] as List<SelectListItem>, new { Class = "span6" })
+
+        </div>
     </fieldset>
 
     <fieldset>
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.ConfirmationEmail, "Confirmation Email")
             @Html.EditorFor(model => model.ConfirmationEmail)
             @Html.ValidationMessageFor(model => model.ConfirmationEmail)
         </div>
         
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Tags)
             @Html.EditorFor(model => model.Tags)
             @Html.ValidationMessageFor(model => model.Tags)
