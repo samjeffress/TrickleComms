@@ -66,15 +66,30 @@ namespace EmailSender
                     throw new ArgumentException("Could not find the default 'From' sender.");
                 var subject = "Coordinator " + message.CoordinatorId + " complete.";
 
-                var builder = new StringBuilder();
-                builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
-                builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
-                var totalMessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count;
-                builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " + totalMessageCount + " sent.");
-                var body = builder.ToString();
+                //var builder = new StringBuilder();
+                //builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
+                //builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
+                //var totalMessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count;
+                //builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " + totalMessageCount + " sent.");
+                ////var body = builder.ToString();
+
+
+
+                var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorFinished.cshtml", new
+                {
+                    message.CoordinatorId,
+                    message.FinishTimeUtc,
+                    MessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count,
+                    SuccessfulMessageCount = message.SendingData.SuccessfulMessages.Count,
+                    UnsuccessfulMessageCount = message.SendingData.UnsuccessfulMessageses.Count,
+                    TotalCost = message.SendingData.SuccessfulMessages.Sum(m => m.Cost),
+                });
+
                 var mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom);
                 mailMessage.Body = body;
+                mailMessage.BodyEncoding = Encoding.UTF8;
+                mailMessage.IsBodyHtml = true;
                 mailMessage.Subject = subject;
                 if (!string.IsNullOrWhiteSpace(message.EmailAddress))
                     mailMessage.To.Add(message.EmailAddress);
@@ -97,15 +112,21 @@ namespace EmailSender
                     throw new ArgumentException("Could not find the default 'From' sender.");
                 var subject = "Coordinator " + message.CoordinatorId + " created.";
 
-                var builder = new StringBuilder();
-                builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") created at " + message.CreationDateUtc + " (UTC).");
-                builder.AppendLine("Message count " + message.ScheduledMessages.Count + " scheduled between " + message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Min()
-                    + " (UTC) and " + message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max() + " (UTC).");
-                var body = builder.ToString();
+                var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorCreated.cshtml", new
+                    {
+                        message.CoordinatorId,
+                        message.CreationDateUtc,
+                        MessageCount = message.ScheduledMessages.Count,
+                        StartTimeUTC = message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Min(),
+                        EndTimeUTC = message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max(),
+                        message.MetaData.Topic
+                    });
 
                 var mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom); 
                 mailMessage.Body = body;
+                mailMessage.BodyEncoding = Encoding.UTF8;
+                mailMessage.IsBodyHtml = true;
                 mailMessage.Subject = subject;
                 if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
                     mailMessage.To.Add(message.ConfirmationEmailAddress);

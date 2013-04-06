@@ -166,7 +166,7 @@ namespace SmsWeb.Controllers
                 ModelState.AddModelError("Topic", "Topic must be set");
             if (coordinatedMessages.Numbers == null || coordinatedMessages.Numbers.Split(',').Length == 0)
                 ModelState.AddModelError("numberList", "Please include the numbers you want to send to.");
-            if (coordinatedMessages.StartTime < DateTime.Now)
+            if (coordinatedMessages.StartTime < DateTime.Now.AddMinutes(-5))
                 ModelState.AddModelError("StartTime", "Start Time must be in the future");
             if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.SendAllBy.Value <= coordinatedMessages.StartTime)
                 ModelState.AddModelError("SendAllBy", "SendAllBy time must be after StartTime");

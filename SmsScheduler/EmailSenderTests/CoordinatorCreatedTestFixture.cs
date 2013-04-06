@@ -6,6 +6,7 @@ using EmailSender;
 using NUnit.Framework;
 using Raven.Client;
 using Rhino.Mocks;
+using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Events;
 
 namespace EmailSenderTests
@@ -60,7 +61,7 @@ namespace EmailSenderTests
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner };
-            var coordinatorComplete = new CoordinatorCreated { ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now }}};
+            var coordinatorComplete = new CoordinatorCreated { ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now }}, MetaData = new SmsMetaData()};
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
@@ -85,7 +86,7 @@ namespace EmailSenderTests
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner };
-            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } } };
+            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
@@ -110,7 +111,7 @@ namespace EmailSenderTests
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner };
-            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now }}};
+            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
