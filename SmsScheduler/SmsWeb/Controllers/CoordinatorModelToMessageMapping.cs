@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConfigurationModels;
+using NodaTime;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsWeb.Models;
@@ -19,6 +20,15 @@ namespace SmsWeb.Controllers
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
     {
+        public DateTime DateTimeWithOlsenZoneToUtc(DateTime dateTime, string olsenTimeZone)
+        {
+            var dateTimeZoneProvider = DateTimeZoneProviders.Tzdb;
+            var dateTimeZone = dateTimeZoneProvider[olsenTimeZone];
+            var startTime = dateTime;
+            var localDateTime = new LocalDateTime(startTime.Year, startTime.Month, startTime.Day, startTime.Hour, startTime.Minute);
+            return dateTimeZone.AtLeniently(localDateTime).ToDateTimeUtc();
+        }
+
         public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers)
         {
             return new TrickleSmsOverCalculatedIntervalsBetweenSetDates
@@ -29,7 +39,7 @@ namespace SmsWeb.Controllers
                                     .Where(n => !excludedNumbers.Contains(n))
                                     .Select(n => new SmsData(n, model.Message))
                                     .ToList(),
-                    StartTimeUtc = model.StartTime.ToUniversalTime(),
+                    StartTimeUtc = DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone), // startTimeUtc,// model.StartTime.ToUniversalTime(),
                     MetaData = new SmsMetaData
                         {
                             Tags = model.GetTagList(), 

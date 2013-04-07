@@ -78,7 +78,8 @@ namespace SmsWebTests
                     SendAllBy = DateTime.Now.AddHours(3),
                     Tags = "tag1, tag2",
                     Topic = "Dance Dance Revolution!",
-                    ConfirmationEmail = "toby@toby.com"
+                    ConfirmationEmail = "toby@toby.com",
+                    UserTimeZone = "Australia/Sydney"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), new List<string>());
@@ -92,9 +93,37 @@ namespace SmsWebTests
             Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
             Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags.Split(',').ToList().Select(t => t.Trim().ToList())));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
-            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.StartTimeUtc.Date, Is.EqualTo(model.StartTime.ToUniversalTime().Date));
+            Assert.That(message.StartTimeUtc.Hour, Is.EqualTo(model.StartTime.ToUniversalTime().Hour));
+            Assert.That(message.StartTimeUtc.Minute, Is.EqualTo(model.StartTime.ToUniversalTime().Minute));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
+        }
+
+        [Test]
+        public void MapToTrickleOverTimeTimeZoneTest()
+        {
+            var startTimeElSalvador = DateTime.Now;
+            var startTimeUTC = startTimeElSalvador.AddHours(6);
+            var model = new CoordinatedSharedMessageModel
+                {
+                    Numbers = "04040404040, 11111111111",
+                    Message = "Message",
+                    StartTime = startTimeElSalvador,
+                    SendAllBy = DateTime.Now.AddHours(3),
+                    Tags = "tag1, tag2",
+                    Topic = "Dance Dance Revolution!",
+                    ConfirmationEmail = "toby@toby.com",
+                    UserTimeZone = "America/El_Salvador"
+                };
+            var mapper = new CoordinatorModelToMessageMapping();
+            var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), new List<string>());
+
+            Assert.That(message.StartTimeUtc.Date.Year, Is.EqualTo(startTimeUTC.Date.Year));
+            Assert.That(message.StartTimeUtc.Date.Month, Is.EqualTo(startTimeUTC.Date.Month));
+            Assert.That(message.StartTimeUtc.Date.Day, Is.EqualTo(startTimeUTC.Date.Day));
+            Assert.That(message.StartTimeUtc.Date.Hour, Is.EqualTo(startTimeUTC.Date.Hour));
+            Assert.That(message.StartTimeUtc.Date.Minute, Is.EqualTo(startTimeUTC.Date.Minute));
         }
 
         [Test]
@@ -108,7 +137,8 @@ namespace SmsWebTests
                     SendAllBy = DateTime.Now.AddHours(3),
                     Tags = "tag1, tag2",
                     Topic = "Dance Dance Revolution!",
-                    ConfirmationEmail = "toby@toby.com"
+                    ConfirmationEmail = "toby@toby.com",
+                    UserTimeZone = "Australia/Sydney"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement { CountryCode = "+61", LeadingNumberToReplace = "0"}, new List<string>());
@@ -122,7 +152,9 @@ namespace SmsWebTests
             Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
             Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags.Split(',').ToList().Select(t => t.Trim().ToList())));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
-            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.StartTimeUtc.Date, Is.EqualTo(model.StartTime.ToUniversalTime().Date));
+            Assert.That(message.StartTimeUtc.Hour, Is.EqualTo(model.StartTime.ToUniversalTime().Hour));
+            Assert.That(message.StartTimeUtc.Minute, Is.EqualTo(model.StartTime.ToUniversalTime().Minute));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }
@@ -137,7 +169,8 @@ namespace SmsWebTests
                     StartTime = DateTime.Now.AddHours(2),
                     SendAllBy = DateTime.Now.AddHours(3),
                     Topic = "Dance Dance Revolution!",
-                    ConfirmationEmail = "toby@toby.com"
+                    ConfirmationEmail = "toby@toby.com",
+                    UserTimeZone = "Australia/Sydney"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), new List<string>());
@@ -151,7 +184,9 @@ namespace SmsWebTests
             Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
             Assert.That(message.MetaData.Tags, Is.EqualTo(null));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
-            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.StartTimeUtc.Date, Is.EqualTo(model.StartTime.ToUniversalTime().Date));
+            Assert.That(message.StartTimeUtc.Hour, Is.EqualTo(model.StartTime.ToUniversalTime().Hour));
+            Assert.That(message.StartTimeUtc.Minute, Is.EqualTo(model.StartTime.ToUniversalTime().Minute));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }
@@ -166,7 +201,8 @@ namespace SmsWebTests
                     StartTime = DateTime.Now.AddHours(2),
                     SendAllBy = DateTime.Now.AddHours(3),
                     Topic = "Dance Dance Revolution!",
-                    ConfirmationEmail = "toby@toby.com"
+                    ConfirmationEmail = "toby@toby.com",
+                    UserTimeZone = "Australia/Sydney"
                 };
             var mapper = new CoordinatorModelToMessageMapping();
             var excludedNumbers = new List<string> { "04040404040" };
@@ -179,7 +215,9 @@ namespace SmsWebTests
             Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
             Assert.That(message.MetaData.Tags, Is.EqualTo(null));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
-            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTime.ToUniversalTime()));
+            Assert.That(message.StartTimeUtc.Date, Is.EqualTo(model.StartTime.ToUniversalTime().Date));
+            Assert.That(message.StartTimeUtc.Hour, Is.EqualTo(model.StartTime.ToUniversalTime().Hour));
+            Assert.That(message.StartTimeUtc.Minute, Is.EqualTo(model.StartTime.ToUniversalTime().Minute));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
         }

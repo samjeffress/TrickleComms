@@ -15,6 +15,7 @@
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
 <script type="text/javascript" src="~/Scripts/Coordinator.js" ></script>
 <script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
+<script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
 
 <script type="text/javascript" src="~/Scripts/jquery.tagsinput.js"></script>
 @Styles.Render("~/Content/jquery.tagsinput.css")
@@ -70,6 +71,8 @@
         CheckTimeSeparated();
 
         $('#Tags').tagsInput({ autocomplete_url: "/Tag/Search/" });
+
+        $('#UserTimeZone').val(jstz.determine().name());
     });
 </script>
 
@@ -113,6 +116,8 @@
             @Html.LabelFor(model => model.StartTime, "Start Time")
             @Html.EditorFor(model => model.StartTime)
             @Html.ValidationMessageFor(model => model.StartTime)
+            @Html.HiddenFor(model => model.UserTimeZone)
+            @Html.ValidationMessageFor(model => model.UserTimeZone)
         </div>
         
         <div id="CoordinationTiming">

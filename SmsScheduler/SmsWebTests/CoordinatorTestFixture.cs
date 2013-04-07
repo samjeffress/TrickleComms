@@ -58,7 +58,8 @@ namespace SmsWebTests
                 StartTime = DateTime.Now.AddHours(2),
                 TimeSeparatorSeconds = 5000,
                 Tags = "tag1, tag2",
-                Topic = "New Feature!"
+                Topic = "New Feature!",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -98,7 +99,8 @@ namespace SmsWebTests
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllAtOnce = true,
                 Tags = "tag1, tag2",
-                Topic = "New Feature!"
+                Topic = "New Feature!",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -137,7 +139,8 @@ namespace SmsWebTests
                 Message = "Message",
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
-                Topic = "frank"
+                Topic = "frank",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -176,7 +179,8 @@ namespace SmsWebTests
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
-                Topic = "frank"
+                Topic = "frank",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -222,7 +226,8 @@ namespace SmsWebTests
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
                 CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude },
-                Topic = "frank"
+                Topic = "frank",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -272,7 +277,8 @@ namespace SmsWebTests
                 StartTime = DateTime.Now.AddHours(2),
                 SendAllBy = DateTime.Now.AddHours(3),
                 CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude1, CoordinatorToExclude2 },
-                Topic = "frank"
+                Topic = "frank",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -326,7 +332,8 @@ namespace SmsWebTests
                 Numbers = "04040404040",
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
-                Topic = "frank"
+                Topic = "frank",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -375,7 +382,8 @@ namespace SmsWebTests
                 StartTime = DateTime.Now.AddHours(2),
                 TimeSeparatorSeconds = 3,
                 CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude1, CoordinatorToExclude2 },
-                Topic = "frank"
+                Topic = "frank",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var bus = MockRepository.GenerateMock<IBus>();
@@ -635,7 +643,8 @@ namespace SmsWebTests
                 StartTime = DateTime.Now.AddHours(2),
                 CoordinatorsToExclude = new List<Guid>(),
                 TimeSeparatorSeconds = 4,
-                Topic = "frank"
+                Topic = "frank",
+                UserTimeZone = "Australia/Sydney"
             };
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), RavenDocStore = ravenDocStore, Mapper = mapper, Bus = bus };
