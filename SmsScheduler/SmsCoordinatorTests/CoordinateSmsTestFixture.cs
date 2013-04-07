@@ -287,7 +287,7 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesOverPeriod_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj")};
-            var trickleMessagesOverTime = new TrickleSmsOverCalculatedIntervalsBetweenSetDates { Duration = new TimeSpan(1000), Messages = messageList, StartTimeUtc = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsOverCalculatedIntervalsBetweenSetDates { Duration = new TimeSpan(1000), Messages = messageList, StartTimeUtc = DateTime.Now, UserOlsenTimeZone = "timeZone"};
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
@@ -326,7 +326,8 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && 
-                        c.ScheduledMessages[1].ScheduledTimeUtc == datetimeSpacing[1])
+                        c.ScheduledMessages[1].ScheduledTimeUtc == datetimeSpacing[1] &&
+                        c.UserOlsenTimeZone == trickleMessagesOverTime.UserOlsenTimeZone)
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -340,7 +341,7 @@ namespace SmsCoordinatorTests
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj")};
             var sendTimeUtc = DateTime.Now;
-            var sendAllMessagesAtOnce = new SendAllMessagesAtOnce { Messages = messageList, SendTimeUtc = sendTimeUtc };
+            var sendAllMessagesAtOnce = new SendAllMessagesAtOnce { Messages = messageList, SendTimeUtc = sendTimeUtc, UserOlsenTimeZone = "timeZone"};
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
 
@@ -373,7 +374,8 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[1].Number == sendAllMessagesAtOnce.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty &&
-                        c.ScheduledMessages[1].ScheduledTimeUtc == sendTimeUtc)
+                        c.ScheduledMessages[1].ScheduledTimeUtc == sendTimeUtc &&
+                        c.UserOlsenTimeZone == sendAllMessagesAtOnce.UserOlsenTimeZone)
                 .When(s => s.Handle(sendAllMessagesAtOnce));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -386,7 +388,7 @@ namespace SmsCoordinatorTests
         public void TrickleMessagesSpacedByTimespan_Data()
         {
             var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj") };
-            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTimeUtc = DateTime.Now };
+            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTimeUtc = DateTime.Now, UserOlsenTimeZone = "timeZone"};
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
@@ -420,7 +422,8 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
                         c.ScheduledMessages[1].ScheduleMessageId == sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId && 
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[1].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks)
+                        c.ScheduledMessages[1].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
+                        c.UserOlsenTimeZone == trickleMessagesOverTime.UserOlsenTimeZone)
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
