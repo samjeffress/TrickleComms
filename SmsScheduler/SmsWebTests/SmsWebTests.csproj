@@ -99,6 +99,7 @@
     <Compile Include="CoordinatorModelToMessageMappingTestFixture.cs" />
     <Compile Include="CoordinatorTestFixture.cs" />
     <Compile Include="CountryCodeConfigTest.cs" />
+    <Compile Include="OlsenToUtcMappingTestFixture.cs" />
     <Compile Include="RavenTestBase.cs" />
     <Compile Include="ScheduleTestFixture.cs" />
     <Compile Include="SearchTestFixture.cs" />

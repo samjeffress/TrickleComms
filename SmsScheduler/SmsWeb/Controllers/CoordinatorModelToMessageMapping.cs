@@ -20,14 +20,7 @@ namespace SmsWeb.Controllers
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
     {
-        public DateTime DateTimeWithOlsenZoneToUtc(DateTime dateTime, string olsenTimeZone)
-        {
-            var dateTimeZoneProvider = DateTimeZoneProviders.Tzdb;
-            var dateTimeZone = dateTimeZoneProvider[olsenTimeZone];
-            var startTime = dateTime;
-            var localDateTime = new LocalDateTime(startTime.Year, startTime.Month, startTime.Day, startTime.Hour, startTime.Minute);
-            return dateTimeZone.AtLeniently(localDateTime).ToDateTimeUtc();
-        }
+        public IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
 
         public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers)
         {
@@ -39,7 +32,7 @@ namespace SmsWeb.Controllers
                                     .Where(n => !excludedNumbers.Contains(n))
                                     .Select(n => new SmsData(n, model.Message))
                                     .ToList(),
-                    StartTimeUtc = DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone), // startTimeUtc,// model.StartTime.ToUniversalTime(),
+                    StartTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone), // startTimeUtc,// model.StartTime.ToUniversalTime(),
                     MetaData = new SmsMetaData
                         {
                             Tags = model.GetTagList(), 
@@ -59,7 +52,7 @@ namespace SmsWeb.Controllers
                                     .Where(n => !excludedNumbers.Contains(n))
                                     .Select(n => new SmsData(n, model.Message))
                                     .ToList(),
-                    StartTimeUtc = DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
+                    StartTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
                     //model.StartTime.ToUniversalTime(),
                     TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                     MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
@@ -77,7 +70,7 @@ namespace SmsWeb.Controllers
                                 .Where(n => !excludedNumbers.Contains(n))
                                 .Select(n => new SmsData(n, model.Message))
                                 .ToList(),
-                SendTimeUtc = DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
+                SendTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
                 //model.StartTime.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
                 ConfirmationEmail = model.ConfirmationEmail,
