@@ -15,5 +15,7 @@ namespace SmsMessages.Coordinator.Commands
         public SmsMetaData MetaData { get; set; }
 
         public string ConfirmationEmail { get; set; }
+
+        public string UserOlsenTimeZone { get; set; }
     }
 }

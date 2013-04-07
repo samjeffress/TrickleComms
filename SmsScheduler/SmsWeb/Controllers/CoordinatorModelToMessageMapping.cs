@@ -45,7 +45,8 @@ namespace SmsWeb.Controllers
                             Tags = model.GetTagList(), 
                             Topic = model.Topic
                         },
-                    ConfirmationEmail = model.ConfirmationEmail
+                    ConfirmationEmail = model.ConfirmationEmail,
+                    UserOlsenTimeZone = model.UserTimeZone
                 };
         }
 
@@ -58,10 +59,12 @@ namespace SmsWeb.Controllers
                                     .Where(n => !excludedNumbers.Contains(n))
                                     .Select(n => new SmsData(n, model.Message))
                                     .ToList(),
-                    StartTimeUtc = model.StartTime.ToUniversalTime(),
+                    StartTimeUtc = DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
+                    //model.StartTime.ToUniversalTime(),
                     TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                     MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
-                    ConfirmationEmail = model.ConfirmationEmail
+                    ConfirmationEmail = model.ConfirmationEmail,
+                    UserOlsenTimeZone = model.UserTimeZone
                 };
         }
 
@@ -74,9 +77,11 @@ namespace SmsWeb.Controllers
                                 .Where(n => !excludedNumbers.Contains(n))
                                 .Select(n => new SmsData(n, model.Message))
                                 .ToList(),
-                SendTimeUtc = model.StartTime.ToUniversalTime(),
+                SendTimeUtc = DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
+                //model.StartTime.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
-                ConfirmationEmail = model.ConfirmationEmail
+                ConfirmationEmail = model.ConfirmationEmail,
+                UserOlsenTimeZone = model.UserTimeZone
             };
         }
     }
