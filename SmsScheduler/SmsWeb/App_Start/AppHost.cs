@@ -67,9 +67,8 @@ namespace SmsWeb.App_Start
 		    container.Register<IRavenDocStore>(new RavenDocStore());
 		    container.Register<ICoordinatorModelToMessageMapping>(new CoordinatorModelToMessageMapping());
 		    container.Register<ICoordinatorApiModelToMessageMapping>(new CoordinatorApiModelToMessageMapping());
-		    container.Register<IDateTimeUtcFromOlsenMapping>(new DateTimeUtcFromOlsenMapping());
-
-
+            container.Register<IDateTimeUtcFromOlsenMapping>(new DateTimeUtcFromOlsenMapping());
+		    
             var bus = NServiceBus.Configure.With()
                 .DefineEndpointName("SmsWeb")
                 .DefaultBuilder()
