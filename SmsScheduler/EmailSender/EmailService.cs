@@ -66,14 +66,7 @@ namespace EmailSender
                     throw new ArgumentException("Could not find the default 'From' sender.");
                 var subject = "Coordinator " + message.CoordinatorId + " complete.";
 
-                //var builder = new StringBuilder();
-                //builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
-                //builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
-                //var totalMessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count;
-                //builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " + totalMessageCount + " sent.");
-                ////var body = builder.ToString();
-
-
+                //var finishTimeLocal = 
 
                 var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorFinished.cshtml", new
                 {
@@ -136,4 +129,6 @@ namespace EmailSender
             }
         }
     }
+
+
 }

@@ -81,6 +81,7 @@
     <Compile Include="MessageNotSentTestFixture.cs" />
     <Compile Include="MessageSentTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UtcToLocalDateTimeTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

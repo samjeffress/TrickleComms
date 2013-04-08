@@ -40,6 +40,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NodaTime">
+      <HintPath>..\packages\NodaTime.1.1.0\lib\net35-Client\NodaTime.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\packages\NServiceBus.Interfaces.3.3.4\lib\net40\NServiceBus.dll</HintPath>
     </Reference>
@@ -79,6 +82,7 @@
     <Compile Include="EmailService.cs" />
     <Compile Include="EmailTemplateResolver.cs" />
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="IDateTimeOlsenFromUtcMapping.cs" />
     <Compile Include="IMailActioner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenDocStore.cs" />
