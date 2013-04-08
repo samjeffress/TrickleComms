@@ -28,7 +28,8 @@ namespace SmsTracking
                         ToList(),
                     CreationDateUtc = message.CreationDateUtc,
                     MetaData = message.MetaData,
-                    ConfirmationEmailAddress = message.ConfirmationEmailAddress
+                    ConfirmationEmailAddress = message.ConfirmationEmailAddress,
+                    UserOlsenTimeZone = message.UserOlsenTimeZone
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
                 session.SaveChanges();
@@ -39,7 +40,7 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
-                session.Advanced.UseOptimisticConcurrency = true;
+                session.Advanced.UseOptimisticConcurrency = true; 
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorCompleted.CoordinatorId.ToString());
                 var incompleteMessageCount = coordinatorTrackingData.MessageStatuses.Count(m => m.Status == MessageStatusTracking.Paused || m.Status == MessageStatusTracking.Scheduled);
                 if (incompleteMessageCount > 0)
@@ -51,6 +52,7 @@ namespace SmsTracking
                     var coordinatorCompleteEmail = new CoordinatorCompleteEmail();
                     coordinatorCompleteEmail.CoordinatorId = coordinatorTrackingData.CoordinatorId;
                     coordinatorCompleteEmail.EmailAddress = coordinatorTrackingData.ConfirmationEmailAddress;
+                    coordinatorCompleteEmail.UserOlsenTimeZone = coordinatorTrackingData.UserOlsenTimeZone;
                     coordinatorCompleteEmail.FinishTimeUtc = coordinatorTrackingData.CompletionDateUtc.Value;
                     coordinatorCompleteEmail.StartTimeUtc = coordinatorTrackingData.CreationDateUtc;
                     coordinatorCompleteEmail.SendingData = new SendingData

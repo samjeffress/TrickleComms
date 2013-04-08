@@ -25,6 +25,8 @@ namespace SmsTrackingModels
         public SmsMetaData MetaData { get; set; }
 
         public string ConfirmationEmailAddress { get; set; }
+
+        public string UserOlsenTimeZone { get; set; }
     }
 
     public class MessageSendingStatus

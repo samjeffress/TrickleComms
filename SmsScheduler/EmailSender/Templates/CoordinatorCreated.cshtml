@@ -4,10 +4,10 @@
 </head>
 <body>
     <p>
-        Coordinator messages @Model.Topic (@Model.CoordinatorId) created at @Model.CreationDateUtc (UTC)
+        Coordinator messages @Model.Topic (@Model.CoordinatorId) created at @Model.CreationDateUserZone (@Model.UserTimeZone)
     </p>
     <p>
-        @Model.MessageCount messages will be sent between @Model.StartTimeUTC (UTC) and @Model.EndTimeUTC (UTC).
+        @Model.MessageCount messages will be sent between @Model.StartTimeUserZone (@Model.UserTimeZone) and @Model.EndTimeUserZone (@Model.UserTimeZone).
     <p>
         To update or change these details, please go to your Sms Coordinator website and view the coordinator history. You can then find the topic of your choice and pause / reschedule if necessary.
     </p>

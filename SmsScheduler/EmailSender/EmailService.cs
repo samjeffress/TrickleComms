@@ -18,6 +18,7 @@ namespace EmailSender
     {
         public IRavenDocStore RavenDocStore { get; set; }
         public IMailActioner MailActioner { get; set; }
+        public IDateTimeOlsenFromUtcMapping DateTimeOlsenFromUtcMapping { get; set; }
 
         public void Handle(MessageSent message)
         {
@@ -66,12 +67,14 @@ namespace EmailSender
                     throw new ArgumentException("Could not find the default 'From' sender.");
                 var subject = "Coordinator " + message.CoordinatorId + " complete.";
 
-                //var finishTimeLocal = 
+
+                var finishTimeUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.FinishTimeUtc, message.UserOlsenTimeZone);
 
                 var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorFinished.cshtml", new
                 {
                     message.CoordinatorId,
-                    message.FinishTimeUtc,
+                    FinishTimeUserZone = finishTimeUserZone,
+                    UserTimeZone = message.UserOlsenTimeZone,
                     MessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count,
                     SuccessfulMessageCount = message.SendingData.SuccessfulMessages.Count,
                     UnsuccessfulMessageCount = message.SendingData.UnsuccessfulMessageses.Count,
@@ -105,13 +108,24 @@ namespace EmailSender
                     throw new ArgumentException("Could not find the default 'From' sender.");
                 var subject = "Coordinator " + message.CoordinatorId + " created.";
 
+                var creationDateUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.CreationDateUtc, message.UserOlsenTimeZone);
+
+                var startTimeUserZone =
+                    DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(
+                        message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Min(), message.UserOlsenTimeZone);
+
+                var endTimeUserZone =
+                    DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(
+                        message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max(), message.UserOlsenTimeZone);
+
                 var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorCreated.cshtml", new
                     {
                         message.CoordinatorId,
-                        message.CreationDateUtc,
+                        CreationDateUserZone = creationDateUserZone,
                         MessageCount = message.ScheduledMessages.Count,
-                        StartTimeUTC = message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Min(),
-                        EndTimeUTC = message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max(),
+                        StartTimeUserZone = startTimeUserZone,
+                        EndTimeUserZone = endTimeUserZone,
+                        UserTimeZone = message.UserOlsenTimeZone,
                         message.MetaData.Topic
                     });
 

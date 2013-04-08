@@ -50,6 +50,7 @@ namespace EmailSenderTests
         {
             var mailActioner = MockRepository.GenerateMock<IMailActioner>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeOlsenFromUtcMapping>();
             var session = MockRepository.GenerateMock<IDocumentSession>();
             ravenDocStore.Expect(r => r.GetStore().OpenSession("Configuration"))
                 .Return(session);
@@ -60,8 +61,9 @@ namespace EmailSenderTests
 
             var message = new MailMessage();
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
-            
-            var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore };
+            dateTimeMapper.Expect(d => d.DateTimeUtcToLocalWithOlsenZone(Arg<DateTime>.Is.Anything, Arg<string>.Is.Anything)).Return(DateTime.Now).Repeat.Any();
+
+            var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore, DateTimeOlsenFromUtcMapping = dateTimeMapper};
             var coordinatorComplete = new CoordinatorCompleteEmail
                                           {
                                               CoordinatorId = Guid.NewGuid(), 
@@ -82,6 +84,7 @@ namespace EmailSenderTests
         {
             var mailActioner = MockRepository.GenerateMock<IMailActioner>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeOlsenFromUtcMapping>();
             var session = MockRepository.GenerateMock<IDocumentSession>();
             ravenDocStore.Expect(r => r.GetStore().OpenSession("Configuration"))
                 .Return(session);
@@ -92,8 +95,9 @@ namespace EmailSenderTests
 
             var message = new MailMessage();
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
-            
-            var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore };
+            dateTimeMapper.Expect(d => d.DateTimeUtcToLocalWithOlsenZone(Arg<DateTime>.Is.Anything, Arg<string>.Is.Anything)).Return(DateTime.Now).Repeat.Any();
+
+            var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore, DateTimeOlsenFromUtcMapping = dateTimeMapper };
             var coordinatorComplete = new CoordinatorCompleteEmail
                                           {
                                               CoordinatorId = Guid.NewGuid(), 
@@ -116,6 +120,7 @@ namespace EmailSenderTests
         {
             var mailActioner = MockRepository.GenerateMock<IMailActioner>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeOlsenFromUtcMapping>();
             var session = MockRepository.GenerateMock<IDocumentSession>();
             ravenDocStore.Expect(r => r.GetStore().OpenSession("Configuration"))
                 .Return(session);
@@ -126,8 +131,9 @@ namespace EmailSenderTests
 
             var message = new MailMessage();
             mailActioner.Expect(m => m.Send(Arg<MailgunConfiguration>.Is.Equal(mailgunConfig), Arg<MailMessage>.Is.NotNull)).WhenCalled(a => message = (MailMessage)(a.Arguments[1]));
-            
-            var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore };
+            dateTimeMapper.Expect(d => d.DateTimeUtcToLocalWithOlsenZone(Arg<DateTime>.Is.Anything, Arg<string>.Is.Anything)).Return(DateTime.Now).Repeat.Any();
+
+            var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore, DateTimeOlsenFromUtcMapping = dateTimeMapper };
             var coordinatorComplete = new CoordinatorCompleteEmail
                                           {
                                               CoordinatorId = Guid.NewGuid(), 
