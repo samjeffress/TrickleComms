@@ -31,7 +31,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement(), new List<string>());
 
             Assert.That(message.Messages.Count, Is.EqualTo(2));
@@ -66,7 +66,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement { CountryCode = "+61", LeadingNumberToReplace = "0"}, new List<string>());
 
             Assert.That(message.Messages.Count, Is.EqualTo(2));
@@ -100,7 +100,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), new List<string>());
 
             var coordinationDuration = model.SendAllBy.Value.Subtract(model.StartTime);
@@ -137,7 +137,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement { CountryCode = "+61", LeadingNumberToReplace = "0"}, new List<string>());
 
             var coordinationDuration = model.SendAllBy.Value.Subtract(model.StartTime);
@@ -172,7 +172,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), new List<string>());
 
             var coordinationDuration = model.SendAllBy.Value.Subtract(model.StartTime);
@@ -207,7 +207,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var excludedNumbers = new List<string> { "04040404040" };
             var message = mapper.MapToTrickleOverPeriod(model, new CountryCodeReplacement(), excludedNumbers);
 
@@ -242,7 +242,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var excludedNumbers = new List<string> { "04040404040" };
             var message = mapper.MapToTrickleSpacedByPeriod(model, new CountryCodeReplacement(), excludedNumbers);
 
@@ -275,7 +275,7 @@ namespace SmsWebTests
             var olsenMapping = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
             olsenMapping.Expect(o => o.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone)).Return(mappedDateTime);
 
-            var mapper = new CoordinatorModelToMessageMapping { DateTimeOlsenMapping = olsenMapping };
+            var mapper = new CoordinatorModelToMessageMapping(olsenMapping);
             var message = mapper.MapToSendAllAtOnce(model, new CountryCodeReplacement(), new List<string>());
 
             Assert.That(message.Messages.Count, Is.EqualTo(2));

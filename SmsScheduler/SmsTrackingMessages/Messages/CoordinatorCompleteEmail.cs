@@ -11,6 +11,7 @@ namespace SmsTrackingMessages.Messages
         public DateTime FinishTimeUtc { get; set; }
         public SendingData SendingData { get; set; }
         public string UserOlsenTimeZone { get; set; }
+        public string Topic { get; set; }
     }
 
     public class SendingData

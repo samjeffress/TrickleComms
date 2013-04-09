@@ -67,7 +67,6 @@ namespace EmailSender
                     throw new ArgumentException("Could not find the default 'From' sender.");
                 var subject = "Coordinator " + message.CoordinatorId + " complete.";
 
-
                 var finishTimeUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.FinishTimeUtc, message.UserOlsenTimeZone);
 
                 var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorFinished.cshtml", new
@@ -79,6 +78,7 @@ namespace EmailSender
                     SuccessfulMessageCount = message.SendingData.SuccessfulMessages.Count,
                     UnsuccessfulMessageCount = message.SendingData.UnsuccessfulMessageses.Count,
                     TotalCost = message.SendingData.SuccessfulMessages.Sum(m => m.Cost),
+                    Topic = message.Topic
                 });
 
                 var mailMessage = new MailMessage();
@@ -106,7 +106,7 @@ namespace EmailSender
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null || string.IsNullOrWhiteSpace(mailgunConfiguration.DefaultFrom))
                     throw new ArgumentException("Could not find the default 'From' sender.");
-                var subject = "Coordinator " + message.CoordinatorId + " created.";
+                var subject = "Coordinator " + message.MetaData.Topic + " (" + message.CoordinatorId + ") created.";
 
                 var creationDateUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.CreationDateUtc, message.UserOlsenTimeZone);
 

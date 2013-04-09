@@ -55,6 +55,7 @@ namespace SmsTracking
                     coordinatorCompleteEmail.UserOlsenTimeZone = coordinatorTrackingData.UserOlsenTimeZone;
                     coordinatorCompleteEmail.FinishTimeUtc = coordinatorTrackingData.CompletionDateUtc.Value;
                     coordinatorCompleteEmail.StartTimeUtc = coordinatorTrackingData.CreationDateUtc;
+                    coordinatorCompleteEmail.Topic = coordinatorTrackingData.MetaData.Topic;
                     coordinatorCompleteEmail.SendingData = new SendingData
                     {
                         SuccessfulMessages = coordinatorTrackingData.MessageStatuses

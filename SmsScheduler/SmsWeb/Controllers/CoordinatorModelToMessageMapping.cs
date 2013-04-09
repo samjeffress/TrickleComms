@@ -20,7 +20,17 @@ namespace SmsWeb.Controllers
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
     {
-        public IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
+        public CoordinatorModelToMessageMapping(IDateTimeUtcFromOlsenMapping dateTimeUtcFromOlsenMapping)
+        {
+            DateTimeOlsenMapping = dateTimeUtcFromOlsenMapping;
+        }
+
+        //public CoordinatorModelToMessageMapping()
+        //{
+        //    //DateTimeOlsenMapping = new DateTimeUtcFromOlsenMapping();
+        //}
+
+        private IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
 
         public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers)
         {
