@@ -20,8 +20,24 @@ namespace SmsWebTests
             Assert.That(dateTimeUtc.Date.Year, Is.EqualTo(startTimeUtc.Date.Year));
             Assert.That(dateTimeUtc.Date.Month, Is.EqualTo(startTimeUtc.Date.Month));
             Assert.That(dateTimeUtc.Date.Day, Is.EqualTo(startTimeUtc.Date.Day));
-            Assert.That(dateTimeUtc.Date.Hour, Is.EqualTo(startTimeUtc.Date.Hour));
-            Assert.That(dateTimeUtc.Date.Minute, Is.EqualTo(startTimeUtc.Date.Minute));
+            Assert.That(dateTimeUtc.Hour, Is.EqualTo(startTimeUtc.Hour));
+            Assert.That(dateTimeUtc.Minute, Is.EqualTo(startTimeUtc.Minute));
+        }
+
+        [Test]
+        public void MapToTrickleOverTimeTimeZoneTestUTC()
+        {
+            var startTimeUtc = DateTime.UtcNow;
+            const string timeZone = "UTC";
+
+            var mapper = new DateTimeUtcFromOlsenMapping();
+            var dateTimeUtc = mapper.DateTimeWithOlsenZoneToUtc(startTimeUtc, timeZone);
+
+            Assert.That(dateTimeUtc.Date.Year, Is.EqualTo(startTimeUtc.Date.Year));
+            Assert.That(dateTimeUtc.Date.Month, Is.EqualTo(startTimeUtc.Date.Month));
+            Assert.That(dateTimeUtc.Date.Day, Is.EqualTo(startTimeUtc.Date.Day));
+            Assert.That(dateTimeUtc.Hour, Is.EqualTo(startTimeUtc.Hour));
+            Assert.That(dateTimeUtc.Minute, Is.EqualTo(startTimeUtc.Minute));
         }
     }
 }

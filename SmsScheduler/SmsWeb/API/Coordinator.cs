@@ -27,6 +27,8 @@ namespace SmsWeb.API
         public List<string> Tags { get; set; }
 
         public string Topic { get; set; }
+
+        public string OlsenTimeZone { get; set; }
     }
 
     public class CoordinatorResponse : IHasResponseStatus

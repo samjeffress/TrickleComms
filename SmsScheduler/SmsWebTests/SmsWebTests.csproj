@@ -93,6 +93,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiCoordinatorModelToMessageMappingTestFixture.cs" />
     <Compile Include="ApiCoordinatorTestFixture.cs" />
     <Compile Include="ApiSmsScheduleTestFixture.cs" />
     <Compile Include="ApiSmsTestFixture.cs" />
