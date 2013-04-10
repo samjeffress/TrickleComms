@@ -28,6 +28,8 @@ namespace SmsWeb.API
 
         public string Topic { get; set; }
 
+        public string ConfirmationEmail { get; set; }
+
         public string OlsenTimeZone { get; set; }
     }
 
