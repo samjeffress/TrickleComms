@@ -102,9 +102,7 @@
     <Compile Include="CountryCodeConfigTest.cs" />
     <Compile Include="OlsenToUtcMappingTestFixture.cs" />
     <Compile Include="RavenTestBase.cs" />
-    <Compile Include="ScheduleTestFixture.cs" />
     <Compile Include="SearchTestFixture.cs" />
-    <Compile Include="SendNowTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

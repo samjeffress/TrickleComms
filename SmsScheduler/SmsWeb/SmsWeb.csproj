@@ -273,8 +273,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\IDateTimeUtcFromOlsenMapping.cs" />
     <Compile Include="Controllers\MailgunConfigController.cs" />
-    <Compile Include="Controllers\ScheduleController.cs" />
-    <Compile Include="Controllers\SendNowController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\TwilioConfigController.cs" />
     <Compile Include="CoordinatorTagList.cs" />
@@ -445,18 +443,11 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
-    <Content Include="Views\SendNow\Create.cshtml" />
-    <Content Include="Views\SendNow\Details.cshtml" />
-    <Content Include="Views\SendNow\Index.cshtml" />
     <Content Include="Views\TwilioConfig\Edit.cshtml" />
     <Content Include="Views\TwilioConfig\Create.cshtml" />
-    <Content Include="Views\Schedule\Create.cshtml" />
-    <Content Include="Views\Schedule\Details.cshtml" />
-    <Content Include="Views\Schedule\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\Create.cshtml" />
     <Content Include="Views\Coordinator\Details.cshtml" />
     <Content Include="Views\Coordinator\Index.cshtml" />
-    <Content Include="Views\SendNow\TrackingDetails.cshtml" />
     <Content Include="Views\Home\NoResults.cshtml" />
     <Content Include="Views\Coordinator\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\CoordinatorPagedOverview.cshtml" />
@@ -465,7 +456,6 @@
     <Content Include="Views\MailgunConfig\Details.cshtml" />
     <Content Include="Views\Home\ConfigMenu.cshtml" />
     <Content Include="Views\TwilioConfig\Details.cshtml" />
-    <Content Include="Views\SendNow\DetailsNotCreated.cshtml" />
     <Content Include="Views\Shared\_html5shiv.cshtml" />
     <Content Include="Views\Shared\Index.cshtml" />
     <Content Include="Views\Shared\Details.cshtml" />
