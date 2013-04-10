@@ -31,32 +31,6 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void FoundSchedule()
-        {
-            var ravenDocStore = MockRepository.GenerateMock<SmsWeb.IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var controller = new HomeController { RavenDocStore = ravenDocStore };
-            var actionResult = controller.Search(_scheduleId.ToString()) as RedirectToRouteResult;
-
-            Assert.That(actionResult.RouteValues["controller"], Is.EqualTo("Schedule"));
-            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
-            Assert.That(actionResult.RouteValues["scheduleid"], Is.EqualTo(_scheduleId.ToString()));
-        }
-
-        [Test]
-        public void FoundSentMessage()
-        {
-            var ravenDocStore = MockRepository.GenerateMock<SmsWeb.IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var controller = new HomeController { RavenDocStore = ravenDocStore };
-            var actionResult = controller.Search(_smsId.ToString()) as RedirectToRouteResult;
-
-            Assert.That(actionResult.RouteValues["controller"], Is.EqualTo("SendNow"));
-            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
-            Assert.That(actionResult.RouteValues["requestId"], Is.EqualTo(_smsId.ToString()));
-        }
-
-        [Test]
         public void FoundNothing()
         {
             var ravenDocStore = MockRepository.GenerateMock<SmsWeb.IRavenDocStore>();
