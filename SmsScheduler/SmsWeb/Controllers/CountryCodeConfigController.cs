@@ -7,11 +7,6 @@ namespace SmsWeb.Controllers
     {
         public IRavenDocStore DocumentStore { get; set; }
 
-        public ActionResult Index()
-        {
-            return View();
-        }
-
         public PartialViewResult DetailsAjax()
         {
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
