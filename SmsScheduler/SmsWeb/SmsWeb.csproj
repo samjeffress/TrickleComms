@@ -471,16 +471,18 @@
     <Content Include="Views\ExampleLayouts\Marketing.cshtml" />
     <Content Include="Views\ExampleLayouts\Fluid.cshtml" />
     <Content Include="Views\Home\IndexConfigNotSet.cshtml" />
-    <Content Include="Views\Shared\_TwilioConfigCreate.cshtml" />
-    <Content Include="Views\Shared\_MailgunConfigCreate.cshtml" />
+    <Content Include="Views\Shared\_TwilioConfigEdit.cshtml" />
+    <Content Include="Views\Shared\_MailgunConfigEdit.cshtml" />
     <Content Include="Views\Shared\_MailgunConfigDetails.cshtml" />
     <Content Include="Views\Shared\_TwilioConfigDetails.cshtml" />
     <Content Include="Views\DefaultEmail\Edit.cshtml" />
     <Content Include="Views\DefaultEmail\Details.cshtml" />
     <Content Include="Views\Shared\_CountryCodeConfigDetails.cshtml" />
-    <Content Include="Views\Shared\_CountryCodeConfigCreate.cshtml" />
+    <Content Include="Views\Shared\_CountryCodeConfigEdit.cshtml" />
     <Content Include="Views\CountryCodeConfig\Index.cshtml" />
     <Content Include="Views\Home\Results.cshtml" />
+    <Content Include="Views\Shared\_DefaultEmailConfigEdit.cshtml" />
+    <Content Include="Views\Shared\_DefaultEmailConfigDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

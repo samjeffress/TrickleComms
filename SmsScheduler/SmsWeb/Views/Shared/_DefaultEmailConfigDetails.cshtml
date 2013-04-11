@@ -1,0 +1,15 @@
+﻿@model SmsWeb.Models.DefaultEmailModel
+
+<fieldset>
+    <legend>Default Email</legend>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.DefaultEmails)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.DefaultEmails)
+        </div>
+    </div>
+@Ajax.ActionLink("Edit", "EditAjax", "DefaultEmail", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "DefaultEmailConfigDiv" })
+</fieldset>

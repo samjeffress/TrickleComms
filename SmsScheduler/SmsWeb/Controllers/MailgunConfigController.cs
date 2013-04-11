@@ -48,14 +48,25 @@ namespace SmsWeb.Controllers
             }
         }
 
+        public PartialViewResult DetailsAjax()
+        {
+            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
+            {
+                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                if (mailgunConfiguration == null)
+                    return PartialView("_MailgunConfigEdit");
+                return PartialView("_MailgunConfigDetails", mailgunConfiguration);
+            }
+        }
+
         public PartialViewResult EditAjax()
         {
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null)
-                    return PartialView("_MailgunConfigCreate");
-                return PartialView("_MailgunConfigDetails", mailgunConfiguration);
+                    return PartialView("_MailgunConfigEdit");
+                return PartialView("_MailgunConfigEdit", mailgunConfiguration);
             }
         }
 
@@ -88,7 +99,7 @@ namespace SmsWeb.Controllers
         {
             var isValid = TryUpdateModel(configuration);
             if (!isValid)
-                return PartialView("_MailgunConfigCreate", configuration);
+                return PartialView("_MailgunConfigEdit", configuration);
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");

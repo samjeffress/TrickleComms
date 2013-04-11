@@ -1,12 +1,11 @@
 ﻿@model ConfigurationModels.CountryCodeReplacement
-<script src="~/Scripts/jquery-1.8.3.min.js"></script>
-<script src="~/Scripts/jquery.validate.min.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
-<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+
 
 @using (Ajax.BeginForm("EditAjax", "CountryCodeConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "CountryCodeConfigDiv"})) {
     @Html.ValidationSummary(true)
 
+    <fieldset>
+        <legend>Default Country Code</legend>
     <div>
         @Html.LabelFor(model => model.CountryCode, "Country Code")
         @Html.EditorFor(model => model.CountryCode)
@@ -19,7 +18,11 @@
         @Html.ValidationMessageFor(model => model.LeadingNumberToReplace)
     </div>
 
-    <p>
-        <input type="submit" value="Submit" />
-    </p>
+        <p>
+            <input type="submit" value="Submit" />
+        </p>
+        <p>
+            @Ajax.ActionLink("Cancel", "DetailsAjax", "CountryCodeConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "CountryCodeConfigDiv" })
+        </p>
+    </fieldset>
 }

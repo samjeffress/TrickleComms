@@ -2,26 +2,33 @@
 @model ConfigurationModels.TwilioConfiguration
 
 <fieldset>
-    <legend>TwilioConfiguration</legend>
-
-    <div>
-         @Html.DisplayNameFor(model => model.AuthToken)
+    <legend>Twilio</legend>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.AuthToken)
+        </div>
+        <div>
+            **************************
+        </div>
     </div>
-    <div>
-        **************************
-    </div><br />
-
-    <div>
-         @Html.DisplayNameFor(model => model.AccountSid)
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.AccountSid)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.AccountSid)
+        </div>
     </div>
-    <div>
-        @Html.DisplayFor(model => model.AccountSid)
-    </div><br />
-
-    <div>
-         @Html.DisplayNameFor(model => model.From)
-    </div>
-    <div>
-        @Html.DisplayFor(model => model.From)
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.From)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.From)
+        </div>
     </div>
 </fieldset>
+@Ajax.ActionLink("Edit", "EditAjax", "TwilioConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "TwilioConfigDiv" })

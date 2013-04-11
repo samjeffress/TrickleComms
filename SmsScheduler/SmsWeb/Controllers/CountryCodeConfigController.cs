@@ -12,14 +12,25 @@ namespace SmsWeb.Controllers
             return View();
         }
 
+        public PartialViewResult DetailsAjax()
+        {
+            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
+            {
+                var countryCode = session.Load<CountryCodeReplacement>("CountryCodeConfig");
+                if (countryCode == null)
+                    return PartialView("_CountryCodeConfigEdit");
+                return PartialView("_CountryCodeConfigDetails", countryCode);
+            }
+        }
+
         public PartialViewResult EditAjax()
         {
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var countryCode = session.Load<CountryCodeReplacement>("CountryCodeConfig");
                 if (countryCode == null)
-                    return PartialView("_CountryCodeConfigCreate");
-                return PartialView("_CountryCodeConfigCreate", countryCode);
+                    return PartialView("_CountryCodeConfigEdit");
+                return PartialView("_CountryCodeConfigEdit", countryCode);
             }
         }
 
@@ -28,7 +39,7 @@ namespace SmsWeb.Controllers
         {
             var isValid = TryUpdateModel(configuration);
             if (!isValid)
-                return PartialView("_CountryCodeConfigCreate", configuration);
+                return PartialView("_CountryCodeConfigEdit", configuration);
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var countryCode = session.Load<CountryCodeReplacement>("CountryCodeConfig");

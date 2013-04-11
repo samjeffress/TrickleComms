@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConfigurationModels;
-using NodaTime;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsWeb.Models;
@@ -24,11 +23,6 @@ namespace SmsWeb.Controllers
         {
             DateTimeOlsenMapping = dateTimeUtcFromOlsenMapping;
         }
-
-        //public CoordinatorModelToMessageMapping()
-        //{
-        //    //DateTimeOlsenMapping = new DateTimeUtcFromOlsenMapping();
-        //}
 
         private IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
 
@@ -63,7 +57,6 @@ namespace SmsWeb.Controllers
                                     .Select(n => new SmsData(n, model.Message))
                                     .ToList(),
                     StartTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
-                    //model.StartTime.ToUniversalTime(),
                     TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                     MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
                     ConfirmationEmail = model.ConfirmationEmail,
@@ -81,7 +74,6 @@ namespace SmsWeb.Controllers
                                 .Select(n => new SmsData(n, model.Message))
                                 .ToList(),
                 SendTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
-                //model.StartTime.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
                 ConfirmationEmail = model.ConfirmationEmail,
                 UserOlsenTimeZone = model.UserTimeZone

@@ -48,14 +48,25 @@ namespace SmsWeb.Controllers
             }
         }
 
+        public PartialViewResult DetailsAjax()
+        {
+            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
+            {
+                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
+                if (twilioConfiguration == null)
+                    return PartialView("_TwilioConfigEdit");
+                return PartialView("_TwilioConfigDetails", twilioConfiguration);
+            }
+        }
+
         public PartialViewResult EditAjax()
         {
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
                 if (twilioConfiguration == null)
-                    return PartialView("_TwilioConfigCreate");
-                return PartialView("_TwilioConfigDetails", twilioConfiguration);
+                    return PartialView("_TwilioConfigEdit");
+                return PartialView("_TwilioConfigEdit", twilioConfiguration);
             }
         }
 
@@ -88,7 +99,7 @@ namespace SmsWeb.Controllers
         {
             var isValid = TryUpdateModel(configuration);
             if (!isValid)
-                return PartialView("_TwilioConfigCreate", configuration);
+                return PartialView("_TwilioConfigEdit", configuration);
             using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
             {
                 var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
