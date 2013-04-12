@@ -42,12 +42,17 @@ namespace SmsWeb.Models
 
         public List<string> GetTagList()
         {
-            return string.IsNullOrWhiteSpace(Tags) ? null : Tags.Split(',').ToList().Select(t => t.Trim()).ToList();
+            return string.IsNullOrWhiteSpace(Tags) ? null : Tags.Split(new[] { ',', ';', ':' }).ToList().Select(t => t.Trim()).ToList();
+        }
+
+        public List<string> GetEmailList()
+        {
+            return string.IsNullOrWhiteSpace(ConfirmationEmail) ? null : ConfirmationEmail.Split(new[] {',', ';', ':'}).ToList().Select(t => t.Trim()).ToList();
         }
 
         public List<string> GetCleanInternationalisedNumbers(CountryCodeReplacement countryCodeReplacement)
         {
-            return Numbers.Split(',').Select(number => countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(number) : number.Trim()).ToList();
+            return Numbers.Split(new[] { ',', ';', ':' }).Select(number => countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(number) : number.Trim()).ToList();
         }
 
         public bool IsMessageTypeValid()

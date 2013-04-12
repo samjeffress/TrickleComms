@@ -43,6 +43,7 @@ namespace SmsWeb.Controllers
                             Topic = model.Topic
                         },
                     ConfirmationEmail = model.ConfirmationEmail,
+                    ConfirmationEmails = model.GetEmailList(),
                     UserOlsenTimeZone = model.UserTimeZone
                 };
         }
@@ -60,6 +61,7 @@ namespace SmsWeb.Controllers
                     TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                     MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
                     ConfirmationEmail = model.ConfirmationEmail,
+                    ConfirmationEmails = model.GetEmailList(),
                     UserOlsenTimeZone = model.UserTimeZone
                 };
         }
@@ -76,6 +78,7 @@ namespace SmsWeb.Controllers
                 SendTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
                 MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
                 ConfirmationEmail = model.ConfirmationEmail,
+                ConfirmationEmails = model.GetEmailList(),
                 UserOlsenTimeZone = model.UserTimeZone
             };
         }

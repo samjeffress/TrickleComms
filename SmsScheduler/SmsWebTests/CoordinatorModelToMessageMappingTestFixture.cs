@@ -58,7 +58,7 @@ namespace SmsWebTests
                     TimeSeparatorSeconds = 90,
                     Tags = "tag1, tag2",
                     Topic = "Dance Dance Revolution!",
-                    ConfirmationEmail = "confirmation",
+                    ConfirmationEmail = "confirmation, anotherone; yetanother: more",
                     UserTimeZone = "Australia/Sydney"
                 };
 
@@ -79,6 +79,11 @@ namespace SmsWebTests
             Assert.That(message.StartTimeUtc, Is.EqualTo(mappedDateTime));
             Assert.That(message.TimeSpacing, Is.EqualTo(TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value)));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
+            Assert.That(message.ConfirmationEmails.Count, Is.EqualTo(4));
+            Assert.That(message.ConfirmationEmails[0], Is.EqualTo("confirmation"));
+            Assert.That(message.ConfirmationEmails[1], Is.EqualTo("anotherone"));
+            Assert.That(message.ConfirmationEmails[2], Is.EqualTo("yetanother"));
+            Assert.That(message.ConfirmationEmails[3], Is.EqualTo("more"));
         }
 
         [Test]
@@ -92,7 +97,7 @@ namespace SmsWebTests
                     SendAllBy = DateTime.Now.AddHours(3),
                     Tags = "tag1, tag2",
                     Topic = "Dance Dance Revolution!",
-                    ConfirmationEmail = "toby@toby.com",
+                    ConfirmationEmail = "toby@toby.com: two",
                     UserTimeZone = "Australia/Sydney"
                 };
 
@@ -115,6 +120,9 @@ namespace SmsWebTests
             Assert.That(message.StartTimeUtc, Is.EqualTo(mappedDateTime));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
+            Assert.That(message.ConfirmationEmails.Count, Is.EqualTo(2));
+            Assert.That(message.ConfirmationEmails[0], Is.EqualTo("toby@toby.com"));
+            Assert.That(message.ConfirmationEmails[1], Is.EqualTo("two"));
             Assert.That(message.UserOlsenTimeZone, Is.EqualTo(model.UserTimeZone));
         }
 
@@ -267,7 +275,7 @@ namespace SmsWebTests
                     SendAllAtOnce = true,
                     Tags = "tag1, tag2",
                     Topic = "Dance Dance Revolution!",
-                    ConfirmationEmail = "confirmation",
+                    ConfirmationEmail = "confirmation, two",
                     UserTimeZone = "Australia/Sydney"
                 };
 
@@ -287,6 +295,9 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.SendTimeUtc, Is.EqualTo(mappedDateTime));
             Assert.That(message.ConfirmationEmail, Is.EqualTo(model.ConfirmationEmail));
+            Assert.That(message.ConfirmationEmails.Count, Is.EqualTo(2));
+            Assert.That(message.ConfirmationEmails[0], Is.EqualTo("confirmation"));
+            Assert.That(message.ConfirmationEmails[1], Is.EqualTo("two"));
             Assert.That(message.UserOlsenTimeZone, Is.EqualTo(model.UserTimeZone));
         }
     }

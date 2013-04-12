@@ -97,7 +97,7 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.SendTimeUtc, Is.EqualTo(model.StartTimeUtc));
-            Assert.IsNull(message.ConfirmationEmail);
+            Assert.IsNull(message.ConfirmationEmails);
             Assert.That(message.UserOlsenTimeZone, Is.EqualTo("UTC"));
         }
     }
