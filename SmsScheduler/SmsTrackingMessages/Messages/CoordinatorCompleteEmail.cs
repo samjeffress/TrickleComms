@@ -5,13 +5,17 @@ namespace SmsTrackingMessages.Messages
 {
     public class CoordinatorCompleteEmail
     {
-        public string EmailAddress { get; set; }
+        public CoordinatorCompleteEmail()
+        {
+            EmailAddresses = new List<string>();
+        }
         public Guid CoordinatorId { get; set; }
         public DateTime StartTimeUtc { get; set; }
         public DateTime FinishTimeUtc { get; set; }
         public SendingData SendingData { get; set; }
         public string UserOlsenTimeZone { get; set; }
         public string Topic { get; set; }
+        public List<string> EmailAddresses { get; set; }
     }
 
     public class SendingData

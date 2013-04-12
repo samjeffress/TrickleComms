@@ -19,7 +19,8 @@ namespace SmsWebTests
                     TimeSeparator = new TimeSpan(0, 0,0, 90),
                     Tags = new List<string> {"tag1", "tag2" },
                     Topic = "Dance Dance Revolution!",
-                    OlsenTimeZone = "Australia/Sydney"
+                    OlsenTimeZone = "Australia/Sydney",
+                    ConfirmationEmails = new List<string> { "email1", "email2" }
                 };
 
             var requestId = Guid.NewGuid();
@@ -35,8 +36,8 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTimeUtc));
             Assert.That(message.TimeSpacing, Is.EqualTo(model.TimeSeparator));
-            Assert.IsNull(message.ConfirmationEmail);
             Assert.That(message.UserOlsenTimeZone, Is.EqualTo(model.OlsenTimeZone));
+            Assert.That(message.ConfirmationEmails, Is.EqualTo(model.ConfirmationEmails));
         }
 
         [Test]
@@ -50,7 +51,8 @@ namespace SmsWebTests
                     SendAllByUtc = DateTime.UtcNow.AddHours(3),
                     Tags = new List<string> { "tag1", "tag2" },
                     Topic = "Dance Dance Revolution!",
-                    OlsenTimeZone = string.Empty
+                    OlsenTimeZone = string.Empty,
+                    ConfirmationEmails = new List<string> { "email1", "email2" }
                 };
 
             var requestId = Guid.NewGuid();
@@ -67,8 +69,8 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTimeUtc));
             Assert.That(message.Duration, Is.EqualTo(coordinationDuration));
-            Assert.IsNull(message.ConfirmationEmail);
             Assert.That(message.UserOlsenTimeZone, Is.EqualTo("UTC"));
+            Assert.That(message.ConfirmationEmails, Is.EqualTo(model.ConfirmationEmails));
         }
 
         [Test]
@@ -82,7 +84,8 @@ namespace SmsWebTests
                     SendAllAtOnce = true,
                     Tags = new List<string> { "tag1", "tag2" },
                     Topic = "Dance Dance Revolution!",
-                    OlsenTimeZone = string.Empty
+                    OlsenTimeZone = string.Empty,
+                    ConfirmationEmails = new List<string> { "email1", "email2" }
                 };
 
             var requestId = Guid.NewGuid();
@@ -97,8 +100,8 @@ namespace SmsWebTests
             Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags));
             Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
             Assert.That(message.SendTimeUtc, Is.EqualTo(model.StartTimeUtc));
-            Assert.IsNull(message.ConfirmationEmails);
             Assert.That(message.UserOlsenTimeZone, Is.EqualTo("UTC"));
+            Assert.That(message.ConfirmationEmails, Is.EqualTo(model.ConfirmationEmails));
         }
     }
 }

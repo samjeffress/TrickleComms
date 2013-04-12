@@ -28,7 +28,7 @@ namespace SmsTracking
                         ToList(),
                     CreationDateUtc = message.CreationDateUtc,
                     MetaData = message.MetaData,
-                    ConfirmationEmailAddress = message.ConfirmationEmailAddress,
+                    ConfirmationEmailAddress = String.Join(", ", message.ConfirmationEmailAddresses),
                     UserOlsenTimeZone = message.UserOlsenTimeZone
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
@@ -51,7 +51,8 @@ namespace SmsTracking
                 {
                     var coordinatorCompleteEmail = new CoordinatorCompleteEmail();
                     coordinatorCompleteEmail.CoordinatorId = coordinatorTrackingData.CoordinatorId;
-                    coordinatorCompleteEmail.EmailAddress = coordinatorTrackingData.ConfirmationEmailAddress;
+                    //coordinatorCompleteEmail.EmailAddress = coordinatorTrackingData.ConfirmationEmailAddress;
+                    coordinatorCompleteEmail.EmailAddresses = coordinatorTrackingData.ConfirmationEmailAddress.Split(',').ToList().Select(e => e.Trim()).ToList();
                     coordinatorCompleteEmail.UserOlsenTimeZone = coordinatorTrackingData.UserOlsenTimeZone;
                     coordinatorCompleteEmail.FinishTimeUtc = coordinatorTrackingData.CompletionDateUtc.Value;
                     coordinatorCompleteEmail.StartTimeUtc = coordinatorTrackingData.CreationDateUtc;

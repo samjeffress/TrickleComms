@@ -27,7 +27,7 @@ namespace SmsTrackingTests
                     new MessageSchedule { Number = "04040044", ScheduledTimeUtc = DateTime.Now.AddMinutes(5)},
                     new MessageSchedule { Number = "07777777", ScheduledTimeUtc = DateTime.Now.AddMinutes(10)} 
                 },
-                ConfirmationEmailAddress = "tony"
+                ConfirmationEmailAddresses = new List<string> {"tony", "barry"}
             };
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
@@ -46,7 +46,7 @@ namespace SmsTrackingTests
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].Number, Is.EqualTo(coordinatorCreated.ScheduledMessages[1].Number));
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].ScheduledSendingTimeUtc, Is.EqualTo(coordinatorCreated.ScheduledMessages[1].ScheduledTimeUtc));
                 Assert.That(coordinatorTrackingData.MessageStatuses[1].Status, Is.EqualTo(MessageStatusTracking.WaitingForScheduling));
-                Assert.That(coordinatorTrackingData.ConfirmationEmailAddress, Is.EqualTo(coordinatorCreated.ConfirmationEmailAddress));
+                Assert.That(coordinatorTrackingData.ConfirmationEmailAddress, Is.EqualTo("tony, barry"));
             }
         }
 

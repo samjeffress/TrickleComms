@@ -59,13 +59,13 @@ namespace EmailSender
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
                 var emailDefaultNotification = session.Load<EmailDefaultNotification>("EmailDefaultConfig");
-                if (string.IsNullOrWhiteSpace(message.EmailAddress) && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
+                if (message.EmailAddresses.Count == 0 && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
                     return;
 
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null || string.IsNullOrWhiteSpace(mailgunConfiguration.DefaultFrom))
                     throw new ArgumentException("Could not find the default 'From' sender.");
-                var subject = "Coordinator " + message.CoordinatorId + " complete.";
+                var subject = "Coordinator " + message.Topic + "(" + message.CoordinatorId + ") complete.";
 
                 var finishTimeUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.FinishTimeUtc, message.UserOlsenTimeZone);
 
@@ -87,8 +87,10 @@ namespace EmailSender
                 mailMessage.BodyEncoding = Encoding.UTF8;
                 mailMessage.IsBodyHtml = true;
                 mailMessage.Subject = subject;
-                if (!string.IsNullOrWhiteSpace(message.EmailAddress))
-                    mailMessage.To.Add(message.EmailAddress);
+                foreach (var emailAddress in message.EmailAddresses)
+                {
+                    mailMessage.To.Add(emailAddress);
+                }
                 if (emailDefaultNotification != null)
                     emailDefaultNotification.EmailAddresses.ForEach(e => mailMessage.To.Add(e));
                 MailActioner.Send(mailgunConfiguration, mailMessage);
@@ -100,7 +102,7 @@ namespace EmailSender
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
                 var emailDefaultNotification = session.Load<EmailDefaultNotification>("EmailDefaultConfig");
-                if (string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress) && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
+                if (message.ConfirmationEmailAddresses.Count == 0 && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
                     return;
                 
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
@@ -135,8 +137,12 @@ namespace EmailSender
                 mailMessage.BodyEncoding = Encoding.UTF8;
                 mailMessage.IsBodyHtml = true;
                 mailMessage.Subject = subject;
-                if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
-                    mailMessage.To.Add(message.ConfirmationEmailAddress);
+
+                foreach (var emailAddress in message.ConfirmationEmailAddresses)
+                {
+                    mailMessage.To.Add(emailAddress);
+                }
+
                 if (emailDefaultNotification != null)
                     emailDefaultNotification.EmailAddresses.ForEach(e => mailMessage.To.Add(e));
                 MailActioner.Send(mailgunConfiguration, mailMessage);

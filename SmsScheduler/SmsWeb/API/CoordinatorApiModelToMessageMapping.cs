@@ -27,7 +27,7 @@ namespace SmsWeb.API
                 StartTimeUtc = model.StartTimeUtc.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
                 CoordinatorId = requestId,
-                ConfirmationEmail = model.ConfirmationEmail,
+                ConfirmationEmails = model.ConfirmationEmails,
                 UserOlsenTimeZone = string.IsNullOrWhiteSpace(model.OlsenTimeZone) ? "UTC" : model.OlsenTimeZone
             };
         }
@@ -43,7 +43,7 @@ namespace SmsWeb.API
                 TimeSpacing = model.TimeSeparator.Value,
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
                 CoordinatorId = requestId,
-                ConfirmationEmail = model.ConfirmationEmail,
+                ConfirmationEmails = model.ConfirmationEmails,
                 UserOlsenTimeZone = string.IsNullOrWhiteSpace(model.OlsenTimeZone) ? "UTC" : model.OlsenTimeZone
             };
         }
@@ -58,7 +58,7 @@ namespace SmsWeb.API
                 SendTimeUtc = model.StartTimeUtc.ToUniversalTime(),
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
                 CoordinatorId = requestId,
-                ConfirmationEmail = model.ConfirmationEmail,
+                ConfirmationEmails = model.ConfirmationEmails,
                 UserOlsenTimeZone = string.IsNullOrWhiteSpace(model.OlsenTimeZone) ? "UTC" : model.OlsenTimeZone
             };
         }

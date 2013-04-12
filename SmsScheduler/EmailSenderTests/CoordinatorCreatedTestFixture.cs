@@ -90,11 +90,11 @@ namespace EmailSenderTests
             dateTimeMapper.Expect(d => d.DateTimeUtcToLocalWithOlsenZone(Arg<DateTime>.Is.Anything, Arg<string>.Is.Anything)).Return(DateTime.Now).Repeat.Any();
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner, DateTimeOlsenFromUtcMapping = dateTimeMapper };
-            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
+            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddresses = new List<string> { "toby@things.com" }, ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
-            Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddress));
+            Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddresses[0]));
             Assert.That(message.To[1].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
             Assert.That(message.To[2].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[1]));
         }
@@ -117,11 +117,11 @@ namespace EmailSenderTests
             dateTimeMapper.Expect(d => d.DateTimeUtcToLocalWithOlsenZone(Arg<DateTime>.Is.Anything, Arg<string>.Is.Anything)).Return(DateTime.Now).Repeat.Any();
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner, DateTimeOlsenFromUtcMapping = dateTimeMapper };
-            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddress = "toby@things.com", ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
+            var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddresses = new List<string> { "toby@things.com" }, ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
             emailService.Handle(coordinatorComplete);
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
-            Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddress));
+            Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddresses[0]));
         }
     }
 }

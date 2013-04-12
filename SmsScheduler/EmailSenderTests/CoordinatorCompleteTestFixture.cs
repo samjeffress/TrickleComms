@@ -41,7 +41,7 @@ namespace EmailSenderTests
             session.Expect(s => s.Load<MailgunConfiguration>("MailgunConfig")).Return(mailgunConfig);
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore };
-            var coordinatorComplete = new CoordinatorCompleteEmail { EmailAddress = "email@confirmation.com" };
+            var coordinatorComplete = new CoordinatorCompleteEmail { EmailAddresses = new List<string> { "email@confirmation.com" } };
             Assert.That(() => emailService.Handle(coordinatorComplete), Throws.Exception.With.Message.EqualTo("Could not find the default 'From' sender."));
         }
 
@@ -66,8 +66,8 @@ namespace EmailSenderTests
             var emailService = new EmailService { MailActioner = mailActioner, RavenDocStore = ravenDocStore, DateTimeOlsenFromUtcMapping = dateTimeMapper};
             var coordinatorComplete = new CoordinatorCompleteEmail
                                           {
-                                              CoordinatorId = Guid.NewGuid(), 
-                                              EmailAddress = "to@email.com", 
+                                              CoordinatorId = Guid.NewGuid(),
+                                              EmailAddresses = new List<string> { "to@email.com" }, 
                                               FinishTimeUtc = DateTime.Now, 
                                               StartTimeUtc = DateTime.Now.AddMinutes(-10),
                                               SendingData = new SendingData()
@@ -76,7 +76,7 @@ namespace EmailSenderTests
 
             mailActioner.VerifyAllExpectations();
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
-            Assert.That(message.To.ToString(), Is.EqualTo(coordinatorComplete.EmailAddress));
+            Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.EmailAddresses[0]));
         }
 
         [Test]
@@ -101,7 +101,7 @@ namespace EmailSenderTests
             var coordinatorComplete = new CoordinatorCompleteEmail
                                           {
                                               CoordinatorId = Guid.NewGuid(), 
-                                              EmailAddress = "to@email.com", 
+                                              EmailAddresses = new List<string> { "to@email.com","barry@awesome.com" }, 
                                               FinishTimeUtc = DateTime.Now, 
                                               StartTimeUtc = DateTime.Now.AddMinutes(-10),
                                               SendingData = new SendingData()
@@ -110,9 +110,10 @@ namespace EmailSenderTests
 
             mailActioner.VerifyAllExpectations();
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
-            Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.EmailAddress));
-            Assert.That(message.To[1].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
-            Assert.That(message.To[2].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[1]));
+            Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.EmailAddresses[0]));
+            Assert.That(message.To[1].Address, Is.EqualTo(coordinatorComplete.EmailAddresses[1]));
+            Assert.That(message.To[2].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
+            Assert.That(message.To[3].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[1]));
         }
 
         [Test]
@@ -137,7 +138,7 @@ namespace EmailSenderTests
             var coordinatorComplete = new CoordinatorCompleteEmail
                                           {
                                               CoordinatorId = Guid.NewGuid(), 
-                                              EmailAddress = string.Empty, 
+                                              EmailAddresses = new List<string>(), 
                                               FinishTimeUtc = DateTime.Now, 
                                               StartTimeUtc = DateTime.Now.AddMinutes(-10),
                                               SendingData = new SendingData()
