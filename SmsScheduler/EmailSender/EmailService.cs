@@ -65,7 +65,7 @@ namespace EmailSender
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null || string.IsNullOrWhiteSpace(mailgunConfiguration.DefaultFrom))
                     throw new ArgumentException("Could not find the default 'From' sender.");
-                var subject = "Coordinator " + message.Topic + "(" + message.CoordinatorId + ") complete.";
+                var subject = "Coordinator " + message.Topic + " (" + message.CoordinatorId + ") complete.";
 
                 var finishTimeUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.FinishTimeUtc, message.UserOlsenTimeZone);
 
