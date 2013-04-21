@@ -19,6 +19,8 @@ namespace SmsWeb.Controllers
 
         public ICoordinatorModelToMessageMapping Mapper { get; set; }
 
+        public IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
+
         public ActionResult Index()
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
@@ -194,7 +196,7 @@ namespace SmsWeb.Controllers
         public ActionResult Pause(FormCollection collection)
         {
             var coordinatorid = collection["CoordinatorId"];
-            Bus.Send(new PauseTrickledMessagesIndefinitely { CoordinatorId = Guid.Parse(coordinatorid) });
+            Bus.Send(new PauseTrickledMessagesIndefinitely { CoordinatorId = Guid.Parse(coordinatorid), MessageRequestTimeUtc = DateTime.UtcNow });
             HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Paused);
             return RedirectToAction("Details", new { coordinatorid });
         }
@@ -204,8 +206,11 @@ namespace SmsWeb.Controllers
         {
             var coordinatorid = collection["CoordinatorId"];
             var timeToResume = DateTime.Parse(collection["timeToResume"]);
-            
-            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = timeToResume.ToUniversalTime()});
+            var userTimeZone = collection["UserTimeZone"];
+
+            var dateTimeToResumeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(timeToResume, userTimeZone);
+
+            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, MessageRequestTimeUtc = dateTimeToResumeUtc});
             HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Started);
             return RedirectToAction("Details", new { coordinatorid });
         }

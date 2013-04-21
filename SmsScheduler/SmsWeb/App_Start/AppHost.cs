@@ -65,7 +65,7 @@ namespace SmsWeb.App_Start
 				new SessionFactory(c.Resolve<ICacheClient>()));
 
 		    container.Register<IRavenDocStore>(new RavenDocStore());
-            //container.Register<IDateTimeUtcFromOlsenMapping>(new DateTimeUtcFromOlsenMapping());
+            container.Register<IDateTimeUtcFromOlsenMapping>(new DateTimeUtcFromOlsenMapping());
             container.Register<ICoordinatorModelToMessageMapping>(new CoordinatorModelToMessageMapping(new DateTimeUtcFromOlsenMapping()));
 		    container.Register<ICoordinatorApiModelToMessageMapping>(new CoordinatorApiModelToMessageMapping());
             

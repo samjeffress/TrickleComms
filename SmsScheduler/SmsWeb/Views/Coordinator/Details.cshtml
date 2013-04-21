@@ -5,8 +5,18 @@
     ViewBag.Title = "title";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryui")
+@Styles.Render("~/Content/themes/base/jquery-ui.css")
+<script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
+<script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
+
 <script type="text/javascript">
-    $(function () {      
+    $(function () {
+        $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
+        $('#UserTimeZone').val(jstz.determine().name());
+
         var schedule = $.connection.scheduleStatus;
 
         schedule.client.updateSchedule = function (message) {
@@ -72,7 +82,7 @@
 <div>ID : @Model.CoordinatorId</div>
 
 <div id="@Model.CoordinatorId">
-    <div>Current Status: @Model.CurrentStatus.ToString()</div>
+    <div class="control-group">Current Status: @Model.CurrentStatus.ToString()</div>
     @if (Model.CurrentStatus != CoordinatorStatusTracking.Completed)
     {
         if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
@@ -92,8 +102,13 @@
                 @using(Html.BeginForm("Resume", "Coordinator"))
                 {
                     @Html.HiddenFor(m => m.CoordinatorId)
-                    <label>Time to resume</label>
-                    <input name="timeToResume" type="datetime-local" value="@DateTime.Now"/>
+                    <div class="control-group">
+                        <label>Time to resume</label>
+                        @Html.Editor("timeToResume")    
+                    </div>
+                    
+                    @Html.Hidden("UserTimeZone");
+                    
                     <input type="submit" value="Resume Messages"/>
                 }
             </div>
