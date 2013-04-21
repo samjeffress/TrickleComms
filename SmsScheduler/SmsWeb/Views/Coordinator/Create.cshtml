@@ -57,7 +57,11 @@
             HideTimingOptions();
         });
 
-        $('#Numbers').bind('change keyup blur focus', function() {
+        $('#StartTime,#SendAllBy,#TimeSeparatorSeconds').bind('change keyup blur focus', function () {
+            CheckIfMessagesWillBeSentOvernight();
+        });
+
+        $('#Numbers').bind('change keyup blur focus', function () {
             showOrHideTiming();
         });
         showOrHideTiming();
@@ -130,11 +134,15 @@
             @Html.HiddenFor(model => model.SendAllAtOnce)
             @Html.ValidationMessageFor(model => model.SendAllBy)
             @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
-            <div id="TimeSeparatedDiv">
+        
+            <div id="OvernightWarning" class="warning blockHidden">
+                Warning - this will result in messages being sent overnight for your local timezone!
+            </div>    
+            <div id="TimeSeparatedDiv" class="control-group">
                 @Html.LabelFor(model => model.TimeSeparatorSeconds, "Time Separated (seconds)")
                 @Html.EditorFor(model => model.TimeSeparatorSeconds)
             </div>
-            <div id="SendAllByDiv">
+            <div id="SendAllByDiv" class="control-group">
                 @Html.LabelFor(model => model.SendAllBy, "Send All By Time")
                 @Html.EditorFor(model => model.SendAllBy)
             </div>
