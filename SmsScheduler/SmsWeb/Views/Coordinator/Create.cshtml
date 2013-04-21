@@ -22,24 +22,6 @@
 @Styles.Render("~/Content/Homegrown.css")
 @Styles.Render("~/Content/timepicker.css")
 <script type="text/javascript">
-    function MobileNumberCount() {
-        var numbers = $('#Numbers').val().split(',');
-        var numberCount = 0;
-        for (var i = 0; i < numbers.length; i++) {
-            if (numbers[i].replace(" ", "").length > 2)
-                numberCount++;
-        }
-        return numberCount;
-    }
-
-    function showOrHideTiming() {
-        if (MobileNumberCount() > 1) {
-            $('#CoordinationTiming').show(600);
-        } else {
-            $('#CoordinationTiming').hide(600);
-        }
-    }
-
     $(document).ready(function () {
 
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});

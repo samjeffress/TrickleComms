@@ -56,16 +56,28 @@ function SetHighlightedButton(idToHighlight) {
 
 function CheckIfMessagesWillBeSentOvernight() {
     if ($('#StartTime').val().length > 0) {
+        var endDate;
+        var startDateTime = $.datepicker.parseDate("dd/mm/yy", $('#StartTime').val());
+        var startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
         if ($('#TimeSeparatorSeconds').val().length > 0) {
             // calculate the end date
-            
-
+            var timeBetweenMessages = $('#TimeSeparatorSeconds').val();
+            var numberOfMessages = MobileNumberCount();
+            var secondsToSendAllMessages = numberOfMessages * timeBetweenMessages;
+            var endDateTime = new Date();
+            endDateTime.setTime(endDateTime.getTime() + secondsToSendAllMessages * 1000);
+            endDate = new Date(endDateTime.getFullYear(), endDateTime.getMonth(), endDateTime.getDate());
+            if (startDate < endDate) {
+                $("#OvernightWarning").removeClass("blockHidden");
+                $("#OvernightWarning").show(200);
+            } else {
+                $("#OvernightWarning").addClass("blockHidden");
+                $("#OvernightWarning").hide(200);
+            }
         } else if ($('#SendAllBy').val().length > 0) {
             // Check if the dates send messages overnight
-            var startDateTime = $.datepicker.parseDate("dd/mm/yy", $('#StartTime').val());
-            var startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
             var endDateTime = $.datepicker.parseDate("dd/mm/yy", $('#SendAllBy').val());
-            var endDate = new Date(endDateTime.getFullYear(), endDateTime.getMonth(), endDateTime.getDate());
+            endDate = new Date(endDateTime.getFullYear(), endDateTime.getMonth(), endDateTime.getDate());
             if (startDate < endDate) {
                 $("#OvernightWarning").removeClass("blockHidden");
                 $("#OvernightWarning").show(200);
@@ -74,5 +86,23 @@ function CheckIfMessagesWillBeSentOvernight() {
                 $("#OvernightWarning").hide(200);
             }
         }
+    }
+}
+
+function MobileNumberCount() {
+    var numbers = $('#Numbers').val().split(',');
+    var numberCount = 0;
+    for (var i = 0; i < numbers.length; i++) {
+        if (numbers[i].replace(" ", "").length > 2)
+            numberCount++;
+    }
+    return numberCount;
+}
+
+function showOrHideTiming() {
+    if (MobileNumberCount() > 1) {
+        $('#CoordinationTiming').show(600);
+    } else {
+        $('#CoordinationTiming').hide(600);
     }
 }
