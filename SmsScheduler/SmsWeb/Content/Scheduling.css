@@ -1,35 +1,51 @@
 ﻿
 li.success {
     border-left: 5px solid green; 
-    margin-bottom: 10px; 
-    padding-left: 5px; 
-    list-style-type: none;
 }
 
 li.fail {
     border-left: 5px solid red; 
-    margin-bottom: 10px; 
-    padding-left: 5px; 
-    list-style-type: none;
+}
+
+li.fail.compact {
+    background-color: red; 
 }
 
 li.paused {
     border-left: 5px solid black; 
-    margin-bottom: 10px; 
-    padding-left: 5px; 
-    list-style-type: none;
 }
 
 li.scheduled {
     border-left: 5px solid orange;
-    margin-bottom: 10px;
-    padding-left: 5px;
-    list-style-type: none;
 }
 
 li.waitingforschedule {
     border-left: 5px solid beige; 
+}
+
+ul.fullList {
+    margin-left: 20px;
+}
+
+ul.fullList li {
     margin-bottom: 10px; 
     padding-left: 5px; 
     list-style-type: none;
+    min-width: 10px;
 }
+
+ul.compactList {
+    margin-left: 0px;
+}
+
+ul.compactList li{
+    list-style-type: none;
+    min-width: 20px;
+    padding: 20px;
+    display: inline;
+    float: left;
+    border-style: dashed;
+    border-width: 1px;
+    border-color: whitesmoke;
+}
+

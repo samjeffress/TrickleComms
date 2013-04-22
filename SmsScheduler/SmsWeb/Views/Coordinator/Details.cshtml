@@ -1,6 +1,14 @@
 ﻿@using SmsTrackingModels
 @model CoordinatorTrackingData
 
+@functions {public class MessageSimpleStatus
+            {
+                public string Status { get; set; }
+
+                public string ScheduleId { get; set; }
+            }
+}
+
 @{
     ViewBag.Title = "title";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
@@ -16,7 +24,13 @@
     $(function () {
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('#UserTimeZone').val(jstz.determine().name());
-
+        $('#hide').click(function() {
+            $('.content').hide();
+            $('.fullList').addClass("compactList");
+            $('.compactList').removeClass("fullList");
+            $('ul.compactList li').addClass("compact");
+        });
+        
         var schedule = $.connection.scheduleStatus;
 
         schedule.client.updateSchedule = function (message) {
@@ -83,6 +97,7 @@
 
 <div id="@Model.CoordinatorId">
     <div class="control-group">Current Status: @Model.CurrentStatus.ToString()</div>
+    <a href="#" id="hide">Hide Details</a>
     @if (Model.CurrentStatus != CoordinatorStatusTracking.Completed)
     {
         if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
@@ -119,38 +134,39 @@
         <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
     }
 </div>
-<ul>
+<ul class="fullList">
 @foreach(var message in Model.MessageStatuses)
 {
     var liClass = "";
     if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "waitingforschedule"; }
-    if (message.Status == MessageStatusTracking.Scheduled){ liClass = "scheduled"; }
-    if (message.Status == MessageStatusTracking.Paused){ liClass = "paused"; }
+    if (message.Status == MessageStatusTracking.Scheduled) { liClass = "scheduled"; }
+    if (message.Status == MessageStatusTracking.Paused) { liClass = "paused"; }
     if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "success"; }
     if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "fail"; }
     <li class="@liClass" id="@message.ScheduleMessageId">
-        Number: @message.Number<br/>
-        Status: @message.Status.ToString()<br />
-        @switch(message.Status)
-        {
-            case MessageStatusTracking.CompletedSuccess:
+        <div class="content">
+            Number: @message.Number<br/>
+            Status: @message.Status.ToString()<br />
+            @switch(message.Status)
             {
-                @: Time Sent: @message.ActualSentTimeUtc.Value.ToLocalTime() <br />
-                @: Cost: $@message.Cost <br />
-                break;
+                case MessageStatusTracking.CompletedSuccess:
+                    {
+                        @: Time Sent: @message.ActualSentTimeUtc.Value.ToLocalTime() <br />
+                        @: Cost: $@message.Cost <br />
+                        break;
+                    }
+                case MessageStatusTracking.CompletedFailure:
+                    {
+                        @: Sending Failed: <a href="@message.FailureData.MoreInfo">@message.FailureData.Message</a> <br />
+                        break;
+                    }
+                default:
+                    {
+                        @: ScheduledTime: @message.ScheduledSendingTimeUtc.ToLocalTime() <br />
+                        break;
+                    }
             }
-            case MessageStatusTracking.CompletedFailure:
-            {
-                @: Sending Failed: <a href="@message.FailureData.MoreInfo">@message.FailureData.Message</a> <br />
-                break;
-            }
-            default:
-            {
-                @: ScheduledTime: @message.ScheduledSendingTimeUtc.ToLocalTime() <br />
-                break;
-            }
-        }
-        
+        </div>
     </li>
 }
 </ul>
