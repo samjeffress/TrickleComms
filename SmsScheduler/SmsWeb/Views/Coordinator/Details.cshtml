@@ -19,16 +19,32 @@
 @Styles.Render("~/Content/themes/base/jquery-ui.css")
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
 <script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
+<script type="text/javascript" src="~/Scripts/tinysort-1.5.2.js"></script>
 
 <script type="text/javascript">
     $(function () {
+
+        $('ul.fullList>li').tsort({ attr: 'class' });
+        
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('#UserTimeZone').val(jstz.determine().name());
-        $('#hide').click(function() {
-            $('.content').hide();
-            $('.fullList').addClass("compactList");
-            $('.compactList').removeClass("fullList");
-            $('ul.compactList li').addClass("compact");
+        var displayStatus = "full";
+        $('#hide').click(function () {
+            if (displayStatus == "full"){
+                $('.content').hide();
+                $('.fullList').addClass("compactList");
+                $('.compactList').removeClass("fullList");
+                $('ul.compactList li').addClass("compact");
+                $('#hide').text("Show Details");
+                displayStatus = "compact";
+            } else {
+                $('.content').show();
+                $('.compactList').addClass("fullList");
+                $('.fullList').removeClass("compactList");
+                $('ul.fullList li').removeClass("compact");
+                $('#hide').text("Hide Details");
+                displayStatus = "full";
+            }
         });
         
         var schedule = $.connection.scheduleStatus;
@@ -138,11 +154,11 @@
 @foreach(var message in Model.MessageStatuses)
 {
     var liClass = "";
-    if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "waitingforschedule"; }
-    if (message.Status == MessageStatusTracking.Scheduled) { liClass = "scheduled"; }
-    if (message.Status == MessageStatusTracking.Paused) { liClass = "paused"; }
-    if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "success"; }
-    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "fail"; }
+    if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "1 waitingforschedule"; }
+    if (message.Status == MessageStatusTracking.Scheduled) { liClass = "2 scheduled"; }
+    if (message.Status == MessageStatusTracking.Paused) { liClass = "3 paused"; }
+    if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "4 success"; }
+    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "5 fail"; }
     <li class="@liClass" id="@message.ScheduleMessageId">
         <div class="content">
             Number: @message.Number<br/>
