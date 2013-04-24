@@ -28,6 +28,8 @@
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('#UserTimeZone').val(jstz.determine().name());
 
+        $('.fullList > li > i').hide();
+
         $('#hide').click(function () {
             if (displayStatus == "full"){
                 $('.content').hide();
@@ -36,6 +38,7 @@
                 $('ul.compactList li').addClass("compact");
                 $('#hide').text("Show Details");
                 displayStatus = "compact";
+                $('.compactList > li >i').show();
             } else {
                 $('.content').show();
                 $('.compactList').addClass("fullList");
@@ -43,6 +46,7 @@
                 $('ul.fullList li').removeClass("compact");
                 $('#hide').text("Hide Details");
                 displayStatus = "full";
+                $('.fullList > li > i').hide();
             }
         });
         
@@ -105,6 +109,9 @@
         if (displayStatus != "full") {
             $('#' + scheduleId).addClass("compact");
             $('.content').hide();
+            $('.compactList > li >i').show();
+        } else {
+            $('.fullList > li > i').hide();
         }
         
     }
@@ -157,12 +164,14 @@
 @foreach(var message in Model.MessageStatuses)
 {
     var liClass = "";
-    if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "1 waitingforschedule"; }
-    if (message.Status == MessageStatusTracking.Scheduled) { liClass = "2 scheduled"; }
-    if (message.Status == MessageStatusTracking.Paused) { liClass = "3 paused"; }
-    if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "4 success"; }
-    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "5 fail"; }
+    var iconClass = "";
+    if (message.Status == MessageStatusTracking.WaitingForScheduling) { liClass = "1 waitingforschedule"; iconClass = "icon-cog"; }
+    if (message.Status == MessageStatusTracking.Scheduled) { liClass = "2 scheduled"; iconClass = "icon-time"; }
+    if (message.Status == MessageStatusTracking.Paused) { liClass = "3 paused"; iconClass = "icon-pause"; }
+    if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "4 success"; iconClass = "icon-ok"; }
+    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "5 fail"; iconClass = "icon-remove"; }
     <li class="@liClass" id="@message.ScheduleMessageId">
+        <i class="@iconClass"></i>
         <div class="content">
             Number: @message.Number<br/>
             Status: @message.Status.ToString()<br />
