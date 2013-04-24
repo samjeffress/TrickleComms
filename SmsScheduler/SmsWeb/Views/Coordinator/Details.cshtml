@@ -20,13 +20,14 @@
 <script type="text/javascript" src="~/Scripts/tinysort-1.5.2.js"></script>
 
 <script type="text/javascript">
+    var displayStatus = "full";
     $(function () {
 
         $('ul.fullList>li').tsort({ attr: 'class' });
         
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('#UserTimeZone').val(jstz.determine().name());
-        var displayStatus = "full";
+
         $('#hide').click(function () {
             if (displayStatus == "full"){
                 $('.content').hide();
@@ -48,9 +49,7 @@
         var schedule = $.connection.scheduleStatus;
 
         schedule.client.updateSchedule = function (message) {
-            $('#' + message.ScheduleId).html(message.Body);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, message.Body, message.Class, "2");
         };
 
         schedule.client.scheduleSent = function (message) {
@@ -58,35 +57,28 @@
                 "Status: Completed Success <br/> " +
                 "Time Sent: " + message.SentAt + " <br />" +
                 "Cost: " + message.Cost;
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "4");
         };
         
         schedule.client.scheduleFailed = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Completed Failure <br/> " +
                 "Sending Failed: " + message.SendFailedMessage;
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "5");
         };
         
         schedule.client.messageScheduled = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Scheduled <br/> " +
                 "Scheduled Time: " + message.ScheduledTime;
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "2");
         };
         
         schedule.client.messagePaused = function (message) {
+            
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Paused <br/> ";
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "3");
         };
         
         schedule.client.coordinatorCompleted = function (message) {
@@ -94,6 +86,7 @@
                 "<div>Completion Date: " + message.CompletedAt + "</div>";
             $('#' + message.CoordinatorId).html(coordinatorSummary);
         };
+        
 
         // Start the connection
         $.connection.hub.start().done(function() {
@@ -103,6 +96,18 @@
             });
         });
     });
+
+    function addMessageContent(scheduleId, content, liClass, messageSchedule) {
+        $('#' + scheduleId).removeClass();
+        $('#' + scheduleId).html("<div class='content'>" + content + "</div>");
+        $('#' + scheduleId).addClass(liClass);
+        $('#' + scheduleId).addClass(messageSchedule);
+        if (displayStatus != "full") {
+            $('#' + scheduleId).addClass("compact");
+            $('.content').hide();
+        }
+        
+    }
 </script>
 
 
@@ -111,7 +116,6 @@
 
 <div id="@Model.CoordinatorId">
     <div class="control-group">Current Status: @Model.CurrentStatus.ToString()</div>
-    <a href="#" id="hide">Hide Details</a>
     @if (Model.CurrentStatus != CoordinatorStatusTracking.Completed)
     {
         if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
@@ -148,6 +152,7 @@
         <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
     }
 </div>
+<div class="control-group"><a href="#" id="hide">Hide Details</a></div>
 <ul class="fullList">
 @foreach(var message in Model.MessageStatuses)
 {
