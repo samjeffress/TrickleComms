@@ -16,11 +16,11 @@ li.fail.compact {
 }
 
 li.paused {
-    border-left: 5px solid black; 
+    border-left: 5px solid lightgray; 
 }
 
 li.paused.compact {
-    background-color: black;
+    background-color: lightgray;
 }
 
 li.scheduled {
@@ -61,7 +61,7 @@ ul.compactList li{
     display: inline;
     float: left;
     border-style: dashed;
-    border-width: 1px;
+    border-width: thin;
     border-color: whitesmoke;
 }
 
