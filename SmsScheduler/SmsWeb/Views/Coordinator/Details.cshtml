@@ -53,7 +53,7 @@
         var schedule = $.connection.scheduleStatus;
 
         schedule.client.updateSchedule = function (message) {
-            addMessageContent(message.ScheduleId, message.Body, message.Class, "2");
+            addMessageContent(message.ScheduleId, message.Body, message.Class, "2", "icon-time");
         };
 
         schedule.client.scheduleSent = function (message) {
@@ -61,28 +61,28 @@
                 "Status: Completed Success <br/> " +
                 "Time Sent: " + message.SentAt + " <br />" +
                 "Cost: " + message.Cost;
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "4");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "4", "icon-ok");
         };
         
         schedule.client.scheduleFailed = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Completed Failure <br/> " +
                 "Sending Failed: " + message.SendFailedMessage;
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "5");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "5", "icon-remove");
         };
         
         schedule.client.messageScheduled = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Scheduled <br/> " +
                 "Scheduled Time: " + message.ScheduledTime;
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "2");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "2", "icon-time");
         };
         
         schedule.client.messagePaused = function (message) {
             
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Paused <br/> ";
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "3");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "3", "icon-pause");
         };
         
         schedule.client.coordinatorCompleted = function (message) {
@@ -101,17 +101,19 @@
         });
     });
 
-    function addMessageContent(scheduleId, content, liClass, messageSchedule) {
+    function addMessageContent(scheduleId, content, liClass, messageSchedule, iconClass) {
         $('#' + scheduleId).removeClass();
-        $('#' + scheduleId).html("<div class='content'>" + content + "</div>");
+        $('#' + scheduleId).html("<i class='" + iconClass + "'></i><div class='content'>" + content + "</div>");
         $('#' + scheduleId).addClass(liClass);
         $('#' + scheduleId).addClass(messageSchedule);
         if (displayStatus != "full") {
             $('#' + scheduleId).addClass("compact");
             $('.content').hide();
             $('.compactList > li >i').show();
+            $('ul.compactList>li').tsort({ attr: 'class' });
         } else {
             $('.fullList > li > i').hide();
+            $('ul.fullList>li').tsort({ attr: 'class' });
         }
         
     }

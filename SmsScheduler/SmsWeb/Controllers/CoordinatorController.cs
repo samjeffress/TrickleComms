@@ -210,7 +210,7 @@ namespace SmsWeb.Controllers
 
             var dateTimeToResumeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(timeToResume, userTimeZone);
 
-            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, MessageRequestTimeUtc = dateTimeToResumeUtc});
+            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, MessageRequestTimeUtc = DateTime.UtcNow});
             HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Started);
             return RedirectToAction("Details", new { coordinatorid });
         }

@@ -129,7 +129,7 @@ namespace SmsCoordinator
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
-            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc < message.MessageRequestTimeUtc)
+            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > message.MessageRequestTimeUtc)
                 return;
             var messagesToPause = Data.ScheduledMessageStatus
                 .Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling)
@@ -146,7 +146,7 @@ namespace SmsCoordinator
 
         public void Handle(ResumeTrickledMessages resumeMessages)
         {
-            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc < resumeMessages.MessageRequestTimeUtc)
+            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > resumeMessages.MessageRequestTimeUtc)
                 return;
             var offset = resumeMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var resumeMessageCommands = Data.ScheduledMessageStatus
