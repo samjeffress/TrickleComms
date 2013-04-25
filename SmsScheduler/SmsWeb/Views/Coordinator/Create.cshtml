@@ -1,7 +1,7 @@
 ﻿@model SmsWeb.Models.CoordinatedSharedMessageModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "SMS Create";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
@@ -104,6 +104,8 @@
             @Html.ValidationMessageFor(model => model.StartTime)
             @Html.HiddenFor(model => model.UserTimeZone)
             @Html.ValidationMessageFor(model => model.UserTimeZone)
+            @Html.ValidationMessageFor(model => model.SendAllBy)
+            @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
         </div>
         
         <div id="CoordinationTiming">
@@ -114,8 +116,6 @@
                 <input type="button" value="All At Once" id="AllAtOnceButton" class="UnSelectedButton"/>
             </div>
             @Html.HiddenFor(model => model.SendAllAtOnce)
-            @Html.ValidationMessageFor(model => model.SendAllBy)
-            @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
         
             <div id="OvernightWarning" class="warning blockHidden">
                 Warning - this will result in messages being sent overnight for your local timezone!

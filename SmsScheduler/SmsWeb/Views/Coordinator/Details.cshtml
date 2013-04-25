@@ -10,7 +10,7 @@
 }
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "SMS History : " + (Model.MetaData == null ? "" : Model.MetaData.Topic);
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
