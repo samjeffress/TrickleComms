@@ -28,7 +28,7 @@
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('#UserTimeZone').val(jstz.determine().name());
 
-        $('.fullList > li > i').hide();
+        $('.fullList > li > a > i').hide();
 
         $('#hide').click(function () {
             if (displayStatus == "full"){
@@ -38,7 +38,7 @@
                 $('ul.compactList li').addClass("compact");
                 $('#hide').text("Show Details");
                 displayStatus = "compact";
-                $('.compactList > li >i').show();
+                $('.compactList > li > a >i').show();
             } else {
                 $('.content').show();
                 $('.compactList').addClass("fullList");
@@ -46,7 +46,7 @@
                 $('ul.fullList li').removeClass("compact");
                 $('#hide').text("Hide Details");
                 displayStatus = "full";
-                $('.fullList > li > i').hide();
+                $('.fullList > li > a > i').hide();
             }
         });
         
@@ -109,10 +109,10 @@
         if (displayStatus != "full") {
             $('#' + scheduleId).addClass("compact");
             $('.content').hide();
-            $('.compactList > li >i').show();
+            $('.compactList > li > a >i').show();
             $('ul.compactList>li').tsort({ attr: 'class' });
         } else {
-            $('.fullList > li > i').hide();
+            $('.fullList > li > a > i').hide();
             $('ul.fullList>li').tsort({ attr: 'class' });
         }
         
@@ -167,13 +167,18 @@
 {
     var liClass = "";
     var iconClass = "";
+    var tooltip = message.Number;
     if (message.Status == MessageStatusTracking.WaitingForScheduling) { liClass = "1 waitingforschedule"; iconClass = "icon-cog"; }
     if (message.Status == MessageStatusTracking.Scheduled) { liClass = "2 scheduled"; iconClass = "icon-time"; }
     if (message.Status == MessageStatusTracking.Paused) { liClass = "3 paused"; iconClass = "icon-pause"; }
     if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "4 success"; iconClass = "icon-ok"; }
-    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "5 fail"; iconClass = "icon-remove"; }
+    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "5 fail"; iconClass = "icon-remove";
+        tooltip = tooltip + " " + message.FailureData.Message;
+    }
     <li class="@liClass" id="@message.ScheduleMessageId">
-        <i class="@iconClass"></i>
+        <a href="#" rel="tooltip" title="@tooltip">
+            <i class="@iconClass"></i>
+        </a>
         <div class="content">
             Number: @message.Number<br/>
             Status: @message.Status.ToString()<br />
