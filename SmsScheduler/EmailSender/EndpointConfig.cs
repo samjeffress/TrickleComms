@@ -29,6 +29,7 @@ namespace EmailSender
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<MailActioner>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<DateTimeUtcFromOlsenMapping>(DependencyLifecycle.SingleInstance);
 
             configure.CreateBus()
             .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());

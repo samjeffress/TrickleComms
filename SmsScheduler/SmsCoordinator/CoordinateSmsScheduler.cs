@@ -60,7 +60,8 @@ namespace SmsCoordinator
                 ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTimeUtc = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
                 CreationDateUtc = DateTime.UtcNow,
                 MetaData = message.MetaData,
-                ConfirmationEmailAddress = message.ConfirmationEmail
+                ConfirmationEmailAddresses = message.ConfirmationEmails,
+                UserOlsenTimeZone = message.UserOlsenTimeZone
             };
             Bus.Publish(coordinatorCreated);
         }
@@ -90,7 +91,8 @@ namespace SmsCoordinator
                 ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTimeUtc = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
                 CreationDateUtc = DateTime.UtcNow,
                 MetaData = message.MetaData,
-                ConfirmationEmailAddress = message.ConfirmationEmail
+                ConfirmationEmailAddresses = message.ConfirmationEmails,
+                UserOlsenTimeZone = message.UserOlsenTimeZone
             };
             Bus.Publish(coordinatorCreated);
         }
@@ -119,14 +121,15 @@ namespace SmsCoordinator
                 ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTimeUtc = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
                 CreationDateUtc = DateTime.UtcNow,
                 MetaData = message.MetaData,
-                ConfirmationEmailAddress = message.ConfirmationEmail
+                ConfirmationEmailAddresses = message.ConfirmationEmails,
+                UserOlsenTimeZone = message.UserOlsenTimeZone
             };
             Bus.Publish(coordinatorCreated);
         }
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
         {
-            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc < message.MessageRequestTimeUtc)
+            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > message.MessageRequestTimeUtc)
                 return;
             var messagesToPause = Data.ScheduledMessageStatus
                 .Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling)
@@ -143,7 +146,7 @@ namespace SmsCoordinator
 
         public void Handle(ResumeTrickledMessages resumeMessages)
         {
-            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc < resumeMessages.MessageRequestTimeUtc)
+            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > resumeMessages.MessageRequestTimeUtc)
                 return;
             var offset = resumeMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var resumeMessageCommands = Data.ScheduledMessageStatus

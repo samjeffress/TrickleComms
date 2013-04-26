@@ -19,7 +19,7 @@ namespace SmsWeb
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
             BootstrapSupport.BootstrapBundleConfig.RegisterBundles(System.Web.Optimization.BundleTable.Bundles);
-            BootstrapMvcSample.ExampleLayoutsRouteConfig.RegisterRoutes(RouteTable.Routes);
+            LayoutsRouteConfig.RegisterRoutes(RouteTable.Routes);
         }
     }
 }

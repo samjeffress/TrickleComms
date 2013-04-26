@@ -1,26 +1,33 @@
 ﻿@model ConfigurationModels.MailgunConfiguration
 
 <fieldset>
-    <legend>MailgunConfiguration</legend>
-
-    <div>
-         @Html.DisplayNameFor(model => model.ApiKey)
+    <legend>Mailgun</legend>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.ApiKey)
+        </div>
+        <div>
+            **************************
+        </div>
     </div>
-    <div>
-        **************************
-    </div><br />
-
-    <div>
-         @Html.DisplayNameFor(model => model.DomainName)
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.DomainName)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.DomainName)
+        </div>
     </div>
-    <div>
-        @Html.DisplayFor(model => model.DomainName)
-    </div><br />
-
-    <div>
-         @Html.DisplayNameFor(model => model.DefaultFrom)
-    </div>
-    <div>
-        @Html.DisplayFor(model => model.DefaultFrom)
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.DefaultFrom)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.DefaultFrom)
+        </div>
     </div>
 </fieldset>
+@Ajax.ActionLink("Edit", "EditAjax", "MailgunConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "MailgunConfigDiv" })

@@ -19,6 +19,13 @@ namespace SmsWeb.Controllers
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
     {
+        public CoordinatorModelToMessageMapping(IDateTimeUtcFromOlsenMapping dateTimeUtcFromOlsenMapping)
+        {
+            DateTimeOlsenMapping = dateTimeUtcFromOlsenMapping;
+        }
+
+        private IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
+
         public TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers)
         {
             return new TrickleSmsOverCalculatedIntervalsBetweenSetDates
@@ -29,13 +36,15 @@ namespace SmsWeb.Controllers
                                     .Where(n => !excludedNumbers.Contains(n))
                                     .Select(n => new SmsData(n, model.Message))
                                     .ToList(),
-                    StartTimeUtc = model.StartTime.ToUniversalTime(),
+                    StartTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone), // startTimeUtc,// model.StartTime.ToUniversalTime(),
                     MetaData = new SmsMetaData
                         {
                             Tags = model.GetTagList(), 
                             Topic = model.Topic
                         },
-                    ConfirmationEmail = model.ConfirmationEmail
+                    ConfirmationEmail = model.ConfirmationEmail,
+                    ConfirmationEmails = model.GetEmailList(),
+                    UserOlsenTimeZone = model.UserTimeZone
                 };
         }
 
@@ -48,10 +57,12 @@ namespace SmsWeb.Controllers
                                     .Where(n => !excludedNumbers.Contains(n))
                                     .Select(n => new SmsData(n, model.Message))
                                     .ToList(),
-                    StartTimeUtc = model.StartTime.ToUniversalTime(),
+                    StartTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
                     TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
                     MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
-                    ConfirmationEmail = model.ConfirmationEmail
+                    ConfirmationEmail = model.ConfirmationEmail,
+                    ConfirmationEmails = model.GetEmailList(),
+                    UserOlsenTimeZone = model.UserTimeZone
                 };
         }
 
@@ -64,9 +75,11 @@ namespace SmsWeb.Controllers
                                 .Where(n => !excludedNumbers.Contains(n))
                                 .Select(n => new SmsData(n, model.Message))
                                 .ToList(),
-                SendTimeUtc = model.StartTime.ToUniversalTime(),
+                SendTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
                 MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
-                ConfirmationEmail = model.ConfirmationEmail
+                ConfirmationEmail = model.ConfirmationEmail,
+                ConfirmationEmails = model.GetEmailList(),
+                UserOlsenTimeZone = model.UserTimeZone
             };
         }
     }

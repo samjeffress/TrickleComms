@@ -70,6 +70,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NodaTime">
+      <HintPath>..\packages\NodaTime.1.1.0\lib\net35-Client\NodaTime.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus, Version=3.3.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NServiceBus.Interfaces.3.3.4\lib\net40\NServiceBus.dll</HintPath>
@@ -93,41 +96,41 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Client.1.2.2135-Unstable\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ServiceStack, Version=3.9.43.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.3.9.28\lib\net35\ServiceStack.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.3.9.43\lib\net35\ServiceStack.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Common, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ServiceStack.Common, Version=3.9.43.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.Common.3.9.28\lib\net35\ServiceStack.Common.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.Common.3.9.43\lib\net35\ServiceStack.Common.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.FluentValidation.Mvc3, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.Mvc.3.9.28\lib\net40\ServiceStack.FluentValidation.Mvc3.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.Mvc.3.9.43\lib\net40\ServiceStack.FluentValidation.Mvc3.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Interfaces, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ServiceStack.Interfaces, Version=3.9.43.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.Common.3.9.28\lib\net35\ServiceStack.Interfaces.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.Common.3.9.43\lib\net35\ServiceStack.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.OrmLite, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ServiceStack.OrmLite, Version=3.9.43.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.28\lib\ServiceStack.OrmLite.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.43\lib\ServiceStack.OrmLite.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.OrmLite.SqlServer, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.28\lib\ServiceStack.OrmLite.SqlServer.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.43\lib\ServiceStack.OrmLite.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Redis, Version=3.9.29.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ServiceStack.Redis, Version=3.9.43.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.Redis.3.9.29\lib\net35\ServiceStack.Redis.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.Redis.3.9.43\lib\net35\ServiceStack.Redis.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.ServiceInterface, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.3.9.28\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.3.9.43\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceStack.Text, Version=3.9.28.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ServiceStack.Text, Version=3.9.43.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ServiceStack.Text.3.9.28\lib\net35\ServiceStack.Text.dll</HintPath>
+      <HintPath>..\packages\ServiceStack.Text.3.9.43\lib\net35\ServiceStack.Text.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -255,7 +258,7 @@
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="App_Start\BootstrapBundleConfig.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
-    <Compile Include="App_Start\ExampleLayoutsRouteConfig.cs" />
+    <Compile Include="App_Start\LayoutsRouteConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="BootstrapSupport\ControlGroupExtensions.cs" />
@@ -268,9 +271,8 @@
     <Compile Include="Controllers\DefaultEmailController.cs" />
     <Compile Include="Controllers\ExampleLayoutsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\IDateTimeUtcFromOlsenMapping.cs" />
     <Compile Include="Controllers\MailgunConfigController.cs" />
-    <Compile Include="Controllers\ScheduleController.cs" />
-    <Compile Include="Controllers\SendNowController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\TwilioConfigController.cs" />
     <Compile Include="CoordinatorTagList.cs" />
@@ -395,6 +397,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive-custom-for-bootstrap.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\jstz-1.0.4.min.js" />
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\MessageBuilder.js" />
@@ -440,27 +443,13 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
-    <Content Include="Views\SendNow\Create.cshtml" />
-    <Content Include="Views\SendNow\Details.cshtml" />
-    <Content Include="Views\SendNow\Index.cshtml" />
-    <Content Include="Views\TwilioConfig\Edit.cshtml" />
-    <Content Include="Views\TwilioConfig\Create.cshtml" />
-    <Content Include="Views\Schedule\Create.cshtml" />
-    <Content Include="Views\Schedule\Details.cshtml" />
-    <Content Include="Views\Schedule\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\Create.cshtml" />
     <Content Include="Views\Coordinator\Details.cshtml" />
     <Content Include="Views\Coordinator\Index.cshtml" />
-    <Content Include="Views\SendNow\TrackingDetails.cshtml" />
     <Content Include="Views\Home\NoResults.cshtml" />
     <Content Include="Views\Coordinator\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\CoordinatorPagedOverview.cshtml" />
-    <Content Include="Views\MailgunConfig\Create.cshtml" />
-    <Content Include="Views\MailgunConfig\Edit.cshtml" />
-    <Content Include="Views\MailgunConfig\Details.cshtml" />
     <Content Include="Views\Home\ConfigMenu.cshtml" />
-    <Content Include="Views\TwilioConfig\Details.cshtml" />
-    <Content Include="Views\SendNow\DetailsNotCreated.cshtml" />
     <Content Include="Views\Shared\_html5shiv.cshtml" />
     <Content Include="Views\Shared\Index.cshtml" />
     <Content Include="Views\Shared\Details.cshtml" />
@@ -476,16 +465,16 @@
     <Content Include="Views\ExampleLayouts\Marketing.cshtml" />
     <Content Include="Views\ExampleLayouts\Fluid.cshtml" />
     <Content Include="Views\Home\IndexConfigNotSet.cshtml" />
-    <Content Include="Views\Shared\_TwilioConfigCreate.cshtml" />
-    <Content Include="Views\Shared\_MailgunConfigCreate.cshtml" />
+    <Content Include="Views\Shared\_TwilioConfigEdit.cshtml" />
+    <Content Include="Views\Shared\_MailgunConfigEdit.cshtml" />
     <Content Include="Views\Shared\_MailgunConfigDetails.cshtml" />
     <Content Include="Views\Shared\_TwilioConfigDetails.cshtml" />
-    <Content Include="Views\DefaultEmail\Edit.cshtml" />
-    <Content Include="Views\DefaultEmail\Details.cshtml" />
     <Content Include="Views\Shared\_CountryCodeConfigDetails.cshtml" />
-    <Content Include="Views\Shared\_CountryCodeConfigCreate.cshtml" />
-    <Content Include="Views\CountryCodeConfig\Index.cshtml" />
+    <Content Include="Views\Shared\_CountryCodeConfigEdit.cshtml" />
     <Content Include="Views\Home\Results.cshtml" />
+    <Content Include="Views\Shared\_DefaultEmailConfigEdit.cshtml" />
+    <Content Include="Views\Shared\_DefaultEmailConfigDetails.cshtml" />
+    <Content Include="Scripts\tinysort-1.5.2.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

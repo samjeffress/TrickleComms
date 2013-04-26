@@ -18,6 +18,7 @@ namespace EmailSender
     {
         public IRavenDocStore RavenDocStore { get; set; }
         public IMailActioner MailActioner { get; set; }
+        public IDateTimeOlsenFromUtcMapping DateTimeOlsenFromUtcMapping { get; set; }
 
         public void Handle(MessageSent message)
         {
@@ -58,26 +59,38 @@ namespace EmailSender
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
                 var emailDefaultNotification = session.Load<EmailDefaultNotification>("EmailDefaultConfig");
-                if (string.IsNullOrWhiteSpace(message.EmailAddress) && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
+                if (message.EmailAddresses.Count == 0 && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
                     return;
 
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null || string.IsNullOrWhiteSpace(mailgunConfiguration.DefaultFrom))
                     throw new ArgumentException("Could not find the default 'From' sender.");
-                var subject = "Coordinator " + message.CoordinatorId + " complete.";
+                var subject = "Coordinator " + message.Topic + " (" + message.CoordinatorId + ") complete.";
 
-                var builder = new StringBuilder();
-                builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") completed at " + message.FinishTimeUtc + " (UTC).");
-                builder.AppendLine("Total cost: $" + message.SendingData.SuccessfulMessages.Sum(m => m.Cost));
-                var totalMessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count;
-                builder.AppendLine(message.SendingData.SuccessfulMessages.Count + " of " + totalMessageCount + " sent.");
-                var body = builder.ToString();
+                var finishTimeUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.FinishTimeUtc, message.UserOlsenTimeZone);
+
+                var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorFinished.cshtml", new
+                {
+                    message.CoordinatorId,
+                    FinishTimeUserZone = finishTimeUserZone,
+                    UserTimeZone = message.UserOlsenTimeZone,
+                    MessageCount = message.SendingData.SuccessfulMessages.Count + message.SendingData.UnsuccessfulMessageses.Count,
+                    SuccessfulMessageCount = message.SendingData.SuccessfulMessages.Count,
+                    UnsuccessfulMessageCount = message.SendingData.UnsuccessfulMessageses.Count,
+                    TotalCost = message.SendingData.SuccessfulMessages.Sum(m => m.Cost),
+                    Topic = message.Topic
+                });
+
                 var mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom);
                 mailMessage.Body = body;
+                mailMessage.BodyEncoding = Encoding.UTF8;
+                mailMessage.IsBodyHtml = true;
                 mailMessage.Subject = subject;
-                if (!string.IsNullOrWhiteSpace(message.EmailAddress))
-                    mailMessage.To.Add(message.EmailAddress);
+                foreach (var emailAddress in message.EmailAddresses)
+                {
+                    mailMessage.To.Add(emailAddress);
+                }
                 if (emailDefaultNotification != null)
                     emailDefaultNotification.EmailAddresses.ForEach(e => mailMessage.To.Add(e));
                 MailActioner.Send(mailgunConfiguration, mailMessage);
@@ -89,30 +102,53 @@ namespace EmailSender
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
                 var emailDefaultNotification = session.Load<EmailDefaultNotification>("EmailDefaultConfig");
-                if (string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress) && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
+                if (message.ConfirmationEmailAddresses.Count == 0 && (emailDefaultNotification == null || emailDefaultNotification.EmailAddresses.Count == 0))
                     return;
                 
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null || string.IsNullOrWhiteSpace(mailgunConfiguration.DefaultFrom))
                     throw new ArgumentException("Could not find the default 'From' sender.");
-                var subject = "Coordinator " + message.CoordinatorId + " created.";
+                var subject = "Coordinator " + message.MetaData.Topic + " (" + message.CoordinatorId + ") created.";
 
-                var builder = new StringBuilder();
-                builder.AppendLine("Coordinator messages (" + message.CoordinatorId + ") created at " + message.CreationDateUtc + " (UTC).");
-                builder.AppendLine("Message count " + message.ScheduledMessages.Count + " scheduled between " + message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Min()
-                    + " (UTC) and " + message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max() + " (UTC).");
-                var body = builder.ToString();
+                var creationDateUserZone = DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(message.CreationDateUtc, message.UserOlsenTimeZone);
+
+                var startTimeUserZone =
+                    DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(
+                        message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Min(), message.UserOlsenTimeZone);
+
+                var endTimeUserZone =
+                    DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(
+                        message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max(), message.UserOlsenTimeZone);
+
+                var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorCreated.cshtml", new
+                    {
+                        message.CoordinatorId,
+                        CreationDateUserZone = creationDateUserZone,
+                        MessageCount = message.ScheduledMessages.Count,
+                        StartTimeUserZone = startTimeUserZone,
+                        EndTimeUserZone = endTimeUserZone,
+                        UserTimeZone = message.UserOlsenTimeZone,
+                        message.MetaData.Topic
+                    });
 
                 var mailMessage = new MailMessage();
                 mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom); 
                 mailMessage.Body = body;
+                mailMessage.BodyEncoding = Encoding.UTF8;
+                mailMessage.IsBodyHtml = true;
                 mailMessage.Subject = subject;
-                if (!string.IsNullOrWhiteSpace(message.ConfirmationEmailAddress))
-                    mailMessage.To.Add(message.ConfirmationEmailAddress);
+
+                foreach (var emailAddress in message.ConfirmationEmailAddresses)
+                {
+                    mailMessage.To.Add(emailAddress);
+                }
+
                 if (emailDefaultNotification != null)
                     emailDefaultNotification.EmailAddresses.ForEach(e => mailMessage.To.Add(e));
                 MailActioner.Send(mailgunConfiguration, mailMessage);
             }
         }
     }
+
+
 }

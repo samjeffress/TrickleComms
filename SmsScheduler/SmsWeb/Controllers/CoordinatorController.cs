@@ -19,6 +19,8 @@ namespace SmsWeb.Controllers
 
         public ICoordinatorModelToMessageMapping Mapper { get; set; }
 
+        public IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
+
         public ActionResult Index()
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
@@ -70,19 +72,20 @@ namespace SmsWeb.Controllers
                 var coordinatorId = Guid.NewGuid();
                 if (coordinatedMessages.Message.Length > 160)
                     coordinatedMessages.Message = coordinatedMessages.Message.Substring(0, 160);
-                if (coordinatedMessages.TimeSeparatorSeconds.HasValue && !coordinatedMessages.SendAllBy.HasValue)
+                var messageTypeRequired = coordinatedMessages.GetMessageTypeFromModel();
+                if (messageTypeRequired == typeof(TrickleSmsWithDefinedTimeBetweenEachMessage))
                 {
                     var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
                     trickleSmsSpacedByTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsSpacedByTimePeriod);
                 }
-                if (!coordinatedMessages.TimeSeparatorSeconds.HasValue && coordinatedMessages.SendAllBy.HasValue)
+                else if (messageTypeRequired == typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates))
                 {
                     var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
                     trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
-                if (coordinatedMessages.SendAllAtOnce)
+                else if (messageTypeRequired == typeof(SendAllMessagesAtOnce))
                 {
                     var sendAllAtOnce = Mapper.MapToSendAllAtOnce(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
                     sendAllAtOnce.CoordinatorId = coordinatorId;
@@ -165,14 +168,12 @@ namespace SmsWeb.Controllers
                 ModelState.AddModelError("Topic", "Topic must be set");
             if (coordinatedMessages.Numbers == null || coordinatedMessages.Numbers.Split(',').Length == 0)
                 ModelState.AddModelError("numberList", "Please include the numbers you want to send to.");
-            if (coordinatedMessages.StartTime < DateTime.Now)
+            if (coordinatedMessages.StartTime < DateTime.Now.AddMinutes(-5))
                 ModelState.AddModelError("StartTime", "Start Time must be in the future");
             if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.SendAllBy.Value <= coordinatedMessages.StartTime)
                 ModelState.AddModelError("SendAllBy", "SendAllBy time must be after StartTime");
-            if (coordinatedMessages.SendAllBy.HasValue && coordinatedMessages.TimeSeparatorSeconds.HasValue)
-                ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot pick both");
-            if (!coordinatedMessages.SendAllBy.HasValue && !coordinatedMessages.TimeSeparatorSeconds.HasValue && !coordinatedMessages.SendAllAtOnce)
-                ModelState.AddModelError("SendAllBy", "You must select either SendAllBy OR TimeSeparated - cannot have none");
+            if (!coordinatedMessages.IsMessageTypeValid())
+                ModelState.AddModelError("SendAllBy","Message must contain either Time Separator OR DateTime to send all messages by.");
         }
 
         public ActionResult Details(string coordinatorid)
@@ -195,7 +196,7 @@ namespace SmsWeb.Controllers
         public ActionResult Pause(FormCollection collection)
         {
             var coordinatorid = collection["CoordinatorId"];
-            Bus.Send(new PauseTrickledMessagesIndefinitely { CoordinatorId = Guid.Parse(coordinatorid) });
+            Bus.Send(new PauseTrickledMessagesIndefinitely { CoordinatorId = Guid.Parse(coordinatorid), MessageRequestTimeUtc = DateTime.UtcNow });
             HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Paused);
             return RedirectToAction("Details", new { coordinatorid });
         }
@@ -205,8 +206,11 @@ namespace SmsWeb.Controllers
         {
             var coordinatorid = collection["CoordinatorId"];
             var timeToResume = DateTime.Parse(collection["timeToResume"]);
-            
-            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = timeToResume.ToUniversalTime()});
+            var userTimeZone = collection["UserTimeZone"];
+
+            var dateTimeToResumeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(timeToResume, userTimeZone);
+
+            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, MessageRequestTimeUtc = DateTime.UtcNow});
             HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Started);
             return RedirectToAction("Details", new { coordinatorid });
         }

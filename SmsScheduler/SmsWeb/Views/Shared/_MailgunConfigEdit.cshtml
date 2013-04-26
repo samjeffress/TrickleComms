@@ -1,15 +1,14 @@
 ﻿@model ConfigurationModels.MailgunConfiguration
 
-<script src="~/Scripts/jquery-1.8.3.min.js"></script>
-<script src="~/Scripts/jquery.validate.min.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
-<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+@Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+@Scripts.Render("~/Scripts/jquery.1.8.3.min.js")
+
 
 @using (Ajax.BeginForm("EditAjax", "MailgunConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "MailgunConfigDiv"})) {
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <legend>MailgunConfiguration</legend>
+        <legend>Mailgun</legend>
 
         <div>
             @Html.LabelFor(model => model.ApiKey, "Api Key")
@@ -37,6 +36,9 @@
 
         <p>
             <input type="submit" value="Create" />
+        </p>
+        <p>
+            @Ajax.ActionLink("Cancel", "DetailsAjax", "MailgunConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "MailgunConfigDiv" })
         </p>
     </fieldset>
 }

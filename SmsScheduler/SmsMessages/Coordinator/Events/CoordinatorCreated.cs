@@ -6,6 +6,11 @@ namespace SmsMessages.Coordinator.Events
 {
     public class CoordinatorCreated
     {
+        public CoordinatorCreated()
+        {
+            ConfirmationEmailAddresses = new List<string>();
+        }
+
         public Guid CoordinatorId { get; set; }
 
         public List<MessageSchedule> ScheduledMessages { get; set; }
@@ -14,7 +19,9 @@ namespace SmsMessages.Coordinator.Events
 
         public SmsMetaData MetaData { get; set; }
 
-        public string ConfirmationEmailAddress { get; set; }
+        public List<string> ConfirmationEmailAddresses { get; set; }
+
+        public string UserOlsenTimeZone { get; set; }
     }
 
     public class MessageSchedule

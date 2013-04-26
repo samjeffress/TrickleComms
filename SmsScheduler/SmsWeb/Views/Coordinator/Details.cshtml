@@ -1,18 +1,59 @@
 ﻿@using SmsTrackingModels
 @model CoordinatorTrackingData
 
+@functions {public class MessageSimpleStatus
+            {
+                public string Status { get; set; }
+
+                public string ScheduleId { get; set; }
+            }
+}
+
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "SMS History : " + (Model.MetaData == null ? "" : Model.MetaData.Topic);
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
+
+@Styles.Render("~/Content/themes/base/jquery-ui.css")
+<script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
+<script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
+<script type="text/javascript" src="~/Scripts/tinysort-1.5.2.js"></script>
+
 <script type="text/javascript">
-    $(function () {      
+    var displayStatus = "full";
+    $(function () {
+
+        $('ul.fullList>li').tsort({ attr: 'class' });
+        
+        $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
+        $('#UserTimeZone').val(jstz.determine().name());
+
+        $('.fullList > li > a > i').hide();
+
+        $('#hide').click(function () {
+            if (displayStatus == "full"){
+                $('.content').hide();
+                $('.fullList').addClass("compactList");
+                $('.compactList').removeClass("fullList");
+                $('ul.compactList li').addClass("compact");
+                $('#hide').text("Show Details");
+                displayStatus = "compact";
+                $('.compactList > li > a >i').show();
+            } else {
+                $('.content').show();
+                $('.compactList').addClass("fullList");
+                $('.fullList').removeClass("compactList");
+                $('ul.fullList li').removeClass("compact");
+                $('#hide').text("Hide Details");
+                displayStatus = "full";
+                $('.fullList > li > a > i').hide();
+            }
+        });
+        
         var schedule = $.connection.scheduleStatus;
 
         schedule.client.updateSchedule = function (message) {
-            $('#' + message.ScheduleId).html(message.Body);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, message.Body, message.Class, "2", "icon-time");
         };
 
         schedule.client.scheduleSent = function (message) {
@@ -20,35 +61,28 @@
                 "Status: Completed Success <br/> " +
                 "Time Sent: " + message.SentAt + " <br />" +
                 "Cost: " + message.Cost;
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "4", "icon-ok");
         };
         
         schedule.client.scheduleFailed = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Completed Failure <br/> " +
                 "Sending Failed: " + message.SendFailedMessage;
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "5", "icon-remove");
         };
         
         schedule.client.messageScheduled = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Scheduled <br/> " +
                 "Scheduled Time: " + message.ScheduledTime;
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "2", "icon-time");
         };
         
         schedule.client.messagePaused = function (message) {
+            
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Paused <br/> ";
-            $('#' + message.ScheduleId).html(scheduleBody);
-            $('#' + message.ScheduleId).removeClass();
-            $('#' + message.ScheduleId).addClass(message.Class);
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "3", "icon-pause");
         };
         
         schedule.client.coordinatorCompleted = function (message) {
@@ -56,6 +90,7 @@
                 "<div>Completion Date: " + message.CompletedAt + "</div>";
             $('#' + message.CoordinatorId).html(coordinatorSummary);
         };
+        
 
         // Start the connection
         $.connection.hub.start().done(function() {
@@ -65,6 +100,23 @@
             });
         });
     });
+
+    function addMessageContent(scheduleId, content, liClass, messageSchedule, iconClass) {
+        $('#' + scheduleId).removeClass();
+        $('#' + scheduleId).html("<i class='" + iconClass + "'></i><div class='content'>" + content + "</div>");
+        $('#' + scheduleId).addClass(liClass);
+        $('#' + scheduleId).addClass(messageSchedule);
+        if (displayStatus != "full") {
+            $('#' + scheduleId).addClass("compact");
+            $('.content').hide();
+            $('.compactList > li > a >i').show();
+            $('ul.compactList>li').tsort({ attr: 'class' });
+        } else {
+            $('.fullList > li > a > i').hide();
+            $('ul.fullList>li').tsort({ attr: 'class' });
+        }
+        
+    }
 </script>
 
 
@@ -72,7 +124,7 @@
 <div>ID : @Model.CoordinatorId</div>
 
 <div id="@Model.CoordinatorId">
-    <div>Current Status: @Model.CurrentStatus.ToString()</div>
+    <div class="control-group">Current Status: @Model.CurrentStatus.ToString()</div>
     @if (Model.CurrentStatus != CoordinatorStatusTracking.Completed)
     {
         if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
@@ -92,8 +144,13 @@
                 @using(Html.BeginForm("Resume", "Coordinator"))
                 {
                     @Html.HiddenFor(m => m.CoordinatorId)
-                    <label>Time to resume</label>
-                    <input name="timeToResume" type="datetime-local" value="@DateTime.Now"/>
+                    <div class="control-group">
+                        <label>Time to resume</label>
+                        @Html.Editor("timeToResume")    
+                    </div>
+                    
+                    @Html.Hidden("UserTimeZone");
+                    
                     <input type="submit" value="Resume Messages"/>
                 }
             </div>
@@ -104,38 +161,47 @@
         <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
     }
 </div>
-<ul>
+<div class="control-group"><a href="#" id="hide">Hide Details</a></div>
+<ul class="fullList">
 @foreach(var message in Model.MessageStatuses)
 {
     var liClass = "";
-    if (message.Status == MessageStatusTracking.WaitingForScheduling){ liClass = "waitingforschedule"; }
-    if (message.Status == MessageStatusTracking.Scheduled){ liClass = "scheduled"; }
-    if (message.Status == MessageStatusTracking.Paused){ liClass = "paused"; }
-    if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "success"; }
-    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "fail"; }
+    var iconClass = "";
+    var tooltip = message.Number;
+    if (message.Status == MessageStatusTracking.WaitingForScheduling) { liClass = "1 waitingforschedule"; iconClass = "icon-cog"; }
+    if (message.Status == MessageStatusTracking.Scheduled) { liClass = "2 scheduled"; iconClass = "icon-time"; }
+    if (message.Status == MessageStatusTracking.Paused) { liClass = "3 paused"; iconClass = "icon-pause"; }
+    if (message.Status == MessageStatusTracking.CompletedSuccess) { liClass = "4 success"; iconClass = "icon-ok"; }
+    if (message.Status == MessageStatusTracking.CompletedFailure) { liClass = "5 fail"; iconClass = "icon-remove";
+        tooltip = tooltip + " " + message.FailureData.Message;
+    }
     <li class="@liClass" id="@message.ScheduleMessageId">
-        Number: @message.Number<br/>
-        Status: @message.Status.ToString()<br />
-        @switch(message.Status)
-        {
-            case MessageStatusTracking.CompletedSuccess:
+        <a href="#" rel="tooltip" title="@tooltip">
+            <i class="@iconClass"></i>
+        </a>
+        <div class="content">
+            Number: @message.Number<br/>
+            Status: @message.Status.ToString()<br />
+            @switch(message.Status)
             {
-                @: Time Sent: @message.ActualSentTimeUtc.Value.ToLocalTime() <br />
-                @: Cost: $@message.Cost <br />
-                break;
+                case MessageStatusTracking.CompletedSuccess:
+                    {
+                        @: Time Sent: @message.ActualSentTimeUtc.Value.ToLocalTime() <br />
+                        @: Cost: $@message.Cost <br />
+                        break;
+                    }
+                case MessageStatusTracking.CompletedFailure:
+                    {
+                        @: Sending Failed: <a href="@message.FailureData.MoreInfo">@message.FailureData.Message</a> <br />
+                        break;
+                    }
+                default:
+                    {
+                        @: ScheduledTime: @message.ScheduledSendingTimeUtc.ToLocalTime() <br />
+                        break;
+                    }
             }
-            case MessageStatusTracking.CompletedFailure:
-            {
-                @: Sending Failed: <a href="@message.FailureData.MoreInfo">@message.FailureData.Message</a> <br />
-                break;
-            }
-            default:
-            {
-                @: ScheduledTime: @message.ScheduledSendingTimeUtc.ToLocalTime() <br />
-                break;
-            }
-        }
-        
+        </div>
     </li>
 }
 </ul>

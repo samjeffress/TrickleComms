@@ -1,16 +1,15 @@
 ﻿@model ConfigurationModels.TwilioConfiguration
 
-<script src="~/Scripts/jquery-1.8.3.min.js"></script>
-<script src="~/Scripts/jquery.validate.min.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
-<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+@Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+@Scripts.Render("~/Scripts/jquery.1.8.3.min.js")
+
 
 @using (Ajax.BeginForm("EditAjax", "TwilioConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "TwilioConfigDiv" }))
 {
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <legend>TwilioConfiguration</legend>
+        <legend>Twilio</legend>
 
         <div>
             @Html.LabelFor(model => model.AuthToken, "Auth Token")
@@ -38,6 +37,9 @@
 
         <p>
             <input type="submit" value="Create" />
+        </p>
+        <p>
+            @Ajax.ActionLink("Cancel", "DetailsAjax", "TwilioConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "TwilioConfigDiv" })
         </p>
     </fieldset>
 }

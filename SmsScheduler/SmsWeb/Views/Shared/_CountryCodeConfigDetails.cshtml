@@ -1,16 +1,24 @@
 ﻿@model ConfigurationModels.CountryCodeReplacement
 
-<div class="display-label">
-        @Html.DisplayNameFor(model => model.CountryCode)
-</div>
-<div class="display-field">
-    @Html.DisplayFor(model => model.CountryCode)
-</div>
-<br/>
+<fieldset>
+    <legend>Default Country Code</legend>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.CountryCode)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.CountryCode)
+        </div>
+    </div>
 
-<div class="display-label">
-        @Html.DisplayNameFor(model => model.LeadingNumberToReplace)
-</div>
-<div class="display-field">
-    @Html.DisplayFor(model => model.LeadingNumberToReplace)
-</div>
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.LeadingNumberToReplace)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.LeadingNumberToReplace)
+        </div>
+    </div>
+    @Ajax.ActionLink("Edit", "EditAjax", "CountryCodeConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "CountryCodeConfigDiv" })
+</fieldset>

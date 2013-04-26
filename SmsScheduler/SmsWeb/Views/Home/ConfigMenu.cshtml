@@ -1,9 +1,38 @@
 ﻿@{
-    ViewBag.Title = "ConfigMenu";
+    ViewBag.Title = "SMS Configuration";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
-<h2>ConfigMenu</h2>
+@Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+@Scripts.Render("~/Scripts/jquery.1.8.3.min.js")
+<h2>Configuration</h2>
 
-@Html.ActionLink("Twilio Configuration", "Edit", "TwilioConfig")
-@Html.ActionLink("Mailgun Configuration", "Edit", "MailgunConfig")
+<style>
+    .ConfigDiv {
+        float: left;
+        width: 45%;
+        border: 1px dotted #852d5d;
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .Details {
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<div>
+    <div class="ConfigDiv" id="TwilioConfigDiv">
+        @Html.Action("DetailsAjax", "TwilioConfig")
+    </div>
+    <div class="ConfigDiv" id="MailgunConfigDiv">
+        @Html.Action("DetailsAjax", "MailgunConfig")
+    </div>
+    <div class="ConfigDiv" id="DefaultEmailConfigDiv">
+        @Html.Action("DetailsAjax", "DefaultEmail")
+    </div>
+    <div class="ConfigDiv" id="CountryCodeConfigDiv">
+        @Html.Action("DetailsAjax", "CountryCodeConfig")
+    </div>
+</div>

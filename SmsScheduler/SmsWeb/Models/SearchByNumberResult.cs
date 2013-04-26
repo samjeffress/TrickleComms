@@ -6,7 +6,7 @@ namespace SmsWeb.Models
     {
         public string PhoneNumber { get; set; }
 
-        public DateTime SendingDate { get; set; }
+        public DateTime? SendingDate { get; set; }
 
         public string Status { get; set; }
 

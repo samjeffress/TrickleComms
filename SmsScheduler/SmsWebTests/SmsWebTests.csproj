@@ -93,16 +93,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiCoordinatorModelToMessageMappingTestFixture.cs" />
     <Compile Include="ApiCoordinatorTestFixture.cs" />
     <Compile Include="ApiSmsScheduleTestFixture.cs" />
     <Compile Include="ApiSmsTestFixture.cs" />
     <Compile Include="CoordinatorModelToMessageMappingTestFixture.cs" />
     <Compile Include="CoordinatorTestFixture.cs" />
     <Compile Include="CountryCodeConfigTest.cs" />
+    <Compile Include="OlsenToUtcMappingTestFixture.cs" />
     <Compile Include="RavenTestBase.cs" />
-    <Compile Include="ScheduleTestFixture.cs" />
     <Compile Include="SearchTestFixture.cs" />
-    <Compile Include="SendNowTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

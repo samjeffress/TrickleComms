@@ -1,7 +1,7 @@
 ﻿@model SmsWeb.Models.CoordinatedSharedMessageModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "SMS Create";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
@@ -15,6 +15,7 @@
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
 <script type="text/javascript" src="~/Scripts/Coordinator.js" ></script>
 <script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
+<script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
 
 <script type="text/javascript" src="~/Scripts/jquery.tagsinput.js"></script>
 @Styles.Render("~/Content/jquery.tagsinput.css")
@@ -38,6 +39,15 @@
             HideTimingOptions();
         });
 
+        $('#StartTime,#SendAllBy,#TimeSeparatorSeconds').bind('change keyup blur focus', function () {
+            CheckIfMessagesWillBeSentOvernight();
+        });
+
+        $('#Numbers').bind('change keyup blur focus', function () {
+            showOrHideTiming();
+        });
+        showOrHideTiming();
+        
         $('#Message').bind('keyup', function () {   
             CountMessageChar($('#Message'));
         });
@@ -46,8 +56,9 @@
         CheckSendAll();
         CheckTimeSeparated();
 
-        var tagSearchUrl = '@Url.Action("Search", "Tag")';
-        $('#Tags').tagsInput({ autocomplete_url: tagSearchUrl });
+        $('#Tags').tagsInput({ autocomplete_url: "/Tag/Search/" });
+
+        $('#UserTimeZone').val(jstz.determine().name());
     });
 </script>
 
@@ -55,60 +66,65 @@
 <h2>Create Coordinated Messages</h2>
 
 
-@using (Html.BeginForm("Create", "Coordinator", FormMethod.Post, new { enctype = "multipart/form-data" }))
+
+@using (Html.BeginForm("Create", "Coordinator", FormMethod.Post, new Dictionary<string, object>() {{ "enctype", "multipart/form-data"}, {"class", "form-horizontal" }}))
 {
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Topic)
             @Html.EditorFor(model => model.Topic)
             @Html.ValidationMessageFor(model => model.Topic)
         </div>
 
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Message)
             @{ 
-                var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.Message) && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
-                messageValidationClass = messageValidationClass + ", span6";
+    var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.Message) && Model.Message.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
+    messageValidationClass = messageValidationClass + ", span6";
             }
-            @Html.TextAreaFor(model => model.Message, new Dictionary<string, object> { {"class", @messageValidationClass}})
+            @Html.TextAreaFor(model => model.Message, new Dictionary<string, object> { { "class", @messageValidationClass } })
             @Html.ValidationMessageFor(model => model.Message)
             <div id="messageCounter"></div>
         </div>
 
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Numbers)
             @Html.TextAreaFor(model => model.Numbers, new { Class = "span6"})
             @Html.ValidationMessageFor(model => model.Numbers)
         </div>
     </fieldset>
     
-    <fieldset>
-        <div>
+    <fieldset id="Timing">
+        @*<legend>Timing</legend>*@
+        <div class="control-group">
             @Html.LabelFor(model => model.StartTime, "Start Time")
             @Html.EditorFor(model => model.StartTime)
             @Html.ValidationMessageFor(model => model.StartTime)
+            @Html.HiddenFor(model => model.UserTimeZone)
+            @Html.ValidationMessageFor(model => model.UserTimeZone)
+            @Html.ValidationMessageFor(model => model.SendAllBy)
+            @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
         </div>
         
-        <div>
+        <div id="CoordinationTiming">
             <div style="padding-bottom: 10px; display: inline-block">
                 <p>Select how you want to coordinate the timing:</p>
-                @*<div id="TimeSeparatedButton" class="UnSelectedButton">Time Separated</div>*@
                 <input type="button" value="Time Separated" id="TimeSeparatedButton" class="UnSelectedButton" />
-                @*<div id="SendAllByButton" class="UnSelectedButton">Time Separated</div>*@
                 <input type="button" value="Send All By Time" id="SendAllByButton" class="UnSelectedButton" />
-                @*<div id="AllAtOnceButton" class="UnSelectedButton">Time Separated</div>*@
                 <input type="button" value="All At Once" id="AllAtOnceButton" class="UnSelectedButton"/>
             </div>
             @Html.HiddenFor(model => model.SendAllAtOnce)
-            @Html.ValidationMessageFor(model => model.SendAllBy)
-            @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
-            <div id="TimeSeparatedDiv">
+        
+            <div id="OvernightWarning" class="warning blockHidden">
+                Warning - this will result in messages being sent overnight for your local timezone!
+            </div>    
+            <div id="TimeSeparatedDiv" class="control-group">
                 @Html.LabelFor(model => model.TimeSeparatorSeconds, "Time Separated (seconds)")
                 @Html.EditorFor(model => model.TimeSeparatorSeconds)
             </div>
-            <div id="SendAllByDiv">
+            <div id="SendAllByDiv" class="control-group">
                 @Html.LabelFor(model => model.SendAllBy, "Send All By Time")
                 @Html.EditorFor(model => model.SendAllBy)
             </div>
@@ -116,18 +132,22 @@
     </fieldset>
     
     <fieldset>
+        <div class="control-group">
+        @*<legend>Exclusions</legend>*@
         @Html.LabelFor(model => model.CoordinatorsToExclude, "Coordinators To Exclude")
         @Html.ListBox("CoordinatorsToExclude", ViewData["CoordinatorExcludeList"] as List<SelectListItem>, new { Class = "span6" })
+
+        </div>
     </fieldset>
 
     <fieldset>
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.ConfirmationEmail, "Confirmation Email")
             @Html.EditorFor(model => model.ConfirmationEmail)
             @Html.ValidationMessageFor(model => model.ConfirmationEmail)
         </div>
         
-        <div>
+        <div class="control-group">
             @Html.LabelFor(model => model.Tags)
             @Html.EditorFor(model => model.Tags)
             @Html.ValidationMessageFor(model => model.Tags)
