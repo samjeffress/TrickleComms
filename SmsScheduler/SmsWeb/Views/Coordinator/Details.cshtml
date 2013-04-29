@@ -31,29 +31,31 @@
         $('.fullList > li > a > i').hide();
 
         $('#hide').click(function () {
-            if (displayStatus == "full"){
-                $('.content').hide();
-                $('.fullList').addClass("compactList");
-                $('.compactList').removeClass("fullList");
-                $('ul.compactList li').addClass("compact");
-                $('#hide').text("Show Details");
+            if (displayStatus == "full") {
+                renderDetailsCompact();
+                //$('.content').hide();
+                //$('.fullList').addClass("compactList");
+                //$('.compactList').removeClass("fullList");
+                //$('ul.compactList li').addClass("compact");
+                //$('#hide').text("Show Details");
                 displayStatus = "compact";
-                $('.compactList > li > a >i').show();
+                //$('.compactList > li > a >i').show();
             } else {
-                $('.content').show();
-                $('.compactList').addClass("fullList");
-                $('.fullList').removeClass("compactList");
-                $('ul.fullList li').removeClass("compact");
-                $('#hide').text("Hide Details");
+                renderDetailsFull();
+                //$('.content').show();
+                //$('.compactList').addClass("fullList");
+                //$('.fullList').removeClass("compactList");
+                //$('ul.fullList li').removeClass("compact");
+                //$('#hide').text("Hide Details");
                 displayStatus = "full";
-                $('.fullList > li > a > i').hide();
+                //$('.fullList > li > a > i').hide();
             }
         });
         
         var schedule = $.connection.scheduleStatus;
 
         schedule.client.updateSchedule = function (message) {
-            addMessageContent(message.ScheduleId, message.Body, message.Class, "2", "icon-time");
+            addMessageContent(message.ScheduleId, message.Body, message.Class, "2", "icon-time", message.Tooltip);
         };
 
         schedule.client.scheduleSent = function (message) {
@@ -61,28 +63,28 @@
                 "Status: Completed Success <br/> " +
                 "Time Sent: " + message.SentAt + " <br />" +
                 "Cost: " + message.Cost;
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "4", "icon-ok");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "4", "icon-ok", message.Tooltip);
         };
         
         schedule.client.scheduleFailed = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Completed Failure <br/> " +
                 "Sending Failed: " + message.SendFailedMessage;
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "5", "icon-remove");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "5", "icon-remove", message.Tooltip);
         };
         
         schedule.client.messageScheduled = function (message) {
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Scheduled <br/> " +
                 "Scheduled Time: " + message.ScheduledTime;
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "2", "icon-time");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "2", "icon-time", message.Tooltip);
         };
         
         schedule.client.messagePaused = function (message) {
             
             var scheduleBody = "Number: " + message.Number + " </br>" +
                 "Status: Paused <br/> ";
-            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "3", "icon-pause");
+            addMessageContent(message.ScheduleId, scheduleBody, message.Class, "3", "icon-pause", message.Tooltip);
         };
         
         schedule.client.coordinatorCompleted = function (message) {
@@ -101,22 +103,39 @@
         });
     });
 
-    function addMessageContent(scheduleId, content, liClass, messageSchedule, iconClass) {
+    function addMessageContent(scheduleId, content, liClass, messageSchedule, iconClass, tooltip) {
         $('#' + scheduleId).removeClass();
-        $('#' + scheduleId).html("<i class='" + iconClass + "'></i><div class='content'>" + content + "</div>");
+        $('#' + scheduleId).html("<a href='#' rel='tooltip' title='" + tooltip + "'><i class='" + iconClass + "'></i></a><div class='content'>" + content + "</div>");
         $('#' + scheduleId).addClass(liClass);
         $('#' + scheduleId).addClass(messageSchedule);
-        if (displayStatus != "full") {
-            $('#' + scheduleId).addClass("compact");
-            $('.content').hide();
-            $('.compactList > li > a >i').show();
-            $('ul.compactList>li').tsort({ attr: 'class' });
-        } else {
-            $('.fullList > li > a > i').hide();
-            $('ul.fullList>li').tsort({ attr: 'class' });
-        }
         
+        if (displayStatus == "full") {
+            renderDetailsFull();
+        } else {
+            renderDetailsCompact();
+        }
     }
+
+    function renderDetailsFull() {
+        $('.content').show();
+        $('.compactList').addClass("fullList");
+        $('.fullList').removeClass("compactList");
+        $('ul.fullList li').removeClass("compact");
+        $('#hide').text("Hide Details");
+        $('.fullList > li > a > i').hide();
+        $('ul.fullList>li').tsort({ attr: 'class' });
+    }
+
+    function renderDetailsCompact() {
+        $('.content').hide();
+        $('.fullList').addClass("compactList");
+        $('.compactList').removeClass("fullList");
+        $('ul.compactList li').addClass("compact");
+        $('#hide').text("Show Details");
+        $('.compactList > li > a > i').show();
+        $('ul.fullList>li').tsort({ attr: 'class' });
+    }
+
 </script>
 
 
