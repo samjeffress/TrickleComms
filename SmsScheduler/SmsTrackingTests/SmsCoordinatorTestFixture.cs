@@ -333,7 +333,7 @@ namespace SmsTrackingTests
         }
 
         [Test]
-        public void CoordinateMessagesCompleteWithAllMessagesComplete()
+        public void CoordinateMessagesCompleteWithAllMessagesCompleteNoConfirmationEmailAddressesStillSendsConfirmationEmail()
         {
             var coordinatorId = Guid.NewGuid();
 
@@ -349,10 +349,15 @@ namespace SmsTrackingTests
             }
 
             var coordinatorCompleted = new CoordinatorCompleted { CoordinatorId = coordinatorId };
-
+            
+            var bus = MockRepository.GenerateMock<IBus>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            var coordinatorTracker = new CoordinatorTracker() { RavenStore = ravenDocStore };
+            CoordinatorCompleteEmail message = null;
+            bus.Expect(b => b.Send(Arg<CoordinatorCompleteEmail>.Is.Anything))
+                .WhenCalled(a => message = (CoordinatorCompleteEmail)(((Object[])(a.Arguments[0]))[0])); ;
+
+            var coordinatorTracker = new CoordinatorTracker() { RavenStore = ravenDocStore, Bus = bus };
             coordinatorTracker.Handle(coordinatorCompleted);
 
             using (var session = DocumentStore.OpenSession())
@@ -360,6 +365,11 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 Assert.That(trackingData.CurrentStatus, Is.EqualTo(CoordinatorStatusTracking.Completed));
             }
+
+            Assert.That(message.EmailAddresses.Count, Is.EqualTo(0));
+
+            bus.VerifyAllExpectations();
+            ravenDocStore.VerifyAllExpectations();
         }
 
         [Test]
@@ -388,7 +398,7 @@ namespace SmsTrackingTests
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             var bus = MockRepository.GenerateMock<IBus>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);
-            CoordinatorCompleteEmail message;
+            CoordinatorCompleteEmail message = null;
             bus.Expect(b => b.Send(Arg<CoordinatorCompleteEmail>.Is.Anything)).WhenCalled(a => message = (CoordinatorCompleteEmail)(((Object[])(a.Arguments[0]))[0])); ;
 
             var coordinatorTracker = new CoordinatorTracker { RavenStore = ravenDocStore, Bus = bus};
@@ -399,6 +409,8 @@ namespace SmsTrackingTests
                 var trackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 Assert.That(trackingData.CurrentStatus, Is.EqualTo(CoordinatorStatusTracking.Completed));
             }
+
+            Assert.That(message.EmailAddresses.Count, Is.EqualTo(1));
             bus.VerifyAllExpectations();
         }
     }
