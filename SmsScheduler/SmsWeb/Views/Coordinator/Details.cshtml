@@ -26,6 +26,7 @@
         $('ul.fullList>li').tsort({ attr: 'class' });
         
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
+        $('input[name="finishTime"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('#UserTimeZone').val(jstz.determine().name());
 
         $('.fullList > li > a > i').hide();
@@ -105,10 +106,6 @@
         $("#pauseForm").submit(function () {
             return confirm("Are you sure you want to pause the current coordinator?");
         });
-        
-        if ($("#timeToResume").val() == "") {
-            $("#timeToResume").val(new Date().toLocaleString());
-        }
     });
 
     function addMessageContent(scheduleId, content, liClass, messageSchedule, iconClass, tooltip) {
@@ -173,6 +170,13 @@
                     <div class="control-group">
                         <label>Time to resume</label>
                         @Html.Editor("timeToResume")
+                        @Html.ValidationMessage("timeToResume")
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Finish Time</label>
+                        @Html.Editor("finishTime")
+                        @Html.ValidationMessage("finishTime")
                     </div>
                     
                     @Html.Hidden("UserTimeZone");

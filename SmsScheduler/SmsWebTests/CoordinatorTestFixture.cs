@@ -673,6 +673,7 @@ namespace SmsWebTests
                 {
                     {"CoordinatorId", coordinatorId.ToString()},
                     {"timeToResume", DateTime.Now.AddMinutes(20).ToString()},
+                    {"finishTime", string.Empty},
                     {"UserTimeZone", "MadeUpLand"}
                 };
             ResumeTrickledMessages resumeMessage = null;
@@ -692,6 +693,143 @@ namespace SmsWebTests
             
             Assert.That(resumeMessage.CoordinatorId, Is.EqualTo(coordinatorId));
             Assert.That(resumeMessage.ResumeTimeUtc, Is.EqualTo(timeToResumeAt));
+
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void RescheduleWithStartAndFinishTime()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
+            var context = MockRepository.GenerateMock<ControllerContext>();
+            var httpSessionStateBase = MockRepository.GenerateStub<HttpSessionStateBase>();
+            var coordinatorController = new CoordinatorController { Bus = bus, DateTimeOlsenMapping = dateTimeMapper, ControllerContext = context };
+
+            var timeToResume = DateTime.Now;
+            var timeToFinish = DateTime.Now.AddMinutes(44);
+            var coordinatorId = Guid.NewGuid();
+
+            var collection = new FormCollection
+                {
+                    {"CoordinatorId", coordinatorId.ToString()},
+                    {"timeToResume", DateTime.Now.AddMinutes(20).ToString()},
+                    {"finishTime", DateTime.Now.AddMinutes(30).ToString()},
+                    {"UserTimeZone", "MadeUpLand"}
+                };
+            RescheduleTrickledMessages rescheduleMessage = null;
+            bus
+                .Expect(b => b.Send(Arg<RescheduleTrickledMessages>.Is.Anything))
+                .WhenCalled(b => rescheduleMessage = (RescheduleTrickledMessages)((object[])b.Arguments[0])[0]);
+            
+            dateTimeMapper
+                .Expect(d => d.DateTimeWithOlsenZoneToUtc(DateTime.Parse(collection["timeToResume"]), collection["UserTimeZone"]))
+                .Return(timeToResume);
+
+            dateTimeMapper
+                .Expect(d => d.DateTimeWithOlsenZoneToUtc(DateTime.Parse(collection["finishTime"]), collection["UserTimeZone"]))
+                .Return(timeToFinish);
+
+            context.Expect(c => c.HttpContext.Session).Return(httpSessionStateBase);
+            
+            var result = (RedirectToRouteResult)coordinatorController.Resume(collection);
+
+            Assert.That(result.RouteValues["action"], Is.EqualTo("Details"));
+
+            Assert.That(rescheduleMessage.CoordinatorId, Is.EqualTo(coordinatorId));
+            Assert.That(rescheduleMessage.ResumeTimeUtc, Is.EqualTo(timeToResume));
+            Assert.That(rescheduleMessage.FinishTimeUtc, Is.EqualTo(timeToFinish));
+            
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void ResumeWithStartTimeAndInvalidFinishTimeReturnsError()
+        {
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession()).Return(SmsTrackingSession);
+
+            var bus = MockRepository.GenerateMock<IBus>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
+            var context = MockRepository.GenerateMock<ControllerContext>();
+            var httpSessionStateBase = MockRepository.GenerateStub<HttpSessionStateBase>();
+            var coordinatorController = new CoordinatorController { Bus = bus, DateTimeOlsenMapping = dateTimeMapper, ControllerContext = context, RavenDocStore = ravenDocStore };
+
+            var coordinatorId = Top1CoordinatorId;
+            context.Expect(c => c.HttpContext.Session).Return(httpSessionStateBase);
+            var collection = new FormCollection
+                {
+                    {"CoordinatorId", coordinatorId.ToString()},
+                    {"timeToResume", DateTime.Now.AddMinutes(20).ToString()},
+                    {"finishTime", DateTime.Now.AddMinutes(10).ToString()},
+                    {"UserTimeZone", "MadeUpLand"}
+                };
+
+            var result = (ViewResult)coordinatorController.Resume(collection);
+
+            // assert that there are viewdata error state set
+            var modelStateDictionary = result.ViewData.ModelState;
+            Assert.That(modelStateDictionary["finishTime"].Errors[0].ErrorMessage, Is.EqualTo("Finish time must be after time to resume"));
+
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void ResumeWithInvalidStartTimeReturnsError()
+        {
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession()).Return(SmsTrackingSession);
+
+            var bus = MockRepository.GenerateMock<IBus>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
+            var context = MockRepository.GenerateMock<ControllerContext>();
+            var httpSessionStateBase = MockRepository.GenerateStub<HttpSessionStateBase>();
+            var coordinatorController = new CoordinatorController { Bus = bus, DateTimeOlsenMapping = dateTimeMapper, ControllerContext = context, RavenDocStore = ravenDocStore };
+
+            var coordinatorId = Top1CoordinatorId;
+            context.Expect(c => c.HttpContext.Session).Return(httpSessionStateBase);
+            var collection = new FormCollection
+                {
+                    {"CoordinatorId", coordinatorId.ToString()},
+                    {"timeToResume", DateTime.Now.AddMinutes(-20).ToString()},
+                    {"UserTimeZone", "MadeUpLand"}
+                };
+
+            var result = (ViewResult)coordinatorController.Resume(collection);
+
+            // assert that there are viewdata error state set
+            var modelStateDictionary = result.ViewData.ModelState;
+            Assert.That(modelStateDictionary["timeToResume"].Errors[0].ErrorMessage, Is.EqualTo("Time to resume must be in the future"));
+
+            bus.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void ResumeWithEmptyStartTimeReturnsError()
+        {
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession()).Return(SmsTrackingSession);
+
+            var bus = MockRepository.GenerateMock<IBus>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
+            var context = MockRepository.GenerateMock<ControllerContext>();
+            var httpSessionStateBase = MockRepository.GenerateStub<HttpSessionStateBase>();
+            var coordinatorController = new CoordinatorController { Bus = bus, DateTimeOlsenMapping = dateTimeMapper, ControllerContext = context, RavenDocStore = ravenDocStore };
+
+            var coordinatorId = Top1CoordinatorId;
+            context.Expect(c => c.HttpContext.Session).Return(httpSessionStateBase);
+            var collection = new FormCollection
+                {
+                    {"CoordinatorId", coordinatorId.ToString()},
+                    {"timeToResume", string.Empty },
+                    {"UserTimeZone", "MadeUpLand"}
+                };
+
+            var result = (ViewResult)coordinatorController.Resume(collection);
+
+            // assert that there are viewdata error state set
+            var modelStateDictionary = result.ViewData.ModelState;
+            Assert.That(modelStateDictionary["timeToResume"].Errors[0].ErrorMessage, Is.EqualTo("Time to resume must be set"));
 
             bus.VerifyAllExpectations();
         }
