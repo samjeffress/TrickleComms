@@ -22,8 +22,9 @@ namespace SmsWeb
                     ScheduleId = message.ScheduledSmsId, 
                     Number = message.Number, 
                     SentAt = message.ConfirmationData.SentAtUtc.ToLocalTime(), 
-                    Cost = message.ConfirmationData.Price, 
-                    Class = "success"
+                    Cost = message.ConfirmationData.Price,
+                    Class = "success",
+                    Tooltip = message.Number
                 });
         }
 
@@ -35,7 +36,8 @@ namespace SmsWeb
                     ScheduleId = message.ScheduledSmsId, 
                     Number = message.Number,
                     SendFailedMessage = message.SmsFailedData.Message,
-                    Class = "fail"
+                    Class = "fail",
+                    Tooltip = message.Number + " " + message.SmsFailedData.Message
                 });
         }
 
@@ -47,7 +49,8 @@ namespace SmsWeb
                     ScheduleId = message.ScheduleMessageId, 
                     Number = message.SmsData.Mobile,
                     ScheduledTime = message.ScheduleSendingTimeUtc.ToLocalTime(),
-                    Class = "scheduled"
+                    Class = "scheduled",
+                    Tooltip = message.SmsData.Mobile
                 });
         }
 
@@ -59,7 +62,8 @@ namespace SmsWeb
                     ScheduleId = message.ScheduleMessageId, 
                     Number = message.Number,
                     ScheduledTime = message.RescheduledTimeUtc.ToLocalTime(),
-                    Class = "scheduled"
+                    Class = "scheduled",
+                    Tooltip = message.Number
                 });
         }
 
@@ -70,7 +74,8 @@ namespace SmsWeb
                 {
                     ScheduleId = message.ScheduleId, 
                     Number = message.Number,
-                    Class = "paused"
+                    Class = "paused",
+                    Tooltip = message.Number
                 });
         }
 
