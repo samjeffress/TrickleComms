@@ -21,6 +21,8 @@ namespace SmsWeb.Controllers
 
         public IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
 
+
+
         public ActionResult Index()
         {
             using (var session = RavenDocStore.GetStore().OpenSession())

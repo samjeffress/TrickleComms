@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using ConfigurationModels;
 using NServiceBus;
@@ -49,7 +51,7 @@ namespace SmsWebTests
         }
 
         [Test]        
-        public void CoordinatorSeparatedByTimeSpanReturnsDetails()
+        public void CreateSeparatedByTimeSpanReturnsDetails()
         {
             var model = new CoordinatedSharedMessageModel
             {
@@ -90,7 +92,7 @@ namespace SmsWebTests
         }
 
         [Test]        
-        public void CoordinatorSendAllAtOnceReturnsDetails()
+        public void CreateSendAllAtOnceReturnsDetails()
         {
             var model = new CoordinatedSharedMessageModel
             {
@@ -131,7 +133,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorOverTimespanReturnsDetails()
+        public void CreateOverTimespanReturnsDetails()
         {
             var model = new CoordinatedSharedMessageModel
             {
@@ -171,7 +173,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorOverTimespanLongMessageIsShortenedReturnsDetails()
+        public void CreateOverTimespanLongMessageIsShortenedReturnsDetails()
         {
             var model = new CoordinatedSharedMessageModel
             {
@@ -216,7 +218,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorExcludePreviousCoordinatorMessagesRemovesMatchingNumbers()
+        public void CreateExcludePreviousCoordinatorMessagesRemovesMatchingNumbers()
         {
             var CoordinatorToExclude = Guid.NewGuid();
             var model = new CoordinatedSharedMessageModel
@@ -266,7 +268,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorExcludeMultiplePreviousCoordinatorMessagesRemovesMatchingNumbers_TrickleBetweenDates()
+        public void CreaetExcludeMultiplePreviousCoordinatorMessagesRemovesMatchingNumbers_TrickleBetweenDates()
         {
             var CoordinatorToExclude1 = Guid.NewGuid();
             var CoordinatorToExclude2 = Guid.NewGuid();
@@ -325,7 +327,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorSingleNumber_UseSendAllNow()
+        public void CreateSingleNumber_UseSendAllNow()
         {
             var model = new CoordinatedSharedMessageModel
             {
@@ -371,7 +373,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorExcludeMultiplePreviousCoordinatorMessagesRemovesMatchingNumbers_TrickleMessageSpaceDefined()
+        public void CreateExcludeMultiplePreviousCoordinatorMessagesRemovesMatchingNumbers_TrickleMessageSpaceDefined()
         {
             var CoordinatorToExclude1 = Guid.NewGuid();
             var CoordinatorToExclude2 = Guid.NewGuid();
@@ -428,7 +430,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorContainsNoNumbersError()
+        public void CreateContainsNoNumbersError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -451,7 +453,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorContainsNoMessagesError()
+        public void CreateContainsNoMessagesError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -474,7 +476,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void ErrorWithSelectedCoordinatorsToExclude()
+        public void CreateErrorWithSelectedCoordinatorsToExclude()
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -499,7 +501,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorTimeInPastError()
+        public void CreateTimeInPastError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -523,7 +525,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorNoTopicError()
+        public void CreateNoTopicError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -548,7 +550,7 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CoordinatorTimeSeparatorNotDefinedError()
+        public void CreateTimeSeparatorNotDefinedError()
         {
             var bus = MockRepository.GenerateMock<IBus>();
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
@@ -653,6 +655,45 @@ namespace SmsWebTests
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
 
             ravenDocStore.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void RescheduleWithResumeTime()
+        {
+            var bus = MockRepository.GenerateMock<IBus>();
+            var dateTimeMapper = MockRepository.GenerateMock<IDateTimeUtcFromOlsenMapping>();
+            var context = MockRepository.GenerateMock<ControllerContext>();
+            var httpSessionStateBase = MockRepository.GenerateStub<HttpSessionStateBase>();
+            var coordinatorController = new CoordinatorController { Bus = bus, DateTimeOlsenMapping = dateTimeMapper, ControllerContext = context };
+
+            var timeToResumeAt = DateTime.Now;
+            var coordinatorId = Guid.NewGuid();
+
+            var collection = new FormCollection
+                {
+                    {"CoordinatorId", coordinatorId.ToString()},
+                    {"timeToResume", DateTime.Now.AddMinutes(20).ToString()},
+                    {"UserTimeZone", "MadeUpLand"}
+                };
+            ResumeTrickledMessages resumeMessage = null;
+            bus
+                .Expect(b => b.Send(Arg<ResumeTrickledMessages>.Is.Anything))
+                .WhenCalled(b => resumeMessage = (ResumeTrickledMessages) ((object[])b.Arguments[0])[0]);
+            
+            dateTimeMapper
+                .Expect(d => d.DateTimeWithOlsenZoneToUtc(DateTime.Parse(collection["timeToResume"]), collection["UserTimeZone"]))
+                .Return(timeToResumeAt);
+
+            context.Expect(c => c.HttpContext.Session).Return(httpSessionStateBase);
+            
+            var result = (RedirectToRouteResult)coordinatorController.Resume(collection);
+
+            Assert.That(result.RouteValues["action"], Is.EqualTo("Details"));
+            
+            Assert.That(resumeMessage.CoordinatorId, Is.EqualTo(coordinatorId));
+            Assert.That(resumeMessage.ResumeTimeUtc, Is.EqualTo(timeToResumeAt));
+
+            bus.VerifyAllExpectations();
         }
     }
 }
