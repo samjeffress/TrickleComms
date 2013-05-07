@@ -162,6 +162,25 @@ namespace SmsCoordinator
             Data.LastUpdatingCommandRequestUtc = resumeMessages.MessageRequestTimeUtc;
         }
 
+        public void Handle(RescheduleTrickledMessages rescheduleTrickledMessages)
+        {
+            if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > rescheduleTrickledMessages.MessageRequestTimeUtc)
+                return;
+            var baseOffset = rescheduleTrickledMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
+            var messageOffset = rescheduleTrickledMessages.FinishTimeUtc.Ticks - rescheduleTrickledMessages.ResumeTimeUtc.Ticks;
+            var activeMessageStatuses = Data.ScheduledMessageStatus
+                .Where(s => s.MessageStatus == MessageStatus.Paused)
+                .ToList();
+
+            for (var i = 0; i < activeMessageStatuses.Count; i++)
+            {
+                var resumeScheduledMessageWithOffset = new ResumeScheduledMessageWithOffset(activeMessageStatuses[i].ScheduledSms.ScheduleMessageId, new TimeSpan(baseOffset + (i*messageOffset)));
+                Bus.Send(resumeScheduledMessageWithOffset);
+            }
+
+            Data.LastUpdatingCommandRequestUtc = rescheduleTrickledMessages.MessageRequestTimeUtc;
+        }
+
         public void Handle(SmsScheduled smsScheduled)
         {
             var messageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsScheduled.ScheduleMessageId);

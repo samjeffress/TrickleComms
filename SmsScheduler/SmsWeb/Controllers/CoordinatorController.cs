@@ -205,12 +205,49 @@ namespace SmsWeb.Controllers
         public ActionResult Resume(FormCollection collection)
         {
             var coordinatorid = collection["CoordinatorId"];
-            var timeToResume = DateTime.Parse(collection["timeToResume"]);
+            var timeToResume = DateTime.Now;
+            var timeToResumeParsed = DateTime.TryParse(collection["timeToResume"], out timeToResume);
             var userTimeZone = collection["UserTimeZone"];
+            var finishTime = DateTime.Now;
+            var finishTimeParsed = DateTime.TryParse(collection["finishTime"], out finishTime);
+
+            // validate
+            if (!timeToResumeParsed)
+                ModelState.AddModelError("timeToResume", "Time to resume must be set");
+            if (timeToResume < DateTime.Now.AddMinutes(-5))
+                ModelState.AddModelError("timeToResume", "Time to resume must be in the future");
+            if (finishTimeParsed && finishTime <= timeToResume)
+                ModelState.AddModelError("finishTime", "Finish time must be after time to resume");
+
+            if (!ModelState.IsValid)
+            {
+                using (var session = RavenDocStore.GetStore().OpenSession())
+                {
+                    var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
+                    if (coordinatorTrackingData == null)
+                    {
+                        return View("DetailsNotCreated", model: coordinatorid);
+                    }
+
+                    if (HttpContext.Session != null && HttpContext.Session["CoordinatorState"] != null && HttpContext.Session["CoordinatorState"] is CoordinatorStatusTracking)
+                        coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState"];
+                    ViewData.Add("timeToResume", collection["timeToResume"]);
+                    ViewData.Add("finishTime", collection["finishTime"]);
+                    return View("Details", coordinatorTrackingData);
+                }              
+            }
 
             var dateTimeToResumeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(timeToResume, userTimeZone);
-
-            Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, MessageRequestTimeUtc = DateTime.UtcNow});
+            if (finishTimeParsed)
+            {
+                var dateTimeToFinishUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(finishTime, userTimeZone);
+                Bus.Send(new RescheduleTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, FinishTimeUtc = dateTimeToFinishUtc, MessageRequestTimeUtc = DateTime.UtcNow });
+            }
+            else
+            {
+                Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, MessageRequestTimeUtc = DateTime.UtcNow });    
+            }
+            
             HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Started);
             return RedirectToAction("Details", new { coordinatorid });
         }

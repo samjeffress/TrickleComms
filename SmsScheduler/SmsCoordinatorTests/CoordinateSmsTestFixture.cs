@@ -196,6 +196,50 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
+        public void TrickleThreeMessagesSpacedAMinuteApartPausedAfterFirstThenRescheduled()
+        {
+            var startTime = DateTime.Now.AddHours(3);
+            var timeSpacing = new TimeSpan(0, 10, 0);
+            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
+            {
+                StartTimeUtc = startTime,
+                Messages = new List<SmsData>
+                {
+                    new SmsData("mobile#1", "message"), 
+                    new SmsData("mobile#2", "message2"),
+                    new SmsData("mobile#3", "message3")
+                },
+                TimeSpacing = timeSpacing
+            };
+
+            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(d => d.Data = sagaData)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
+                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
+                .When(s => s.Handle(trickleMultipleMessages))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
+                    .ExpectSend<PauseScheduledMessageIndefinitely>()
+                    .ExpectSend<PauseScheduledMessageIndefinitely>()
+                .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
+                .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
+                .When(s => s.Handle(new MessageSchedulePaused { ScheduleId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
+                    .ExpectSend<ResumeScheduledMessageWithOffset>()
+                    .ExpectSend<ResumeScheduledMessageWithOffset>()
+                .When(s => s.Handle(new RescheduleTrickledMessages()))
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
+                    .AssertSagaCompletionIs(false)
+                    .ExpectPublish<CoordinatorCompleted>()
+                .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
+                    .AssertSagaCompletionIs(true);
+
+            Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
+            Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
+        }
+
+        [Test]
         public void TrickleThreeMessagesPausedAfterFirstThenResumed()
         {
             var startTime = DateTime.Now.AddHours(3);
@@ -572,6 +616,43 @@ namespace SmsCoordinatorTests
             Assert.That(scheduledMessageStatuses[1].MessageStatus, Is.EqualTo(MessageStatus.Paused));
 
             timingManager.VerifyAllExpectations();
+        }
+
+        [Test]
+        public void TrickleMessagesRescheduleMessageSending_Data()
+        {
+            var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj"), new SmsData("mobile", "sent") };
+
+            var scheduledMessageStatuses = new List<ScheduledMessageStatus> 
+            {
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[0]}, MessageStatus.Paused),
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[1]}, MessageStatus.Paused),
+                new ScheduledMessageStatus(new ScheduleSmsForSendingLater { SmsData = messageList[2]}, MessageStatus.Sent)
+            };
+            var dateTime = DateTime.Now;
+            var finishTime = dateTime.AddMinutes(9);
+            var sagaData = new CoordinateSmsSchedulingData { Originator = "o", ScheduledMessageStatus = scheduledMessageStatuses, OriginalScheduleStartTime = dateTime.AddMinutes(-5) };
+            
+            var rescheduleTrickledMessages = new RescheduleTrickledMessages { ResumeTimeUtc = dateTime, FinishTimeUtc = finishTime};
+
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(s =>
+                {
+                    s.Data = sagaData;
+                })
+                    .ExpectSend<ResumeScheduledMessageWithOffset>(
+                        l => 
+                        l.ScheduleMessageId == scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId &&
+                        l.Offset == new TimeSpan(0, 0, 5, 0))
+                    .ExpectSend<ResumeScheduledMessageWithOffset>(
+                        l =>
+                        l.ScheduleMessageId == scheduledMessageStatuses[1].ScheduledSms.ScheduleMessageId &&
+                        l.Offset == new TimeSpan(0, 0, 5, 0))
+                .When(s => s.Handle(rescheduleTrickledMessages));
+
+            Assert.That(scheduledMessageStatuses[0].MessageStatus, Is.EqualTo(MessageStatus.Paused));
+            Assert.That(scheduledMessageStatuses[1].MessageStatus, Is.EqualTo(MessageStatus.Paused));
         }
     }
 }

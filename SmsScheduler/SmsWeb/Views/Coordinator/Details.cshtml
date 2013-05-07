@@ -26,6 +26,7 @@
         $('ul.fullList>li').tsort({ attr: 'class' });
         
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
+        $('input[name="finishTime"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('#UserTimeZone').val(jstz.determine().name());
 
         $('.fullList > li > a > i').hide();
@@ -101,6 +102,10 @@
                 status.server.send($('#msg').val());
             });
         });
+
+        $("#pauseForm").submit(function () {
+            return confirm("Are you sure you want to pause the current coordinator?");
+        });
     });
 
     function addMessageContent(scheduleId, content, liClass, messageSchedule, iconClass, tooltip) {
@@ -149,10 +154,9 @@
         if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
         {
             <div>
-                @using(Html.BeginForm("Pause", "Coordinator"))
+                @using(Html.BeginForm("Pause", "Coordinator", FormMethod.Post, new { id = "pauseForm" }))
                 {
                     @Html.HiddenFor(m => m.CoordinatorId)
-                @*<label>Pause message sending</label>*@
                     <input type="submit" value="Pause Message Sending"/>
                 }
             </div>
@@ -160,12 +164,19 @@
         if (Model.CurrentStatus == CoordinatorStatusTracking.Paused)
         {
             <div>
-                @using(Html.BeginForm("Resume", "Coordinator"))
+                @using(Html.BeginForm("Resume", "Coordinator", FormMethod.Post, new { id = "resumeForm" }))
                 {
                     @Html.HiddenFor(m => m.CoordinatorId)
                     <div class="control-group">
                         <label>Time to resume</label>
-                        @Html.Editor("timeToResume")    
+                        @Html.Editor("timeToResume")
+                        @Html.ValidationMessage("timeToResume")
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Finish Time</label>
+                        @Html.Editor("finishTime")
+                        @Html.ValidationMessage("finishTime")
                     </div>
                     
                     @Html.Hidden("UserTimeZone");
