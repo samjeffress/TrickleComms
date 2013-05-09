@@ -186,8 +186,8 @@ namespace SmsWeb.Controllers
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
-                if (HttpContext.Session != null && HttpContext.Session["CoordinatorState"] != null && HttpContext.Session["CoordinatorState"] is CoordinatorStatusTracking)
-                    coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState"];
+                if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
+                    coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
                 return View("Details", coordinatorTrackingData);
             }
         }
@@ -197,7 +197,7 @@ namespace SmsWeb.Controllers
         {
             var coordinatorid = collection["CoordinatorId"];
             Bus.Send(new PauseTrickledMessagesIndefinitely { CoordinatorId = Guid.Parse(coordinatorid), MessageRequestTimeUtc = DateTime.UtcNow });
-            HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Paused);
+            HttpContext.Session.Add("CoordinatorState_" + coordinatorid, CoordinatorStatusTracking.Paused);
             return RedirectToAction("Details", new { coordinatorid });
         }
 
@@ -229,8 +229,8 @@ namespace SmsWeb.Controllers
                         return View("DetailsNotCreated", model: coordinatorid);
                     }
 
-                    if (HttpContext.Session != null && HttpContext.Session["CoordinatorState"] != null && HttpContext.Session["CoordinatorState"] is CoordinatorStatusTracking)
-                        coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState"];
+                    if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
+                        coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
                     ViewData.Add("timeToResume", collection["timeToResume"]);
                     ViewData.Add("finishTime", collection["finishTime"]);
                     return View("Details", coordinatorTrackingData);

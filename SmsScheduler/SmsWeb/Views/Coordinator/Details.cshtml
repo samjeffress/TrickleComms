@@ -34,22 +34,10 @@
         $('#hide').click(function () {
             if (displayStatus == "full") {
                 renderDetailsCompact();
-                //$('.content').hide();
-                //$('.fullList').addClass("compactList");
-                //$('.compactList').removeClass("fullList");
-                //$('ul.compactList li').addClass("compact");
-                //$('#hide').text("Show Details");
                 displayStatus = "compact";
-                //$('.compactList > li > a >i').show();
             } else {
                 renderDetailsFull();
-                //$('.content').show();
-                //$('.compactList').addClass("fullList");
-                //$('.fullList').removeClass("compactList");
-                //$('ul.fullList li').removeClass("compact");
-                //$('#hide').text("Hide Details");
                 displayStatus = "full";
-                //$('.fullList > li > a > i').hide();
             }
         });
         
@@ -94,7 +82,6 @@
             $('#' + message.CoordinatorId).html(coordinatorSummary);
         };
         
-
         // Start the connection
         $.connection.hub.start().done(function() {
             $("#broadcast").click(function () {
@@ -140,9 +127,7 @@
         $('.compactList > li > a > i').show();
         $('ul.fullList>li').tsort({ attr: 'class' });
     }
-
 </script>
-
 
 <h2>Coordinated Messages</h2>
 <div>ID : @Model.CoordinatorId</div>
@@ -174,11 +159,11 @@
                     </div>
                     
                     <div class="control-group">
-                        <label>Finish Time</label>
+                        <label>Finish Time (optional)</label>
                         @Html.Editor("finishTime")
                         @Html.ValidationMessage("finishTime")
+                        <div><sup>This will update the timing of messages instead of just updating the schedule.</sup></div>
                     </div>
-                    
                     @Html.Hidden("UserTimeZone");
                     
                     <input type="submit" value="Resume Messages"/>
@@ -189,6 +174,17 @@
     @if(Model.CompletionDateUtc.HasValue)
     {
         <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
+        if (Model.MessageStatuses.Sum(m => m.Cost).HasValue)
+        {
+            var totalCost = Model.MessageStatuses.Sum(m => m.Cost).Value*-1;
+            <div>Cost: $@totalCost</div>
+        }
+        var group = Model.MessageStatuses.GroupBy(m => m.Status);
+        foreach (var v in group)
+        {
+            <div>@v.Key : @v.Count()</div>
+        }
+
     }
 </div>
 <div class="control-group"><a href="#" id="hide">Hide Details</a></div>
