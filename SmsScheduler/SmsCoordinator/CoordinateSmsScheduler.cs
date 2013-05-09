@@ -16,13 +16,11 @@ namespace SmsCoordinator
         IAmStartedByMessages<TrickleSmsOverCalculatedIntervalsBetweenSetDates>, 
         IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
         IAmStartedByMessages<SendAllMessagesAtOnce>,
-        IHandleMessages<SmsScheduled>,
         IHandleMessages<ScheduledSmsSent>,
         IHandleMessages<ScheduledSmsFailed>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
         IHandleMessages<ResumeTrickledMessages>,
-        IHandleMessages<MessageSchedulePaused>,
-        IHandleMessages<MessageRescheduled>
+        IHandleMessages<RescheduleTrickledMessages>
     {
         public ICalculateSmsTiming TimingManager { get; set; }
 
@@ -35,6 +33,7 @@ namespace SmsCoordinator
             ConfigureMapping<ResumeTrickledMessages>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<MessageSchedulePaused>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<MessageRescheduled>(data => data.CoordinatorId, message => message.CoordinatorId);
+            ConfigureMapping<RescheduleTrickledMessages>(data => data.CoordinatorId, message => message.CoordinatorId);
             base.ConfigureHowToFindSaga();
         }
 
@@ -132,7 +131,7 @@ namespace SmsCoordinator
             if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > message.MessageRequestTimeUtc)
                 return;
             var messagesToPause = Data.ScheduledMessageStatus
-                .Where(s => s.MessageStatus == MessageStatus.Scheduled || s.MessageStatus == MessageStatus.WaitingForScheduling)
+                .Where(s => s.Status == ScheduleStatus.Initiated)
                 .ToList()
                 .Select(scheduledMessageStatuse => 
                     new PauseScheduledMessageIndefinitely(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId))
@@ -150,7 +149,7 @@ namespace SmsCoordinator
                 return;
             var offset = resumeMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var resumeMessageCommands = Data.ScheduledMessageStatus
-                .Where(s => s.MessageStatus == MessageStatus.Paused)
+                .Where(s => s.Status == ScheduleStatus.Initiated)
                 .ToList()
                 .Select(scheduledMessageStatuse => 
                     new ResumeScheduledMessageWithOffset(scheduledMessageStatuse.ScheduledSms.ScheduleMessageId, new TimeSpan(offset)))
@@ -169,7 +168,7 @@ namespace SmsCoordinator
             var baseOffset = rescheduleTrickledMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var messageOffset = rescheduleTrickledMessages.FinishTimeUtc.Ticks - rescheduleTrickledMessages.ResumeTimeUtc.Ticks;
             var activeMessageStatuses = Data.ScheduledMessageStatus
-                .Where(s => s.MessageStatus == MessageStatus.Paused)
+                .Where(s => s.Status == ScheduleStatus.Initiated)
                 .ToList();
 
             for (var i = 0; i < activeMessageStatuses.Count; i++)
@@ -181,35 +180,35 @@ namespace SmsCoordinator
             Data.LastUpdatingCommandRequestUtc = rescheduleTrickledMessages.MessageRequestTimeUtc;
         }
 
-        public void Handle(SmsScheduled smsScheduled)
-        {
-            var messageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsScheduled.ScheduleMessageId);
-            if (messageStatus == null)
-                throw new Exception("Cannot find message with id " + smsScheduled.ScheduleMessageId);
-            if (messageStatus.MessageStatus == MessageStatus.Sent)
-                throw new Exception("Message already sent.");
-            messageStatus.MessageStatus = MessageStatus.Scheduled;
-        }
+        //public void Handle(SmsScheduled smsScheduled)
+        //{
+        //    var messageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsScheduled.ScheduleMessageId);
+        //    if (messageStatus == null)
+        //        throw new Exception("Cannot find message with id " + smsScheduled.ScheduleMessageId);
+        //    if (messageStatus.MessageStatus == MessageStatus.Sent)
+        //        throw new Exception("Message already sent.");
+        //    messageStatus.MessageStatus = MessageStatus.Scheduled;
+        //}
 
-        public void Handle(MessageSchedulePaused message)
-        {
-            var messageStatus = Data.ScheduledMessageStatus.Where(s => s.ScheduledSms.ScheduleMessageId == message.ScheduleId).Select(s => s).FirstOrDefault();
-            if (messageStatus == null)
-                throw new Exception("Could not find message " + message.ScheduleId + ".");
-            if (messageStatus.MessageStatus == MessageStatus.Sent)
-                throw new Exception("Scheduled message " + message.ScheduleId + " is already sent.");
-            messageStatus.MessageStatus = MessageStatus.Paused;
-        }
+        //public void Handle(MessageSchedulePaused message)
+        //{
+        //    var messageStatus = Data.ScheduledMessageStatus.Where(s => s.ScheduledSms.ScheduleMessageId == message.ScheduleId).Select(s => s).FirstOrDefault();
+        //    if (messageStatus == null)
+        //        throw new Exception("Could not find message " + message.ScheduleId + ".");
+        //    if (messageStatus.MessageStatus == MessageStatus.Sent)
+        //        throw new Exception("Scheduled message " + message.ScheduleId + " is already sent.");
+        //    messageStatus.MessageStatus = MessageStatus.Paused;
+        //}
 
-        public void Handle(MessageRescheduled message)
-        {
-            var messageStatus = Data.ScheduledMessageStatus.Where(s => s.ScheduledSms.ScheduleMessageId == message.ScheduleMessageId).Select(s => s).FirstOrDefault();
-            if (messageStatus == null)
-                throw new Exception("Could not find message " + message.ScheduleMessageId + ".");
-            if (messageStatus.MessageStatus == MessageStatus.Sent)
-                throw new Exception("Scheduled message " + message.ScheduleMessageId + " is already sent.");
-            messageStatus.MessageStatus = MessageStatus.Scheduled;
-        }
+        //public void Handle(MessageRescheduled message)
+        //{
+        //    var messageStatus = Data.ScheduledMessageStatus.Where(s => s.ScheduledSms.ScheduleMessageId == message.ScheduleMessageId).Select(s => s).FirstOrDefault();
+        //    if (messageStatus == null)
+        //        throw new Exception("Could not find message " + message.ScheduleMessageId + ".");
+        //    if (messageStatus.MessageStatus == MessageStatus.Sent)
+        //        throw new Exception("Scheduled message " + message.ScheduleMessageId + " is already sent.");
+        //    messageStatus.MessageStatus = MessageStatus.Scheduled;
+        //}
 
         public void Handle(ScheduledSmsSent smsSent)
         {
@@ -220,6 +219,7 @@ namespace SmsCoordinator
                 throw new Exception("Can't find scheduled message");
 
             scheduledMessageStatus.MessageStatus = MessageStatus.Sent;
+            scheduledMessageStatus.Status = ScheduleStatus.Sent;
 
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
@@ -238,7 +238,8 @@ namespace SmsCoordinator
                 throw new Exception("Can't find scheduled message");
 
             scheduledMessageStatus.MessageStatus = MessageStatus.Failed;
-
+            scheduledMessageStatus.Status = ScheduleStatus.Failed;
+            
             if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
             {
                 //Bus.Send(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
@@ -269,22 +270,34 @@ namespace SmsCoordinator
     public class ScheduledMessageStatus
     {
         [Obsolete("For JSON deserialisation.")]
-        public ScheduledMessageStatus() {}
+        public ScheduledMessageStatus() { }
 
         public ScheduledMessageStatus(ScheduleSmsForSendingLater message)
         {
             MessageStatus = MessageStatus.WaitingForScheduling;
+            Status = ScheduleStatus.Initiated;
             ScheduledSms = message;
         }
 
-        public ScheduledMessageStatus(ScheduleSmsForSendingLater message, MessageStatus status)
-        {
-            MessageStatus = status;
-            ScheduledSms = message;
-        }
+        //public ScheduledMessageStatus(ScheduleSmsForSendingLater message, ScheduleStatus status)
+        //{
+        //    //MessageStatus = status;
+        //    Status = status;
+        //    ScheduledSms = message;
+        //}
 
+        [Obsolete("Using internal enum - not interested in Scheduled, Paused etc - only Sent, Failed, Cancelled, Initiated")]
         public MessageStatus MessageStatus { get; set; }
 
+        public ScheduleStatus Status { get; set; }
+
         public ScheduleSmsForSendingLater ScheduledSms { get; set; }
+    }
+    public enum ScheduleStatus
+    {
+        Initiated,
+        Sent,
+        Failed,
+        Cancelled
     }
 }
