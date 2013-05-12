@@ -247,8 +247,8 @@ namespace SmsWeb.Controllers
             {
                 Bus.Send(new ResumeTrickledMessages { CoordinatorId = Guid.Parse(coordinatorid), ResumeTimeUtc = dateTimeToResumeUtc, MessageRequestTimeUtc = DateTime.UtcNow });    
             }
-            
-            HttpContext.Session.Add("CoordinatorState", CoordinatorStatusTracking.Started);
+
+            HttpContext.Session.Add("CoordinatorState_" + coordinatorid, CoordinatorStatusTracking.Started);
             return RedirectToAction("Details", new { coordinatorid });
         }
     }
