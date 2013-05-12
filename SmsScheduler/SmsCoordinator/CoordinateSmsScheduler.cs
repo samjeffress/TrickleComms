@@ -165,15 +165,18 @@ namespace SmsCoordinator
         {
             if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > rescheduleTrickledMessages.MessageRequestTimeUtc)
                 return;
-            var baseOffset = rescheduleTrickledMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
-            var messageOffset = rescheduleTrickledMessages.FinishTimeUtc.Ticks - rescheduleTrickledMessages.ResumeTimeUtc.Ticks;
+//            var baseOffset = rescheduleTrickledMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
             var activeMessageStatuses = Data.ScheduledMessageStatus
                 .Where(s => s.Status == ScheduleStatus.Initiated)
                 .ToList();
+            var messageResumeSpan = (rescheduleTrickledMessages.FinishTimeUtc.Ticks - rescheduleTrickledMessages.ResumeTimeUtc.Ticks);
+            long messageOffset = 0;
+            if (activeMessageStatuses.Count > 1)
+                messageOffset = messageResumeSpan/(activeMessageStatuses.Count - 1);
 
             for (var i = 0; i < activeMessageStatuses.Count; i++)
             {
-                var resumeScheduledMessageWithOffset = new ResumeScheduledMessageWithOffset(activeMessageStatuses[i].ScheduledSms.ScheduleMessageId, new TimeSpan(baseOffset + (i*messageOffset)));
+                var resumeScheduledMessageWithOffset = new RescheduleScheduledMessageWithNewTime(activeMessageStatuses[i].ScheduledSms.ScheduleMessageId, new DateTime(rescheduleTrickledMessages.ResumeTimeUtc.Ticks + (i*messageOffset), DateTimeKind.Utc));
                 Bus.Send(resumeScheduledMessageWithOffset);
             }
 

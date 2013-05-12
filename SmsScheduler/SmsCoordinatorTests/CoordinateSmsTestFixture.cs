@@ -222,8 +222,8 @@ namespace SmsCoordinatorTests
                     .ExpectSend<PauseScheduledMessageIndefinitely>()
                     .ExpectSend<PauseScheduledMessageIndefinitely>()
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
-                    .ExpectSend<ResumeScheduledMessageWithOffset>()
-                    .ExpectSend<ResumeScheduledMessageWithOffset>()
+                    .ExpectSend<RescheduleScheduledMessageWithNewTime>()
+                    .ExpectSend<RescheduleScheduledMessageWithNewTime>()
                 .When(s => s.Handle(new RescheduleTrickledMessages()))
                 .When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
                     .AssertSagaCompletionIs(false)
@@ -614,14 +614,14 @@ namespace SmsCoordinatorTests
                 {
                     s.Data = sagaData;
                 })
-                    .ExpectSend<ResumeScheduledMessageWithOffset>(
+                    .ExpectSend<RescheduleScheduledMessageWithNewTime>(
                         l => 
                         l.ScheduleMessageId == scheduledMessageStatuses[0].ScheduledSms.ScheduleMessageId &&
-                        l.Offset == new TimeSpan(0, 0, 5, 0))
-                    .ExpectSend<ResumeScheduledMessageWithOffset>(
+                        l.NewScheduleTimeUtc.Equals(dateTime))
+                    .ExpectSend<RescheduleScheduledMessageWithNewTime>(
                         l =>
                         l.ScheduleMessageId == scheduledMessageStatuses[1].ScheduledSms.ScheduleMessageId &&
-                        l.Offset == new TimeSpan(0, 0, 5, 0))
+                        l.NewScheduleTimeUtc.Equals(finishTime))
                 .When(s => s.Handle(rescheduleTrickledMessages));
 
             Assert.That(scheduledMessageStatuses[0].Status, Is.EqualTo(ScheduleStatus.Initiated));

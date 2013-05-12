@@ -14,6 +14,7 @@ namespace SmsCoordinator
         IHandleTimeouts<ScheduleSmsTimeout>,
         IHandleMessages<PauseScheduledMessageIndefinitely>,
         IHandleMessages<ResumeScheduledMessageWithOffset>,
+        IHandleMessages<RescheduleScheduledMessageWithNewTime>,
         IHandleMessages<MessageSent>,
         IHandleMessages<MessageFailedSending>
     {
@@ -23,6 +24,7 @@ namespace SmsCoordinator
             ConfigureMapping<MessageFailedSending>(data => data.Id, message => message.CorrelationId);
             ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
             ConfigureMapping<ResumeScheduledMessageWithOffset>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
+            ConfigureMapping<RescheduleScheduledMessageWithNewTime>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
             base.ConfigureHowToFindSaga();
         }
 
@@ -84,6 +86,17 @@ namespace SmsCoordinator
             RequestUtcTimeout(rescheduledTime, new ScheduleSmsTimeout { TimeoutCounter = Data.TimeoutCounter });
             Bus.Publish(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime, Number = Data.OriginalMessage.SmsData.Mobile });
             Data.LastUpdateCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
+        }
+
+        public void Handle(RescheduleScheduledMessageWithNewTime message)
+        {
+            if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc > message.MessageRequestTimeUtc)
+                return;
+            Data.SchedulingPaused = false;
+            Data.TimeoutCounter++;
+            RequestUtcTimeout(message.NewScheduleTimeUtc, new ScheduleSmsTimeout { TimeoutCounter = Data.TimeoutCounter });
+            Bus.Publish(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = message.NewScheduleTimeUtc, Number = Data.OriginalMessage.SmsData.Mobile });
+            Data.LastUpdateCommandRequestUtc = message.MessageRequestTimeUtc;
         }
 
         public void Handle(MessageFailedSending failedMessage)
