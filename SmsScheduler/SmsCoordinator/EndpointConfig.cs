@@ -1,4 +1,5 @@
 ﻿using NServiceBus;
+using SmsMessages.Scheduling.Events;
 
 namespace SmsCoordinator
 {
@@ -34,6 +35,24 @@ namespace SmsCoordinator
 
             configure.CreateBus()
             .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+        }
+
+    }
+
+    public class StartUp : IWantToRunAtStartup
+    {
+        public IBus Bus { get; set; }
+
+        public void Run()
+        {
+            // NOTE: To remove messages that were previously used, but no longer needed.
+            Bus.Unsubscribe<SmsScheduled>();
+            Bus.Unsubscribe<MessageRescheduled>();
+            Bus.Unsubscribe<MessageSchedulePaused>();
+        }
+
+        public void Stop()
+        {
         }
     }
 }

@@ -137,6 +137,39 @@ namespace SmsCoordinatorTests
         }
 
         [Test]
+        public void ScheduleSmsForSendingLaterButIsPausedThenRescheduledAndSent()
+        {
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2") };
+            var sagaId = Guid.NewGuid();
+
+            var scheduledSmsData = new ScheduledSmsData 
+            {
+                Id = sagaId, 
+                Originator = "place", 
+                OriginalMessageId = Guid.NewGuid().ToString(),
+                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
+            };
+
+            Test.Initialize();
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc && state.TimeoutCounter == 0)
+                .When(s => s.Handle(scheduleSmsForSendingLater))
+                    .ExpectPublish<MessageSchedulePaused>()
+                .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => state.TimeoutCounter == 1)
+                    .ExpectPublish<MessageRescheduled>()
+                .When(s => s.Handle(new RescheduleScheduledMessageWithNewTime(Guid.Empty, new DateTime(2040,4,4,4,4,4, DateTimeKind.Utc))))
+                    .ExpectNotSend<SendOneMessageNow>(now => false)
+                .When(s => s.Timeout(new ScheduleSmsTimeout { TimeoutCounter = 0 }))
+                    .ExpectSend<SendOneMessageNow>()
+                .When(s => s.Timeout(new ScheduleSmsTimeout { TimeoutCounter = 1 }))
+                    .ExpectPublish<ScheduledSmsSent>()
+                .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2")}))
+                    .AssertSagaCompletionIs(true);
+        }
+
+        [Test]
         public void ScheduleSmsForSendingLaterButIsPausedThenResumedOutOfOrderAndSent()
         {
             var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2") };
@@ -187,11 +220,30 @@ namespace SmsCoordinatorTests
             Test.Saga<ScheduleSms>()
                 .WithExternalDependencies(a => a.Data = scheduledSmsData)
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, span) => span == resheduledTime)
-                    //.ExpectSend<ScheduleResumed>(s =>
-                    //{
-                    //    return s.ScheduleId == scheduleMessageId &&
-                    //    s.RescheduledTime == resheduledTime;
-                    //})
+                    .ExpectPublish<MessageRescheduled>()
+                .When(s => s.Handle(rescheduleMessage));
+        }
+
+        [Test]
+        public void ReschedulePausedSchedule_Data()
+        {
+            var sagaId = Guid.NewGuid();
+            var scheduleMessageId = Guid.NewGuid();
+
+            var scheduledSmsData = new ScheduledSmsData
+            {
+                Id = sagaId,
+                ScheduleMessageId = scheduleMessageId,
+                Originator = "place",
+                OriginalMessageId = Guid.NewGuid().ToString(),
+                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData(),SendMessageAtUtc = DateTime.Now }
+            };
+
+            Test.Initialize();
+            var rescheduleMessage = new RescheduleScheduledMessageWithNewTime(scheduleMessageId, new DateTime(2040, 4, 4, 4,4,4, DateTimeKind.Utc));
+            Test.Saga<ScheduleSms>()
+                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, span) => span == rescheduleMessage.NewScheduleTimeUtc)
                     .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(rescheduleMessage));
         }
