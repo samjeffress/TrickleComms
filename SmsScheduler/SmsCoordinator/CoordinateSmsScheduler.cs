@@ -20,7 +20,8 @@ namespace SmsCoordinator
         IHandleMessages<ScheduledSmsFailed>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
         IHandleMessages<ResumeTrickledMessages>,
-        IHandleMessages<RescheduleTrickledMessages>
+        IHandleMessages<RescheduleTrickledMessages>,
+        IHandleTimeouts<CoordinatorTimeout>
     {
         public ICalculateSmsTiming TimingManager { get; set; }
 
@@ -41,6 +42,7 @@ namespace SmsCoordinator
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             Data.OriginalScheduleStartTime = message.StartTimeUtc;
             var messageTiming = TimingManager.CalculateTiming(message.StartTimeUtc, message.Duration, message.Messages.Count);
+            var lastScheduledMessageTime = message.StartTimeUtc.Add(message.Duration);
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for (int i = 0; i < message.Messages.Count; i++)
@@ -64,6 +66,7 @@ namespace SmsCoordinator
 
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
 
+            RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
             Bus.Publish(coordinatorCreated);
         }
 
@@ -73,9 +76,11 @@ namespace SmsCoordinator
             Data.OriginalScheduleStartTime = message.StartTimeUtc;
             var messageList = new List<ScheduleSmsForSendingLater>();
             Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
+            DateTime lastScheduledMessageTime = DateTime.Now;
             for(int i = 0; i < message.Messages.Count; i++)
             {
                 var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
+                lastScheduledMessageTime = message.StartTimeUtc.Add(extraTime);
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
                 var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId)
                 {
@@ -98,6 +103,7 @@ namespace SmsCoordinator
 
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             Bus.Publish(coordinatorCreated);
+            RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
         }
 
         public void Handle(SendAllMessagesAtOnce message)
@@ -129,6 +135,7 @@ namespace SmsCoordinator
                 UserOlsenTimeZone = message.UserOlsenTimeZone
             };
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
+            RequestUtcTimeout<CoordinatorTimeout>(message.SendTimeUtc.AddMinutes(2));
             Bus.Publish(coordinatorCreated);
         }
 
@@ -220,6 +227,32 @@ namespace SmsCoordinator
                 MarkAsComplete();
             }
         }
+
+        public void Timeout(CoordinatorTimeout state)
+        {
+            if (RavenScheduleDocuments.AreCoordinatedSchedulesComplete(Data.CoordinatorId))
+            {
+                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
+                MarkAsComplete();
+            }
+            else
+            {
+                var expectedMaxScheduleDate = RavenScheduleDocuments.GetMaxScheduleDateTime(Data.CoordinatorId);
+                if (expectedMaxScheduleDate < DateTime.Now.AddMinutes(2))
+                {
+                    RequestUtcTimeout<CoordinatorTimeout>(DateTime.UtcNow.AddMinutes(2));
+                }
+                else
+                {
+                    RequestUtcTimeout<CoordinatorTimeout>(expectedMaxScheduleDate.AddMinutes(2));
+                }
+            }
+                
+        }
+    }
+
+    public class CoordinatorTimeout
+    {
     }
 
     public class CoordinateSmsSchedulingData : ISagaEntity

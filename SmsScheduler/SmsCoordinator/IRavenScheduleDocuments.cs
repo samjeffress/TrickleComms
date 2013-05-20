@@ -13,6 +13,8 @@ namespace SmsCoordinator
         List<ScheduleTrackingData> GetPausedScheduleTrackingData(Guid coordinatorId);
         List<ScheduleTrackingData> GetActiveScheduleTrackingData(Guid coordinatorId);
         void SaveSchedules(List<ScheduleSmsForSendingLater> messageList, Guid coordinatorId);
+        DateTime GetMaxScheduleDateTime(Guid coordinatorId);
+        bool AreCoordinatedSchedulesComplete(Guid coordinatorId);
     }
 
     public class RavenScheduleDocuments : IRavenScheduleDocuments
@@ -104,6 +106,16 @@ namespace SmsCoordinator
                 }
                 session.SaveChanges();
             }
+        }
+
+        public DateTime GetMaxScheduleDateTime(Guid coordinatorId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AreCoordinatedSchedulesComplete(Guid coordinatorId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
