@@ -463,6 +463,7 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && 
                         c.ScheduledMessages[1].ScheduledTimeUtc == datetimeSpacing[1] &&
                         c.UserOlsenTimeZone == trickleMessagesOverTime.UserOlsenTimeZone)
+                .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == trickleMessagesOverTime.StartTimeUtc.Add(trickleMessagesOverTime.Duration).AddMinutes(2))
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -518,6 +519,7 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty &&
                         c.ScheduledMessages[1].ScheduledTimeUtc == sendTimeUtc &&
                         c.UserOlsenTimeZone == sendAllMessagesAtOnce.UserOlsenTimeZone)
+                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == sendAllMessagesAtOnce.SendTimeUtc.AddMinutes(2))
                 .When(s => s.Handle(sendAllMessagesAtOnce));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -572,6 +574,7 @@ namespace SmsCoordinatorTests
                         c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
                         c.ScheduledMessages[1].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
                         c.UserOlsenTimeZone == trickleMessagesOverTime.UserOlsenTimeZone)
+                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == trickleMessagesOverTime.StartTimeUtc.Add(trickleMessagesOverTime.TimeSpacing).AddMinutes(2))
                 .When(s => s.Handle(trickleMessagesOverTime));
 
             Assert.That(sagaData.MessagesScheduled, Is.EqualTo(2));
@@ -721,6 +724,70 @@ namespace SmsCoordinatorTests
 
             Assert.That(scheduledMessageStatuses[0].Status, Is.EqualTo(ScheduleStatus.Initiated));
             Assert.That(scheduledMessageStatuses[1].Status, Is.EqualTo(ScheduleStatus.Initiated));
+        }
+
+        [Test]
+        public void CoordinatorTimeoutMessagesNotYetAllSentRequestsAnotherTimeoutUsingMaxExpectedScheduleDate()
+        {
+            var ravenScheduleDocuments = MockRepository.GenerateMock<IRavenScheduleDocuments>();
+            var coordinatorId = Guid.NewGuid();
+            var sagaData = new CoordinateSmsSchedulingData { Originator = "o", CoordinatorId = coordinatorId };
+
+            var maxScheduleDateTime = DateTime.Now.AddMinutes(5);
+            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(false);
+            ravenScheduleDocuments.Expect(r => r.GetMaxScheduleDateTime(coordinatorId)).Return(maxScheduleDateTime);
+
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(s =>
+                {
+                    s.Data = sagaData; s.RavenScheduleDocuments = ravenScheduleDocuments;
+                })
+                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == maxScheduleDateTime.AddMinutes(2))
+                .When(s => s.Timeout(new CoordinatorTimeout()))
+                .AssertSagaCompletionIs(false);
+        }
+
+        [Test]
+        public void CoordinatorTimeoutMessagesNotYetAllSentRequestsAnotherTimeoutFor2MinutesAsMaxExpectedScheduleDateHasPassed()
+        {
+            var ravenScheduleDocuments = MockRepository.GenerateMock<IRavenScheduleDocuments>();
+            var coordinatorId = Guid.NewGuid();
+            var sagaData = new CoordinateSmsSchedulingData { Originator = "o", CoordinatorId = coordinatorId };
+
+            var maxScheduleDateTime = DateTime.Now.AddMinutes(-1);
+            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(false);
+            ravenScheduleDocuments.Expect(r => r.GetMaxScheduleDateTime(coordinatorId)).Return(maxScheduleDateTime);
+
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(s =>
+                {
+                    s.Data = sagaData; s.RavenScheduleDocuments = ravenScheduleDocuments;
+                })
+                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == DateTime.UtcNow.AddMinutes(2))
+                .When(s => s.Timeout(new CoordinatorTimeout()))
+                .AssertSagaCompletionIs(false);
+        }
+
+        [Test]
+        public void CoordinatorTimeoutMessagesAllSentSagaCompletes()
+        {
+            var ravenScheduleDocuments = MockRepository.GenerateMock<IRavenScheduleDocuments>();
+            var coordinatorId = Guid.NewGuid();
+            var sagaData = new CoordinateSmsSchedulingData { Originator = "o", CoordinatorId = coordinatorId };
+
+            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(s =>
+                {
+                    s.Data = sagaData; s.RavenScheduleDocuments = ravenScheduleDocuments;
+                })
+                    .ExpectPublish<CoordinatorCompleted>()
+                .When(s => s.Timeout(new CoordinatorTimeout()))
+                .AssertSagaCompletionIs(true);
         }
     }
 }
