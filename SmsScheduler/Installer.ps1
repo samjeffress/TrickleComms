@@ -34,27 +34,36 @@ function InstallEndpoints
     Copy-Item $($build_output +"SmsCoordinator") $($installFolder + "\SmsCoordinator") -recurse
     Copy-Item $($build_output +"SmsTracking") $($installFolder + "\SmsTracking") -recurse
 
-	$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
-	$argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
-	RunCommand $nsbHost $argList
-    Start-Service SmsCoordinator -ErrorVariable err
+	if(!(Get-Service "SmsCoordinator" -ErrorAction SilentlyContinue))
+	{
+		$nsbHost = Join-Path $installFolder -childpath '\SmsCoordinator\NServiceBus.Host.exe'
+		$argList = '/install /serviceName:SmsCoordinator /displayName:"Sms Coordinator" /description:"Service for coordinating and sending Sms" NServiceBus.Production'
+		RunCommand $nsbHost $argList
+	}
+	Start-Service SmsCoordinator -ErrorVariable err
     if ($err -ne $null)
     {
         throw "Exception starting SmsEmailSender service: $err"
     }
 
-	$nsbHost = Join-Path $installFolder -childpath  '\EmailSender\NServiceBus.Host.exe'
-	$argList = '/install /serviceName:SmsEmailSender /displayName:"Sms Email Sender" /description:"Service for sending emails from Sms Coordinator" NServiceBus.Production'
-    RunCommand $nsbHost $argList
+	if(!(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue))
+	{
+		$nsbHost = Join-Path $installFolder -childpath  '\EmailSender\NServiceBus.Host.exe'
+		$argList = '/install /serviceName:SmsEmailSender /displayName:"Sms Email Sender" /description:"Service for sending emails from Sms Coordinator" NServiceBus.Production'
+		RunCommand $nsbHost $argList
+	}
     Start-Service SmsEmailSender -ErrorVariable err
     if ($err -ne $null)
     {
         throw "Exception starting SmsEmailSender service: $err"
     }
 
-	$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
-	$argList = '/install /serviceName:SmsTracking /displayName:"Sms Tracking"  /description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
-    RunCommand $nsbHost $argList
+	if(!(Get-Service "SmsTracking" -ErrorAction SilentlyContinue))
+	{
+		$nsbHost = Join-Path $installFolder -childpath '\SmsTracking\NServiceBus.Host.exe'
+		$argList = '/install /serviceName:SmsTracking /displayName:"Sms Tracking"  /description:"Service for tracking status of coordinated and Sms" NServiceBus.Production'
+		RunCommand $nsbHost $argList
+	}
     Start-Service SmsTracking -ErrorVariable err
     if ($err -ne $null)
     {
@@ -167,8 +176,9 @@ function UninstallEndpoints
 	if(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue)
 	{
 		Stop-Service SmsEmailSender
-		"Service Exists (SmsEmailSender) - Uninstalling"
-		$service = Get-WmiObject -Class Win32_Service -Filter "Name='SmsEmailSender'"
+		"service exists (smsemailsender) - uninstalling"
+		$service = get-wmiobject -class win32_service -filter "name='SmsEmailSender'"
+$service
 		$service.delete()
 	}
 
@@ -186,5 +196,26 @@ function UninstallEndpoints
 		"Service Exists (SmsTracking) - Uninstalling"
 		$service = Get-WmiObject -Class Win32_Service -Filter "Name='SmsTracking'"
 		$service.delete()
+	}
+}
+
+function StopEndpoints
+{
+	if(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsEmailSender"
+		Stop-Service SmsEmailSender
+	}
+
+	if(Get-Service "SmsCoordinator" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsCoordinator"
+		Stop-Service SmsCoordinator
+	}
+
+	if(Get-Service "SmsTracking" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsTracking"
+		Stop-Service SmsTracking
 	}
 }

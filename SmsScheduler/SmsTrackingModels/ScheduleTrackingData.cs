@@ -21,6 +21,8 @@ namespace SmsTrackingModels
         public SmsConfirmationData ConfirmationData { get; set; }
 
         public SmsFailed SmsFailureData { get; set; }
+
+        public Guid CoordinatorId { get; set; }
     }
     public class SmsTrackingData
     {

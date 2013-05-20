@@ -40,7 +40,6 @@ namespace SmsWeb
 
     public class PhoneNumberInCoordinatedMessages : AbstractIndexCreationTask<CoordinatorTrackingData, PhoneNumberInCoordinatedMessages.ReduceResult>
     {
-        
         public PhoneNumberInCoordinatedMessages()
         {
             Map = coordinators => from coordinator in coordinators
@@ -74,7 +73,6 @@ namespace SmsWeb
                                         SendingDate = g.Key.SendingDate,
                                         Status = g.Key.Status,
                                         Count = g.Sum(x => x.Count)
-                                        
                                     };
         }
 
@@ -92,6 +90,5 @@ namespace SmsWeb
 
             public int Count { get; set; }
         }
-
     }
 }

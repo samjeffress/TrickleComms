@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using ConfigurationModels;
 using NServiceBus;
 using Raven.Client;
+using SmsCoordinator;
 using SmsMessages.Coordinator.Commands;
 using SmsTrackingModels;
 using SmsWeb.Models;
@@ -180,6 +181,9 @@ namespace SmsWeb.Controllers
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
+                var reduceResult = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>().FirstOrDefault(s => s.CoordinatorId == coordinatorid);
+                return View("Details2", reduceResult);
+                
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
                 if (coordinatorTrackingData == null)
                 {
