@@ -112,9 +112,11 @@ namespace SmsCoordinator
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
-                return session
-                    .Query<ScheduledMaxSendTime_ByCoordinatorId.ReduceResult, ScheduledMaxSendTime_ByCoordinatorId>()
-                    .First(s => s.CoordinatorId == coordinatorId.ToString()).SendingDate;
+                return session.Query<ScheduleTrackingData>()
+                   .Where(x => x.CoordinatorId == coordinatorId)
+                   .OrderByDescending(x => x.ScheduleTimeUtc)
+                   .Select(s => s.ScheduleTimeUtc)
+                   .FirstOrDefault();
             }
         }
 
@@ -124,13 +126,14 @@ namespace SmsCoordinator
             {
                 var reduceResult = session
                     .Query<ScheduledMessages_ByCoordinatorIdAndStatus.ReduceResult, ScheduledMessages_ByCoordinatorIdAndStatus>()
+                    .Customize(s => s.WaitForNonStaleResultsAsOfNow())
                     .Where(s => s.CoordinatorId == coordinatorId.ToString() 
                         && (
                         s.Status == MessageStatus.WaitingForScheduling.ToString() || 
                         s.Status == MessageStatus.Scheduled.ToString() || 
                         s.Status == MessageStatus.Paused.ToString()))
-                    .First();
-                return reduceResult.Count <= 0;
+                    .FirstOrDefault();
+                return reduceResult == null || reduceResult.Count == 0;
             }
         }
     }
