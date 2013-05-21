@@ -26,6 +26,7 @@ namespace SmsCoordinatorTests
             var sendingMessages = new List<ScheduleSmsForSendingLater>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.NotNull, Arg<Guid>.Is.Equal(coordinatorId)))
                 .WhenCalled(r => sendingMessages = (List<ScheduleSmsForSendingLater>)r.Arguments[0]);
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             var startTime = DateTime.Now.AddHours(3);
             var duration = new TimeSpan(0, 10, 0);
@@ -75,6 +76,7 @@ namespace SmsCoordinatorTests
         {
             var coordinatorId = Guid.NewGuid();
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             var startTime = DateTime.Now.AddHours(3);
@@ -125,6 +127,7 @@ namespace SmsCoordinatorTests
         {
             var coordinatorId = Guid.NewGuid();
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             var startTime = DateTime.Now.AddHours(3);
@@ -163,6 +166,7 @@ namespace SmsCoordinatorTests
             var coordinatorId = Guid.NewGuid();
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
@@ -209,6 +213,7 @@ namespace SmsCoordinatorTests
             var coordinatorId = Guid.NewGuid();
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
@@ -254,6 +259,7 @@ namespace SmsCoordinatorTests
             var coordinatorId = Guid.NewGuid();
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
@@ -301,6 +307,7 @@ namespace SmsCoordinatorTests
             var coordinatorId = Guid.NewGuid();
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
@@ -349,6 +356,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData>());
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 StartTimeUtc = startTime,
@@ -371,7 +379,6 @@ namespace SmsCoordinatorTests
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
                     .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
                 .When(s => s.Handle(trickleMultipleMessages))
-                //.When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[0].ScheduledSms.ScheduleMessageId }))
                     .ExpectSend<PauseScheduledMessageIndefinitely>()
                     .ExpectSend<PauseScheduledMessageIndefinitely>()
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-11) }))
@@ -381,18 +388,9 @@ namespace SmsCoordinatorTests
                     .ExpectNotSend<PauseScheduledMessageIndefinitely>(null)
                     .ExpectNotSend<PauseScheduledMessageIndefinitely>(null)
                 .When(s => s.Handle(new PauseTrickledMessagesIndefinitely { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-11) }))
-                //.When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[1].ScheduledSms.ScheduleMessageId }))
-                //    .AssertSagaCompletionIs(false)
-                //    .ExpectPublish<CoordinatorCompleted>()
-                //.When(s => s.Handle(new ScheduledSmsSent { ConfirmationData = new SmsConfirmationData("r", DateTime.Now, 1m), ScheduledSmsId = sagaData.ScheduledMessageStatus[2].ScheduledSms.ScheduleMessageId }))
-                //    .AssertSagaCompletionIs(true);
                     .ExpectPublish<CoordinatorCompleted>()
                 .When(s => s.Timeout(new CoordinatorTimeout()))
                 .AssertSagaCompletionIs(true);
-
-
-            //Assert.That(sagaData.MessagesScheduled, Is.EqualTo(3));
-            //Assert.That(sagaData.MessagesConfirmedSentOrFailed, Is.EqualTo(3));
         }
 
         [Test]
@@ -405,6 +403,7 @@ namespace SmsCoordinatorTests
             var sendingMessages = new List<ScheduleSmsForSendingLater>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.NotNull, Arg<Guid>.Is.Equal(trickleMessagesOverTime.CoordinatorId)))
                 .WhenCalled(r => sendingMessages = (List<ScheduleSmsForSendingLater>)r.Arguments[0]);
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
@@ -464,6 +463,7 @@ namespace SmsCoordinatorTests
             var sendingMessages = new List<ScheduleSmsForSendingLater>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.NotNull, Arg<Guid>.Is.Equal(sendAllMessagesAtOnce.CoordinatorId)))
                 .WhenCalled(r => sendingMessages = (List<ScheduleSmsForSendingLater>)r.Arguments[0]);
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
 
@@ -515,6 +515,7 @@ namespace SmsCoordinatorTests
             var sendingMessages = new List<ScheduleSmsForSendingLater>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.NotNull, Arg<Guid>.Is.Equal(trickleMessagesOverTime.CoordinatorId)))
                 .WhenCalled(r => sendingMessages = (List<ScheduleSmsForSendingLater>)r.Arguments[0]);
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
             
@@ -705,6 +706,7 @@ namespace SmsCoordinatorTests
                 {
                     s.Data = sagaData; s.RavenScheduleDocuments = ravenScheduleDocuments;
                 })
+                // TODO: Test failing because of DateTime.Now - fix this up
                     .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == DateTime.UtcNow.AddMinutes(2))
                 .When(s => s.Timeout(new CoordinatorTimeout()))
                 .AssertSagaCompletionIs(false);

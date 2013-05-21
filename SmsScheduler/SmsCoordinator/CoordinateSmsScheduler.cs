@@ -53,9 +53,12 @@ namespace SmsCoordinator
                 CreationDateUtc = DateTime.UtcNow,
                 MetaData = message.MetaData,
                 ConfirmationEmailAddresses = message.ConfirmationEmails,
-                UserOlsenTimeZone = message.UserOlsenTimeZone
+                UserOlsenTimeZone = message.UserOlsenTimeZone,
+                MessageBody = message.Messages.First().Message,
+                MessageCount = message.Messages.Count
             };
 
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
 
             RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
@@ -87,9 +90,12 @@ namespace SmsCoordinator
                 CreationDateUtc = DateTime.UtcNow,
                 MetaData = message.MetaData,
                 ConfirmationEmailAddresses = message.ConfirmationEmails,
-                UserOlsenTimeZone = message.UserOlsenTimeZone
+                UserOlsenTimeZone = message.UserOlsenTimeZone,
+                MessageBody = message.Messages.First().Message,
+                MessageCount = message.Messages.Count
             };
 
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             Bus.Publish(coordinatorCreated);
             RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
@@ -118,8 +124,11 @@ namespace SmsCoordinator
                 CreationDateUtc = DateTime.UtcNow,
                 MetaData = message.MetaData,
                 ConfirmationEmailAddresses = message.ConfirmationEmails,
-                UserOlsenTimeZone = message.UserOlsenTimeZone
+                UserOlsenTimeZone = message.UserOlsenTimeZone,
+                MessageBody = message.Messages.First().Message,
+                MessageCount = message.Messages.Count
             };
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             RequestUtcTimeout<CoordinatorTimeout>(message.SendTimeUtc.AddMinutes(2));
             Bus.Publish(coordinatorCreated);

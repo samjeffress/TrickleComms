@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Raven.Client;
 using SmsMessages.CommonData;
+using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Commands;
 using SmsTrackingModels;
 
@@ -15,6 +16,7 @@ namespace SmsCoordinator
         void SaveSchedules(List<ScheduleSmsForSendingLater> messageList, Guid coordinatorId);
         DateTime GetMaxScheduleDateTime(Guid coordinatorId);
         bool AreCoordinatedSchedulesComplete(Guid coordinatorId);
+        void SaveCoordinator(CoordinatorCreated message);
     }
 
     public class RavenScheduleDocuments : IRavenScheduleDocuments
@@ -113,6 +115,7 @@ namespace SmsCoordinator
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 return session.Query<ScheduleTrackingData>()
+                   .Customize(s => s.WaitForNonStaleResultsAsOfNow())
                    .Where(x => x.CoordinatorId == coordinatorId)
                    .OrderByDescending(x => x.ScheduleTimeUtc)
                    .Select(s => s.ScheduleTimeUtc)
@@ -134,6 +137,26 @@ namespace SmsCoordinator
                         s.Status == MessageStatus.Paused.ToString()))
                     .FirstOrDefault();
                 return reduceResult == null || reduceResult.Count == 0;
+            }
+        }
+
+        public void SaveCoordinator(CoordinatorCreated message)
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = new CoordinatorTrackingData
+                {
+                    CoordinatorId = message.CoordinatorId,
+                    CreationDateUtc = message.CreationDateUtc,
+                    MetaData = message.MetaData,
+                    ConfirmationEmailAddress = String.Join(", ", message.ConfirmationEmailAddresses),
+                    UserOlsenTimeZone = message.UserOlsenTimeZone,
+                    CurrentStatus = CoordinatorStatusTracking.Started,
+                    MessageBody = message.MessageBody,
+                    MessageCount = message.MessageCount
+                };
+                session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
+                session.SaveChanges();
             }
         }
     }

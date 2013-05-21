@@ -60,7 +60,8 @@ namespace SmsCoordinator
                                           CoordinatorId = schedule.CoordinatorId.ToString(),
                                           Status = schedule.MessageStatus.ToString(),
                                           Topic = schedule.SmsMetaData.Topic,
-                                          Count = 1
+                                          Count = 1,
+                                          Cost = schedule.ConfirmationData == null ? 0 : schedule.ConfirmationData.Price
                                       };
 
             Reduce = results => from result in results
@@ -76,7 +77,8 @@ namespace SmsCoordinator
                                         Topic = g.Key.Topic,
                                         CoordinatorId = g.Key.CoordinatorId,
                                         Status = g.Key.Status,
-                                        Count = g.Sum(x => x.Count)
+                                        Count = g.Sum(x => x.Count),
+                                        Cost = g.Sum(x => x.Cost)
                                     };
         }
 
@@ -93,6 +95,8 @@ namespace SmsCoordinator
             public string CoordinatorId { get; set; }
 
             public int Count { get; set; }
+
+            public decimal Cost { get; set; }
         }
     }
 
@@ -106,25 +110,19 @@ namespace SmsCoordinator
                                    {
                                        CoordinatorId = schedule.CoordinatorId.ToString(),
                                        Status = schedule.MessageStatus.ToString(),
-                                       Topic = schedule.SmsMetaData.Topic,
-                                       ScheduleId = schedule.ScheduleId.ToString(),
                                        Count = 1,
                                    };
 
             Reduce = results => from result in results
                                 group result by new
                                 {
-                                    result.Topic,
                                     result.CoordinatorId,
-                                    result.ScheduleId,
                                     result.Status,
                                 }
                                     into g
                                     select new ReduceResult
                                     {
-                                        Topic = g.Key.Topic,
                                         CoordinatorId = g.Key.CoordinatorId,
-                                        ScheduleId = g.Key.ScheduleId,
                                         Status = g.Key.Status,
                                         Count = g.Sum(x => x.Count)
                                     };
@@ -132,21 +130,11 @@ namespace SmsCoordinator
 
         public class ReduceResult
         {
-            public string PhoneNumber { get; set; }
-
-            public DateTime SendingDate { get; set; }
-
             public string Status { get; set; }
-
-            public string Topic { get; set; }
 
             public string CoordinatorId { get; set; }
 
             public int Count { get; set; }
-
-            public List<string> ScheduleIds { get; set; }
-
-            public string ScheduleId { get; set; }
         }
     }
 }

@@ -14,6 +14,8 @@ namespace SmsTrackingModels
 
         public Guid CoordinatorId { get; set; }
 
+        public int MessageCount { get; set; }
+
         public CoordinatorStatusTracking CurrentStatus { get; set; }
 
         public List<MessageSendingStatus> MessageStatuses { get; set; }
@@ -27,6 +29,8 @@ namespace SmsTrackingModels
         public string ConfirmationEmailAddress { get; set; }
 
         public string UserOlsenTimeZone { get; set; }
+
+        public string MessageBody { get; set; }
     }
 
     public class MessageSendingStatus

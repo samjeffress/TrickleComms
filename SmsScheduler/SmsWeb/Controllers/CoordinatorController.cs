@@ -144,8 +144,8 @@ namespace SmsWeb.Controllers
                         CurrentStatus = c.CurrentStatus,
                         MessageCount = c.MessageStatuses.Count,
                         CoordinatorId = c.CoordinatorId,
-                        CreationDate = c.CreationDateUtc,
-                        CompletionDate = c.CompletionDateUtc,
+                        CreationDateUtc = c.CreationDateUtc,
+                        CompletionDateUtc = c.CompletionDateUtc,
                         Tags = c.MetaData != null && c.MetaData.Tags != null ? c.MetaData.Tags : new List<string>(),
                         Topic = c.MetaData != null ? c.MetaData.Topic : string.Empty
                     })
@@ -181,18 +181,34 @@ namespace SmsWeb.Controllers
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
-                var reduceResult = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>().FirstOrDefault(s => s.CoordinatorId == coordinatorid);
-                return View("Details2", reduceResult);
-                
+                var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId == coordinatorid)
+                    .ToList();
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
-                if (coordinatorTrackingData == null)
+                if (coordinatorSummary.Count == 0 || coordinatorTrackingData == null)
                 {
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
+                var coordinatorOverview = new CoordinatorOverview
+                                              {
+                                                  CoordinatorId = Guid.Parse(coordinatorid),
+                                                  CreationDateUtc = coordinatorTrackingData.CreationDateUtc,
+                                                  CompletionDateUtc = coordinatorTrackingData.CompletionDateUtc,
+                                                  CurrentStatus = coordinatorTrackingData.CurrentStatus,
+                                                  Topic = coordinatorTrackingData.MetaData.Topic,
+                                                  Tags = coordinatorTrackingData.MetaData.Tags,
+                                                  StatusCounters =
+                                                      coordinatorSummary.Select(
+                                                          s => new StatusCounter {Count = s.Count, Status = s.Status}).
+                                                      ToList(),
+                                                  MessageCount = coordinatorTrackingData.MessageCount,
+                                                  MessageBody = coordinatorTrackingData.MessageBody
+                                              };
+
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
-                    coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
-                return View("Details", coordinatorTrackingData);
+                    coordinatorOverview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
+                return View("Details3", coordinatorOverview);
             }
         }
 

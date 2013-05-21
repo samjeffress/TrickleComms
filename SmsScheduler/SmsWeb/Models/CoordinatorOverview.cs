@@ -12,13 +12,24 @@ namespace SmsWeb.Models
 
         public int MessageCount { get; set; }
 
-        public DateTime CreationDate { get; set; }
+        public DateTime CreationDateUtc { get; set; }
 
-        public DateTime? CompletionDate { get; set; }
+        public DateTime? CompletionDateUtc { get; set; }
 
         public List<string> Tags { get; set; }
 
         public string Topic { get; set; }
+
+        public List<StatusCounter> StatusCounters { get; set; }
+
+        public string MessageBody { get; set; }
+    }
+
+    public class StatusCounter
+    {
+        public string Status { get; set; }
+        public int Count { get; set; }
+        public decimal Cost { get; set; }
     }
 
     public class CoordinatorPagedResults

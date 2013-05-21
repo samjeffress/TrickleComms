@@ -22,6 +22,10 @@ namespace SmsMessages.Coordinator.Events
         public List<string> ConfirmationEmailAddresses { get; set; }
 
         public string UserOlsenTimeZone { get; set; }
+
+        public string MessageBody { get; set; }
+
+        public int MessageCount { get; set; }
     }
 
     public class MessageSchedule
