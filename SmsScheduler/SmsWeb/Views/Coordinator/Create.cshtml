@@ -132,7 +132,7 @@
     </fieldset>
     
     <fieldset>
-        <div class="control-group">
+        <div class="control-group" style="display: none;">
         @*<legend>Exclusions</legend>*@
         @Html.LabelFor(model => model.CoordinatorsToExclude, "Coordinators To Exclude")
         @Html.ListBox("CoordinatorsToExclude", ViewData["CoordinatorExcludeList"] as List<SelectListItem>, new { Class = "span6" })
