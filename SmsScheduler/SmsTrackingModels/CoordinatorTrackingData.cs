@@ -9,7 +9,7 @@ namespace SmsTrackingModels
         public CoordinatorTrackingData()
         {
             MetaData = new SmsMetaData();
-            MessageStatuses = new List<MessageSendingStatus>();
+            //MessageStatuses = new List<MessageSendingStatus>();
         }
 
         public Guid CoordinatorId { get; set; }
@@ -18,6 +18,7 @@ namespace SmsTrackingModels
 
         public CoordinatorStatusTracking CurrentStatus { get; set; }
 
+        [Obsolete("Now using query of scheduletrackingdata to get list of message status, more performant")]
         public List<MessageSendingStatus> MessageStatuses { get; set; }
 
         public DateTime? CompletionDateUtc { get; set; }
