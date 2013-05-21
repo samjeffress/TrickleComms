@@ -192,6 +192,7 @@ namespace SmsCoordinator
             if (RavenScheduleDocuments.AreCoordinatedSchedulesComplete(Data.CoordinatorId))
             {
                 Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
+                RavenScheduleDocuments.MarkCoordinatorAsComplete(Data.CoordinatorId, DateTime.UtcNow);
                 MarkAsComplete();
             }
             else

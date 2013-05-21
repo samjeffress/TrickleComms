@@ -2,15 +2,12 @@ using System;
 using System.Collections.Generic;
 using NServiceBus.Testing;
 using NUnit.Framework;
-using Raven.Client;
-using Raven.Client.Embedded;
 using Rhino.Mocks;
 using SmsCoordinator;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Commands;
-using SmsMessages.Scheduling.Events;
 using SmsTrackingModels;
 
 namespace SmsCoordinatorTests
@@ -28,6 +25,7 @@ namespace SmsCoordinatorTests
                 .WhenCalled(r => sendingMessages = (List<ScheduleSmsForSendingLater>)r.Arguments[0]);
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var startTime = DateTime.Now.AddHours(3);
             var duration = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
@@ -79,6 +77,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var startTime = DateTime.Now.AddHours(3);
             var duration = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
@@ -130,6 +129,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var startTime = DateTime.Now.AddHours(3);
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
@@ -170,6 +170,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
 
             var startTime = DateTime.Now.AddHours(3);
             var timeSpacing = new TimeSpan(0, 10, 0);
@@ -217,6 +218,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var startTime = DateTime.Now.AddHours(3);
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
@@ -263,6 +265,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var startTime = DateTime.Now.AddHours(3);
             var timeSpacing = new TimeSpan(0, 10, 0);
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
@@ -310,6 +313,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 StartTimeUtc = startTime,
@@ -357,6 +361,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData>());
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
             {
                 StartTimeUtc = startTime,

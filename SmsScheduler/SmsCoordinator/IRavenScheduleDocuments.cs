@@ -17,6 +17,7 @@ namespace SmsCoordinator
         DateTime GetMaxScheduleDateTime(Guid coordinatorId);
         bool AreCoordinatedSchedulesComplete(Guid coordinatorId);
         void SaveCoordinator(CoordinatorCreated message);
+        void MarkCoordinatorAsComplete(Guid coordinatorId, DateTime utcCompleteDate);
     }
 
     public class RavenScheduleDocuments : IRavenScheduleDocuments
@@ -156,6 +157,16 @@ namespace SmsCoordinator
                     MessageCount = message.MessageCount
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
+                session.SaveChanges();
+            }
+        }
+
+        public void MarkCoordinatorAsComplete(Guid coordinatorId, DateTime utcCompleteDate)
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
+                coordinatorTrackingData.CompletionDateUtc = utcCompleteDate;
                 session.SaveChanges();
             }
         }
