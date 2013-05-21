@@ -110,12 +110,28 @@ namespace SmsCoordinator
 
         public DateTime GetMaxScheduleDateTime(Guid coordinatorId)
         {
-            throw new NotImplementedException();
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                return session
+                    .Query<ScheduledMaxSendTime_ByCoordinatorId.ReduceResult, ScheduledMaxSendTime_ByCoordinatorId>()
+                    .First(s => s.CoordinatorId == coordinatorId.ToString()).SendingDate;
+            }
         }
 
         public bool AreCoordinatedSchedulesComplete(Guid coordinatorId)
         {
-            throw new NotImplementedException();
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var reduceResult = session
+                    .Query<ScheduledMessages_ByCoordinatorIdAndStatus.ReduceResult, ScheduledMessages_ByCoordinatorIdAndStatus>()
+                    .Where(s => s.CoordinatorId == coordinatorId.ToString() 
+                        && (
+                        s.Status == MessageStatus.WaitingForScheduling.ToString() || 
+                        s.Status == MessageStatus.Scheduled.ToString() || 
+                        s.Status == MessageStatus.Paused.ToString()))
+                    .First();
+                return reduceResult.Count <= 0;
+            }
         }
     }
 }

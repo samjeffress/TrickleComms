@@ -149,4 +149,38 @@ namespace SmsCoordinator
             public string ScheduleId { get; set; }
         }
     }
+
+    public class ScheduledMaxSendTime_ByCoordinatorId : AbstractIndexCreationTask<ScheduleTrackingData, ScheduledMaxSendTime_ByCoordinatorId.ReduceResult>
+    {
+        public ScheduledMaxSendTime_ByCoordinatorId()
+        {
+            Map = schedules => from schedule in schedules
+                               select
+                                   new ReduceResult
+                                   {
+                                       CoordinatorId = schedule.CoordinatorId.ToString(),
+                                       SendingDate = schedule.ScheduleTimeUtc
+                                   };
+
+            Reduce = results => from result in results
+                                group result by new
+                                {
+                                    result.SendingDate,
+                                    result.CoordinatorId
+                                }
+                                    into g
+                                    select new ReduceResult
+                                    {
+                                        CoordinatorId = g.Key.CoordinatorId,
+                                        SendingDate = g.Max(x => x.SendingDate)
+                                    };
+        }
+
+        public class ReduceResult
+        {
+            public DateTime SendingDate { get; set; }
+
+            public string CoordinatorId { get; set; }
+        }
+    }
 }
