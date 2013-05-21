@@ -41,13 +41,11 @@ namespace SmsTracking
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {
-                session.Advanced.UseOptimisticConcurrency = true; 
+                session.Advanced.UseOptimisticConcurrency = true;
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorCompleted.CoordinatorId.ToString());
                 var incompleteMessageCount = coordinatorTrackingData.MessageStatuses.Count(m => m.Status == MessageStatusTracking.Paused || m.Status == MessageStatusTracking.Scheduled);
                 if (incompleteMessageCount > 0)
                     throw new Exception("Cannot complete coordinator - some messages are not yet complete.");
-                coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Completed;
-                coordinatorTrackingData.CompletionDateUtc = coordinatorCompleted.CompletionDateUtc;
                 var coordinatorCompleteEmail = new CoordinatorCompleteEmail();
                 coordinatorCompleteEmail.CoordinatorId = coordinatorTrackingData.CoordinatorId;
                 coordinatorCompleteEmail.EmailAddresses = string.IsNullOrWhiteSpace(coordinatorTrackingData.ConfirmationEmailAddress) ? new List<string>() : coordinatorTrackingData.ConfirmationEmailAddress.Split(',').ToList().Select(e => e.Trim()).ToList();

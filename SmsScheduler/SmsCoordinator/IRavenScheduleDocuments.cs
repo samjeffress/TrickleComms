@@ -167,6 +167,7 @@ namespace SmsCoordinator
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 coordinatorTrackingData.CompletionDateUtc = utcCompleteDate;
+                coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Completed;
                 session.SaveChanges();
             }
         }
