@@ -706,8 +706,8 @@ namespace SmsCoordinatorTests
                 {
                     s.Data = sagaData; s.RavenScheduleDocuments = ravenScheduleDocuments;
                 })
-                // TODO: Test failing because of DateTime.Now - fix this up
-                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == DateTime.UtcNow.AddMinutes(2))
+                // NOTE: Test is super brittle because of DateTime.Now - ideally this would be mocked
+                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout > DateTime.UtcNow.AddMinutes(1) && timeout < DateTime.UtcNow.AddMinutes(2))
                 .When(s => s.Timeout(new CoordinatorTimeout()))
                 .AssertSagaCompletionIs(false);
         }
