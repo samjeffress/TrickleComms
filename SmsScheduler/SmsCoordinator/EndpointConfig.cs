@@ -48,6 +48,8 @@ namespace SmsCoordinator
             Bus.Unsubscribe<SmsScheduled>();
             Bus.Unsubscribe<MessageRescheduled>();
             Bus.Unsubscribe<MessageSchedulePaused>();
+            Bus.Unsubscribe<ScheduledSmsSent>();
+            Bus.Unsubscribe<ScheduledSmsFailed>();
         }
 
         public void Stop()

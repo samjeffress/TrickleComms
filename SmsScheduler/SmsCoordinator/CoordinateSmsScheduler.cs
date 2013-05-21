@@ -7,7 +7,6 @@ using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Commands;
-using SmsMessages.Scheduling.Events;
 
 namespace SmsCoordinator
 {
@@ -16,8 +15,6 @@ namespace SmsCoordinator
         IAmStartedByMessages<TrickleSmsOverCalculatedIntervalsBetweenSetDates>, 
         IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
         IAmStartedByMessages<SendAllMessagesAtOnce>,
-        IHandleMessages<ScheduledSmsSent>,
-        IHandleMessages<ScheduledSmsFailed>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
         IHandleMessages<ResumeTrickledMessages>,
         IHandleMessages<RescheduleTrickledMessages>,
@@ -29,8 +26,6 @@ namespace SmsCoordinator
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<ScheduledSmsSent>(data => data.CoordinatorId, message => message.CoordinatorId);
-            ConfigureMapping<ScheduledSmsFailed>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<PauseTrickledMessagesIndefinitely>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<ResumeTrickledMessages>(data => data.CoordinatorId, message => message.CoordinatorId);
             ConfigureMapping<RescheduleTrickledMessages>(data => data.CoordinatorId, message => message.CoordinatorId);
@@ -44,14 +39,11 @@ namespace SmsCoordinator
             var messageTiming = TimingManager.CalculateTiming(message.StartTimeUtc, message.Duration, message.Messages.Count);
             var lastScheduledMessageTime = message.StartTimeUtc.Add(message.Duration);
             var messageList = new List<ScheduleSmsForSendingLater>();
-            Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
                 var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId);
                 messageList.Add(smsForSendingLater);
-                Data.MessagesScheduled++;
-                Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
             }
             Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
@@ -75,7 +67,6 @@ namespace SmsCoordinator
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             Data.OriginalScheduleStartTime = message.StartTimeUtc;
             var messageList = new List<ScheduleSmsForSendingLater>();
-            Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             DateTime lastScheduledMessageTime = DateTime.Now;
             for(int i = 0; i < message.Messages.Count; i++)
             {
@@ -87,8 +78,6 @@ namespace SmsCoordinator
                     CorrelationId = Data.CoordinatorId
                 };
                 messageList.Add(smsForSendingLater);
-                Data.MessagesScheduled++;
-                Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
             }
             Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
@@ -112,7 +101,6 @@ namespace SmsCoordinator
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             Data.OriginalScheduleStartTime = message.SendTimeUtc;
             var messageList = new List<ScheduleSmsForSendingLater>();
-            Data.ScheduledMessageStatus = new List<ScheduledMessageStatus>();
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
@@ -121,8 +109,6 @@ namespace SmsCoordinator
                     CorrelationId = Data.CoordinatorId
                 };
                 messageList.Add(smsForSendingLater);
-                Data.MessagesScheduled++;
-                Data.ScheduledMessageStatus.Add(new ScheduledMessageStatus(smsForSendingLater));
             }
             Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
@@ -192,42 +178,6 @@ namespace SmsCoordinator
             Data.LastUpdatingCommandRequestUtc = rescheduleTrickledMessages.MessageRequestTimeUtc;
         }
 
-        public void Handle(ScheduledSmsSent smsSent)
-        {
-            Data.MessagesConfirmedSentOrFailed++;
-
-            var scheduledMessageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == smsSent.ScheduledSmsId);
-            if (scheduledMessageStatus == null)
-                throw new Exception("Can't find scheduled message");
-
-            scheduledMessageStatus.MessageStatus = MessageStatus.Sent;
-            scheduledMessageStatus.Status = ScheduleStatus.Sent;
-
-            if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
-            {
-                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
-                MarkAsComplete();
-            }
-        }
-
-        public void Handle(ScheduledSmsFailed failureMessage)
-        {
-            Data.MessagesConfirmedSentOrFailed++;
-
-            var scheduledMessageStatus = Data.ScheduledMessageStatus.FirstOrDefault(s => s.ScheduledSms.ScheduleMessageId == failureMessage.ScheduledSmsId);
-            if (scheduledMessageStatus == null)
-                throw new Exception("Can't find scheduled message");
-
-            scheduledMessageStatus.MessageStatus = MessageStatus.Failed;
-            scheduledMessageStatus.Status = ScheduleStatus.Failed;
-            
-            if (Data.MessagesScheduled == Data.MessagesConfirmedSentOrFailed)
-            {
-                Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
-                MarkAsComplete();
-            }
-        }
-
         public void Timeout(CoordinatorTimeout state)
         {
             if (RavenScheduleDocuments.AreCoordinatedSchedulesComplete(Data.CoordinatorId))
@@ -247,7 +197,6 @@ namespace SmsCoordinator
                     RequestUtcTimeout<CoordinatorTimeout>(expectedMaxScheduleDate.AddMinutes(2));
                 }
             }
-                
         }
     }
 
@@ -261,42 +210,10 @@ namespace SmsCoordinator
         public string Originator { get; set; }
         public string OriginalMessageId { get; set; }
 
-        public int MessagesScheduled { get; set; }
-        public int MessagesConfirmedSentOrFailed { get; set; }
-
-        public List<ScheduledMessageStatus> ScheduledMessageStatus { get; set; }
-
         public DateTime OriginalScheduleStartTime { get; set; }
 
         public Guid CoordinatorId { get; set; }
 
         public DateTime? LastUpdatingCommandRequestUtc { get; set; }
-    }
-
-    public class ScheduledMessageStatus
-    {
-        [Obsolete("For JSON deserialisation.")]
-        public ScheduledMessageStatus() { }
-
-        public ScheduledMessageStatus(ScheduleSmsForSendingLater message)
-        {
-            MessageStatus = MessageStatus.WaitingForScheduling;
-            Status = ScheduleStatus.Initiated;
-            ScheduledSms = message;
-        }
-
-        [Obsolete("Using internal enum - not interested in Scheduled, Paused etc - only Sent, Failed, Cancelled, Initiated")]
-        public MessageStatus MessageStatus { get; set; }
-
-        public ScheduleStatus Status { get; set; }
-
-        public ScheduleSmsForSendingLater ScheduledSms { get; set; }
-    }
-    public enum ScheduleStatus
-    {
-        Initiated,
-        Sent,
-        Failed,
-        Cancelled
     }
 }
