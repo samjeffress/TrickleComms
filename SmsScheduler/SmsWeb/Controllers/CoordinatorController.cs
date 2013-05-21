@@ -64,7 +64,7 @@ namespace SmsWeb.Controllers
                     foreach (var previousCoordinatorId in coordinatedMessages.CoordinatorsToExclude)
                     {
                         var previousCoordinator = session.Load<CoordinatorTrackingData>(previousCoordinatorId.ToString());
-                        excludeList.AddRange(previousCoordinator.MessageStatuses.Select(p => p.Number).ToList());
+                        excludeList.AddRange(previousCoordinator.GetListOfCoordinatedSchedules(RavenDocStore.GetStore()).Select(p => p.Number).ToList());
                     }
                 }
 
@@ -124,7 +124,7 @@ namespace SmsWeb.Controllers
             return string.Format(
                 "'{0}', {1} Sent, Started {2}",
                 coordinatorTrackingData.MetaData.Topic,
-                coordinatorTrackingData.MessageStatuses.Count(c => c.Status == MessageStatusTracking.CompletedSuccess).ToString(),
+                coordinatorTrackingData.GetListOfCoordinatedSchedules(RavenDocStore.GetStore()).Count(c => c.Status == MessageStatusTracking.CompletedSuccess).ToString(),
                 coordinatorTrackingData.CreationDateUtc.ToLocalTime().ToShortDateString());
         }
 
@@ -142,7 +142,7 @@ namespace SmsWeb.Controllers
                     .Select(c => new CoordinatorOverview
                     {
                         CurrentStatus = c.CurrentStatus,
-                        MessageCount = c.MessageStatuses.Count,
+                        MessageCount = c.GetCountOfSchedules(RavenDocStore.GetStore()), // TODO : Use of GetListOfCoordinatedSchedules can be done differently
                         CoordinatorId = c.CoordinatorId,
                         CreationDateUtc = c.CreationDateUtc,
                         CompletionDateUtc = c.CompletionDateUtc,

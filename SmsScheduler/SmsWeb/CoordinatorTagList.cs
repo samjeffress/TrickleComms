@@ -38,20 +38,20 @@ namespace SmsWeb
         }
     }
 
-    public class PhoneNumberInCoordinatedMessages : AbstractIndexCreationTask<CoordinatorTrackingData, PhoneNumberInCoordinatedMessages.ReduceResult>
+    public class PhoneNumberInCoordinatedMessages : AbstractIndexCreationTask<ScheduleTrackingData, PhoneNumberInCoordinatedMessages.ReduceResult>
     {
         public PhoneNumberInCoordinatedMessages()
         {
-            Map = coordinators => from coordinator in coordinators
-                                  from messageStatus in coordinator.MessageStatuses
+            Map = schedules => 
+                                  from schedule in schedules
                                   select
                                       new ReduceResult
                                           {
-                                              PhoneNumber = messageStatus.Number,
-                                              Topic = coordinator.MetaData.Topic,
-                                              CoordinatorId = coordinator.CoordinatorId.ToString(),
-                                              SendingDate = messageStatus.ScheduledSendingTimeUtc,
-                                              Status = messageStatus.Status.ToString(),
+                                              PhoneNumber = schedule.SmsData.Mobile,
+                                              Topic = schedule.SmsMetaData.Topic,
+                                              CoordinatorId = schedule.CoordinatorId.ToString(),
+                                              SendingDate = schedule.ScheduleTimeUtc,
+                                              Status = schedule.MessageStatus.ToString(),
                                               Count = 1
                                           };
 

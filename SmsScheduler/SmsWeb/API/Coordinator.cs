@@ -57,17 +57,18 @@ namespace SmsWeb.API
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 var trackingData = session.Load<CoordinatorTrackingData>(request.RequestId.ToString());
-                var response = new CoordinatorResponse  { RequestId = request.RequestId };
+                var response = new CoordinatorResponse { RequestId = request.RequestId };
                 if (trackingData == null)
                 {
                     response.ResponseStatus = new ResponseStatus("NotFound");
                     return response;
                 }
-                
-                response.Messages = trackingData.MessageStatuses;
+
+                response.Messages = trackingData.GetListOfCoordinatedSchedules(RavenDocStore.GetStore());
                 response.CoordinatorStatus = trackingData.CurrentStatus.ToString();
                 return response;
-            }
+            }    
+            
         }
 
         public override object OnPost(Coordinator request)

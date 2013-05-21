@@ -44,8 +44,22 @@ namespace SmsScheduler
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
                 if (scheduleTrackingData == null)
-                    throw new NotImplementedException("Can't find document - should store it myself");
-                scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
+                {
+                    var scheduleTracker = new ScheduleTrackingData
+                    {
+                        MessageStatus = MessageStatus.Scheduled,
+                        ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId,
+                        SmsData = scheduleSmsForSendingLater.SmsData,
+                        SmsMetaData = scheduleSmsForSendingLater.SmsMetaData,
+                        ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc
+                    };
+                    session.Store(scheduleTracker, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+                }
+                else
+                {
+                    scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;    
+                }
+                
                 session.SaveChanges();
             }
             Bus.Publish(new SmsScheduled
