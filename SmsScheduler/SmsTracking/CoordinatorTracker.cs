@@ -26,7 +26,7 @@ namespace SmsTracking
                 coordinatorCompleteEmail.CoordinatorId = coordinatorTrackingData.CoordinatorId;
                 coordinatorCompleteEmail.EmailAddresses = string.IsNullOrWhiteSpace(coordinatorTrackingData.ConfirmationEmailAddress) ? new List<string>() : coordinatorTrackingData.ConfirmationEmailAddress.Split(',').ToList().Select(e => e.Trim()).ToList();
                 coordinatorCompleteEmail.UserOlsenTimeZone = coordinatorTrackingData.UserOlsenTimeZone;
-                coordinatorCompleteEmail.FinishTimeUtc = coordinatorTrackingData.CompletionDateUtc.Value;
+                coordinatorCompleteEmail.FinishTimeUtc = coordinatorCompleted.CompletionDateUtc;
                 coordinatorCompleteEmail.StartTimeUtc = coordinatorTrackingData.CreationDateUtc;
                 coordinatorCompleteEmail.Topic = coordinatorTrackingData.MetaData.Topic;
                 //coordinatorCompleteEmail.SendingData = new SendingData
