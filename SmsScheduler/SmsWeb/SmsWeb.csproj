@@ -475,6 +475,8 @@
     <Content Include="Views\Shared\_DefaultEmailConfigEdit.cshtml" />
     <Content Include="Views\Shared\_DefaultEmailConfigDetails.cshtml" />
     <Content Include="Scripts\tinysort-1.5.2.js" />
+    <Content Include="Views\Coordinator\Details2.cshtml" />
+    <Content Include="Views\Coordinator\Details3.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -5,6 +5,7 @@ using System.Web.Mvc;
 using ConfigurationModels;
 using NServiceBus;
 using Raven.Client;
+using SmsCoordinator;
 using SmsMessages.Coordinator.Commands;
 using SmsTrackingModels;
 using SmsWeb.Models;
@@ -63,7 +64,7 @@ namespace SmsWeb.Controllers
                     foreach (var previousCoordinatorId in coordinatedMessages.CoordinatorsToExclude)
                     {
                         var previousCoordinator = session.Load<CoordinatorTrackingData>(previousCoordinatorId.ToString());
-                        excludeList.AddRange(previousCoordinator.MessageStatuses.Select(p => p.Number).ToList());
+                        excludeList.AddRange(previousCoordinator.GetListOfCoordinatedSchedules(RavenDocStore.GetStore()).Select(p => p.Number).ToList());
                     }
                 }
 
@@ -123,7 +124,7 @@ namespace SmsWeb.Controllers
             return string.Format(
                 "'{0}', {1} Sent, Started {2}",
                 coordinatorTrackingData.MetaData.Topic,
-                coordinatorTrackingData.MessageStatuses.Count(c => c.Status == MessageStatusTracking.CompletedSuccess).ToString(),
+                coordinatorTrackingData.GetListOfCoordinatedSchedules(RavenDocStore.GetStore()).Count(c => c.Status == MessageStatusTracking.CompletedSuccess).ToString(),
                 coordinatorTrackingData.CreationDateUtc.ToLocalTime().ToShortDateString());
         }
 
@@ -141,10 +142,10 @@ namespace SmsWeb.Controllers
                     .Select(c => new CoordinatorOverview
                     {
                         CurrentStatus = c.CurrentStatus,
-                        MessageCount = c.MessageStatuses.Count,
+                        MessageCount = c.GetCountOfSchedules(RavenDocStore.GetStore()), // TODO : Use of GetListOfCoordinatedSchedules can be done differently
                         CoordinatorId = c.CoordinatorId,
-                        CreationDate = c.CreationDateUtc,
-                        CompletionDate = c.CompletionDateUtc,
+                        CreationDateUtc = c.CreationDateUtc,
+                        CompletionDateUtc = c.CompletionDateUtc,
                         Tags = c.MetaData != null && c.MetaData.Tags != null ? c.MetaData.Tags : new List<string>(),
                         Topic = c.MetaData != null ? c.MetaData.Topic : string.Empty
                     })
@@ -180,15 +181,34 @@ namespace SmsWeb.Controllers
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
+                var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId == coordinatorid)
+                    .ToList();
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
-                if (coordinatorTrackingData == null)
+                if (coordinatorSummary.Count == 0 || coordinatorTrackingData == null)
                 {
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
+                var coordinatorOverview = new CoordinatorOverview
+                                              {
+                                                  CoordinatorId = Guid.Parse(coordinatorid),
+                                                  CreationDateUtc = coordinatorTrackingData.CreationDateUtc,
+                                                  CompletionDateUtc = coordinatorTrackingData.CompletionDateUtc,
+                                                  CurrentStatus = coordinatorTrackingData.CurrentStatus,
+                                                  Topic = coordinatorTrackingData.MetaData.Topic,
+                                                  Tags = coordinatorTrackingData.MetaData.Tags,
+                                                  StatusCounters =
+                                                      coordinatorSummary.Select(
+                                                          s => new StatusCounter {Count = s.Count, Status = s.Status}).
+                                                      ToList(),
+                                                  MessageCount = coordinatorTrackingData.MessageCount,
+                                                  MessageBody = coordinatorTrackingData.MessageBody
+                                              };
+
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
-                    coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
-                return View("Details", coordinatorTrackingData);
+                    coordinatorOverview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
+                return View("Details3", coordinatorOverview);
             }
         }
 

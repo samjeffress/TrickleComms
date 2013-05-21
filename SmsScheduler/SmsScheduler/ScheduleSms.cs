@@ -1,12 +1,14 @@
 using System;
 using NServiceBus;
 using NServiceBus.Saga;
+using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Events;
 using SmsMessages.Scheduling.Commands;
 using SmsMessages.Scheduling.Events;
+using SmsTrackingModels;
 
-namespace SmsCoordinator
+namespace SmsScheduler
 {
     public class ScheduleSms : 
         Saga<ScheduledSmsData>,
@@ -18,6 +20,8 @@ namespace SmsCoordinator
         IHandleMessages<MessageSent>,
         IHandleMessages<MessageFailedSending>
     {
+        public IRavenDocStore RavenDocStore { get; set; }
+
         public override void ConfigureHowToFindSaga()
         {
             ConfigureMapping<MessageSent>(data => data.Id, message => message.CorrelationId);
@@ -36,6 +40,28 @@ namespace SmsCoordinator
             Data.TimeoutCounter = 0;
             var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout(timeout, new ScheduleSmsTimeout { TimeoutCounter = 0});
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var scheduleTrackingData = session.Load<ScheduleTrackingData>(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+                if (scheduleTrackingData == null)
+                {
+                    var scheduleTracker = new ScheduleTrackingData
+                    {
+                        MessageStatus = MessageStatus.Scheduled,
+                        ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId,
+                        SmsData = scheduleSmsForSendingLater.SmsData,
+                        SmsMetaData = scheduleSmsForSendingLater.SmsMetaData,
+                        ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc
+                    };
+                    session.Store(scheduleTracker, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+                }
+                else
+                {
+                    scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;    
+                }
+                
+                session.SaveChanges();
+            }
             Bus.Publish(new SmsScheduled
             {
                 ScheduleMessageId = Data.ScheduleMessageId, 
@@ -64,6 +90,13 @@ namespace SmsCoordinator
         public void Handle(MessageSent message)
         {
             Bus.Publish(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile});
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
+                scheduleTrackingData.ConfirmationData = message.ConfirmationData;
+                scheduleTrackingData.MessageStatus = MessageStatus.Sent;
+                session.SaveChanges();
+            }
             MarkAsComplete();
         }
 
@@ -72,6 +105,12 @@ namespace SmsCoordinator
             if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc > pauseScheduling.MessageRequestTimeUtc)
                 return;
             Data.SchedulingPaused = true;
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
+                scheduleTrackingData.MessageStatus = MessageStatus.Paused;
+                session.SaveChanges();
+            }
             Bus.Publish(new MessageSchedulePaused { CoordinatorId = Data.RequestingCoordinatorId, ScheduleId = pauseScheduling.ScheduleMessageId, Number = Data.OriginalMessage.SmsData.Mobile });
             Data.LastUpdateCommandRequestUtc = pauseScheduling.MessageRequestTimeUtc;
         }
@@ -83,6 +122,13 @@ namespace SmsCoordinator
             Data.SchedulingPaused = false;
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             Data.TimeoutCounter++;
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
+                scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
+                scheduleTrackingData.ScheduleTimeUtc = rescheduledTime;
+                session.SaveChanges();
+            }
             RequestUtcTimeout(rescheduledTime, new ScheduleSmsTimeout { TimeoutCounter = Data.TimeoutCounter });
             Bus.Publish(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = rescheduledTime, Number = Data.OriginalMessage.SmsData.Mobile });
             Data.LastUpdateCommandRequestUtc = scheduleSmsForSendingLater.MessageRequestTimeUtc;
@@ -95,6 +141,13 @@ namespace SmsCoordinator
             Data.SchedulingPaused = false;
             Data.TimeoutCounter++;
             RequestUtcTimeout(message.NewScheduleTimeUtc, new ScheduleSmsTimeout { TimeoutCounter = Data.TimeoutCounter });
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
+                scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
+                scheduleTrackingData.ScheduleTimeUtc = message.NewScheduleTimeUtc;
+                session.SaveChanges();
+            }
             Bus.Publish(new MessageRescheduled { CoordinatorId = Data.RequestingCoordinatorId, ScheduleMessageId = Data.ScheduleMessageId, RescheduledTimeUtc = message.NewScheduleTimeUtc, Number = Data.OriginalMessage.SmsData.Mobile });
             Data.LastUpdateCommandRequestUtc = message.MessageRequestTimeUtc;
         }
@@ -108,6 +161,14 @@ namespace SmsCoordinator
                                 Number = failedMessage.SmsData.Mobile,
                                 SmsFailedData = failedMessage.SmsFailed
                             });
+
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
+                scheduleTrackingData.MessageStatus = MessageStatus.Failed;
+                scheduleTrackingData.SmsFailureData = failedMessage.SmsFailed;
+                session.SaveChanges();
+            }
             MarkAsComplete();
         }
     }

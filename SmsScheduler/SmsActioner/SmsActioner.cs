@@ -4,7 +4,7 @@ using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Events;
 
-namespace SmsCoordinator
+namespace SmsActioner
 {
     public class SmsActioner : Saga<SmsActionerData>, 
         IAmStartedByMessages<SendOneMessageNow>,

@@ -29,9 +29,8 @@ namespace SmsCoordinator
 //                .RavenSubscriptionStorage();
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
-            Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);
-            Configure.Instance.Configurer.ConfigureComponent<TwilioWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<CalculateSmsTiming>(DependencyLifecycle.InstancePerUnitOfWork);
+            Configure.Instance.Configurer.ConfigureComponent<RavenScheduleDocuments>(DependencyLifecycle.InstancePerUnitOfWork);
 
             configure.CreateBus()
             .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
@@ -49,6 +48,8 @@ namespace SmsCoordinator
             Bus.Unsubscribe<SmsScheduled>();
             Bus.Unsubscribe<MessageRescheduled>();
             Bus.Unsubscribe<MessageSchedulePaused>();
+            Bus.Unsubscribe<ScheduledSmsSent>();
+            Bus.Unsubscribe<ScheduledSmsFailed>();
         }
 
         public void Stop()

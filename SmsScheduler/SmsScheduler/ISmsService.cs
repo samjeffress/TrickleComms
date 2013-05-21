@@ -1,7 +1,0 @@
-﻿using SmsMessages;
-
-namespace Scheduler
-{
-
-
-}

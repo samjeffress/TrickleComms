@@ -1,5 +1,6 @@
 using NServiceBus;
 using System.Web.Mvc;
+using Raven.Client;
 using ServiceStack.CacheAccess;
 using ServiceStack.CacheAccess.Providers;
 using ServiceStack.Mvc;

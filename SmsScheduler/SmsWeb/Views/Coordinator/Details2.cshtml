@@ -1,0 +1,52 @@
+﻿@{
+    ViewBag.Title = "Details2";
+}
+
+@Styles.Render("~/Content/themes/base/jquery-ui.css")
+<script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
+<script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
+<script type="text/javascript" src="~/Scripts/tinysort-1.5.2.js"></script>
+<script type="text/javascript">
+    
+    $(function () {
+
+        $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
+        $('input[name="finishTime"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
+        $('#UserTimeZone').val(jstz.determine().name());
+    });
+</script>
+        <h2>Details2</h2>
+
+@Model.CoordinatorId
+
+<div>
+    @using(Html.BeginForm("Pause", "Coordinator", FormMethod.Post, new { id = "pauseForm" }))
+    {
+        
+        <input type="hidden" name="CoordinatorId" value="@Model.CoordinatorId" />
+        <input type="submit" value="Pause Message Sending"/>
+    }
+</div>
+
+
+<div>
+                @using(Html.BeginForm("Resume", "Coordinator", FormMethod.Post, new { id = "resumeForm" }))
+                {
+                    <input type="hidden" name="CoordinatorId" value="@Model.CoordinatorId" />
+                    <div class="control-group">
+                        <label>Time to resume</label>
+                        @Html.Editor("timeToResume")
+                        @Html.ValidationMessage("timeToResume")
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Finish Time (optional)</label>
+                        @Html.Editor("finishTime")
+                        @Html.ValidationMessage("finishTime")
+                        <div><sup>This will update the timing of messages instead of just updating the schedule.</sup></div>
+                    </div>
+                    @Html.Hidden("UserTimeZone");
+                    
+                    <input type="submit" value="Resume Messages"/>
+                }
+            </div>

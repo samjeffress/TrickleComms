@@ -2,13 +2,12 @@
 using NServiceBus.Testing;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SmsCoordinator;
+using SmsActioner;
 using SmsMessages.CommonData;
-using SmsMessages.MessageSending;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Events;
 
-namespace SmsCoordinatorTests
+namespace SmsActionerTests
 {
     [TestFixture]
     public class SmsActionerTestFixture
@@ -25,7 +24,7 @@ namespace SmsCoordinatorTests
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSent);
 
             Test.Initialize();
-            Test.Saga<SmsActioner>()
+            Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectPublish<MessageSent>()
                 .When(a => a.Handle(sendOneMessageNow))
@@ -42,7 +41,7 @@ namespace SmsCoordinatorTests
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSent);
 
             Test.Initialize();
-            Test.Saga<SmsActioner>()
+            Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectPublish<MessageFailedSending>()
                 .When(a => a.Handle(sendOneMessageNow))
@@ -62,7 +61,7 @@ namespace SmsCoordinatorTests
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsSent);
 
             Test.Initialize();
-            Test.Saga<SmsActioner>()
+            Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))
@@ -85,7 +84,7 @@ namespace SmsCoordinatorTests
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsFailed);
 
             Test.Initialize();
-            Test.Saga<SmsActioner>()
+            Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))
@@ -109,7 +108,7 @@ namespace SmsCoordinatorTests
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsSuccess);
 
             Test.Initialize();
-            Test.Saga<SmsActioner>()
+            Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))

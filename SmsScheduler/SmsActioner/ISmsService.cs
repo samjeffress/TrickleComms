@@ -3,7 +3,7 @@ using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using Twilio;
 
-namespace SmsCoordinator
+namespace SmsActioner
 {
     public interface ISmsService
     {

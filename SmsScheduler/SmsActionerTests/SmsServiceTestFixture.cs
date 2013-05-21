@@ -1,12 +1,12 @@
 ﻿using System;
 using NUnit.Framework;
 using Rhino.Mocks;
-using SmsCoordinator;
+using SmsActioner;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using Twilio;
 
-namespace SmsCoordinatorTests
+namespace SmsActionerTests
 {
     [TestFixture]
     public class SmsServiceTestFixture

@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSenderTests", "EmailSe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{28E9DDA8-E8E7-4C32-AFF0-219B94DB2A85}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\Users\sjeffress\AppData\Local\Microsoft\VisualStudio\11.0\Extensions\2oqoulbd.tjf\schemas\WE-Palette.css = ..\..\..\..\Users\sjeffress\AppData\Local\Microsoft\VisualStudio\11.0\Extensions\2oqoulbd.tjf\schemas\WE-Palette.css
+		..\..\..\Users\sjeffress\AppData\Local\Microsoft\VisualStudio\11.0\Extensions\2oqoulbd.tjf\schemas\WE-Palette.css = ..\..\..\Users\sjeffress\AppData\Local\Microsoft\VisualStudio\11.0\Extensions\2oqoulbd.tjf\schemas\WE-Palette.css
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsTrackingModels", "SmsTrackingModels\SmsTrackingModels.csproj", "{BD305005-40FD-4C3A-A893-6E7E5989C66A}"
@@ -41,6 +41,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configurat
 		Configuration\Production.SmsWeb.SetParameters.xml = Configuration\Production.SmsWeb.SetParameters.xml
 		Configuration\uat.SmsWeb.SetParameters.xml = Configuration\uat.SmsWeb.SetParameters.xml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsScheduler", "SmsScheduler\SmsScheduler.csproj", "{BC1B12B1-878E-4DFB-9B8E-712A5D7A69E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsSchedulerTests", "SchedulerTests\SmsSchedulerTests.csproj", "{58916F7C-A026-4157-8341-A9C9BFB94D51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsActioner", "SmsActioner\SmsActioner.csproj", "{AB0BAECF-6651-4F33-B58C-9687601E1A3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsActionerTests", "SmsActionerTests\SmsActionerTests.csproj", "{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +105,22 @@ Global
 		{BD305005-40FD-4C3A-A893-6E7E5989C66A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD305005-40FD-4C3A-A893-6E7E5989C66A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD305005-40FD-4C3A-A893-6E7E5989C66A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC1B12B1-878E-4DFB-9B8E-712A5D7A69E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC1B12B1-878E-4DFB-9B8E-712A5D7A69E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC1B12B1-878E-4DFB-9B8E-712A5D7A69E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC1B12B1-878E-4DFB-9B8E-712A5D7A69E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58916F7C-A026-4157-8341-A9C9BFB94D51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58916F7C-A026-4157-8341-A9C9BFB94D51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58916F7C-A026-4157-8341-A9C9BFB94D51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58916F7C-A026-4157-8341-A9C9BFB94D51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB0BAECF-6651-4F33-B58C-9687601E1A3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB0BAECF-6651-4F33-B58C-9687601E1A3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB0BAECF-6651-4F33-B58C-9687601E1A3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB0BAECF-6651-4F33-B58C-9687601E1A3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

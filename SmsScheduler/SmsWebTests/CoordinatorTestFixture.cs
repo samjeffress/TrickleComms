@@ -33,20 +33,21 @@ namespace SmsWebTests
             Top1CoordinatorId = Guid.NewGuid();
             var mostRecentCoordinators = new List<CoordinatorTrackingData>
                 {
-                    new CoordinatorTrackingData
+                    new CoordinatorTrackingData(new List<MessageSendingStatus>())
                         {
                             CoordinatorId = Top1CoordinatorId, 
                             MetaData = new SmsMetaData { Topic = "barry" }, 
                             CreationDateUtc = DateTime.Now.AddDays(-3),
-                            MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }}
                         },
                 };
+            var scheduleTrackingData = new ScheduleTrackingData {CoordinatorId = Top1CoordinatorId, MessageStatus = MessageStatus.Sent};
 
             SmsTrackingSession = _store.OpenSession();
             foreach (var coordinatorTrackingData in mostRecentCoordinators)
             {
                 SmsTrackingSession.Store(coordinatorTrackingData, coordinatorTrackingData.CoordinatorId.ToString());
             }
+            SmsTrackingSession.Store(scheduleTrackingData, Guid.NewGuid().ToString());
             SmsTrackingSession.SaveChanges();
         }
 
@@ -243,12 +244,12 @@ namespace SmsWebTests
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
             docStore.Expect(d => d.OpenSession("SmsTracking")).Return(trackingSession);
             docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
-            var previousCoordinatorToExclude = new CoordinatorTrackingData { MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "04040404040" }, new MessageSendingStatus { Number = "1" } } };
+            var previousCoordinatorToExclude = new CoordinatorTrackingData(new List<MessageSendingStatus> { new MessageSendingStatus { Number = "04040404040" }, new MessageSendingStatus { Number = "1" } });
             trackingSession.Expect(d => d.Load<CoordinatorTrackingData>(CoordinatorToExclude.ToString())).Return(
                 previousCoordinatorToExclude);
 
             var coordinatorMessage = new CoordinatedSharedMessageModel();
-            var excludeList = previousCoordinatorToExclude.MessageStatuses.Select(s => s.Number).ToList();
+            var excludeList = previousCoordinatorToExclude.GetListOfCoordinatedSchedules(ravenDocStore.GetStore()).Select(s => s.Number).ToList();
             mapper
                 .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Equal(excludeList)))
                 .Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates())
@@ -294,16 +295,16 @@ namespace SmsWebTests
             docStore.Expect(d => d.OpenSession("Configuration")).Return(configSession);
             docStore.Expect(d => d.OpenSession("SmsTracking")).Return(trackingSession);
             configSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
-            var previousCoordinatorToExclude1 = new CoordinatorTrackingData { MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "04040404040" }, new MessageSendingStatus { Number = "1" } } };
+            var previousCoordinatorToExclude1 = new CoordinatorTrackingData(new List<MessageSendingStatus> { new MessageSendingStatus { Number = "04040404040" }, new MessageSendingStatus { Number = "1" } });
             trackingSession.Expect(d => d.Load<CoordinatorTrackingData>(CoordinatorToExclude1.ToString())).Return(
                 previousCoordinatorToExclude1);            
-            var previousCoordinatorToExclude2 = new CoordinatorTrackingData { MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "7" } } };
+            var previousCoordinatorToExclude2 = new CoordinatorTrackingData(new List<MessageSendingStatus> { new MessageSendingStatus { Number = "7" } });
             trackingSession.Expect(d => d.Load<CoordinatorTrackingData>(CoordinatorToExclude2.ToString())).Return(
                 previousCoordinatorToExclude2);
 
             var coordinatorMessage = new CoordinatedSharedMessageModel();
-            var excludeList1 = previousCoordinatorToExclude1.MessageStatuses.Select(s => s.Number).ToList();
-            var excludeList2 = previousCoordinatorToExclude2.MessageStatuses.Select(s => s.Number).ToList();
+            var excludeList1 = previousCoordinatorToExclude1.GetListOfCoordinatedSchedules(ravenDocStore.GetStore()).Select(s => s.Number).ToList();
+            var excludeList2 = previousCoordinatorToExclude2.GetListOfCoordinatedSchedules(ravenDocStore.GetStore()).Select(s => s.Number).ToList();
 
             List<string> excludeList = null;
             mapper
@@ -399,14 +400,14 @@ namespace SmsWebTests
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
             docStore.Expect(d => d.OpenSession("SmsTracking")).Return(trackingSession);
             docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
-            var previousCoordinatorToExclude1 = new CoordinatorTrackingData { MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "04040404040" }, new MessageSendingStatus { Number = "1" } } };
+            var previousCoordinatorToExclude1 = new CoordinatorTrackingData(new List<MessageSendingStatus> { new MessageSendingStatus { Number = "04040404040" }, new MessageSendingStatus { Number = "1" } });
             trackingSession.Expect(d => d.Load<CoordinatorTrackingData>(CoordinatorToExclude1.ToString())).Return(previousCoordinatorToExclude1);            
-            var previousCoordinatorToExclude2 = new CoordinatorTrackingData { MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Number = "7" } } };
+            var previousCoordinatorToExclude2 = new CoordinatorTrackingData(new List<MessageSendingStatus> { new MessageSendingStatus { Number = "7" } });
             trackingSession.Expect(d => d.Load<CoordinatorTrackingData>(CoordinatorToExclude2.ToString())).Return(previousCoordinatorToExclude2);
 
             var coordinatorMessage = new CoordinatedSharedMessageModel();
-            var excludeList1 = previousCoordinatorToExclude1.MessageStatuses.Select(s => s.Number).ToList();
-            var excludeList2 = previousCoordinatorToExclude2.MessageStatuses.Select(s => s.Number).ToList();
+            var excludeList1 = previousCoordinatorToExclude1.GetListOfCoordinatedSchedules(ravenDocStore.GetStore()).Select(s => s.Number).ToList();
+            var excludeList2 = previousCoordinatorToExclude2.GetListOfCoordinatedSchedules(ravenDocStore.GetStore()).Select(s => s.Number).ToList();
 
             List<string> excludeList = null;
             mapper
@@ -581,19 +582,17 @@ namespace SmsWebTests
             _store.Initialize();
             var mostRecentCoordinators = new List<CoordinatorTrackingData>
                 {
-                    new CoordinatorTrackingData
+                    new CoordinatorTrackingData (new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }})
                         {
                             CoordinatorId = Guid.NewGuid(), 
                             MetaData = new SmsMetaData { Topic = "barry" }, 
                             CreationDateUtc = DateTime.Now.AddDays(-3),
-                            MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }}
                         },
-                    new CoordinatorTrackingData
+                    new CoordinatorTrackingData (new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }})
                         {
                             CoordinatorId = Guid.NewGuid(), 
                             MetaData = new SmsMetaData { Topic = "simon" }, 
                             CreationDateUtc = DateTime.Now.AddDays(-4),
-                            MessageStatuses = new List<MessageSendingStatus> { new MessageSendingStatus { Status = MessageStatusTracking.CompletedSuccess }}
                         }
                 };
 

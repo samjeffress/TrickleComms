@@ -1,30 +1,42 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using NServiceBus;
 using NServiceBus.Testing;
 using NUnit.Framework;
+using Raven.Client;
+using Raven.Client.Embedded;
 using Rhino.Mocks;
-using SmsCoordinator;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Events;
 using SmsMessages.Scheduling.Commands;
 using SmsMessages.Scheduling.Events;
-using SmsTrackingMessages.Messages;
+using SmsScheduler;
+using SmsTrackingModels;
 
-namespace SmsCoordinatorTests
+namespace SmsSchedulerTests
 {
     [TestFixture]
     public class SentLaterTestFixture
     {
+        public IDocumentStore DocumentStore { get; set; }
+
+        public SentLaterTestFixture()
+        {
+            DocumentStore = new EmbeddableDocumentStore { RunInMemory = true };
+            DocumentStore.Initialize();
+        }
+
         [Test]
         public void ScheduleSmsForSendingLater()
         {
-            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1) };
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), ScheduleMessageId = Guid.NewGuid() };
             var sagaId = Guid.NewGuid();
             var messageSent = new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") };
-            
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+
             var scheduledSmsData = new ScheduledSmsData 
             {
                 Id = sagaId, 
@@ -35,25 +47,31 @@ namespace SmsCoordinatorTests
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectPublish<ScheduledSmsSent>()
-                    //.ExpectSend<ScheduleComplete>()
                 .When(s => s.Handle(messageSent))
                     .AssertSagaCompletionIs(true);
+
+            var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            Assert.That(scheduleTrackingData.MessageStatus, Is.EqualTo(MessageStatus.Sent));
         }
 
         [Test]
         public void ScheduleSmsForSendingLaterButFails()
         {
-            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1) };
+
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), ScheduleMessageId = Guid.NewGuid()};
             var sagaId = Guid.NewGuid();
             var messageFailed = new MessageFailedSending { SmsData = new SmsData("1", "2"), SmsFailed = new SmsFailed(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty) };
             
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+
             var scheduledSmsData = new ScheduledSmsData 
             {
                 Id = sagaId, 
@@ -64,23 +82,28 @@ namespace SmsCoordinatorTests
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectSend<SendOneMessageNow>()
                 .WhenSagaTimesOut()
                     .ExpectPublish<ScheduledSmsFailed>()
-                    //.ExpectSend<ScheduleFailed>()
                 .When(s => s.Handle(messageFailed))
                     .AssertSagaCompletionIs(true);
+
+            var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            Assert.That(scheduleTrackingData.MessageStatus, Is.EqualTo(MessageStatus.Failed));
         }
 
         [Test]
         public void ScheduleSmsForSendingLaterButIsPaused()
         {
-            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2")};
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2"), ScheduleMessageId = Guid.NewGuid()};
             var sagaId = Guid.NewGuid();
+
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
 
             var scheduledSmsData = new ScheduledSmsData 
             {
@@ -92,15 +115,16 @@ namespace SmsCoordinatorTests
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc)
-                    //.ExpectSend<ScheduleCreated>()
                 .When(s => s.Handle(scheduleSmsForSendingLater))
-                    //.ExpectSend<SchedulePaused>()
                     .ExpectPublish<MessageSchedulePaused>()
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty)))
                     .ExpectNotSend<SendOneMessageNow>(now => false)
                 .WhenSagaTimesOut();
+
+            var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            Assert.That(scheduleTrackingData.MessageStatus, Is.EqualTo(MessageStatus.Paused));
         }
 
         [Test]
@@ -108,6 +132,10 @@ namespace SmsCoordinatorTests
         {
             var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2") };
             var sagaId = Guid.NewGuid();
+            
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
 
             var scheduledSmsData = new ScheduledSmsData 
             {
@@ -119,7 +147,7 @@ namespace SmsCoordinatorTests
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc && state.TimeoutCounter == 0)
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectPublish<MessageSchedulePaused>()
@@ -134,14 +162,20 @@ namespace SmsCoordinatorTests
                     .ExpectPublish<ScheduledSmsSent>()
                 .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2")}))
                     .AssertSagaCompletionIs(true);
+            var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            Assert.That(scheduleTrackingData.MessageStatus, Is.EqualTo(MessageStatus.Sent));
         }
 
         [Test]
         public void ScheduleSmsForSendingLaterButIsPausedThenRescheduledAndSent()
         {
-            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2") };
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2"), ScheduleMessageId = Guid.NewGuid()};
             var sagaId = Guid.NewGuid();
 
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            
             var scheduledSmsData = new ScheduledSmsData 
             {
                 Id = sagaId, 
@@ -152,7 +186,7 @@ namespace SmsCoordinatorTests
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc && state.TimeoutCounter == 0)
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectPublish<MessageSchedulePaused>()
@@ -167,14 +201,21 @@ namespace SmsCoordinatorTests
                     .ExpectPublish<ScheduledSmsSent>()
                 .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2")}))
                     .AssertSagaCompletionIs(true);
+
+            var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            Assert.That(scheduleTrackingData.MessageStatus, Is.EqualTo(MessageStatus.Sent));
         }
 
         [Test]
         public void ScheduleSmsForSendingLaterButIsPausedThenResumedOutOfOrderAndSent()
         {
-            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2") };
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2"), ScheduleMessageId = Guid.NewGuid()};
             var sagaId = Guid.NewGuid();
 
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            
             var scheduledSmsData = new ScheduledSmsData 
             {
                 Id = sagaId, 
@@ -185,7 +226,7 @@ namespace SmsCoordinatorTests
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => timeout == scheduleSmsForSendingLater.SendMessageAtUtc && state.TimeoutCounter == 0)
                 .When(s => s.Handle(scheduleSmsForSendingLater))
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, timeout) => state.TimeoutCounter == 1)
@@ -197,6 +238,9 @@ namespace SmsCoordinatorTests
                     .ExpectPublish<ScheduledSmsSent>()
                 .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") }))
                     .AssertSagaCompletionIs(true);
+
+            var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
+            Assert.That(scheduleTrackingData.MessageStatus, Is.EqualTo(MessageStatus.Sent));
         }
 
         [Test]
@@ -204,6 +248,9 @@ namespace SmsCoordinatorTests
         {
             var sagaId = Guid.NewGuid();
             var scheduleMessageId = Guid.NewGuid();
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleMessageId, MessageStatus = MessageStatus.Paused }, scheduleMessageId.ToString());
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
 
             var scheduledSmsData = new ScheduledSmsData
             {
@@ -216,19 +263,26 @@ namespace SmsCoordinatorTests
 
             Test.Initialize();
             var rescheduleMessage = new ResumeScheduledMessageWithOffset(scheduleMessageId, new TimeSpan(0, 1, 0, 0));
-            var resheduledTime = scheduledSmsData.OriginalMessage.SendMessageAtUtc.Add(rescheduleMessage.Offset);
+            var rescheduledTime = scheduledSmsData.OriginalMessage.SendMessageAtUtc.Add(rescheduleMessage.Offset);
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
-                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, span) => span == resheduledTime)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
+                    .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, span) => span == rescheduledTime)
                     .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(rescheduleMessage));
+
+            var schedule = GetSchedule(scheduleMessageId.ToString());
+            Assert.That(schedule.MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(schedule.ScheduleTimeUtc, Is.EqualTo(rescheduledTime));
         }
 
         [Test]
         public void ReschedulePausedSchedule_Data()
         {
             var sagaId = Guid.NewGuid();
-            var scheduleMessageId = Guid.NewGuid();
+            var scheduleMessageId = Guid.NewGuid(); 
+            StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleMessageId, MessageStatus = MessageStatus.Paused }, scheduleMessageId.ToString());
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
 
             var scheduledSmsData = new ScheduledSmsData
             {
@@ -242,10 +296,14 @@ namespace SmsCoordinatorTests
             Test.Initialize();
             var rescheduleMessage = new RescheduleScheduledMessageWithNewTime(scheduleMessageId, new DateTime(2040, 4, 4, 4,4,4, DateTimeKind.Utc));
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = scheduledSmsData)
+                .WithExternalDependencies(a => { a.Data = scheduledSmsData; a.RavenDocStore = ravenDocStore; })
                     .ExpectTimeoutToBeSetAt<ScheduleSmsTimeout>((state, span) => span == rescheduleMessage.NewScheduleTimeUtc)
                     .ExpectPublish<MessageRescheduled>()
                 .When(s => s.Handle(rescheduleMessage));
+
+            var schedule = GetSchedule(scheduleMessageId.ToString());
+            Assert.That(schedule.MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
+            Assert.That(schedule.ScheduleTimeUtc, Is.EqualTo(rescheduleMessage.NewScheduleTimeUtc));
         }
 
         [Test]
@@ -293,16 +351,20 @@ namespace SmsCoordinatorTests
         {
             var data = new ScheduledSmsData();
             var originalMessage = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now };
+            StoreDocument(new ScheduleTrackingData { ScheduleId = originalMessage.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling}, originalMessage.ScheduleMessageId.ToString());
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = data)
+                .WithExternalDependencies(a => { a.Data = data; a.RavenDocStore = ravenDocStore; })
                 .WhenReceivesMessageFrom("address")
                     .ExpectPublish<SmsScheduled>(m => m.CoordinatorId == data.Id && m.ScheduleMessageId == originalMessage.ScheduleMessageId)
-                    //.ExpectSend<ScheduleCreated>(m => m.ScheduleId == originalMessage.ScheduleMessageId && m.SmsData == originalMessage.SmsData && m.SmsMetaData == originalMessage.SmsMetaData && m.CallerId == data.Id)
                 .When(s => s.Handle(originalMessage));
 
             Assert.That(data.OriginalMessage, Is.EqualTo(originalMessage));
+            var schedule = GetSchedule(originalMessage.ScheduleMessageId.ToString());
+            Assert.That(schedule.MessageStatus, Is.EqualTo(MessageStatus.Scheduled));
         }
 
         [Test]
@@ -311,15 +373,36 @@ namespace SmsCoordinatorTests
             var data = new ScheduledSmsData { OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "2")}};
             var scheduleId = Guid.NewGuid();
             var pauseScheduledMessageIndefinitely = new PauseScheduledMessageIndefinitely(scheduleId);
+            StoreDocument(new ScheduleTrackingData { ScheduleId = data.OriginalMessage.ScheduleMessageId, MessageStatus = MessageStatus.Scheduled}, data.OriginalMessage.ScheduleMessageId.ToString());
+            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
+            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
-                .WithExternalDependencies(a => a.Data = data)
+                .WithExternalDependencies(a => { a.Data = data; a.RavenDocStore = ravenDocStore; })
                 .WhenReceivesMessageFrom("place")
-                    //.ExpectSend<SchedulePaused>(s => s.ScheduleId == scheduleId)
                 .When(s => s.Handle(pauseScheduledMessageIndefinitely));
 
             Assert.IsTrue(data.SchedulingPaused);
+            var schedule = GetSchedule(data.OriginalMessage.ScheduleMessageId.ToString());
+            Assert.That(schedule.MessageStatus, Is.EqualTo(MessageStatus.Paused));
+        }
+
+        private void StoreDocument(object obj, string id)
+        {
+            using (var session = DocumentStore.OpenSession())
+            {
+                session.Store(obj, id);
+                session.SaveChanges();
+            }
+        }
+
+        private ScheduleTrackingData GetSchedule(string id)
+        {
+            using (var session = DocumentStore.OpenSession())
+            {
+                return session.Load<ScheduleTrackingData>(id);
+            }
         }
     }
 }
