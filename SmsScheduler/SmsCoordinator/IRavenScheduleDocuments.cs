@@ -36,7 +36,8 @@ namespace SmsCoordinator
                     .Statistics(out ravenStats)
                     .FirstOrDefault(s => s.CoordinatorId == coordinatorId &&
                                 (s.MessageStatus == MessageStatus.Scheduled ||
-                                 s.MessageStatus == MessageStatus.WaitingForScheduling));
+                                 s.MessageStatus == MessageStatus.WaitingForScheduling ||
+                                 s.MessageStatus == MessageStatus.Paused));
             }
 
             while (ravenStats.TotalResults > (page) * pageSize)
@@ -48,7 +49,8 @@ namespace SmsCoordinator
                         .Where(
                             s =>
                             s.MessageStatus == MessageStatus.Scheduled ||
-                            s.MessageStatus == MessageStatus.WaitingForScheduling)
+                            s.MessageStatus == MessageStatus.WaitingForScheduling ||
+                            s.MessageStatus == MessageStatus.Paused)
                         .OrderBy(s => s.ScheduleId)
                         .Skip(pageSize * page)
                         .Take(pageSize).ToList();
