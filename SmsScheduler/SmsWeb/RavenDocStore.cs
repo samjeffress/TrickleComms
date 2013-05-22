@@ -3,7 +3,7 @@ using Raven.Client;
 using Raven.Client.Document;
 using Raven.Client.Extensions;
 using Raven.Client.Indexes;
-using SmsCoordinator;
+using SmsTrackingModels;
 
 namespace SmsWeb
 {
@@ -21,8 +21,6 @@ namespace SmsWeb
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("Configuration");
             _documentStore.DatabaseCommands.EnsureDatabaseExists("SmsTracking");
-            IndexCreation.CreateIndexes(typeof(CoordinatorTagList).Assembly, _documentStore);
-            IndexCreation.CreateIndexes(typeof(PhoneNumberInCoordinatedMessages).Assembly, _documentStore);
             IndexCreation.CreateIndexes(typeof(ScheduleMessagesInCoordinatorIndex).Assembly, _documentStore);
         }
 

@@ -6,7 +6,7 @@ function Get-ScriptDirectory
 }
 
 $msbuild = "C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
-$installFolder = "c:\SmsServices3"
+$installFolder = "c:\SmsServices"
 $path = Get-ScriptDirectory Installer.ps1
 $build_output = (Get-Item $path).parent.FullName + '\build_output\'
 #$go_environment = (get-item env:GO_ENVIRONMENT_NAME).Value
@@ -38,7 +38,7 @@ function InstallService([string]$DirectoryName, [string]$ServiceDescription)
         echo "Finished copying"
         echo "Installing service $DirectoryName"
         $nsbHost = Join-Path $installFolder -childpath "\$DirectoryName\NServiceBus.Host.exe"
-		$argList = "/install /serviceName:$DirectoryName /displayName:$DirectoryName /description:$ServiceDescription NServiceBus.Production"
+		$argList = "/install /serviceName:$DirectoryName /displayName:$DirectoryName /description:'$ServiceDescription' NServiceBus.Production"
 		RunCommand $nsbHost $argList
     }
 	Start-Service $DirectoryName -ErrorVariable err

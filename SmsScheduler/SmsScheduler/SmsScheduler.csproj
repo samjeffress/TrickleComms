@@ -67,10 +67,6 @@
     <Compile Include="ScheduleSms.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SmsCoordinator\SmsCoordinator.csproj">
-      <Project>{8C605680-13D5-4B2C-B6D2-3801188CDD35}</Project>
-      <Name>SmsCoordinator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
       <Project>{024BB854-56C8-4A03-A9DE-68FF4FE1FBA7}</Project>
       <Name>SmsMessages</Name>
