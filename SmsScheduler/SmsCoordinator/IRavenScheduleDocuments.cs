@@ -11,7 +11,6 @@ namespace SmsCoordinator
 {
     public interface IRavenScheduleDocuments
     {
-        List<ScheduleTrackingData> GetPausedScheduleTrackingData(Guid coordinatorId);
         List<ScheduleTrackingData> GetActiveScheduleTrackingData(Guid coordinatorId);
         void SaveSchedules(List<ScheduleSmsForSendingLater> messageList, Guid coordinatorId);
         DateTime GetMaxScheduleDateTime(Guid coordinatorId);
@@ -50,37 +49,7 @@ namespace SmsCoordinator
                             s =>
                             s.MessageStatus == MessageStatus.Scheduled ||
                             s.MessageStatus == MessageStatus.WaitingForScheduling)
-                        .Skip(pageSize * page)
-                        .Take(pageSize).ToList();
-                    trackingData.AddRange(tracking);
-                }
-                page++;
-            }
-            return trackingData;
-        }
-
-        public List<ScheduleTrackingData> GetPausedScheduleTrackingData(Guid coordinatorId)
-        {
-            var trackingData = new List<ScheduleTrackingData>();
-            int page = 0;
-            int pageSize = 100;
-            RavenQueryStatistics ravenStats;
-
-            using (var session = RavenDocStore.GetStore().OpenSession())
-            {
-                session.Query<ScheduleTrackingData>("ScheduleMessagesInCoordinatorIndex")
-                    .Statistics(out ravenStats)
-                    .FirstOrDefault(s => s.CoordinatorId == coordinatorId &&
-                                s.MessageStatus == MessageStatus.Paused);
-            }
-
-            while (ravenStats.TotalResults > (page) * pageSize)
-            {
-                using (var session = RavenDocStore.GetStore().OpenSession())
-                {
-                    var tracking = session.Query<ScheduleTrackingData>("ScheduleMessagesInCoordinatorIndex")
-                        .Where(s => s.CoordinatorId == coordinatorId)
-                        .Where(s => s.MessageStatus == MessageStatus.Paused)
+                        .OrderBy(s => s.ScheduleId)
                         .Skip(pageSize * page)
                         .Take(pageSize).ToList();
                     trackingData.AddRange(tracking);

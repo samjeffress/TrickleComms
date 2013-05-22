@@ -168,7 +168,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
+            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
 
@@ -216,7 +216,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
+            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var startTime = DateTime.Now.AddHours(3);
@@ -263,7 +263,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
+            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var startTime = DateTime.Now.AddHours(3);
@@ -311,7 +311,7 @@ namespace SmsCoordinatorTests
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
+            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
@@ -357,7 +357,7 @@ namespace SmsCoordinatorTests
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
+            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData>());
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
@@ -612,7 +612,7 @@ namespace SmsCoordinatorTests
                                                 new ScheduleTrackingData { MessageStatus = MessageStatus.Paused, ScheduleId = Guid.NewGuid()},
                                                 new ScheduleTrackingData { MessageStatus = MessageStatus.Paused, ScheduleId = Guid.NewGuid()}
                                             };
-            ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(sagaId)).Return(pausedTrackedMessages);
+            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(sagaId)).Return(pausedTrackedMessages);
 
             var resumeTricklesMessages = new ResumeTrickledMessages { ResumeTimeUtc = dateTime };
 
@@ -651,7 +651,7 @@ namespace SmsCoordinatorTests
                                                 new ScheduleTrackingData { MessageStatus = MessageStatus.Paused, ScheduleId = Guid.NewGuid()},
                                                 new ScheduleTrackingData { MessageStatus = MessageStatus.Paused, ScheduleId = Guid.NewGuid()}
                                             };
-            ravenScheduleDocuments.Expect(r => r.GetPausedScheduleTrackingData(sagaId)).Return(pausedTrackedMessages);
+            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(sagaId)).Return(pausedTrackedMessages);
 
             var rescheduleTrickledMessages = new RescheduleTrickledMessages { ResumeTimeUtc = dateTime, FinishTimeUtc = finishTime};
 
