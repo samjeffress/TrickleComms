@@ -12,11 +12,13 @@ namespace SmsTrackingModels
                                select new
                                    {
                                        CoordinatorId = schedule.CoordinatorId.ToString(),
-                                       MessageStatus = schedule.MessageStatus.ToString()
+                                       MessageStatus = schedule.MessageStatus.ToString(),
+                                       ScheduleId = schedule.ScheduleId.ToString()
                                    };
 
             Indexes.Add(s => s.CoordinatorId, FieldIndexing.Analyzed);
             Indexes.Add(s => s.MessageStatus, FieldIndexing.Analyzed);
+            Indexes.Add(s => s.ScheduleId, FieldIndexing.Analyzed);
         }
     }
 }
