@@ -28,11 +28,15 @@ function InstallService([string]$DirectoryName, [string]$ServiceDescription)
         echo "Service $DirectoryName exists - stopping"
         Stop-Service $DirectoryName
         echo "Stopped Service"
+        echo "Removing existing files"
+        Remove-Item -Recurse -Force $($installFolder + "\" + $DirectoryName)
         echo "Copying files from $build_output $DirectoryName to $installFolder $DirectoryName"
         Copy-Item $($build_output + $DirectoryName) $($installFolder + "\" + $DirectoryName) -recurse -Force
         echo "Finished copying"
     }else{
         echo "Service does not exist"
+        echo "Removing existing files"
+        Remove-Item -Recurse -Force $($installFolder + "\" + $DirectoryName)
         echo "Copying files from $build_output $DirectoryName to $installFolder $DirectoryName"
         Copy-Item $($build_output + $DirectoryName) $($installFolder + "\" + $DirectoryName) -Recurse
         echo "Finished copying"
