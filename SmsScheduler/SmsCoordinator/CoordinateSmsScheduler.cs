@@ -156,7 +156,7 @@ namespace SmsCoordinator
                 return;
             var offset = resumeMessages.ResumeTimeUtc.Ticks - Data.OriginalScheduleStartTime.Ticks;
 
-            var trackingData = RavenScheduleDocuments.GetPausedScheduleTrackingData(Data.CoordinatorId);
+            var trackingData = RavenScheduleDocuments.GetActiveScheduleTrackingData(Data.CoordinatorId);
             var resumeMessageCommands = trackingData.Select(i => new ResumeScheduledMessageWithOffset(i.ScheduleId, new TimeSpan(offset))).ToList();
 
             foreach (var resumeScheduledMessageWithOffset in resumeMessageCommands)
@@ -171,7 +171,7 @@ namespace SmsCoordinator
             if (Data.LastUpdatingCommandRequestUtc != null && Data.LastUpdatingCommandRequestUtc > rescheduleTrickledMessages.MessageRequestTimeUtc)
                 return;
 
-            var trackingData = RavenScheduleDocuments.GetPausedScheduleTrackingData(Data.CoordinatorId);
+            var trackingData = RavenScheduleDocuments.GetActiveScheduleTrackingData(Data.CoordinatorId);
 
             var messageResumeSpan = (rescheduleTrickledMessages.FinishTimeUtc.Ticks - rescheduleTrickledMessages.ResumeTimeUtc.Ticks);
             long messageOffset = 0;

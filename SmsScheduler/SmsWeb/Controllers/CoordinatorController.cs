@@ -5,7 +5,6 @@ using System.Web.Mvc;
 using ConfigurationModels;
 using NServiceBus;
 using Raven.Client;
-using SmsCoordinator;
 using SmsMessages.Coordinator.Commands;
 using SmsTrackingModels;
 using SmsWeb.Models;
