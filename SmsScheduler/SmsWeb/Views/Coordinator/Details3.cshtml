@@ -10,6 +10,7 @@
 <script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
 <script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
 <script type="text/javascript" src="~/Scripts/tinysort-1.5.2.js"></script>
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
 
 <script type="text/javascript">
     $(function () {
@@ -132,7 +133,7 @@
 
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.MessageCount)
+         @Html.DisplayName("Number of messages")
         @Html.DisplayFor(model => model.MessageCount)
     </div>
 
@@ -143,19 +144,29 @@
     </div>
 
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.MessageBody)
+         @Html.DisplayName("Message Body")
         @Html.DisplayFor(model => model.MessageBody)
     </div>
 
 
     <div>
         <ul>
-        @{
-            foreach (var statusCounter in Model.StatusCounters)
-            {
-                <li>@statusCounter.Status : @statusCounter.Count </li>
+            @{
+                foreach (var statusCounter in Model.StatusCounters.OrderBy(s => s.Status).ToList())
+                {
+                    if (statusCounter.Status == "Failed")
+                    {
+                        <li>@Ajax.ActionLink(statusCounter.Status, "ScheduleFailedDetails", "Coordinator", new { coordinatorId = Model.CoordinatorId }, new AjaxOptions { UpdateTargetId = "FailedDetails"}) : @statusCounter.Count </li>
+                    }
+                    else
+                    {
+                        <li>@statusCounter.Status : @statusCounter.Count </li>    
+                    }
+                
+                }
             }
-        }
         </ul>
     </div>
+    
+    <div id="FailedDetails"></div>
 </fieldset>

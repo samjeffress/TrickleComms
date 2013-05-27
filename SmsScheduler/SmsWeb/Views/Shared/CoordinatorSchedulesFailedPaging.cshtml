@@ -1,0 +1,14 @@
+﻿@model SmsWeb.Models.PagedResult<SmsWeb.Models.ScheduleFailedModel>
+<div>
+@{for(int i = 0; i < Model.TotalPages; i++)
+{
+    if (i == Model.CurrentPage)
+    {
+        @Html.Raw(" " + i + " ")
+    }
+    else
+    {
+        @Ajax.ActionLink(i.ToString(), "ScheduleFailedDetails", "Coordinator", new { coordinatorId = Model.CoordinatorId, page = i }, new AjaxOptions { UpdateTargetId = "FailedDetails", InsertionMode = InsertionMode.Replace})
+    }
+}}
+</div>
