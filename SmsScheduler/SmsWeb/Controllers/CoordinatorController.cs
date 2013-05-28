@@ -198,11 +198,14 @@ namespace SmsWeb.Controllers
                                                   CurrentStatus = coordinatorTrackingData.CurrentStatus,
                                                   Topic = coordinatorTrackingData.MetaData.Topic,
                                                   Tags = coordinatorTrackingData.MetaData.Tags,
-                                                  StatusCounters =
-                                                      coordinatorSummary.Select(
+                                                  CoordinatorCounters = new CoordinatorStatusCounters 
+                                                  { 
+                                                      CoordinatorId = coordinatorTrackingData.CoordinatorId,
+                                                      StatusCounters = coordinatorSummary.Select(
                                                           s => new StatusCounter {Count = s.Count, Status = s.Status})
                                                           .OrderBy(s => s.Status)
-                                                          .ToList(),
+                                                          .ToList()
+                                                  },
                                                   MessageCount = coordinatorTrackingData.MessageCount,
                                                   MessageBody = coordinatorTrackingData.MessageBody
                                               };
@@ -297,6 +300,21 @@ namespace SmsWeb.Controllers
                 var pages = (int)Math.Ceiling((double)stats.TotalResults / (double)pageSize);
                 var pagedResult = new PagedResult<ScheduleFailedModel> {CurrentPage = page, TotalPages = pages, ResultsPerPage = pageSize, ResultsList = pagedResults, CoordinatorId = coordinatorId};
                 return PartialView("CoordinatorSchedulesFailed", pagedResult);
+            }
+        }
+
+        public PartialViewResult CoordinatorOverview(Guid coordinatorId)
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                        .Where(s => s.CoordinatorId == coordinatorId.ToString())
+                        .ToList();
+                var coordinatorStatusCounters = new CoordinatorStatusCounters
+                                                    {
+                                                        CoordinatorId = coordinatorId, StatusCounters = coordinatorSummary.Select(s => new StatusCounter {Count = s.Count, Status = s.Status}).OrderBy(s => s.Status).ToList()
+                                                    };
+                return PartialView("CoordinatorStatusSummary", coordinatorStatusCounters);
             }
         }
     }

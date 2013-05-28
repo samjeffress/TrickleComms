@@ -479,6 +479,8 @@
     <Content Include="Views\Coordinator\Details2.cshtml" />
     <Content Include="Views\Coordinator\Details3.cshtml" />
     <Content Include="Views\Shared\CoordinatorSchedulesFailed.cshtml" />
+    <Content Include="Views\Shared\CoordinatorSchedulesFailedPaging.cshtml" />
+    <Content Include="Views\Shared\CoordinatorStatusSummary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

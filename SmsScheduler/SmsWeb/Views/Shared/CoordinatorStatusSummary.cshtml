@@ -1,0 +1,19 @@
+﻿@model SmsWeb.Models.CoordinatorStatusCounters
+
+<div>
+    <ul>
+        @{
+            foreach (var statusCounter in Model.StatusCounters.OrderBy(s => s.Status).ToList())
+            {
+                if (statusCounter.Status == "Failed")
+                {
+                    <li>@Ajax.ActionLink(statusCounter.Status, "ScheduleFailedDetails", "Coordinator", new { coordinatorId = Model.CoordinatorId }, new AjaxOptions { UpdateTargetId = "FailedDetails"}) : @statusCounter.Count </li>
+                }
+                else
+                {
+                    <li>@statusCounter.Status : @statusCounter.Count </li>    
+                }
+            }
+        }
+    </ul>
+</div>

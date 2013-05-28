@@ -21,38 +21,16 @@
 
         var schedule = $.connection.scheduleStatus;
 
-        //schedule.client.updateSchedule = function (message) {
-        //    addMessageContent(message.ScheduleId, message.Body, message.Class, "2", "icon-time", message.Tooltip);
-        //};
-
-        //schedule.client.scheduleSent = function (message) {
-        //    var scheduleBody = "Number: " + message.Number + " </br>" +
-        //        "Status: Completed Success <br/> " +
-        //        "Time Sent: " + message.SentAt + " <br />" +
-        //        "Cost: " + message.Cost;
-        //    addMessageContent(message.ScheduleId, scheduleBody, message.Class, "4", "icon-ok", message.Tooltip);
-        //};
-        
-        //schedule.client.scheduleFailed = function (message) {
-        //    var scheduleBody = "Number: " + message.Number + " </br>" +
-        //        "Status: Completed Failure <br/> " +
-        //        "Sending Failed: " + message.SendFailedMessage;
-        //    addMessageContent(message.ScheduleId, scheduleBody, message.Class, "5", "icon-remove", message.Tooltip);
-        //};
-        
-        //schedule.client.messageScheduled = function (message) {
-        //    var scheduleBody = "Number: " + message.Number + " </br>" +
-        //        "Status: Scheduled <br/> " +
-        //        "Scheduled Time: " + message.ScheduledTime;
-        //    addMessageContent(message.ScheduleId, scheduleBody, message.Class, "2", "icon-time", message.Tooltip);
-        //};
-        
-        //schedule.client.messagePaused = function (message) {
-            
-        //    var scheduleBody = "Number: " + message.Number + " </br>" +
-        //        "Status: Paused <br/> ";
-        //    addMessageContent(message.ScheduleId, scheduleBody, message.Class, "3", "icon-pause", message.Tooltip);
-        //};
+        schedule.client.scheduleUpdated = function (message) {
+            if ('@Model.CoordinatorId.ToString()' == message.CoordinatorId) {
+                var urlString = '@Url.Action("CoordinatorOverview", "Coordinator", new { coordinatorId = Model.CoordinatorId })';
+                $.ajax({
+                    url: urlString,
+                }).done(function (data) {
+                    $('#CoordinatorStatusOverview').html(data);
+                });
+            }
+        };
         
         schedule.client.coordinatorCompleted = function (message) {
             var coordinatorSummary = "<div>Current Status: Complete</div>" +
@@ -61,12 +39,7 @@
         };
         
         // Start the connection
-        $.connection.hub.start().done(function() {
-            $("#broadcast").click(function () {
-                // Call the chat method on the server
-                status.server.send($('#msg').val());
-            });
-        });
+        $.connection.hub.start();
 
         $("#pauseForm").submit(function () {
             return confirm("Are you sure you want to pause the current coordinator?");
@@ -125,47 +98,25 @@
     }
 </div>
 
-
-
-
 <fieldset>
-    <legend>CoordinatorOverview</legend>
-
-
+    <legend>Coordinator Overview</legend>
     <div class="display-label">
-         @Html.DisplayName("Number of messages")
+        @Html.DisplayName("Number of messages")
         @Html.DisplayFor(model => model.MessageCount)
     </div>
 
-
     <div class="display-label">
-         @Html.DisplayNameFor(model => model.Topic)
+            @Html.DisplayNameFor(model => model.Topic)
         @Html.DisplayFor(model => model.Topic)
     </div>
 
     <div class="display-label">
-         @Html.DisplayName("Message Body")
+            @Html.DisplayName("Message Body")
         @Html.DisplayFor(model => model.MessageBody)
     </div>
 
-
-    <div>
-        <ul>
-            @{
-                foreach (var statusCounter in Model.StatusCounters.OrderBy(s => s.Status).ToList())
-                {
-                    if (statusCounter.Status == "Failed")
-                    {
-                        <li>@Ajax.ActionLink(statusCounter.Status, "ScheduleFailedDetails", "Coordinator", new { coordinatorId = Model.CoordinatorId }, new AjaxOptions { UpdateTargetId = "FailedDetails"}) : @statusCounter.Count </li>
-                    }
-                    else
-                    {
-                        <li>@statusCounter.Status : @statusCounter.Count </li>    
-                    }
-                
-                }
-            }
-        </ul>
+    <div id="CoordinatorStatusOverview">
+        @Html.Partial("CoordinatorStatusSummary", Model.CoordinatorCounters)
     </div>
     
     <div id="FailedDetails"></div>
