@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsWeb", "SmsWeb\SmsWeb.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsWebTests", "SmsWebTests\SmsWebTests.csproj", "{F3045BF7-6246-41E3-9E88-C88D632029FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsTrackingMessages", "SmsTrackingMessages\SmsTrackingMessages.csproj", "{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailSender", "EmailSender\EmailSender.csproj", "{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationModels", "ConfigurationModels\ConfigurationModels.csproj", "{39DA47DF-B0BF-4C61-975D-F4C3E93B1BC8}"
@@ -84,10 +82,6 @@ Global
 		{F3045BF7-6246-41E3-9E88-C88D632029FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3045BF7-6246-41E3-9E88-C88D632029FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3045BF7-6246-41E3-9E88-C88D632029FF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}.Debug|Any CPU.Deploy.0 = Debug|Any CPU

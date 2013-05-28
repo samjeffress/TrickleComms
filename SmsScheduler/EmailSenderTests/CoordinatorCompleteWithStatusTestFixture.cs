@@ -7,7 +7,6 @@ using NUnit.Framework;
 using Raven.Client;
 using Rhino.Mocks;
 using SmsMessages.Email.Commands;
-using SmsTrackingMessages.Messages;
 
 namespace EmailSenderTests
 {

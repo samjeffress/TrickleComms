@@ -8,7 +8,6 @@ using SmsMessages.Coordinator.Commands;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Email.Commands;
 using SmsMessages.Scheduling.Commands;
-using SmsTrackingMessages.Messages;
 
 namespace SmsCoordinator
 {
