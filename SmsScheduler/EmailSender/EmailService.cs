@@ -5,6 +5,7 @@ using System.Text;
 using ConfigurationModels;
 using NServiceBus;
 using SmsMessages.Coordinator.Events;
+using SmsMessages.Email.Commands;
 using SmsMessages.MessageSending.Events;
 using SmsTrackingMessages.Messages;
 
