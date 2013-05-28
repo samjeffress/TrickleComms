@@ -72,7 +72,6 @@
   <ItemGroup>
     <Compile Include="CoordinatorTracker.cs" />
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsSentTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

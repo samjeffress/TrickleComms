@@ -17,6 +17,7 @@ namespace SmsCoordinator
         bool AreCoordinatedSchedulesComplete(Guid coordinatorId);
         void SaveCoordinator(CoordinatorCreated message);
         void MarkCoordinatorAsComplete(Guid coordinatorId, DateTime utcCompleteDate);
+        List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult> GetScheduleSummary(Guid coordinatorId);
     }
 
     public class RavenScheduleDocuments : IRavenScheduleDocuments
@@ -140,6 +141,18 @@ namespace SmsCoordinator
                 coordinatorTrackingData.CompletionDateUtc = utcCompleteDate;
                 coordinatorTrackingData.CurrentStatus = CoordinatorStatusTracking.Completed;
                 session.SaveChanges();
+            }
+        }
+
+        public List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult> GetScheduleSummary(Guid coordinatorId)
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                        .Where(s => s.CoordinatorId == coordinatorId.ToString())
+                        .ToList();
+
+                return coordinatorSummary;
             }
         }
     }

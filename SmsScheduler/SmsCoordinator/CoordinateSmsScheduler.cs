@@ -7,6 +7,7 @@ using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Commands;
+using SmsTrackingMessages.Messages;
 
 namespace SmsCoordinator
 {
@@ -36,6 +37,9 @@ namespace SmsCoordinator
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             Data.OriginalScheduleStartTime = message.StartTimeUtc;
+            Data.EmailAddresses = message.ConfirmationEmails;
+            Data.UserOlsenTimeZone = message.UserOlsenTimeZone;
+            Data.Topic = message.MetaData.Topic;
             var messageTiming = TimingManager.CalculateTiming(message.StartTimeUtc, message.Duration, message.Messages.Count);
             var lastScheduledMessageTime = message.StartTimeUtc.Add(message.Duration);
             var messageList = new List<ScheduleSmsForSendingLater>();
@@ -69,6 +73,9 @@ namespace SmsCoordinator
         {
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             Data.OriginalScheduleStartTime = message.StartTimeUtc;
+            Data.EmailAddresses = message.ConfirmationEmails;
+            Data.UserOlsenTimeZone = message.UserOlsenTimeZone;
+            Data.Topic = message.MetaData.Topic;
             var messageList = new List<ScheduleSmsForSendingLater>();
             DateTime lastScheduledMessageTime = DateTime.Now;
             for(int i = 0; i < message.Messages.Count; i++)
@@ -106,6 +113,9 @@ namespace SmsCoordinator
             // TODO: make a timeout for this then just send the messsages directly to the sms actioner
             Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
             Data.OriginalScheduleStartTime = message.SendTimeUtc;
+            Data.EmailAddresses = message.ConfirmationEmails;
+            Data.UserOlsenTimeZone = message.UserOlsenTimeZone;
+            Data.Topic = message.MetaData.Topic;
             var messageList = new List<ScheduleSmsForSendingLater>();
             for (int i = 0; i < message.Messages.Count; i++)
             {
@@ -192,6 +202,7 @@ namespace SmsCoordinator
             if (RavenScheduleDocuments.AreCoordinatedSchedulesComplete(Data.CoordinatorId))
             {
                 Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
+                Bus.Send(CreateCompletedEmail());
                 RavenScheduleDocuments.MarkCoordinatorAsComplete(Data.CoordinatorId, DateTime.UtcNow);
                 MarkAsComplete();
             }
@@ -207,6 +218,30 @@ namespace SmsCoordinator
                     RequestUtcTimeout<CoordinatorTimeout>(expectedMaxScheduleDate.AddMinutes(2));
                 }
             }
+        }
+
+        private CoordinatorCompleteEmailWithSummary CreateCompletedEmail()
+        {
+            var coordinatorCompleteEmail = new CoordinatorCompleteEmailWithSummary
+            {
+                CoordinatorId = Data.CoordinatorId,
+                EmailAddresses = Data.EmailAddresses,
+                FinishTimeUtc = DateTime.UtcNow,
+                StartTimeUtc = Data.OriginalScheduleStartTime,
+                UserOlsenTimeZone = Data.UserOlsenTimeZone,
+                Topic = Data.Topic,
+            };
+            var scheduleSummary = RavenScheduleDocuments.GetScheduleSummary(Data.CoordinatorId);
+            var failedCounter = scheduleSummary.FirstOrDefault(s => s.Status == "Failed");
+            if (failedCounter != null)
+                coordinatorCompleteEmail.FailedCount = failedCounter.Count;
+            var successCounter = scheduleSummary.FirstOrDefault(s => s.Status == "Success");
+            if (successCounter != null)
+            {
+                coordinatorCompleteEmail.SuccessCount = successCounter.Count;
+                coordinatorCompleteEmail.Cost = successCounter.Cost;
+            }
+            return coordinatorCompleteEmail;
         }
     }
 
@@ -225,5 +260,11 @@ namespace SmsCoordinator
         public Guid CoordinatorId { get; set; }
 
         public DateTime? LastUpdatingCommandRequestUtc { get; set; }
+
+        public List<string> EmailAddresses { get; set; }
+
+        public string Topic { get; set; }
+
+        public string UserOlsenTimeZone { get; set; }
     }
 }

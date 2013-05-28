@@ -98,6 +98,9 @@
     <None Include="Templates\CoordinatorFinished.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Templates\CoordinatorFinishedWithSummary.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ConfigurationModels\ConfigurationModels.csproj">
