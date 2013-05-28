@@ -70,7 +70,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoordinatorTracker.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="SmsSentTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

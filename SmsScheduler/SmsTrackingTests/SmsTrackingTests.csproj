@@ -77,7 +77,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RavenTestBase.cs" />
-    <Compile Include="SmsCoordinatorTestFixture.cs" />
     <Compile Include="SmsSentTrackerTestFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

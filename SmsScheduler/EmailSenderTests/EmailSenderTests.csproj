@@ -76,7 +76,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoordinatorCompleteTestFixture.cs" />
     <Compile Include="CoordinatorCompleteWithStatusTestFixture.cs" />
     <Compile Include="CoordinatorCreatedTestFixture.cs" />
     <Compile Include="MessageNotSentTestFixture.cs" />

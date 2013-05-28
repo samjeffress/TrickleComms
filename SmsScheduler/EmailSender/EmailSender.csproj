@@ -95,9 +95,6 @@
     <None Include="Templates\CoordinatorCreated.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Templates\CoordinatorFinished.cshtml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="Templates\CoordinatorFinishedWithSummary.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
