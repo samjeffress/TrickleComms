@@ -71,7 +71,6 @@ function InstallEndpoints
 
     InstallService "SmsCoordinator" "Service for coordinating sms"
     InstallService "EmailSender" "Service for sending emails from Sms Coordinator"
-    InstallService "SmsTracking" "Service for tracking status of coordinated and Sms"
     InstallService "SmsScheduler" "Service for scheduling sms messages"
     InstallService "SmsActioner" "Service for delivering sms"
 }
@@ -176,34 +175,6 @@ function UnitTests
 	}
 }
 
-function UninstallEndpoints
-{
-	if(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue)
-	{
-		Stop-Service SmsEmailSender
-		"service exists (smsemailsender) - uninstalling"
-		$service = get-wmiobject -class win32_service -filter "name='SmsEmailSender'"
-$service
-		$service.delete()
-	}
-
-	if(Get-Service "SmsCoordinator" -ErrorAction SilentlyContinue)
-	{
-		Stop-Service SmsCoordinator
-		"Service Exists (SmsCoordinator) - Uninstalling"
-		$service = Get-WmiObject -Class Win32_Service -Filter "Name='SmsCoordinator'"
-		$service.delete()
-	}
-
-	if(Get-Service "SmsTracking" -ErrorAction SilentlyContinue)
-	{
-		Stop-Service SmsTracking
-		"Service Exists (SmsTracking) - Uninstalling"
-		$service = Get-WmiObject -Class Win32_Service -Filter "Name='SmsTracking'"
-		$service.delete()
-	}
-}
-
 function StopEndpoints
 {
 	if(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue)
@@ -216,12 +187,6 @@ function StopEndpoints
 	{
 		"Stopping service SmsCoordinator"
 		Stop-Service SmsCoordinator
-	}
-
-	if(Get-Service "SmsTracking" -ErrorAction SilentlyContinue)
-	{
-		"Stopping service SmsTracking"
-		Stop-Service SmsTracking
 	}
 
 	if(Get-Service "SmsScheduler" -ErrorAction SilentlyContinue)
