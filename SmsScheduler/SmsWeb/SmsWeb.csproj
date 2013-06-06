@@ -282,6 +282,8 @@
     <Compile Include="Models\DefaultEmailModel.cs" />
     <Compile Include="Models\FileTypesAttribute.cs" />
     <Compile Include="Models\HomeInputModel.cs" />
+    <Compile Include="Models\PagedResult.cs" />
+    <Compile Include="Models\ScheduleFailedModel.cs" />
     <Compile Include="Models\ScheduleModel.cs" />
     <Compile Include="Models\SearchByNumberResult.cs" />
     <Compile Include="Models\SendNowModel.cs" />
@@ -476,6 +478,9 @@
     <Content Include="Scripts\tinysort-1.5.2.js" />
     <Content Include="Views\Coordinator\Details2.cshtml" />
     <Content Include="Views\Coordinator\Details3.cshtml" />
+    <Content Include="Views\Shared\CoordinatorSchedulesFailed.cshtml" />
+    <Content Include="Views\Shared\CoordinatorSchedulesFailedPaging.cshtml" />
+    <Content Include="Views\Shared\CoordinatorStatusSummary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

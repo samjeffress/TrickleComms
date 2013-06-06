@@ -95,7 +95,7 @@
     <None Include="Templates\CoordinatorCreated.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Templates\CoordinatorFinished.cshtml">
+    <None Include="Templates\CoordinatorFinishedWithSummary.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -107,10 +107,6 @@
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
       <Project>{024BB854-56C8-4A03-A9DE-68FF4FE1FBA7}</Project>
       <Name>SmsMessages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SmsTrackingMessages\SmsTrackingMessages.csproj">
-      <Project>{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}</Project>
-      <Name>SmsTrackingMessages</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

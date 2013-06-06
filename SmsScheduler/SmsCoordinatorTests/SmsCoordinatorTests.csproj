@@ -98,9 +98,9 @@
       <Project>{024BB854-56C8-4A03-A9DE-68FF4FE1FBA7}</Project>
       <Name>SmsMessages</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SmsTrackingMessages\SmsTrackingMessages.csproj">
-      <Project>{edc8d3fe-3a41-4c87-96b8-5e54cf34a3c9}</Project>
-      <Name>SmsTrackingMessages</Name>
+    <ProjectReference Include="..\SmsTrackingModels\SmsTrackingModels.csproj">
+      <Project>{BD305005-40FD-4C3A-A893-6E7E5989C66A}</Project>
+      <Name>SmsTrackingModels</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmsTrackingModels\SmsTrackingModels.csproj">
       <Project>{BD305005-40FD-4C3A-A893-6E7E5989C66A}</Project>

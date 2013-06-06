@@ -20,9 +20,16 @@ namespace SmsWeb.Models
 
         public string Topic { get; set; }
 
-        public List<StatusCounter> StatusCounters { get; set; }
+        public CoordinatorStatusCounters CoordinatorCounters { get; set; }
 
         public string MessageBody { get; set; }
+    }
+
+    public class CoordinatorStatusCounters
+    {
+        public Guid CoordinatorId { get; set; }
+
+        public List<StatusCounter> StatusCounters { get; set; }
     }
 
     public class StatusCounter

@@ -10,7 +10,8 @@
         Total cost of sending @Model.SuccessfulMessageCount - $@Model.TotalCost.
     </p>
     <p>
-        @Model.SuccessfulMessageCount of @Model.MessageCount were successfully delivered. For details on any messages that didn't make it please see the history page of your coordinator.
+        @Model.SuccessfulMessageCount of @Model.MessageCount were successfully delivered. 
+        @Model.UnsuccessfulMessageCount were not able to be delivered - for more details please see the history page of your coordinator.
     </p>
     <p>
         Thanks for using the Sms Coordinator!

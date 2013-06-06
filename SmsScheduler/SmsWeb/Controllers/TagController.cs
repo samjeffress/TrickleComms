@@ -7,7 +7,6 @@ namespace SmsWeb.Controllers
 {
     public class TagController : Controller
     {
-
         public IRavenDocStore RavenDocStore { get; set; }
 
         public JsonResult Index()

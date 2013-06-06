@@ -14,69 +14,51 @@ namespace SmsWeb
         , IHandleMessages<CoordinatorCompleted>
         , IHandleMessages<CoordinatorCreated>
     {
+        public IRavenDocStore RavenDocStore { get; set; }
+
         public void Handle(ScheduledSmsSent message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.scheduleSent(new
-                {
-                    ScheduleId = message.ScheduledSmsId, 
-                    Number = message.Number, 
-                    SentAt = message.ConfirmationData.SentAtUtc.ToLocalTime(), 
-                    Cost = message.ConfirmationData.Price,
-                    Class = "success",
-                    Tooltip = message.Number
-                });
+            context.Clients.All.scheduleUpdated(new
+            {
+                message.CoordinatorId
+            });
         }
 
         public void Handle(ScheduledSmsFailed message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.scheduleFailed(new
-                {
-                    ScheduleId = message.ScheduledSmsId, 
-                    Number = message.Number,
-                    SendFailedMessage = message.SmsFailedData.Message,
-                    Class = "fail",
-                    Tooltip = message.Number + " " + message.SmsFailedData.Message
-                });
+            context.Clients.All.scheduleUpdated(new
+            {
+                message.CoordinatorId
+            });
         }
 
         public void Handle(SmsScheduled message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.messageScheduled(new
+            context.Clients.All.scheduleUpdated(new
                 {
-                    ScheduleId = message.ScheduleMessageId, 
-                    Number = message.SmsData.Mobile,
-                    ScheduledTime = message.ScheduleSendingTimeUtc.ToLocalTime(),
-                    Class = "scheduled",
-                    Tooltip = message.SmsData.Mobile
+                    message.CoordinatorId
                 });
         }
 
         public void Handle(MessageRescheduled message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.messageScheduled(new
-                {
-                    ScheduleId = message.ScheduleMessageId, 
-                    Number = message.Number,
-                    ScheduledTime = message.RescheduledTimeUtc.ToLocalTime(),
-                    Class = "scheduled",
-                    Tooltip = message.Number
-                });
+            context.Clients.All.scheduleUpdated(new
+            {
+                message.CoordinatorId
+            });
         }
 
         public void Handle(MessageSchedulePaused message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.messagePaused(new
-                {
-                    ScheduleId = message.ScheduleId, 
-                    Number = message.Number,
-                    Class = "paused",
-                    Tooltip = message.Number
-                });
+            context.Clients.All.scheduleUpdated(new
+            {
+                message.CoordinatorId
+            });
         }
 
         public void Handle(CoordinatorCompleted message)

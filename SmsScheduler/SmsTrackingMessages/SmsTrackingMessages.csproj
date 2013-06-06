@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Messages\CoordinatorCompleteEmail.cs" />
+    <Compile Include="Messages\CoordinatorCompleteEmailWithSummary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

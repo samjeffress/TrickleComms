@@ -1,0 +1,24 @@
+﻿@model SmsWeb.Models.PagedResult<SmsWeb.Models.ScheduleFailedModel>
+@Html.Partial("CoordinatorSchedulesFailedPaging", Model)
+<table>
+    <thead>
+        <tr>
+            <td>Number</td>
+            <td>Error Message</td>
+            <td>Error Code</td>
+        </tr>
+    </thead>
+    <tbody>
+        @{foreach (var result in Model.ResultsList)
+          {
+              <tr>
+                  <td>@result.Number</td>            
+                  <td>@result.ErrorMessage</td>            
+                  <td><a href="@result.ErrorMoreInfo">@result.ErrorCode</a></td>          
+              </tr>
+          }
+        }
+    </tbody>
+</table>
+
+@Html.Partial("CoordinatorSchedulesFailedPaging", Model)

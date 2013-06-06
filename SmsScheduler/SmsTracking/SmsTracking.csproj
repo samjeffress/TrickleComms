@@ -70,9 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoordinatorTracker.cs" />
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsSentTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -84,10 +82,6 @@
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
       <Project>{024BB854-56C8-4A03-A9DE-68FF4FE1FBA7}</Project>
       <Name>SmsMessages</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SmsTrackingMessages\SmsTrackingMessages.csproj">
-      <Project>{EDC8D3FE-3A41-4C87-96B8-5E54CF34A3C9}</Project>
-      <Name>SmsTrackingMessages</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmsTrackingModels\SmsTrackingModels.csproj">
       <Project>{bd305005-40fd-4c3a-a893-6e7e5989c66a}</Project>
