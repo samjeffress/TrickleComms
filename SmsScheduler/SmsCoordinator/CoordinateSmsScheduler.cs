@@ -235,7 +235,7 @@ namespace SmsCoordinator
             var failedCounter = scheduleSummary.FirstOrDefault(s => s.Status == "Failed");
             if (failedCounter != null)
                 coordinatorCompleteEmail.FailedCount = failedCounter.Count;
-            var successCounter = scheduleSummary.FirstOrDefault(s => s.Status == "Success");
+            var successCounter = scheduleSummary.FirstOrDefault(s => s.Status == "Sent");
             if (successCounter != null)
             {
                 coordinatorCompleteEmail.SuccessCount = successCounter.Count;

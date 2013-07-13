@@ -201,3 +201,36 @@ function StopEndpoints
 		Stop-Service SmsActioner
 	}
 }
+
+function StopEndpoints
+{
+	if(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsEmailSender"
+		Stop-Service SmsEmailSender
+	}
+
+	if(Get-Service "SmsCoordinator" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsCoordinator"
+		Stop-Service SmsCoordinator
+	}
+
+	if(Get-Service "SmsTracking" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsTracking"
+		Stop-Service SmsTracking
+	}
+
+	if(Get-Service "SmsScheduler" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsScheduler"
+		Stop-Service SmsScheduler
+	}
+
+	if(Get-Service "SmsActioner" -ErrorAction SilentlyContinue)
+	{
+		"Stopping service SmsActioner"
+		Stop-Service SmsActioner
+	}
+}

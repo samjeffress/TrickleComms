@@ -1,3 +1,4 @@
+using System;
 using System.Configuration;
 using Raven.Client;
 using Raven.Client.Document;
@@ -17,7 +18,7 @@ namespace SmsWeb
         private readonly IDocumentStore _documentStore;
         public RavenDocStore()
         {
-            _documentStore = new DocumentStore { Url = ConfigurationManager.AppSettings["RAVENHQ_CONNECTION_STRING"], DefaultDatabase = "SmsTracking" };
+            _documentStore = new DocumentStore { Url = ConfigurationManager.AppSettings["RAVENHQ_CONNECTION_STRING"], DefaultDatabase = "SmsTracking", ResourceManagerId = Guid.NewGuid() };
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("Configuration");
             _documentStore.DatabaseCommands.EnsureDatabaseExists("SmsTracking");
