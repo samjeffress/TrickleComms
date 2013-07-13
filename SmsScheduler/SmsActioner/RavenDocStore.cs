@@ -1,3 +1,4 @@
+using System;
 using Raven.Client;
 using Raven.Client.Document;
 using Raven.Client.Extensions;
@@ -14,7 +15,7 @@ namespace SmsActioner
         private readonly IDocumentStore _documentStore;
         public RavenDocStore()
         {
-            _documentStore = new DocumentStore { Url = "http://localhost:8080" };
+            _documentStore = new DocumentStore { Url = "http://localhost:8080", ResourceManagerId = Guid.NewGuid() };
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("Configuration");
         }
