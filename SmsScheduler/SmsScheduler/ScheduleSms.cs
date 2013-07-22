@@ -51,7 +51,8 @@ namespace SmsScheduler
                         ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId,
                         SmsData = scheduleSmsForSendingLater.SmsData,
                         SmsMetaData = scheduleSmsForSendingLater.SmsMetaData,
-                        ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc
+                        ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc,
+                        CoordinatorId = scheduleSmsForSendingLater.CorrelationId
                     };
                     session.Store(scheduleTracker, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
                 }
