@@ -27,12 +27,19 @@ namespace SmsActioner
                 .LoadMessageHandlers();
 //                .RavenSubscriptionStorage();
 
+            const string listeningOn = "http://*:1337/";
+            var appHost = new AppHost();
+            appHost.Init();
+            appHost.Start(listeningOn);
+
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<TwilioWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
 
             configure.CreateBus()
             .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+
+
         }
     }
 }
