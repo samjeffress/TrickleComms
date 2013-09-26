@@ -99,6 +99,7 @@
     <Compile Include="RavenDocStore.cs" />
     <Compile Include="SmsActioner.cs" />
     <Compile Include="SmsReceivedHandler.cs" />
+    <Compile Include="SmsSentTracker.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -112,6 +113,10 @@
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
       <Project>{024bb854-56c8-4a03-a9de-68ff4fe1fba7}</Project>
       <Name>SmsMessages</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SmsTrackingModels\SmsTrackingModels.csproj">
+      <Project>{BD305005-40FD-4C3A-A893-6E7E5989C66A}</Project>
+      <Name>SmsTrackingModels</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

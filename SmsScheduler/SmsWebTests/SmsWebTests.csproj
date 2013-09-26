@@ -121,14 +121,6 @@
       <Project>{BD305005-40FD-4C3A-A893-6E7E5989C66A}</Project>
       <Name>SmsTrackingModels</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SmsTrackingTests\SmsTrackingTests.csproj">
-      <Project>{9CF230DD-C4BC-46CA-A209-93CD897982ED}</Project>
-      <Name>SmsTrackingTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SmsTracking\SmsTracking.csproj">
-      <Project>{03281013-E596-424F-A9F5-88BFA5704C8B}</Project>
-      <Name>SmsTracking</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SmsWeb\SmsWeb.csproj">
       <Project>{3D7DD4C4-7DAC-43CC-AB86-7849FA1F2DA2}</Project>
       <Name>SmsWeb</Name>
