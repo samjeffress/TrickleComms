@@ -38,8 +38,6 @@ namespace SmsActioner
 
             configure.CreateBus()
             .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
-
-
         }
     }
 }

@@ -13,10 +13,18 @@ namespace SmsActioner
     {
         public IBus Bus { get; set; }
 
+        public IRavenDocStore RavenDocStore { get; set; }
+
         [Authenticate]
         public void Get(SmsReceieved smsReceieved)
         {
             // publish message   
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                session.Store(smsReceieved);
+                session.SaveChanges();
+            }
+
             Console.WriteLine("Wassup!");
         }
     }
