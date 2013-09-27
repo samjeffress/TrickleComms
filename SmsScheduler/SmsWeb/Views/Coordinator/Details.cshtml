@@ -174,6 +174,7 @@
     @if(Model.CompletionDateUtc.HasValue)
     {
         <div>Completion Date: @Model.CompletionDateUtc.Value.ToLocalTime()</div>
+        @*
         if (Model.MessageStatuses.Sum(m => m.Cost).HasValue)
         {
             var totalCost = Model.MessageStatuses.Sum(m => m.Cost).Value*-1;
@@ -183,12 +184,12 @@
         foreach (var v in group)
         {
             <div>@v.Key : @v.Count()</div>
-        }
+        }*@
 
     }
 </div>
 <div class="control-group"><a href="#" id="hide">Hide Details</a></div>
-<ul class="fullList">
+@*<ul class="fullList">
 @foreach(var message in Model.MessageStatuses)
 {
     var liClass = "";
@@ -230,4 +231,4 @@
         </div>
     </li>
 }
-</ul>
+</ul>*@
