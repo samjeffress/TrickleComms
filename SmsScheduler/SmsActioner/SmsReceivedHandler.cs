@@ -6,6 +6,7 @@ using ServiceStack.CacheAccess.Providers;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.WebHost.Endpoints;
+using SmsMessages.MessageSending.Events;
 
 namespace SmsActioner
 {
@@ -18,14 +19,21 @@ namespace SmsActioner
         [Authenticate]
         public void Get(SmsReceieved smsReceieved)
         {
-            // publish message   
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 session.Store(smsReceieved);
                 session.SaveChanges();
             }
-
-            Console.WriteLine("Wassup!");
+            Bus.Publish<MessageReceived>(s =>
+                {
+                    s.Sid = smsReceieved.Sid;
+                    s.AccountSid = smsReceieved.AccountSid;
+                    s.From = smsReceieved.From;
+                    s.To = smsReceieved.To;
+                    s.Body = smsReceieved.Body;
+                    s.DateSent = smsReceieved.DateSent;
+                    s.Price = smsReceieved.Price;
+                });
         }
     }
 
@@ -55,7 +63,6 @@ namespace SmsActioner
             Plugins.Add(new AuthFeature(() => new AuthUserSession(), new IAuthProvider[] { new BasicAuthProvider() }));
             Plugins.Add(new RegistrationFeature());
             container.Register<ICacheClient>(new MemoryCacheClient());
-            //var userRep = new InMemoryAuthRepository();
             var userRep = new BasicAuthImpl();
             container.Register<IUserAuthRepository>(userRep);
             Routes.Add<SmsReceieved>("/SmsIncoming/");
@@ -79,6 +86,7 @@ namespace SmsActioner
             throw new NotImplementedException();
         }
 
+        // TODO : Make this not be l33t hardcoded auth
         public bool TryAuthenticate(string userName, string password, out UserAuth userAuth)
         {
             if (!string.IsNullOrWhiteSpace(userName) && userName.Equals("Aladdin")

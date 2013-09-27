@@ -49,6 +49,7 @@
     <Compile Include="Coordinator\Events\CoordinatorCreated.cs" />
     <Compile Include="Email\Commands\CoordinatorCompleteEmailWithSummary.cs" />
     <Compile Include="MessageSending\Events\MessageFailedSending.cs" />
+    <Compile Include="MessageSending\Events\MessageReceived.cs" />
     <Compile Include="Scheduling\Commands\RescheduleScheduledMessageWithNewTime.cs" />
     <Compile Include="Scheduling\Events\MessageRescheduled.cs" />
     <Compile Include="Scheduling\Events\MessageSchedulePaused.cs" />
