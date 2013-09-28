@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using ConfigurationModels;
+using EmailSender.Models;
 using NServiceBus;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Email.Commands;
@@ -77,15 +78,15 @@ namespace EmailSender
                     DateTimeOlsenFromUtcMapping.DateTimeUtcToLocalWithOlsenZone(
                         message.ScheduledMessages.Select(s => s.ScheduledTimeUtc).Max(), message.UserOlsenTimeZone);
 
-                var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorCreated.cshtml", new
+                var body = EmailTemplateResolver.GetEmailBody(@"Templates\CoordinatorCreated.cshtml", new CoordinatorCreatedEmailModel
                     {
-                        message.CoordinatorId,
+                        CoordinatorId = message.CoordinatorId,
                         CreationDateUserZone = creationDateUserZone,
                         MessageCount = message.ScheduledMessages.Count,
                         StartTimeUserZone = startTimeUserZone,
                         EndTimeUserZone = endTimeUserZone,
                         UserTimeZone = message.UserOlsenTimeZone,
-                        message.MetaData.Topic
+                        Topic = message.MetaData.Topic
                     });
 
                 var mailMessage = new MailMessage();

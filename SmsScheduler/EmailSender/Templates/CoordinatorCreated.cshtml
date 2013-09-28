@@ -1,18 +1,29 @@
+
 <html>
 <head>
-    <title>Coordinator Created</title>
+    <title>@Model.Topic Created</title>
 </head>
 <body>
     <p>
-        Coordinator messages @Model.Topic (@Model.CoordinatorId) created at @Model.CreationDateUserZone (@Model.UserTimeZone)
+        @Model.Topic (@Model.CoordinatorId) created at @Model.CreationDateUserZone (@Model.UserTimeZone).
+    </p>
+@{if (Model.MessageCount > 1)
+    {
+        <p>@Model.MessageCount messages will be sent between @Model.StartTimeUserZone (@Model.UserTimeZone) and @Model.EndTimeUserZone (@Model.UserTimeZone).</p>
+    }
+    else
+    {
+        <p>@Model.MessageCount message will be sent at @Model.StartTimeUserZone (@Model.UserTimeZone).</p>
+    }
+}
+    <p>
+        To update or change these details, please go to the history page, you can then find the topic of your choice and pause / reschedule if necessary.
     </p>
     <p>
-        @Model.MessageCount messages will be sent between @Model.StartTimeUserZone (@Model.UserTimeZone) and @Model.EndTimeUserZone (@Model.UserTimeZone).
-    <p>
-        To update or change these details, please go to your Sms Coordinator website and view the coordinator history. You can then find the topic of your choice and pause / reschedule if necessary.
+        Once the messages have been sent you will get an email with a summary of the results.
     </p>
     <p>
-        Once the coordinator has completed you will get a message with a summary of the results.
+        Thanks for using <a href="http://tricklesms.com">Trickle Sms</a>.
     </p>
 </body>
 </html>

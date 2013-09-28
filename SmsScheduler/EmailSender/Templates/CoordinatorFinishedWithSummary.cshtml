@@ -1,20 +1,42 @@
 <html>
 <head>
-    <title>Coordinator Completed</title>
+    <title>@Model.Topic Completed</title>
 </head>
 <body>
     <p>
-        Coordinator messages @Model.Topic (@Model.CoordinatorId) completed at @Model.FinishTimeUserZone (@Model.UserTimeZone)
+        @Model.Topic (@Model.CoordinatorId) completed at @Model.FinishTimeUserZone (@Model.UserTimeZone).
     </p>
     <p>
-        Total cost of sending @Model.SuccessfulMessageCount - $@Model.TotalCost.
+        @{
+            var messageOrMessages = Model.SuccessfulMessageCount > 1 ? "messages" : "message";
+        }
+        Total cost of sending @Model.SuccessfulMessageCount @messageOrMessages - $@Math.Abs(Model.TotalCost).
     </p>
+@{
+if (Model.MessageCount > 1)
+{
+    if (Model.SuccessfulMessageCount > 0){
+        var wasOrWere = Model.UnsuccessfulMessageCount > 1 ? "were" : "was";
+        <p>@Model.SuccessfulMessageCount of @Model.MessageCount @wasOrWere successfully delivered. </p>
+    }
+    if (Model.UnsuccessfulMessageCount > 0){
+        var wasOrWere = Model.UnsuccessfulMessageCount > 1 ? "were" : "was";
+        <p>@Model.UnsuccessfulMessageCount @wasOrWere not able to be delivered - for more details please see the history page of your coordinator.</p>
+    }
+}
+else
+{
+    if (Model.SuccessfulMessageCount == 1)
+    {
+        <p>Message was successfully sent!</p>
+    }
+    else
+    {
+        <p>Message could not be delivered - for more details please see the history page</p>
+    }
+}}
     <p>
-        @Model.SuccessfulMessageCount of @Model.MessageCount were successfully delivered. 
-        @Model.UnsuccessfulMessageCount were not able to be delivered - for more details please see the history page of your coordinator.
-    </p>
-    <p>
-        Thanks for using the Sms Coordinator!
+        Thanks for using <a href="http://tricklesms.com">Trickle Sms</a>.
     </p>
 </body>
 </html>
