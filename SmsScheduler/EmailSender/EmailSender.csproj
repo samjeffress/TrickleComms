@@ -81,7 +81,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\CoordinatorCreatedEmailModel.cs" />
     <Compile Include="EmailService.cs" />
     <Compile Include="EmailTemplateResolver.cs" />
     <Compile Include="EndpointConfig.cs" />
