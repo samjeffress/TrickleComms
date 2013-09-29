@@ -128,24 +128,45 @@
     }
 </div>
 
-<fieldset>
-    <legend>Coordinator Overview</legend>
-    <div class="display-label">
-        @Html.DisplayName("Number of messages")
-        @Html.DisplayFor(model => model.MessageCount)
-    </div>
+<table class="table table-condensed">
+    <tr>
+        <td>Number of Messages</td>
+        <td>@Model.MessageCount</td>
+    </tr>
+    <tr>
+        <td>Message Body</td>
+        <td>@Model.MessageBody</td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div class="progress progress-striped active" style="max-width: 100%;">
+                <div class="bar bar-info" id="progress_waiting" title="Waiting to be scheduled"></div>
+                <div class="bar bar-info" id="progress_scheduled" title="Scheduled to be sent"></div>
+                <div class="bar bar-info" id="progress_paused" title="Paused"></div>
+                <div class="bar bar-success" id="progress_success" title="Delivered!"></div>
+                <div class="bar bar-danger" id="progress_failed" title="Delivery failed"></div>
+                <div class="bar bar-danger" id="progress_cancelled" title="Cancelled"></div>
+            </div>
+        </td>
+    </tr>
+</table>
 
-    <div class="display-label">
+@*<fieldset>
+    <legend>Coordinator Overview</legend>
+    <p>Number of messages: <b>@Model.MessageCount</b></p>
+
+    <div class="control-group">
         @Html.DisplayNameFor(model => model.Topic)
         @Html.DisplayFor(model => model.Topic)
     </div>
 
-    <div class="display-label">
+    <div class="control-group">
         @Html.DisplayName("Message Body")
         @Html.DisplayFor(model => model.MessageBody)
     </div>
+    
     <div>
-        <div class="progress progress-striped active" style="max-width: 50%;">
+        <div class="progress progress-striped active" style="max-width: 100%;">
             <div class="bar bar-info" id="progress_waiting" title="Waiting to be scheduled"></div>
             <div class="bar bar-info" id="progress_scheduled" title="Scheduled to be sent"></div>
             <div class="bar bar-info" id="progress_paused" title="Paused"></div>
@@ -154,10 +175,6 @@
             <div class="bar bar-danger" id="progress_cancelled" title="Cancelled"></div>
         </div>
     </div>
-
-    <div id="CoordinatorStatusOverview">
-        @Html.Partial("CoordinatorStatusSummary", Model.CoordinatorCounters)
-    </div>
     
     <div id="FailedDetails"></div>
-</fieldset>
+</fieldset>*@
