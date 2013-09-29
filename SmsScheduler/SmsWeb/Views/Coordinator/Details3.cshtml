@@ -14,19 +14,19 @@
 
 <script type="text/javascript">
     function setupProgressBar(sentMessages, failedMessages, scheduledMessages, pausedMessages, waitingforSchedulingMessages, cancelledMessages) { 
-        var scheduledPercentage = scheduledMessages / totalMessages * 100;
-        var sentPercentage = sentMessages / totalMessages * 100;
-        var failedPercentage = failedMessages / totalMessages * 100;
-        var pausedPercentage = pausedMessages / totalMessages * 100;
-        var waitingForSchedulingPercentage = waitingforSchedulingMessages / totalMessages * 100;
-        var cancelledPercentage = cancelledMessages / totalMessages * 100;
-        $('#progress_scheduled').width(scheduledPercentage + "%");
-        $('#progress_success').width(sentPercentage + "%");
-        $('#progress_failed').width(failedPercentage + "%");
-        $('#progress_paused').width(pausedPercentage + "%");
-        $('#progress_waiting').width(waitingForSchedulingPercentage + "%");
-        $('#progress_cancelled').width(cancelledPercentage + "%");
+        updateProgressBarSection(totalMessages, cancelledMessages, "progress_cancelled");
+        updateProgressBarSection(totalMessages, waitingforSchedulingMessages, "progress_waiting");
+        updateProgressBarSection(totalMessages, pausedMessages, "progress_paused");
+        updateProgressBarSection(totalMessages, failedMessages, "progress_failed");
+        updateProgressBarSection(totalMessages, sentMessages, "progress_success");
+        updateProgressBarSection(totalMessages, scheduledMessages, "progress_scheduled");
     };
+
+    function updateProgressBarSection(totalMessageCount, sectionMessageCount, divId) {
+        var sectionPercentage = sectionMessageCount / totalMessages * 100;
+        $('#' + divId).width(sectionPercentage + "%");
+        $('#' + divId).text(sectionMessageCount);
+    }
 
     $(function () {
         window.totalMessages = '@Model.MessageCount';
