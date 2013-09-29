@@ -1,8 +1,12 @@
-﻿using System.Threading;
+﻿using System;
+using System.Linq;
+using System.Threading;
 using Microsoft.AspNet.SignalR;
 using NServiceBus;
+using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Events;
+using SmsTrackingModels;
 
 namespace SmsWeb
 {
@@ -14,6 +18,15 @@ namespace SmsWeb
         , IHandleMessages<CoordinatorCompleted>
         , IHandleMessages<CoordinatorCreated>
     {
+        //public SmsScheduleStatusHandler()
+        //{
+            
+        //}
+
+        //public SmsScheduleStatusHandler(IRavenDocStore ravenDocStore)
+        //{
+        //    RavenDocStore = ravenDocStore;
+        //}
         public IRavenDocStore RavenDocStore { get; set; }
 
         public void Handle(ScheduledSmsSent message)
@@ -23,6 +36,8 @@ namespace SmsWeb
             {
                 message.CoordinatorId
             });
+
+            UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(ScheduledSmsFailed message)
@@ -32,6 +47,8 @@ namespace SmsWeb
             {
                 message.CoordinatorId
             });
+
+            UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(SmsScheduled message)
@@ -41,6 +58,8 @@ namespace SmsWeb
                 {
                     message.CoordinatorId
                 });
+
+            UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(MessageRescheduled message)
@@ -50,6 +69,8 @@ namespace SmsWeb
             {
                 message.CoordinatorId
             });
+
+            UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(MessageSchedulePaused message)
@@ -59,6 +80,8 @@ namespace SmsWeb
             {
                 message.CoordinatorId
             });
+
+            UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(CoordinatorCompleted message)
@@ -80,6 +103,36 @@ namespace SmsWeb
             {
                 message.CoordinatorId
             });
+        }
+        
+        private void UpdateCoordinatorData(Guid coordinatorId, IHubContext context)
+        {
+            if (coordinatorId != Guid.Empty)
+            {
+                using (var session = RavenDocStore.GetStore().OpenSession())
+                {
+                    var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                            .Where(s => s.CoordinatorId == coordinatorId.ToString())
+                            .ToList();
+
+                    var sentSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Sent.ToString());
+                    var failedSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Failed.ToString());
+                    var scheduledSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Scheduled.ToString());
+                    var cancelledSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Cancelled.ToString());
+                    var waitingForSchedulingSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.WaitingForScheduling.ToString());
+                    var pausedSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Paused.ToString());
+
+                    context.Clients.All.messageStatusUpdated(
+                        coordinatorId = coordinatorId,
+                        sentSummary != null ? sentSummary.Count : 0,
+                        failedSummary != null ? failedSummary.Count : 0,
+                        scheduledSummary != null ? scheduledSummary.Count : 0,
+                        pausedSummary != null ? pausedSummary.Count : 0,
+                        waitingForSchedulingSummary != null ? waitingForSchedulingSummary.Count : 0,
+                        cancelledSummary != null ? cancelledSummary.Count : 0
+                    );
+                }
+            }
         }
     }
 

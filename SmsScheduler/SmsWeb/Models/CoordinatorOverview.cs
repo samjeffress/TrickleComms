@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SmsTrackingModels;
+using SmsWeb.Controllers;
 
 namespace SmsWeb.Models
 {
@@ -23,6 +24,8 @@ namespace SmsWeb.Models
         public CoordinatorStatusCounters CoordinatorCounters { get; set; }
 
         public string MessageBody { get; set; }
+
+        public MessageStatusCounters MessageStatusCounter { get; set; }
     }
 
     public class CoordinatorStatusCounters

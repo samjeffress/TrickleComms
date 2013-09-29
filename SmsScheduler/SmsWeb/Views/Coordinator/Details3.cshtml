@@ -13,7 +13,31 @@
 <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
 
 <script type="text/javascript">
+    function setupProgressBar(sentMessages, failedMessages, scheduledMessages, pausedMessages, waitingforSchedulingMessages, cancelledMessages) { 
+        var scheduledPercentage = scheduledMessages / totalMessages * 100;
+        var sentPercentage = sentMessages / totalMessages * 100;
+        var failedPercentage = failedMessages / totalMessages * 100;
+        var pausedPercentage = pausedMessages / totalMessages * 100;
+        var waitingForSchedulingPercentage = waitingforSchedulingMessages / totalMessages * 100;
+        var cancelledPercentage = cancelledMessages / totalMessages * 100;
+        $('#progress_scheduled').width(scheduledPercentage + "%");
+        $('#progress_success').width(sentPercentage + "%");
+        $('#progress_failed').width(failedPercentage + "%");
+        $('#progress_paused').width(pausedPercentage + "%");
+        $('#progress_waiting').width(waitingForSchedulingPercentage + "%");
+        $('#progress_cancelled').width(cancelledPercentage + "%");
+    };
+
     $(function () {
+        window.totalMessages = '@Model.MessageCount';
+        window.coordinatorId = '@Model.CoordinatorId';
+        var sentMessages = '@Model.MessageStatusCounter.SentCount';
+        var failedMessages = '@Model.MessageStatusCounter.FailedCount';
+        var scheduledMessages = '@Model.MessageStatusCounter.ScheduledCount';
+        var pausedMessages = '@Model.MessageStatusCounter.PausedCount';
+        var waitingForSchedulingMessages = '@Model.MessageStatusCounter.CancelledCount';
+        var cancelledMessages = '@Model.MessageStatusCounter.CancelledCount';
+        setupProgressBar(sentMessages, failedMessages, scheduledMessages, pausedMessages, waitingForSchedulingMessages, cancelledMessages);
 
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('input[name="finishTime"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
@@ -29,6 +53,12 @@
                 }).done(function (data) {
                     $('#CoordinatorStatusOverview').html(data);
                 });
+            }
+        };
+
+        schedule.client.messageStatusUpdated = function (coordinatorId, sentCount, failedCount, scheduledCount, pausedCount, waitingForSchedulingCount, cancelledCount) {
+            if (coordinatorId == window.coordinatorId){
+                setupProgressBar(sentCount, failedCount, scheduledCount, pausedCount, waitingForSchedulingCount, cancelledCount);
             }
         };
         
@@ -106,13 +136,23 @@
     </div>
 
     <div class="display-label">
-            @Html.DisplayNameFor(model => model.Topic)
+        @Html.DisplayNameFor(model => model.Topic)
         @Html.DisplayFor(model => model.Topic)
     </div>
 
     <div class="display-label">
-            @Html.DisplayName("Message Body")
+        @Html.DisplayName("Message Body")
         @Html.DisplayFor(model => model.MessageBody)
+    </div>
+    <div>
+        <div class="progress progress-striped active" style="max-width: 50%;">
+            <div class="bar bar-info" id="progress_waiting" title="Waiting to be scheduled"></div>
+            <div class="bar bar-info" id="progress_scheduled" title="Scheduled to be sent"></div>
+            <div class="bar bar-info" id="progress_paused" title="Paused"></div>
+            <div class="bar bar-success" id="progress_success" title="Delivered!"></div>
+            <div class="bar bar-danger" id="progress_failed" title="Delivery failed"></div>
+            <div class="bar bar-danger" id="progress_cancelled" title="Cancelled"></div>
+        </div>
     </div>
 
     <div id="CoordinatorStatusOverview">

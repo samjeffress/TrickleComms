@@ -190,6 +190,13 @@ namespace SmsWeb.Controllers
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
+                var sentSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Sent.ToString());
+                var failedSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Failed.ToString());
+                var scheduledSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Scheduled.ToString());
+                var cancelledSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Cancelled.ToString());
+                var waitingForSchedulingSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.WaitingForScheduling.ToString());
+                var pausedSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Paused.ToString());
+                
                 var coordinatorOverview = new CoordinatorOverview
                                               {
                                                   CoordinatorId = Guid.Parse(coordinatorid),
@@ -207,7 +214,16 @@ namespace SmsWeb.Controllers
                                                           .ToList()
                                                   },
                                                   MessageCount = coordinatorTrackingData.MessageCount,
-                                                  MessageBody = coordinatorTrackingData.MessageBody
+                                                  MessageStatusCounter = new MessageStatusCounters
+                                                      {
+                                                          SentCount = sentSummary == null ? 0 : sentSummary.Count,
+                                                          ScheduledCount = scheduledSummary == null ? 0 : scheduledSummary.Count,
+                                                          FailedCount = failedSummary == null ? 0 : failedSummary.Count,
+                                                          CancelledCount = cancelledSummary == null ? 0 : cancelledSummary.Count,
+                                                          WaitingForSchedulingCount = waitingForSchedulingSummary == null ? 0 : waitingForSchedulingSummary.Count,
+                                                          PausedCount = pausedSummary == null ? 0 : pausedSummary.Count,
+                                                      },
+                                                  MessageBody = coordinatorTrackingData.MessageBody   
                                               };
 
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
@@ -317,5 +333,20 @@ namespace SmsWeb.Controllers
                 return PartialView("CoordinatorStatusSummary", coordinatorStatusCounters);
             }
         }
+    }
+
+    public class MessageStatusCounters
+    {
+        public int SentCount { get; set; }
+
+        public int ScheduledCount { get; set; }
+
+        public int FailedCount { get; set; }
+
+        public int CancelledCount { get; set; }
+
+        public int WaitingForSchedulingCount { get; set; }
+
+        public int PausedCount { get; set; }
     }
 }
