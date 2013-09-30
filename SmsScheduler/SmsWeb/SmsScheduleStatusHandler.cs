@@ -32,55 +32,30 @@ namespace SmsWeb
         public void Handle(ScheduledSmsSent message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.scheduleUpdated(new
-            {
-                message.CoordinatorId
-            });
-
             UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(ScheduledSmsFailed message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.scheduleUpdated(new
-            {
-                message.CoordinatorId
-            });
-
             UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(SmsScheduled message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.scheduleUpdated(new
-                {
-                    message.CoordinatorId
-                });
-
             UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(MessageRescheduled message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.scheduleUpdated(new
-            {
-                message.CoordinatorId
-            });
-
             UpdateCoordinatorData(message.CoordinatorId, context);
         }
 
         public void Handle(MessageSchedulePaused message)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<ScheduleStatus>();
-            context.Clients.All.scheduleUpdated(new
-            {
-                message.CoordinatorId
-            });
-
             UpdateCoordinatorData(message.CoordinatorId, context);
         }
 

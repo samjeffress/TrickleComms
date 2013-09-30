@@ -318,21 +318,6 @@ namespace SmsWeb.Controllers
                 return PartialView("CoordinatorSchedulesFailed", pagedResult);
             }
         }
-
-        public PartialViewResult CoordinatorOverview(Guid coordinatorId)
-        {
-            using (var session = RavenDocStore.GetStore().OpenSession())
-            {
-                var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
-                        .Where(s => s.CoordinatorId == coordinatorId.ToString())
-                        .ToList();
-                var coordinatorStatusCounters = new CoordinatorStatusCounters
-                                                    {
-                                                        CoordinatorId = coordinatorId, StatusCounters = coordinatorSummary.Select(s => new StatusCounter {Count = s.Count, Status = s.Status}).OrderBy(s => s.Status).ToList()
-                                                    };
-                return PartialView("CoordinatorStatusSummary", coordinatorStatusCounters);
-            }
-        }
     }
 
     public class MessageStatusCounters

@@ -45,17 +45,6 @@
 
         var schedule = $.connection.scheduleStatus;
 
-        schedule.client.scheduleUpdated = function (message) {
-            if ('@Model.CoordinatorId.ToString()' == message.CoordinatorId) {
-                var urlString = '@Url.Action("CoordinatorOverview", "Coordinator", new { coordinatorId = Model.CoordinatorId })';
-                $.ajax({
-                    url: urlString,
-                }).done(function (data) {
-                    $('#CoordinatorStatusOverview').html(data);
-                });
-            }
-        };
-
         schedule.client.messageStatusUpdated = function (coordinatorId, sentCount, failedCount, scheduledCount, pausedCount, waitingForSchedulingCount, cancelledCount) {
             if (coordinatorId == window.coordinatorId){
                 setupProgressBar(sentCount, failedCount, scheduledCount, pausedCount, waitingForSchedulingCount, cancelledCount);
