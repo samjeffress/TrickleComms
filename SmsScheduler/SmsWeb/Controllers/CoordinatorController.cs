@@ -190,45 +190,10 @@ namespace SmsWeb.Controllers
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
-                var sentSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Sent.ToString());
-                var failedSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Failed.ToString());
-                var scheduledSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Scheduled.ToString());
-                var cancelledSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Cancelled.ToString());
-                var waitingForSchedulingSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.WaitingForScheduling.ToString());
-                var pausedSummary = coordinatorSummary.FirstOrDefault(s => s.Status == MessageStatus.Paused.ToString());
-                
-                var coordinatorOverview = new CoordinatorOverview
-                                              {
-                                                  CoordinatorId = Guid.Parse(coordinatorid),
-                                                  CreationDateUtc = coordinatorTrackingData.CreationDateUtc,
-                                                  CompletionDateUtc = coordinatorTrackingData.CompletionDateUtc,
-                                                  CurrentStatus = coordinatorTrackingData.CurrentStatus,
-                                                  Topic = coordinatorTrackingData.MetaData.Topic,
-                                                  Tags = coordinatorTrackingData.MetaData.Tags,
-                                                  CoordinatorCounters = new CoordinatorStatusCounters 
-                                                  { 
-                                                      CoordinatorId = coordinatorTrackingData.CoordinatorId,
-                                                      StatusCounters = coordinatorSummary.Select(
-                                                          s => new StatusCounter {Count = s.Count, Status = s.Status})
-                                                          .OrderBy(s => s.Status)
-                                                          .ToList()
-                                                  },
-                                                  MessageCount = coordinatorTrackingData.MessageCount,
-                                                  MessageStatusCounter = new MessageStatusCounters
-                                                      {
-                                                          SentCount = sentSummary == null ? 0 : sentSummary.Count,
-                                                          ScheduledCount = scheduledSummary == null ? 0 : scheduledSummary.Count,
-                                                          FailedCount = failedSummary == null ? 0 : failedSummary.Count,
-                                                          CancelledCount = cancelledSummary == null ? 0 : cancelledSummary.Count,
-                                                          WaitingForSchedulingCount = waitingForSchedulingSummary == null ? 0 : waitingForSchedulingSummary.Count,
-                                                          PausedCount = pausedSummary == null ? 0 : pausedSummary.Count,
-                                                      },
-                                                  MessageBody = coordinatorTrackingData.MessageBody   
-                                              };
-
+                var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
-                    coordinatorOverview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
-                return View("Details3", coordinatorOverview);
+                    overview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
+                return View("Details3", overview);
             }
         }
 
@@ -263,6 +228,9 @@ namespace SmsWeb.Controllers
             {
                 using (var session = RavenDocStore.GetStore().OpenSession())
                 {
+                    var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                        .Where(s => s.CoordinatorId == coordinatorid)
+                        .ToList();
                     var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
                     if (coordinatorTrackingData == null)
                     {
@@ -273,7 +241,8 @@ namespace SmsWeb.Controllers
                         coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
                     ViewData.Add("timeToResume", collection["timeToResume"]);
                     ViewData.Add("finishTime", collection["finishTime"]);
-                    return View("Details", coordinatorTrackingData);
+                    var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
+                    return View("Details3", overview);
                 }              
             }
 
@@ -318,20 +287,5 @@ namespace SmsWeb.Controllers
                 return PartialView("CoordinatorSchedulesFailed", pagedResult);
             }
         }
-    }
-
-    public class MessageStatusCounters
-    {
-        public int SentCount { get; set; }
-
-        public int ScheduledCount { get; set; }
-
-        public int FailedCount { get; set; }
-
-        public int CancelledCount { get; set; }
-
-        public int WaitingForSchedulingCount { get; set; }
-
-        public int PausedCount { get; set; }
     }
 }
