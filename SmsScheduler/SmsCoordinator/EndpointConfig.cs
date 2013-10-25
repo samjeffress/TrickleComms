@@ -32,8 +32,8 @@ namespace SmsCoordinator
             Configure.Instance.Configurer.ConfigureComponent<CalculateSmsTiming>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<RavenScheduleDocuments>(DependencyLifecycle.InstancePerUnitOfWork);
 
-            configure.CreateBus()
-            .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+            configure.CreateBus().Start();
+            //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
         }
 
     }

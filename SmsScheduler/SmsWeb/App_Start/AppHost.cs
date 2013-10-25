@@ -89,7 +89,7 @@ namespace SmsWeb.App_Start
 
             //busConfig.Configurer.ConfigureComponent<DateTimeUtcFromOlsenMapping>(DependencyLifecycle.SingleInstance);
 
-		    var bus = busConfig.CreateBus().Start(() => NServiceBus.Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+		    var bus = busConfig.CreateBus().Start();//() => NServiceBus.Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
 
             //container.Register(new SmsScheduleStatusHandler(new RavenDocStore()));
 		    container.Register(bus);
