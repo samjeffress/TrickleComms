@@ -56,6 +56,10 @@ namespace SmsWeb.Models
         public string MessageBody { get; set; }
 
         public MessageStatusCounters MessageStatusCounter { get; set; }
+
+        public DateTime? NextScheduledMessageDate { get; set; }
+
+        public DateTime? FinalScheduledMessageDate { get; set; }
     }
 
     public class MessageStatusCounters

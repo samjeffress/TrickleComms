@@ -191,7 +191,21 @@ namespace SmsWeb.Controllers
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
+                var nextSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId == Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
+                    .OrderBy(s => s.ScheduleTimeUtc)
+                    .Select(s => s.ScheduleTimeUtc)
+                    .FirstOrDefault();
+
+                var finalSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId== Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
+                    .OrderByDescending(s => s.ScheduleTimeUtc)
+                    .Select(s => s.ScheduleTimeUtc)
+                    .FirstOrDefault();
+
                 var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
+                overview.NextScheduledMessageDate = nextSmsDateUtc;
+                overview.FinalScheduledMessageDate = finalSmsDateUtc;
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
                     overview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
                 return View("Details3", overview);

@@ -126,6 +126,23 @@
         <th>Message Body</th>
         <td>@Model.MessageBody</td>
     </tr>
+    @if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
+    {
+        if (Model.NextScheduledMessageDate != null)
+        {
+            <tr>
+                <th>Next Scheduled Message (UTC)</th>
+                <td>@Model.NextScheduledMessageDate</td>
+            </tr>
+        }
+        if (Model.FinalScheduledMessageDate != null)
+         {
+             <tr>
+                 <th>Final Scheduled Message (UTC)</th>
+                 <td>@Model.FinalScheduledMessageDate</td>
+             </tr>
+         }
+    }
 </table>
 <div class="progress progress-striped active" style="max-width: 100%;">
     <div class="bar bar-info" id="progress_waiting" title="Waiting to be scheduled"></div>
