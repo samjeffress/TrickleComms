@@ -133,7 +133,7 @@ namespace SmsWeb.Controllers
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 RavenQueryStatistics stats;
-                var pagedResults = session.Query<CoordinatorTrackingData>()
+                var pagedResults = session.Query<CoordinatorTrackingData, CoordinatorTrackingDataByDate>()
                     .Statistics(out stats)
                     .Skip(page * resultsPerPage)
                     .Take(resultsPerPage)
@@ -149,6 +149,7 @@ namespace SmsWeb.Controllers
                         Tags = c.MetaData != null && c.MetaData.Tags != null ? c.MetaData.Tags : new List<string>(),
                         Topic = c.MetaData != null ? c.MetaData.Topic : string.Empty
                     })
+                    .OrderByDescending(c => c.CreationDateUtc)
                     .ToList();
                 var totalResults = stats.TotalResults;
                 var coordinatorPagedResults = new CoordinatorPagedResults
