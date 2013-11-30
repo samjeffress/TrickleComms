@@ -8,9 +8,11 @@ namespace IncomingSmsHandler
     {
         public override void Configure(Container container)
         {
-            // TODO: wire up bus for IOC
             Routes
                 .Add<MessageReceived>("/SmsIncoming");
+
+            EndpointConfig.ConfigureNServiceBus();
+            Container.Register(EndpointConfig.Bus);
         }
     }
 }
