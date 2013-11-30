@@ -67,6 +67,7 @@ namespace SmsCoordinator
 
             RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
             Bus.Publish(coordinatorCreated);
+            Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
         }
 
         public void Handle(TrickleSmsWithDefinedTimeBetweenEachMessage message)
@@ -105,6 +106,7 @@ namespace SmsCoordinator
             RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             Bus.Publish(coordinatorCreated);
+            Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
             RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
         }
 
@@ -142,6 +144,7 @@ namespace SmsCoordinator
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             RequestUtcTimeout<CoordinatorTimeout>(message.SendTimeUtc.AddMinutes(2));
             Bus.Publish(coordinatorCreated);
+            Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
         }
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
@@ -202,7 +205,7 @@ namespace SmsCoordinator
             if (RavenScheduleDocuments.AreCoordinatedSchedulesComplete(Data.CoordinatorId))
             {
                 Bus.Publish(new CoordinatorCompleted { CoordinatorId = Data.CoordinatorId, CompletionDateUtc = DateTime.UtcNow });
-                Bus.Send(CreateCompletedEmail());
+                Bus.SendLocal(CreateCompletedEmail());
                 RavenScheduleDocuments.MarkCoordinatorAsComplete(Data.CoordinatorId, DateTime.UtcNow);
                 MarkAsComplete();
             }
