@@ -93,10 +93,6 @@
       <Project>{39DA47DF-B0BF-4C61-975D-F4C3E93B1BC8}</Project>
       <Name>ConfigurationModels</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EmailSender\EmailSender.csproj">
-      <Project>{EFBAB146-1E4E-4430-946C-9E5AA8E62D98}</Project>
-      <Name>EmailSender</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
       <Project>{024BB854-56C8-4A03-A9DE-68FF4FE1FBA7}</Project>
       <Name>SmsMessages</Name>
