@@ -11,14 +11,15 @@ namespace SmsCoordinator.Email
 {
     public class EmailService : 
         IHandleMessages<CoordinatorCompleteEmailWithSummary>,
-        IHandleMessages<CoordinatorCreated>
+        IHandleMessages<CoordinatorCreatedEmail>
     {
         public IRavenDocStore RavenDocStore { get; set; }
         public IMailActioner MailActioner { get; set; }
         public IDateTimeOlsenFromUtcMapping DateTimeOlsenFromUtcMapping { get; set; }
 
-        public void Handle(CoordinatorCreated message)
+        public void Handle(CoordinatorCreatedEmail created)
         {
+            var message = created.CoordinatorCreated;
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
                 var emailDefaultNotification = session.Load<EmailDefaultNotification>("EmailDefaultConfig");

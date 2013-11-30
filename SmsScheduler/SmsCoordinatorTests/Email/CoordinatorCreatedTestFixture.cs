@@ -9,6 +9,7 @@ using SmsCoordinator;
 using SmsCoordinator.Email;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Events;
+using SmsMessages.Email.Commands;
 
 namespace SmsCoordinatorTests.Email
 {
@@ -27,7 +28,7 @@ namespace SmsCoordinatorTests.Email
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore };
             var coordinatorComplete = new CoordinatorCreated();
-            emailService.Handle(coordinatorComplete);
+            emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
         }
 
         [Test]
@@ -42,7 +43,7 @@ namespace SmsCoordinatorTests.Email
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore };
             var coordinatorComplete = new CoordinatorCreated();
-            emailService.Handle(coordinatorComplete);
+            emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
         }
 
         [Test]
@@ -65,7 +66,7 @@ namespace SmsCoordinatorTests.Email
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner, DateTimeOlsenFromUtcMapping = dateTimeMapper };
             var coordinatorComplete = new CoordinatorCreated { ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now }}, MetaData = new SmsMetaData()};
-            emailService.Handle(coordinatorComplete);
+            emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
@@ -92,7 +93,7 @@ namespace SmsCoordinatorTests.Email
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner, DateTimeOlsenFromUtcMapping = dateTimeMapper };
             var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddresses = new List<string> { "toby@things.com" }, ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
-            emailService.Handle(coordinatorComplete);
+            emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddresses[0]));
@@ -119,7 +120,7 @@ namespace SmsCoordinatorTests.Email
 
             var emailService = new EmailService { RavenDocStore = ravenDocStore, MailActioner = mailActioner, DateTimeOlsenFromUtcMapping = dateTimeMapper };
             var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddresses = new List<string> { "toby@things.com" }, ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
-            emailService.Handle(coordinatorComplete);
+            emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
 
             Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddresses[0]));
