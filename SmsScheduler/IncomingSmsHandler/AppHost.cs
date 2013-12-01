@@ -2,6 +2,7 @@
 using NServiceBus;
 using ServiceStack.WebHost.Endpoints;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Messages;
 using WebActivatorEx;
 
 [assembly: PreApplicationStartMethod(typeof(IncomingSmsHandler.AppHost), "Start")]

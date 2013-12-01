@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SmsMessages.MessageSending.Events
+namespace SmsMessages.MessageSending.Messages
 {
     public class MessageReceived
     {

@@ -7,6 +7,7 @@ using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.WebHost.Endpoints;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Messages;
 
 namespace SmsActioner
 {

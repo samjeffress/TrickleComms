@@ -6,6 +6,7 @@ using Rhino.Mocks;
 using Rhino.Mocks.Constraints;
 using SmsActioner;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Messages;
 
 namespace SmsActionerTests
 {
