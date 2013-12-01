@@ -37,22 +37,22 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\IncomingSmsHandler\IncomingSmsHandler.csproj">
-      <Name>IncomingSmsHandler</Name>
-      <Project>{645786b0-555d-47f6-b765-b9b905631e0a}</Project>
-      <Private>True</Private>
-      <RoleType>Worker</RoleType>
-      <RoleName>IncomingSmsHandler</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="IncomingSmsHandlerContent\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="IncomingSmsHandlerContent\diagnostics.wadcfg">
       <SubType>Content</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IncomingSmsHandler\IncomingSmsHandler.csproj">
+      <Name>IncomingSmsHandler</Name>
+      <Project>{a3aa1dea-7a9f-4538-99a3-65662dfdf5d2}</Project>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>IncomingSmsHandler</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

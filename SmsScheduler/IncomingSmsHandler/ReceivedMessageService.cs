@@ -8,7 +8,7 @@ namespace IncomingSmsHandler
     {
         public IBus Bus { get; set; }
 
-        public void Post(MessageReceived request)
+        public void Any(MessageReceived request)
         {
             Bus.Send("IncomingSmsHandler", request);
         }
