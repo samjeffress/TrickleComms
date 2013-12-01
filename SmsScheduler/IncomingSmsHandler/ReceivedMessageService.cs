@@ -10,7 +10,7 @@ namespace IncomingSmsHandler
 
         public void Post(MessageReceived request)
         {
-            Bus.Send(request);
+            Bus.Send("IncomingSmsHandler", request);
         }
     }
 }
