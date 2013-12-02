@@ -21,3 +21,5 @@ build_output
 
 #Cloud configuration
 *.cscfg
+csx
+rcf
