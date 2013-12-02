@@ -6,58 +6,23 @@ using ServiceStack.CacheAccess.Providers;
 using ServiceStack.ServiceInterface;
 using ServiceStack.ServiceInterface.Auth;
 using ServiceStack.WebHost.Endpoints;
-using SmsMessages.MessageSending.Events;
-using SmsMessages.MessageSending.Messages;
+using SmsMessages.MessageSending.Commands;
 
 namespace SmsActioner
 {
-    public class SmsReceivedHandler : Service
+    public class SmsMessageReceivedHandler : Service
     {
         public IBus Bus { get; set; }
 
-        public IRavenDocStore RavenDocStore { get; set; }
-
-        [Authenticate]
-        public void Get(SmsReceieved smsReceieved)
+        public void Post(MessageReceived smsReceieved)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession())
-            {
-                session.Store(smsReceieved);
-                session.SaveChanges();
-            }
-            Bus.Publish<MessageReceived>(s =>
-                {
-                    s.Sid = smsReceieved.Sid;
-                    s.AccountSid = smsReceieved.AccountSid;
-                    s.From = smsReceieved.From;
-                    s.To = smsReceieved.To;
-                    s.Body = smsReceieved.Body;
-                    s.DateSent = smsReceieved.DateSent;
-                    s.Price = smsReceieved.Price;
-                });
+            Bus.SendLocal(smsReceieved);
         }
-    }
-
-    public class SmsReceieved
-    {
-        public string Sid { get; set; }
-        public DateTime DateCreated { get; set; }
-        public DateTime DateUpdated { get; set; }
-        public DateTime DateSent { get; set; }
-        public string AccountSid { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
-        public string Body { get; set; }
-        public string Status { get; set; }
-        public string Direction { get; set; }
-        public decimal Price { get; set; } 
-        public string PriceUnit { get; set; }
-        public string ApiVersion { get; set; }
     }
 
     public class AppHost : AppHostHttpListenerBase
     {
-        public AppHost() : base("StarterTemplate HttpListener", typeof(SmsReceieved).Assembly) { }
+        public AppHost() : base("StarterTemplate HttpListener", typeof(SmsMessageReceivedHandler).Assembly) { }
 
         public override void Configure(Funq.Container container)
         {
@@ -66,7 +31,8 @@ namespace SmsActioner
             container.Register<ICacheClient>(new MemoryCacheClient());
             var userRep = new BasicAuthImpl();
             container.Register<IUserAuthRepository>(userRep);
-            Routes.Add<SmsReceieved>("/SmsIncoming/");
+            Routes
+                .Add<MessageReceived>("/MessageReceived/");
         }
     }
 

@@ -1,7 +1,6 @@
 ﻿using NServiceBus;
 using ServiceStack.ServiceHost;
-using SmsMessages.MessageSending.Events;
-using SmsMessages.MessageSending.Messages;
+using SmsMessages.MessageSending.Commands;
 
 namespace IncomingSmsHandler
 {
