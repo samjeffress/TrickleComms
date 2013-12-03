@@ -5,7 +5,7 @@
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig" value="error" />
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://smscoordinator.servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=tmGjrJP4ScO42TF/HAKD6TtoPzLw4uRUV02f5J16/nw=" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
