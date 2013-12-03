@@ -58,8 +58,8 @@ namespace IncomingSmsHandler
         // TODO : Make this not be l33t hardcoded auth
         public bool TryAuthenticate(string userName, string password, out UserAuth userAuth)
         {
-            if (!string.IsNullOrWhiteSpace(userName) && userName.Equals("Aladdin")
-                && !string.IsNullOrWhiteSpace(password) && password.Equals("open sesame"))
+            if (!string.IsNullOrWhiteSpace(userName) && userName.Equals("twilioapiaccess")
+                && !string.IsNullOrWhiteSpace(password) && password.Equals("Iamthebestpasswordintheworld"))
             {
                 userAuth = new UserAuth();
                 return true;
