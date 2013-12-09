@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncomingSmsHandler", "Incom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncomingSmsTransport", "IncomingSmsTransport\IncomingSmsTransport.csproj", "{D73605A1-3A17-4B49-BCB4-B105ABCAD035}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{41AF81EE-5F76-45DC-85DA-EADFFCC7ADB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,5 +113,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1BEA9EAF-6B22-410F-AE61-89C81BAD5905} = {41AF81EE-5F76-45DC-85DA-EADFFCC7ADB8}
+		{A3AA1DEA-7A9F-4538-99A3-65662DFDF5D2} = {41AF81EE-5F76-45DC-85DA-EADFFCC7ADB8}
 	EndGlobalSection
 EndGlobal
