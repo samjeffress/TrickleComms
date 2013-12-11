@@ -60,6 +60,7 @@
     <Compile Include="RavenIndexs\ScheduledMessagesStatusCountInCoordinatorIndex.cs" />
     <Compile Include="RavenIndexs\ScheduledMessages_ByCoordinatorIdAndStatus.cs" />
     <Compile Include="RavenIndexs\ScheduleMessagesInCoordinatorIndex.cs" />
+    <Compile Include="RavenIndexs\SmsActioned.cs" />
     <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsReceivedData.cs" />
     <Compile Include="SmsTrackingData.cs" />
