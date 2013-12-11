@@ -36,6 +36,22 @@ namespace SmsTrackingModels
                                           Status = coordinator.CurrentStatus
                                       };
             Indexes.Add(c => c.CreationDateUtc, FieldIndexing.Default);
+            Indexes.Add(c => c.CurrentStatus, FieldIndexing.Default);
+        }
+    }
+
+    public class ReceivedSmsDataByAcknowledgement : AbstractIndexCreationTask<SmsReceivedData>
+    {
+        public ReceivedSmsDataByAcknowledgement()
+        {
+            Map = smsReceivedDatas => from receivedData in smsReceivedDatas
+                                  select new
+                                      {
+                                          CreationDate = receivedData.SmsConfirmationData.SentAtUtc,
+                                          receivedData.Acknowledge
+                                      };
+            Indexes.Add(c => c.SmsConfirmationData.SentAtUtc, FieldIndexing.Default);
+            Indexes.Add(c => c.Acknowledge, FieldIndexing.Default);
         }
     }
 }

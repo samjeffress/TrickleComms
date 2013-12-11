@@ -269,6 +269,7 @@
     <Compile Include="Controllers\CountryCodeConfigController.cs" />
     <Compile Include="Controllers\DefaultEmailController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ReceivedMessageController.cs" />
     <Compile Include="IDateTimeUtcFromOlsenMapping.cs" />
     <Compile Include="Controllers\MailgunConfigController.cs" />
     <Compile Include="Controllers\TagController.cs" />
@@ -469,6 +470,8 @@
     <Content Include="Views\Coordinator\Details3.cshtml" />
     <Content Include="Views\Shared\CoordinatorSchedulesFailed.cshtml" />
     <Content Include="Views\Shared\CoordinatorSchedulesFailedPaging.cshtml" />
+    <Content Include="Views\Shared\_ReceivedSmsIndex.cshtml" />
+    <Content Include="Views\Shared\_ReceivedSmsCount.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

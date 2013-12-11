@@ -1,0 +1,7 @@
+﻿@model List<SmsTrackingModels.SmsReceivedData>
+
+<h2>new messages received:</h2>
+@foreach (var message in Model)
+{
+    <p>From @message.SmsData.Mobile, with message @message.SmsData.Message</p>
+}
