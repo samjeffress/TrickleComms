@@ -10,5 +10,7 @@ namespace SmsTrackingModels
         public SmsConfirmationData SmsConfirmationData { get; set; }
 
         public Guid SmsId { get; set; }
+
+        public bool Acknowledge { get; set; }
     }
 }

@@ -271,7 +271,7 @@
     <Compile Include="Controllers\DefaultEmailController.cs" />
     <Compile Include="Controllers\ExampleLayoutsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\IDateTimeUtcFromOlsenMapping.cs" />
+    <Compile Include="IDateTimeUtcFromOlsenMapping.cs" />
     <Compile Include="Controllers\MailgunConfigController.cs" />
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\TwilioConfigController.cs" />

@@ -4,6 +4,7 @@ using System.Linq;
 using ConfigurationModels;
 using NUnit.Framework;
 using Rhino.Mocks;
+using SmsWeb;
 using SmsWeb.Controllers;
 using SmsWeb.Models;
 

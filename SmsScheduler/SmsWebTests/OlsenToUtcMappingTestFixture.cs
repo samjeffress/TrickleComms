@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using SmsWeb;
 using SmsWeb.Controllers;
 
 namespace SmsWebTests

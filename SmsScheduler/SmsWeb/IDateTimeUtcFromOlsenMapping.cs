@@ -1,7 +1,7 @@
 using System;
 using NodaTime;
 
-namespace SmsWeb.Controllers
+namespace SmsWeb
 {
     public interface IDateTimeUtcFromOlsenMapping
     {
