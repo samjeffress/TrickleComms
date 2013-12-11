@@ -3,9 +3,11 @@
   <Role name="IncomingSmsHandler">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="***REMOVED***=" />
       <Setting name="MessageForwardingInCaseOfFaultConfig" value="error" />
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="Endpoint=sb://smscoordinator.servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue=tmGjrJP4ScO42TF/HAKD6TtoPzLw4uRUV02f5J16/nw=" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="***REMOVED***" />
     </ConfigurationSettings>
+    <Certificates>
+    </Certificates>
   </Role>
 </ServiceConfiguration>

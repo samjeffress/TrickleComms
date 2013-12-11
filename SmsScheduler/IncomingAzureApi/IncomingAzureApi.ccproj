@@ -12,6 +12,7 @@
     <AssemblyName>IncomingAzureApi</AssemblyName>
     <StartDevelopmentStorage>True</StartDevelopmentStorage>
     <Name>IncomingAzureApi</Name>
+    <PackageEnableRemoteDebugger>False</PackageEnableRemoteDebugger>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="IncomingSmsHandlerContent\" />
+    <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="IncomingSmsHandlerContent\diagnostics.wadcfg">
@@ -51,8 +53,11 @@
       <Private>True</Private>
       <RoleType>Web</RoleType>
       <RoleName>IncomingSmsHandler</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+      <UpdateDiagnosticsConnectionStringOnPublish>False</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PublishProfile Include="Profiles\tricklesmsincomingProduction.azurePubxml" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

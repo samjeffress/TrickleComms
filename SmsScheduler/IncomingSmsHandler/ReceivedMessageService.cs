@@ -9,7 +9,7 @@ namespace IncomingSmsHandler
     {
         public IBus Bus { get; set; }
 
-        [Authenticate]
+        //[Authenticate]
         public void Any(MessageReceived request)
         {
             Bus.Send("IncomingSmsHandler", request);
