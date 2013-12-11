@@ -281,7 +281,6 @@
     <Compile Include="Models\CoordinatorOverview.cs" />
     <Compile Include="Models\DefaultEmailModel.cs" />
     <Compile Include="Models\FileTypesAttribute.cs" />
-    <Compile Include="Models\HomeInputModel.cs" />
     <Compile Include="Models\PagedResult.cs" />
     <Compile Include="Models\ScheduleFailedModel.cs" />
     <Compile Include="Models\ScheduleModel.cs" />
