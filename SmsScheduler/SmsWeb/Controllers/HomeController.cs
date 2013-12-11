@@ -5,6 +5,7 @@ using ConfigurationModels;
 using Raven.Client.Linq;
 using SmsTrackingModels;
 using System.Linq;
+using SmsTrackingModels.RavenIndexs;
 using SmsWeb.Models;
 
 namespace SmsWeb.Controllers

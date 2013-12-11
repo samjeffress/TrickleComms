@@ -8,6 +8,7 @@ using Raven.Client;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 using SmsWeb.Models;
 
 namespace SmsWeb.Controllers

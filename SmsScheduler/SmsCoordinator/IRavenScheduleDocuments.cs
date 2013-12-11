@@ -6,6 +6,7 @@ using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Commands;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 
 namespace SmsCoordinator
 {

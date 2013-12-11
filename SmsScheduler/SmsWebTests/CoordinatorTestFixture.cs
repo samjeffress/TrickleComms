@@ -14,6 +14,7 @@ using Rhino.Mocks;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 using SmsWeb;
 using SmsWeb.Controllers;
 using SmsWeb.Models;

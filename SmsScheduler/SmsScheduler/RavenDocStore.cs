@@ -4,6 +4,7 @@ using Raven.Client.Document;
 using Raven.Client.Extensions;
 using Raven.Client.Indexes;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 
 namespace SmsScheduler
 {

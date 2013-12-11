@@ -7,6 +7,7 @@ using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Scheduling.Events;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 
 namespace SmsWeb
 {

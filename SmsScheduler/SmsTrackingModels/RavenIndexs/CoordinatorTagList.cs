@@ -2,7 +2,7 @@ using System.Linq;
 using Raven.Abstractions.Indexing;
 using Raven.Client.Indexes;
 
-namespace SmsTrackingModels
+namespace SmsTrackingModels.RavenIndexs
 {
     public class CoordinatorTagList : AbstractIndexCreationTask<CoordinatorTrackingData, CoordinatorTagList.ReduceResult>
     {

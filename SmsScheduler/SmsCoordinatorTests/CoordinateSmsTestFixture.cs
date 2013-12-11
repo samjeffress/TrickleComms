@@ -10,6 +10,7 @@ using SmsMessages.Coordinator.Events;
 using SmsMessages.Email.Commands;
 using SmsMessages.Scheduling.Commands;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 
 namespace SmsCoordinatorTests
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SmsMessages.CommonData;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 
 namespace SmsWeb.Models
 {

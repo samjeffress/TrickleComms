@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Raven.Client.Indexes;
 
-namespace SmsTrackingModels
+namespace SmsTrackingModels.RavenIndexs
 {
     public class PhoneNumberInCoordinatedMessages : AbstractIndexCreationTask<ScheduleTrackingData, PhoneNumberInCoordinatedMessages.ReduceResult>
     {

@@ -51,13 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoordinatorTagList.cs" />
     <Compile Include="CoordinatorTrackingData.cs" />
-    <Compile Include="PhoneNumberInCoordinatedMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScheduledMessagesStatusCountInCoordinatorIndex.cs" />
-    <Compile Include="ScheduledMessages_ByCoordinatorIdAndStatus.cs" />
-    <Compile Include="ScheduleMessagesInCoordinatorIndex.cs" />
+    <Compile Include="RavenIndexs\CoordinatorTagList.cs" />
+    <Compile Include="RavenIndexs\CoordinatorTrackingDataByDate.cs" />
+    <Compile Include="RavenIndexs\PhoneNumberInCoordinatedMessages.cs" />
+    <Compile Include="RavenIndexs\ReceivedSmsDataByAcknowledgement.cs" />
+    <Compile Include="RavenIndexs\ScheduledMessagesStatusCountInCoordinatorIndex.cs" />
+    <Compile Include="RavenIndexs\ScheduledMessages_ByCoordinatorIdAndStatus.cs" />
+    <Compile Include="RavenIndexs\ScheduleMessagesInCoordinatorIndex.cs" />
     <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsReceivedData.cs" />
     <Compile Include="SmsTrackingData.cs" />
