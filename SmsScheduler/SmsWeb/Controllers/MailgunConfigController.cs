@@ -30,30 +30,6 @@ namespace SmsWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(MailgunConfiguration configuration)
-        {
-            var isValid = TryUpdateModel(configuration);
-            if (!isValid)
-                return View("Edit", configuration);
-            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
-            {
-                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
-                if (mailgunConfiguration == null)
-                {
-                    session.Store(configuration, "MailgunConfig");
-                }
-                else
-                {
-                    mailgunConfiguration.ApiKey = configuration.ApiKey;
-                    mailgunConfiguration.DefaultFrom = configuration.DefaultFrom;
-                    mailgunConfiguration.DomainName = configuration.DomainName;
-                }
-                session.SaveChanges();
-                return RedirectToAction("Details");
-            }
-        }
-
-        [HttpPost]
         public PartialViewResult EditAjax(MailgunConfiguration configuration)
         {
             var isValid = TryUpdateModel(configuration);
@@ -74,15 +50,6 @@ namespace SmsWeb.Controllers
                 }
                 session.SaveChanges();
                 return PartialView("_MailgunConfigDetails", configuration);
-            }
-        }
-
-        public ActionResult Details()
-        {
-            using (var session = DocumentStore.GetStore().OpenSession("Configuration"))
-            {
-                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
-                return View("Details", mailgunConfiguration);
             }
         }
     }

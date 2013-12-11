@@ -21,9 +21,9 @@ namespace SmsWeb.Controllers
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
 
                 if (twilioConfiguration == null || mailgunConfiguration == null)
-                {
                     return View("IndexConfigNotSet");
-                }
+                else
+                    return RedirectToAction("Create", "Coordinator");
             }
             return View("Index");
         }
