@@ -35,9 +35,14 @@ namespace SmsActioner
 
         public void Handle(MessageReceived message)
         {
-            using (var session = RavenStore.GetStore().OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession("SmsTracking"))
             {
-                session.Store(new SmsReceivedData { SmsId = Guid.Parse(message.Sid), SmsConfirmationData = new SmsConfirmationData(null, message.DateSent, message.Price), SmsData = new SmsData(message.From, message.Body)}, message.Sid);
+                session.Store(new SmsReceivedData
+                {
+                    SmsId = Guid.Parse(message.Sid), 
+                    SmsConfirmationData = new SmsConfirmationData(null, message.DateSent, message.Price), 
+                    SmsData = new SmsData(message.From, message.Body)
+                }, message.Sid);
                 session.SaveChanges();
             } 
         }
