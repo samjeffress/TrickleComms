@@ -264,12 +264,10 @@
     <Compile Include="BootstrapSupport\ControlGroupExtensions.cs" />
     <Compile Include="BootstrapSupport\ViewHelperExtensions.cs" />
     <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\BootstrapBaseController.cs" />
     <Compile Include="Controllers\CoordinatorController.cs" />
     <Compile Include="Controllers\CoordinatorModelToMessageMapping.cs" />
     <Compile Include="Controllers\CountryCodeConfigController.cs" />
     <Compile Include="Controllers\DefaultEmailController.cs" />
-    <Compile Include="Controllers\ExampleLayoutsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="IDateTimeUtcFromOlsenMapping.cs" />
     <Compile Include="Controllers\MailgunConfigController.cs" />
@@ -457,12 +455,6 @@
     <Content Include="Views\Shared\_BootstrapLayout.empty.cshtml" />
     <Content Include="Views\Shared\_BootstrapLayout.basic.cshtml" />
     <Content Include="Views\Shared\_alerts.cshtml" />
-    <Content Include="Views\ExampleLayouts\TBD.cshtml" />
-    <Content Include="Views\ExampleLayouts\Starter.cshtml" />
-    <Content Include="Views\ExampleLayouts\SignIn.cshtml" />
-    <Content Include="Views\ExampleLayouts\Narrow.cshtml" />
-    <Content Include="Views\ExampleLayouts\Marketing.cshtml" />
-    <Content Include="Views\ExampleLayouts\Fluid.cshtml" />
     <Content Include="Views\Home\IndexConfigNotSet.cshtml" />
     <Content Include="Views\Shared\_TwilioConfigEdit.cshtml" />
     <Content Include="Views\Shared\_MailgunConfigEdit.cshtml" />
