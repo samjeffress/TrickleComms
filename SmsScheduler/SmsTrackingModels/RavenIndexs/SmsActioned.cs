@@ -5,7 +5,6 @@ using Raven.Client.Indexes;
 
 namespace SmsTrackingModels.RavenIndexs
 {
-    // TODO : Use this one!
     public class SmsActioned : AbstractMultiMapIndexCreationTask<SmsActioned.Result>
     {
         public class Result
@@ -14,28 +13,63 @@ namespace SmsTrackingModels.RavenIndexs
 
             public string Number { get; set; }
 
-            public string Message { get; set; }
+            public int Count { get; set; }
+            public string Status { get; set; }
+            public string Topic { get; set; }
         }
 
         public SmsActioned()
         {
-            AddMap<SmsReceivedData>(messages => from message in messages 
+            AddMap<SmsTrackingData>(datas =>
+              from data in datas
+              select
+                  new Result
+                  {
+                      Number = data.SmsData.Mobile,
+                      Topic = data.SmsMetaData.Topic,
+                      ActionTime = data.ConfirmationData.SentAtUtc,
+                      Status = data.Status.ToString(),
+                      Count = 1
+                  });
+
+            AddMap<SmsReceivedData>(messages => from message in messages
                 select new Result
                 {
                     ActionTime = message.SmsConfirmationData.SentAtUtc,
                     Number = message.SmsData.Mobile,
-                    Message = message.SmsData.Mobile
+                    Topic = string.Empty,
+                    Status = "Received",
+                    Count = 1
                 });
 
-            AddMap<SmsTrackingData>(messages => from message in messages 
-                select new Result
-                {
-                    ActionTime = message.ConfirmationData.SentAtUtc,
-                    Number = message.SmsData.Mobile,
-                    Message = message.SmsData.Mobile
-                });
+            Reduce = results => from result in results
+                                group result by new
+                                {
+                                    result.Number,
+                                    result.Topic,
+                                    result.ActionTime,
+                                    result.Status,
+                                }
+                                    into g
+                                    select new Result
+                                    {
+                                        Number = g.Key.Number,
+                                        Topic = g.Key.Topic,
+                                        ActionTime = g.Key.ActionTime,
+                                        Status = g.Key.Status,
+                                        Count = g.Sum(x => x.Count)
+                                    };
 
-            Index(a => a.ActionTime, FieldIndexing.Analyzed);
+            
+
+            //AddMap<SmsTrackingData>(messages => from message in messages 
+            //    select new //Result
+            //    {
+            //        ActionTime = message.ConfirmationData.SentAtUtc,
+            //        Number = message.SmsData.Mobile,
+            //    });
+
+            //Index(a => a.ActionTime, FieldIndexing.Analyzed);
         }
     }
 }

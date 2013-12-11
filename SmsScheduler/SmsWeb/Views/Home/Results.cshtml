@@ -25,7 +25,10 @@
                 <td>@Html.DisplayFor(modelItem => item.SendingDate)</td>
                 <td>@Html.DisplayFor(modelItem => item.Status)</td>
                 <td>@Html.DisplayFor(modelItem => item.Topic)</td>
-                <td>@Html.ActionLink(item.CoordinatorId, "Details", "Coordinator", new { CoordinatorId = item.CoordinatorId }, null)</td>
+                <td>@if (item.CoordinatorId != null)
+                    {
+                        @Html.ActionLink(item.CoordinatorId, "Details", "Coordinator", new {CoordinatorId = item.CoordinatorId}, null)
+                    }</td>
             </tr>
         }
     </tbody>

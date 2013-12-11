@@ -70,19 +70,32 @@ namespace SmsWeb.Controllers
             {
                 using (var session = RavenDocStore.GetStore().OpenSession())
                 {
-                    var reduceResults = session.Query<PhoneNumberInCoordinatedMessages.ReduceResult, PhoneNumberInCoordinatedMessages>()
-                        .Where(p => p.PhoneNumber.StartsWith(id))
+                    var list = session.Query<SmsActioned.Result, SmsActioned>()
+                        .Where(p => p.Number.EndsWith(id))
                         .Select(p => new SearchByNumberResult
-                            {
-                                CoordinatorId = p.CoordinatorId,
-                                PhoneNumber = p.PhoneNumber,
-                                SendingDate = p.SendingDate,
-                                Status = p.Status,
-                                Topic = p.Topic,
-
-                            })
+                        {
+                            PhoneNumber = p.Number,
+                            SendingDate = p.ActionTime,
+                            Status = p.Status,
+                            Topic = p.Topic
+                        })
                         .ToList();
-                    return View("Results", reduceResults);
+
+                    return View("Results", list);
+
+                    //var reduceResults = session.Query<PhoneNumberInCoordinatedMessages.ReduceResult, PhoneNumberInCoordinatedMessages>()
+                    //    .Where(p => p.PhoneNumber.StartsWith(id))
+                    //    .Select(p => new SearchByNumberResult
+                    //        {
+                    //            CoordinatorId = p.CoordinatorId,
+                    //            PhoneNumber = p.PhoneNumber,
+                    //            SendingDate = p.SendingDate,
+                    //            Status = p.Status,
+                    //            Topic = p.Topic,
+
+                    //        })
+                    //    .ToList();
+                    //return View("Results", reduceResults);
                 }
             }
             return View("NoResults", (object)id);
