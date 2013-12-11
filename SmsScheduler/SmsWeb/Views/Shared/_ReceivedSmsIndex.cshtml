@@ -1,6 +1,11 @@
 ﻿@model List<SmsTrackingModels.SmsReceivedData>
 
-<h2>new messages received:</h2>
+@{
+    ViewBag.Title = "SMS Received";
+    Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
+}
+
+<h4>New messages received:</h4>
 @foreach (var message in Model)
 {
     <p>From @message.SmsData.Mobile, with message @message.SmsData.Message</p>
