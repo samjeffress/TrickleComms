@@ -21,8 +21,9 @@ namespace SmsActioner
             _documentStore = new DocumentStore
                 {
                     Url = ConfigurationManager.AppSettings["RavenUrl"], 
-                    ApiKey = apiKey, 
-                    ResourceManagerId = Guid.NewGuid()
+                    ApiKey = apiKey,
+                    ResourceManagerId = Guid.NewGuid(),
+                    DefaultDatabase = "SmsTracking"
                 };
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("Configuration");

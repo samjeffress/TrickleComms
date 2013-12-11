@@ -17,7 +17,7 @@ namespace SmsScheduler
         private readonly IDocumentStore _documentStore;
         public RavenDocStore()
         {
-            _documentStore = new DocumentStore { Url = "http://localhost:8080", ResourceManagerId = Guid.NewGuid() };
+            _documentStore = new DocumentStore { Url = "http://localhost:8080", ResourceManagerId = Guid.NewGuid(), DefaultDatabase = "SmsTracking" };
             _documentStore.Initialize();
             _documentStore.DatabaseCommands.EnsureDatabaseExists("Configuration");
             IndexCreation.CreateIndexes(typeof(ScheduleMessagesInCoordinatorIndex).Assembly, _documentStore);

@@ -60,6 +60,7 @@
     <Compile Include="ScheduleMessagesInCoordinatorIndex.cs" />
     <Compile Include="ScheduleTrackingData.cs" />
     <Compile Include="SmsReceivedData.cs" />
+    <Compile Include="SmsTrackingData.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmsMessages\SmsMessages.csproj">
