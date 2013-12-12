@@ -10,6 +10,7 @@ namespace IncomingSmsHandler
         public IBus Bus { get; set; }
 
         //[Authenticate]
+        // TODO: Send Empty Twiml Response - http://twimlets.com/echo?Twiml=%3CResponse%3E%3C%2FResponse%3E
         public void Any(MessageReceived request)
         {
             Bus.Send("IncomingSmsHandler", request);

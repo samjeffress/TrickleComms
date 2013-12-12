@@ -1,0 +1,20 @@
+﻿@model SmsTrackingModels.SmsReceivedData
+
+@{
+    ViewBag.Title = "Respond";
+    Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
+}
+
+<h2>Respond</h2>
+<table>
+    <tr><th>Number</th><td>@Model.SmsData.Mobile</td></tr>
+    <tr><th>Message</th><td>@Model.SmsData.Message</td></tr>
+    <tr><th>Date (UTC)</th><td>@Model.SmsConfirmationData.SentAtUtc.ToShortDateString()</td></tr>
+</table>
+@using (Html.BeginForm("Respond", "ReceivedMessage", FormMethod.Post))
+{
+    <label>Response</label>
+    <input type="hidden" id="incomingSmsId" value="@Model.SmsId"/>
+    <textarea id="responseText"></textarea>
+    <input type="submit"/>
+}

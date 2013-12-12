@@ -8,5 +8,5 @@
 <h4>New messages received:</h4>
 @foreach (var message in Model)
 {
-    <p>From @message.SmsData.Mobile, with message @message.SmsData.Message</p>
+    <p>From @message.SmsData.Mobile, with message @message.SmsData.Message - @Html.ActionLink("Respond", "Respond", "ReceivedMessage", new { incomingSmsId = message.SmsId }, null)</p>
 }
