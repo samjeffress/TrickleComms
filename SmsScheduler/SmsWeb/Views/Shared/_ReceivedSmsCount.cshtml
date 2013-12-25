@@ -2,5 +2,5 @@
 
 @if (Model != 0)
 {
-    <p>New messages received! @Html.ActionLink("Open", "Index", "ReceivedMessage")</p>
+    <p>New messages received! @Ajax.ActionLink("Open", "Index", "ReceivedMessage", new AjaxOptions { InsertionMode = InsertionMode.Replace, UpdateTargetId = "receivedMessages"}) ---- @Html.ActionLink("Open", "Index", "ReceivedMessage")</p>
 }

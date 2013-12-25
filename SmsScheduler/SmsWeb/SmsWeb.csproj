@@ -468,10 +468,11 @@
     <Content Include="Views\Shared\CoordinatorSchedulesFailedPaging.cshtml" />
     <Content Include="Views\Shared\_ReceivedSmsIndex.cshtml" />
     <Content Include="Views\Shared\_ReceivedSmsCount.cshtml" />
-    <Content Include="Views\ReceivedMessage\Respond.cshtml" />
+    <Content Include="Views\Shared\_ReceivedSmsRespond.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\ReceivedMessage\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

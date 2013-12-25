@@ -35,17 +35,17 @@ namespace SmsWeb.Controllers
             }
         }
 
-        public ActionResult Respond(string incomingSmsId)
+        public PartialViewResult Respond(string incomingSmsId)
         {
             using (var session = DocumentStore.GetStore().OpenSession())
             {
                 var incomingSms = session.Load<SmsReceivedData>(incomingSmsId);
-                return View("Respond", incomingSms);
+                return PartialView("_ReceivedSmsRespond", incomingSms);
             }
         }
 
         [HttpPost]
-        public ActionResult Respond(RespondToSmsIncoming response)
+        public PartialViewResult Respond(RespondToSmsIncoming response)
         {
             using (var session = DocumentStore.GetStore().OpenSession())
             {
@@ -57,7 +57,23 @@ namespace SmsWeb.Controllers
                 });
                 incomingSms.Acknowledge = true;
                 session.SaveChanges();
-                return View("Respond", incomingSms);
+                return Index();
+                //return RedirectToAction("Index");
+                //return PartialView("_ReceivedSmsRespond", incomingSms);
+            }
+        }
+
+        public PartialViewResult Ignore(string incomingSmsId)
+        {
+            using (var session = DocumentStore.GetStore().OpenSession())
+            {
+                var incomingSms = session.Load<SmsReceivedData>(incomingSmsId);
+                incomingSms.Acknowledge = true;
+                incomingSms.Ignored = true;
+                session.SaveChanges();
+                return Index();
+                //return RedirectToAction("Index");
+                //return PartialView("_ReceivedSmsRespond", incomingSms);
             }
         }
 

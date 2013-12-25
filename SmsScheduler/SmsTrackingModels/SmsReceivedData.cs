@@ -12,5 +12,7 @@ namespace SmsTrackingModels
         public Guid SmsId { get; set; }
 
         public bool Acknowledge { get; set; }
+
+        public bool Ignored { get; set; }
     }
 }
