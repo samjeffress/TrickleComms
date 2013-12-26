@@ -29,6 +29,7 @@ namespace SmsWeb.Controllers
             using (var session = DocumentStore.GetStore().OpenSession())
             {
                 var unacknowledgedSms = session.Query<SmsReceivedData, ReceivedSmsDataByAcknowledgement>()
+                    .Customize(x => x.WaitForNonStaleResultsAsOfNow())
                     .Where(r => r.Acknowledge == false)
                     .ToList();
                 return PartialView("_ReceivedSmsIndex", unacknowledgedSms);
@@ -49,7 +50,7 @@ namespace SmsWeb.Controllers
         {
             using (var session = DocumentStore.GetStore().OpenSession())
             {
-                var incomingSms = session.Load<SmsReceivedData>(response.IncomingSmsId);
+                var incomingSms = session.Load<SmsReceivedData>(response.IncomingSmsId.ToString());
                 Bus.Send(new SendOneMessageNow
                 {
                     CorrelationId = response.IncomingSmsId,
@@ -57,10 +58,10 @@ namespace SmsWeb.Controllers
                 });
                 incomingSms.Acknowledge = true;
                 session.SaveChanges();
-                return Index();
                 //return RedirectToAction("Index");
                 //return PartialView("_ReceivedSmsRespond", incomingSms);
             }
+            return Index();
         }
 
         public PartialViewResult Ignore(string incomingSmsId)
@@ -71,10 +72,10 @@ namespace SmsWeb.Controllers
                 incomingSms.Acknowledge = true;
                 incomingSms.Ignored = true;
                 session.SaveChanges();
-                return Index();
                 //return RedirectToAction("Index");
                 //return PartialView("_ReceivedSmsRespond", incomingSms);
             }
+            return Index();
         }
 
     }
