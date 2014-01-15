@@ -4,12 +4,21 @@
     if (Model.Count > 0)
     {
         <p>New messages received:</p>
-        foreach (var message in Model)
+        <table class="table table-bordered table-striped table-hover">
+            <tr><th>From</th><th>Message</th><th>Action</th></tr>
+        @foreach (var message in Model)
         {
-            <p>From @message.SmsData.Mobile, with message @message.SmsData.Message - 
-                @Ajax.ActionLink("Respond", "Respond", "ReceivedMessage", new {incomingSmsId = message.SmsId}, new AjaxOptions {HttpMethod = "GET", UpdateTargetId = "receivedMessages", InsertionMode = InsertionMode.Replace}) 
-                OR 
-                @Ajax.ActionLink("Ignore", "Ignore", "ReceivedMessage", new {incomingSmsId = message.SmsId}, new AjaxOptions {HttpMethod = "GET", UpdateTargetId = "receivedMessages", InsertionMode = InsertionMode.Replace})</p>
+            <tr>
+                <td>@message.SmsData.Mobile</td>
+                <td>@message.SmsData.Message</td>
+                <td>
+                    @Ajax.ActionLink("Respond", "Respond", "ReceivedMessage", new {incomingSmsId = message.SmsId}, new AjaxOptions {HttpMethod = "GET", UpdateTargetId = "receivedMessages", InsertionMode = InsertionMode.Replace}) 
+                    OR 
+                    @Ajax.ActionLink("Ignore", "Ignore", "ReceivedMessage", new {incomingSmsId = message.SmsId}, new AjaxOptions {HttpMethod = "GET", UpdateTargetId = "receivedMessages", InsertionMode = InsertionMode.Replace})
+                </td>
+            </tr>
         }
+
+    </table>
     }
 }

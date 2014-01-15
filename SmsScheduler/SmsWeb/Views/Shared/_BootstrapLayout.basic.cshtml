@@ -44,10 +44,10 @@
                         <ul class="nav">
                             @Html.Navigation()
                         </ul>
-                            @using(Html.BeginForm("Search", "Home", FormMethod.Post, new { Class = "navbar-search pull-right"}))
-                            {
-                                <input type="text" class="search-query span2" placeholder="Search" id="searchBox" name="id" />
-                            }
+                        @using(Html.BeginForm("Search", "Home", FormMethod.Post, new { Class = "navbar-search pull-right"}))
+                        {
+                            <input type="text" class="search-query span2" placeholder="Search" id="searchBox" name="id" />
+                        }
                     </div><!--/.nav-collapse -->
                 </div>
             </div>

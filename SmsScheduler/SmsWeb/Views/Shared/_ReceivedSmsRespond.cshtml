@@ -6,16 +6,16 @@
 }*@
 
 <h2>Respond</h2>
-<table>
+<table class="table table-bordered table-striped table-hover">
     <tr><th>Number</th><td>@Model.SmsData.Mobile</td></tr>
     <tr><th>Message</th><td>@Model.SmsData.Message</td></tr>
     <tr><th>Date (UTC)</th><td>@Model.SmsConfirmationData.SentAtUtc.ToShortDateString()</td></tr>
 </table>
+
 @using (Ajax.BeginForm("Respond", "ReceivedMessage", null
     , new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "receivedMessages" }, new { id = "respondForm"}))
 {
-    <label>Response</label>
     <input type="hidden" id="incomingSmsId" name="incomingSmsId" value="@Model.SmsId"/>
-    <textarea id="responseText" name="message"></textarea>
-    <input type="submit"/>
+    <textarea id="responseText" placeholder="Your response" name="message"></textarea>
+    <input type="submit" value="reply"/>
 }
