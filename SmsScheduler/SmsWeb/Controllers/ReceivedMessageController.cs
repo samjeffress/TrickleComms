@@ -59,8 +59,6 @@ namespace SmsWeb.Controllers
                 });
                 incomingSms.Acknowledge = true;
                 session.SaveChanges();
-                //return RedirectToAction("Index");
-                //return PartialView("_ReceivedSmsRespond", incomingSms);
             }
             return Index();
         }
@@ -73,8 +71,6 @@ namespace SmsWeb.Controllers
                 incomingSms.Acknowledge = true;
                 incomingSms.Ignored = true;
                 session.SaveChanges();
-                //return RedirectToAction("Index");
-                //return PartialView("_ReceivedSmsRespond", incomingSms);
             }
             return Index();
         }

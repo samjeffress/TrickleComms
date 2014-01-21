@@ -27,8 +27,8 @@
                     <td>@Html.ActionLink(result.CoordinatorId.ToString(), "Details", new { coordinatorId = result.CoordinatorId.ToString()})</td>
                     <td>@result.CurrentStatus.ToString()</td>
                     <td>@result.MessageCount</td>
-                    <td>@result.CreationDateUtc.ToLocalTime().ToString(CultureInfo.InvariantCulture)</td>
-                    <td>@(result.CompletionDateUtc.HasValue ? result.CompletionDateUtc.Value.ToLocalTime().ToString(CultureInfo.InvariantCulture) : string.Empty)</td>
+                    <td>@result.CreationDateUtc.ToLocalTime()</td>
+                    <td>@(result.CompletionDateUtc.HasValue ? result.CompletionDateUtc.Value.ToLocalTime().ToString() : string.Empty)</td>
                     <td>@string.Join(", ", result.Tags)</td>
                     <td>@result.Topic</td>
                 </tr>    
