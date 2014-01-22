@@ -3,6 +3,7 @@ using NServiceBus.Saga;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Responses;
 
 namespace SmsActioner
 {
@@ -33,14 +34,15 @@ namespace SmsActioner
             if (confirmationData is SmsFailed)
             {
                 var failedMessage = confirmationData as SmsFailed;
-                Bus.Publish<MessageFailedSending>(m =>
-                {
-                    m.SmsFailed = failedMessage;
-                    m.CorrelationId = Data.OriginalMessage.CorrelationId;
-                    m.SmsData = Data.OriginalMessage.SmsData;
-                    m.SmsMetaData = Data.OriginalMessage.SmsMetaData;
-                    m.ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress;
-                });
+                var messageFailedSending = new MessageFailedSending
+                    {
+                        SmsFailed = failedMessage,
+                        CorrelationId = Data.OriginalMessage.CorrelationId,
+                        SmsData = Data.OriginalMessage.SmsData,
+                        SmsMetaData = Data.OriginalMessage.SmsMetaData,
+                        ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress
+                    };
+                ReplyToOriginator(messageFailedSending);
                 MarkAsComplete();
             }
             else if (confirmationData is SmsSent)
@@ -54,6 +56,14 @@ namespace SmsActioner
                     m.SmsMetaData = Data.OriginalMessage.SmsMetaData;
                     m.ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress;
                 });
+                ReplyToOriginator(new MessageSuccessfullyDelivered
+                    {
+                        ConfirmationData = sentMessage.SmsConfirmationData,
+                        CorrelationId = Data.OriginalMessage.CorrelationId,
+                        SmsData = Data.OriginalMessage.SmsData,
+                        SmsMetaData = Data.OriginalMessage.SmsMetaData,
+                        ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress
+                    });
                 MarkAsComplete();
             }
             else

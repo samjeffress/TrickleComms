@@ -1,5 +1,6 @@
 ﻿using NServiceBus;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Responses;
 using SmsTrackingModels;
 
 namespace SmsActioner

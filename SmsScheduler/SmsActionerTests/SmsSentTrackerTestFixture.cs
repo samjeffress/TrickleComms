@@ -4,6 +4,7 @@ using Rhino.Mocks;
 using SmsActioner;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Responses;
 using SmsTrackingModels;
 
 namespace SmsActionerTests

@@ -4,6 +4,7 @@ using NServiceBus.Saga;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Responses;
 using SmsMessages.Scheduling.Commands;
 using SmsMessages.Scheduling.Events;
 using SmsTrackingModels;

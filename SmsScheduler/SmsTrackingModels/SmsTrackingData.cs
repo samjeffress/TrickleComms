@@ -1,6 +1,7 @@
 using System;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Events;
+using SmsMessages.MessageSending.Responses;
 
 namespace SmsTrackingModels
 {
