@@ -12,7 +12,7 @@ namespace SmsCoordinator
             .DefaultBuilder()
                 .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
-                .DefiningMessagesAs(t => t.Namespace != null && t.Namespace.EndsWith("Messages"))
+                .DefiningMessagesAs(t => t.Namespace != null && (t.Namespace.EndsWith("Messages") || t.Namespace.EndsWith("Responses")))
                 .DefiningMessagesAs(t => t.Namespace == "SmsMessages")
                 .DefiningMessagesAs(t => t.Namespace == "SmsTrackingMessages.Messages")
             .RunTimeoutManager()
