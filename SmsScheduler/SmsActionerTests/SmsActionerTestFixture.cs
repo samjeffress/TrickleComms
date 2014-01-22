@@ -29,6 +29,7 @@ namespace SmsActionerTests
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectPublish<MessageSent>()
                     .ExpectReplyToOrginator<MessageSuccessfullyDelivered>()
+                    .ExpectSendLocal<MessageSuccessfullyDelivered>()
                 .When(a => a.Handle(sendOneMessageNow))
                 .AssertSagaCompletionIs(true);
         }
@@ -46,6 +47,7 @@ namespace SmsActionerTests
             Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectReplyToOrginator<MessageFailedSending>()
+                    .ExpectSendLocal<MessageFailedSending>()
                 .When(a => a.Handle(sendOneMessageNow))
                 .AssertSagaCompletionIs(true);
         }
@@ -69,6 +71,7 @@ namespace SmsActionerTests
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectPublish<MessageSent>()
                     .ExpectReplyToOrginator<MessageSuccessfullyDelivered>()
+                    .ExpectSendLocal<MessageSuccessfullyDelivered>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
@@ -93,6 +96,7 @@ namespace SmsActionerTests
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectNotPublish<MessageSent>()
                     .ExpectReplyToOrginator<MessageFailedSending>()
+                    .ExpectSendLocal<MessageFailedSending>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
@@ -121,6 +125,7 @@ namespace SmsActionerTests
                 .WhenSagaTimesOut()
                     .ExpectPublish<MessageSent>()
                     .ExpectReplyToOrginator<MessageSuccessfullyDelivered>()
+                    .ExpectSendLocal<MessageSuccessfullyDelivered>()
                 .WhenSagaTimesOut();
         }
 

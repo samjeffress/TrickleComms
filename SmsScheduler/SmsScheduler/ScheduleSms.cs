@@ -18,14 +18,14 @@ namespace SmsScheduler
         IHandleMessages<PauseScheduledMessageIndefinitely>,
         IHandleMessages<ResumeScheduledMessageWithOffset>,
         IHandleMessages<RescheduleScheduledMessageWithNewTime>,
-        IHandleMessages<MessageSent>,
+        IHandleMessages<MessageSuccessfullyDelivered>,
         IHandleMessages<MessageFailedSending>
     {
         public IRavenDocStore RavenDocStore { get; set; }
 
         public override void ConfigureHowToFindSaga()
         {
-            ConfigureMapping<MessageSent>(data => data.Id, message => message.CorrelationId);
+            ConfigureMapping<MessageSuccessfullyDelivered>(data => data.Id, message => message.CorrelationId);
             ConfigureMapping<MessageFailedSending>(data => data.Id, message => message.CorrelationId);
             ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
             ConfigureMapping<ResumeScheduledMessageWithOffset>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
@@ -88,8 +88,9 @@ namespace SmsScheduler
             }
         }
 
-        public void Handle(MessageSent message)
+        public void Handle(MessageSuccessfullyDelivered message)
         {
+            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile });
             Bus.Publish(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile});
             using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
             {

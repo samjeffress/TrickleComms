@@ -1,17 +1,16 @@
 ﻿using NServiceBus;
-using SmsMessages.MessageSending.Events;
 using SmsMessages.MessageSending.Responses;
 using SmsTrackingModels;
 
 namespace SmsActioner
 {
     public class SmsSentTracker :
-        IHandleMessages<MessageSent>, 
+        IHandleMessages<MessageSuccessfullyDelivered>, 
         IHandleMessages<MessageFailedSending>
     {
         public IRavenDocStore RavenStore { get; set; }
 
-        public void Handle(MessageSent message)
+        public void Handle(MessageSuccessfullyDelivered message)
         {
             using (var session = RavenStore.GetStore().OpenSession())
             {

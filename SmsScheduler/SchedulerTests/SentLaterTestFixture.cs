@@ -8,7 +8,6 @@ using Raven.Client.Embedded;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
-using SmsMessages.MessageSending.Events;
 using SmsMessages.MessageSending.Responses;
 using SmsMessages.Scheduling.Commands;
 using SmsMessages.Scheduling.Events;
@@ -33,7 +32,7 @@ namespace SmsSchedulerTests
         {
             var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), ScheduleMessageId = Guid.NewGuid() };
             var sagaId = Guid.NewGuid();
-            var messageSent = new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") };
+            var messageSent = new MessageSuccessfullyDelivered { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") };
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
@@ -161,7 +160,7 @@ namespace SmsSchedulerTests
                     .ExpectSend<SendOneMessageNow>()
                 .When(s => s.Timeout(new ScheduleSmsTimeout { TimeoutCounter = 1 }))
                     .ExpectPublish<ScheduledSmsSent>()
-                .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2")}))
+                .When(s => s.Handle(new MessageSuccessfullyDelivered { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") }))
                     .AssertSagaCompletionIs(true);
             var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
             Assert.That(scheduleTrackingData.MessageStatus, Is.EqualTo(MessageStatus.Sent));
@@ -200,7 +199,7 @@ namespace SmsSchedulerTests
                     .ExpectSend<SendOneMessageNow>()
                 .When(s => s.Timeout(new ScheduleSmsTimeout { TimeoutCounter = 1 }))
                     .ExpectPublish<ScheduledSmsSent>()
-                .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2")}))
+                .When(s => s.Handle(new MessageSuccessfullyDelivered { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") }))
                     .AssertSagaCompletionIs(true);
 
             var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
@@ -237,7 +236,7 @@ namespace SmsSchedulerTests
                     .ExpectSend<SendOneMessageNow>()
                 .When(s => s.Timeout(new ScheduleSmsTimeout { TimeoutCounter = 1}))
                     .ExpectPublish<ScheduledSmsSent>()
-                .When(s => s.Handle(new MessageSent { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") }))
+                .When(s => s.Handle(new MessageSuccessfullyDelivered { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") }))
                     .AssertSagaCompletionIs(true);
 
             var scheduleTrackingData = GetSchedule(scheduleSmsForSendingLater.ScheduleMessageId.ToString());

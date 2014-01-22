@@ -15,7 +15,7 @@ namespace SmsActionerTests
         [Test]
         public void HandleMessageSentNoConfirmationEmail()
         {
-            var messageSent = new MessageSent { CorrelationId = Guid.NewGuid(), ConfirmationData = new SmsConfirmationData("receipt", DateTime.Now.AddMinutes(-10), 0.33m) };
+            var messageSent = new MessageSuccessfullyDelivered { CorrelationId = Guid.NewGuid(), ConfirmationData = new SmsConfirmationData("receipt", DateTime.Now.AddMinutes(-10), 0.33m) };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             ravenDocStore.Expect(r => r.GetStore()).Return(DocumentStore);

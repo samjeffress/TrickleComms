@@ -19,15 +19,6 @@ namespace SmsWeb
         , IHandleMessages<CoordinatorCompleted>
         , IHandleMessages<CoordinatorCreated>
     {
-        //public SmsScheduleStatusHandler()
-        //{
-            
-        //}
-
-        //public SmsScheduleStatusHandler(IRavenDocStore ravenDocStore)
-        //{
-        //    RavenDocStore = ravenDocStore;
-        //}
         public IRavenDocStore RavenDocStore { get; set; }
 
         public void Handle(ScheduledSmsSent message)

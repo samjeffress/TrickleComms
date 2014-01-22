@@ -9,7 +9,7 @@ namespace SmsActioner
             var configure = Configure.With()
             .DefaultBuilder()
                 .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
-                .DefiningMessagesAs(t => t.Namespace != null && (t.Namespace.EndsWith("Messages") || t.Namespace.EndsWith("Responses")))
+                .DefiningMessagesAs(t => t.Namespace != null && (t.Namespace.EndsWith(".Messages") || t.Namespace.EndsWith(".Responses")))
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
             .RunTimeoutManager()
             .Log4Net()

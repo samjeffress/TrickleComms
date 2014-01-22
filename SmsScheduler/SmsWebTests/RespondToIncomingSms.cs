@@ -7,6 +7,7 @@ using Rhino.Mocks;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 using SmsWeb;
 using SmsWeb.Controllers;
 
@@ -28,8 +29,9 @@ namespace SmsWebTests
 
             raven.Expect(d => d.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession()).Return(session);
-            session.Expect(s => s.Load<SmsReceivedData>(response.IncomingSmsId)).Return(smsReceivedData);
+            session.Expect(s => s.Load<SmsReceivedData>(response.IncomingSmsId.ToString())).Return(smsReceivedData);
             session.Expect(s => s.SaveChanges());
+            // TODO : Mock the query action
 
             SendOneMessageNow sendMessageNow = null;
             bus.Expect(b => b.Send(Arg<SendOneMessageNow>.Is.Anything))

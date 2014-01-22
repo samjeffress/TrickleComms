@@ -43,6 +43,7 @@ namespace SmsActioner
                         ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress
                     };
                 ReplyToOriginator(messageFailedSending);
+                Bus.SendLocal(messageFailedSending);
                 MarkAsComplete();
             }
             else if (confirmationData is SmsSent)
@@ -56,14 +57,12 @@ namespace SmsActioner
                     m.SmsMetaData = Data.OriginalMessage.SmsMetaData;
                     m.ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress;
                 });
-                ReplyToOriginator(new MessageSuccessfullyDelivered
+                var messageSuccessfullyDelivered = new MessageSuccessfullyDelivered
                     {
-                        ConfirmationData = sentMessage.SmsConfirmationData,
-                        CorrelationId = Data.OriginalMessage.CorrelationId,
-                        SmsData = Data.OriginalMessage.SmsData,
-                        SmsMetaData = Data.OriginalMessage.SmsMetaData,
-                        ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress
-                    });
+                        ConfirmationData = sentMessage.SmsConfirmationData, CorrelationId = Data.OriginalMessage.CorrelationId, SmsData = Data.OriginalMessage.SmsData, SmsMetaData = Data.OriginalMessage.SmsMetaData, ConfirmationEmailAddress = Data.OriginalMessage.ConfirmationEmailAddress
+                    };
+                Bus.SendLocal(messageSuccessfullyDelivered);
+                ReplyToOriginator(messageSuccessfullyDelivered);
                 MarkAsComplete();
             }
             else

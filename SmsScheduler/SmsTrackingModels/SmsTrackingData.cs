@@ -1,6 +1,5 @@
 using System;
 using SmsMessages.CommonData;
-using SmsMessages.MessageSending.Events;
 using SmsMessages.MessageSending.Responses;
 
 namespace SmsTrackingModels
@@ -9,7 +8,7 @@ namespace SmsTrackingModels
     {
         public SmsTrackingData() { }
 
-        public SmsTrackingData(MessageSent message)
+        public SmsTrackingData(MessageSuccessfullyDelivered message)
         {
             Status = MessageTrackedStatus.Sent;
             ConfirmationData = message.ConfirmationData;
