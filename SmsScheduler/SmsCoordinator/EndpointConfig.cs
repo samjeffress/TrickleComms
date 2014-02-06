@@ -1,4 +1,5 @@
 ﻿using NServiceBus;
+using SmsCoordinator.Email;
 using SmsMessages.Scheduling.Events;
 
 namespace SmsCoordinator
@@ -31,9 +32,11 @@ namespace SmsCoordinator
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<CalculateSmsTiming>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<RavenScheduleDocuments>(DependencyLifecycle.InstancePerUnitOfWork);
+            Configure.Instance.Configurer.ConfigureComponent<MailActioner>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<DateTimeUtcFromOlsenMapping>(DependencyLifecycle.SingleInstance);
 
-            configure.CreateBus()
-            .Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+            configure.CreateBus().Start();
+            //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
         }
 
     }

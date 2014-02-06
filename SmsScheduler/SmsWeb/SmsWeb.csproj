@@ -88,13 +88,13 @@
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Abstractions, Version=1.2.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+    <Reference Include="Raven.Abstractions, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RavenDB.Client.1.2.2135-Unstable\lib\net40\Raven.Abstractions.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Client.2.0.2380\lib\net40\Raven.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Raven.Client.Lightweight, Version=1.2.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
+    <Reference Include="Raven.Client.Lightweight, Version=2.0.3.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RavenDB.Client.1.2.2135-Unstable\lib\net40\Raven.Client.Lightweight.dll</HintPath>
+      <HintPath>..\packages\RavenDB.Client.2.0.2380\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack, Version=3.9.43.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -445,7 +445,6 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Web.config" />
     <Content Include="Views\Coordinator\Create.cshtml" />
-    <Content Include="Views\Coordinator\Details.cshtml" />
     <Content Include="Views\Coordinator\Index.cshtml" />
     <Content Include="Views\Home\NoResults.cshtml" />
     <Content Include="Views\Coordinator\DetailsNotCreated.cshtml" />
@@ -476,11 +475,9 @@
     <Content Include="Views\Shared\_DefaultEmailConfigEdit.cshtml" />
     <Content Include="Views\Shared\_DefaultEmailConfigDetails.cshtml" />
     <Content Include="Scripts\tinysort-1.5.2.js" />
-    <Content Include="Views\Coordinator\Details2.cshtml" />
     <Content Include="Views\Coordinator\Details3.cshtml" />
     <Content Include="Views\Shared\CoordinatorSchedulesFailed.cshtml" />
     <Content Include="Views\Shared\CoordinatorSchedulesFailedPaging.cshtml" />
-    <Content Include="Views\Shared\CoordinatorStatusSummary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

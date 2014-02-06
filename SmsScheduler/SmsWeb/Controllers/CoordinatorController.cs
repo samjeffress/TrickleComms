@@ -133,7 +133,7 @@ namespace SmsWeb.Controllers
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 RavenQueryStatistics stats;
-                var pagedResults = session.Query<CoordinatorTrackingData>()
+                var pagedResults = session.Query<CoordinatorTrackingData, CoordinatorTrackingDataByDate>()
                     .Statistics(out stats)
                     .Skip(page * resultsPerPage)
                     .Take(resultsPerPage)
@@ -149,6 +149,7 @@ namespace SmsWeb.Controllers
                         Tags = c.MetaData != null && c.MetaData.Tags != null ? c.MetaData.Tags : new List<string>(),
                         Topic = c.MetaData != null ? c.MetaData.Topic : string.Empty
                     })
+                    .OrderByDescending(c => c.CreationDateUtc)
                     .ToList();
                 var totalResults = stats.TotalResults;
                 var coordinatorPagedResults = new CoordinatorPagedResults
@@ -190,29 +191,24 @@ namespace SmsWeb.Controllers
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
-                var coordinatorOverview = new CoordinatorOverview
-                                              {
-                                                  CoordinatorId = Guid.Parse(coordinatorid),
-                                                  CreationDateUtc = coordinatorTrackingData.CreationDateUtc,
-                                                  CompletionDateUtc = coordinatorTrackingData.CompletionDateUtc,
-                                                  CurrentStatus = coordinatorTrackingData.CurrentStatus,
-                                                  Topic = coordinatorTrackingData.MetaData.Topic,
-                                                  Tags = coordinatorTrackingData.MetaData.Tags,
-                                                  CoordinatorCounters = new CoordinatorStatusCounters 
-                                                  { 
-                                                      CoordinatorId = coordinatorTrackingData.CoordinatorId,
-                                                      StatusCounters = coordinatorSummary.Select(
-                                                          s => new StatusCounter {Count = s.Count, Status = s.Status})
-                                                          .OrderBy(s => s.Status)
-                                                          .ToList()
-                                                  },
-                                                  MessageCount = coordinatorTrackingData.MessageCount,
-                                                  MessageBody = coordinatorTrackingData.MessageBody
-                                              };
+                var nextSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId == Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
+                    .OrderBy(s => s.ScheduleTimeUtc)
+                    .Select(s => s.ScheduleTimeUtc)
+                    .FirstOrDefault();
 
+                var finalSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId== Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
+                    .OrderByDescending(s => s.ScheduleTimeUtc)
+                    .Select(s => s.ScheduleTimeUtc)
+                    .FirstOrDefault();
+
+                var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
+                overview.NextScheduledMessageDate = nextSmsDateUtc;
+                overview.FinalScheduledMessageDate = finalSmsDateUtc;
                 if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorid] != null && HttpContext.Session["CoordinatorState_" + coordinatorid] is CoordinatorStatusTracking)
-                    coordinatorOverview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
-                return View("Details3", coordinatorOverview);
+                    overview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
+                return View("Details3", overview);
             }
         }
 
@@ -247,6 +243,9 @@ namespace SmsWeb.Controllers
             {
                 using (var session = RavenDocStore.GetStore().OpenSession())
                 {
+                    var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                        .Where(s => s.CoordinatorId == coordinatorid)
+                        .ToList();
                     var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorid);
                     if (coordinatorTrackingData == null)
                     {
@@ -257,7 +256,8 @@ namespace SmsWeb.Controllers
                         coordinatorTrackingData.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorid];
                     ViewData.Add("timeToResume", collection["timeToResume"]);
                     ViewData.Add("finishTime", collection["finishTime"]);
-                    return View("Details", coordinatorTrackingData);
+                    var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
+                    return View("Details3", overview);
                 }              
             }
 
@@ -300,21 +300,6 @@ namespace SmsWeb.Controllers
                 var pages = (int)Math.Ceiling((double)stats.TotalResults / (double)pageSize);
                 var pagedResult = new PagedResult<ScheduleFailedModel> {CurrentPage = page, TotalPages = pages, ResultsPerPage = pageSize, ResultsList = pagedResults, CoordinatorId = coordinatorId};
                 return PartialView("CoordinatorSchedulesFailed", pagedResult);
-            }
-        }
-
-        public PartialViewResult CoordinatorOverview(Guid coordinatorId)
-        {
-            using (var session = RavenDocStore.GetStore().OpenSession())
-            {
-                var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
-                        .Where(s => s.CoordinatorId == coordinatorId.ToString())
-                        .ToList();
-                var coordinatorStatusCounters = new CoordinatorStatusCounters
-                                                    {
-                                                        CoordinatorId = coordinatorId, StatusCounters = coordinatorSummary.Select(s => new StatusCounter {Count = s.Count, Status = s.Status}).OrderBy(s => s.Status).ToList()
-                                                    };
-                return PartialView("CoordinatorStatusSummary", coordinatorStatusCounters);
             }
         }
     }

@@ -23,7 +23,7 @@
                 <tr>
                     <td>@Html.ActionLink(coordintor.CoordinatorId.ToString(), "Details", "Coordinator", new { coordinatorid = coordintor.CoordinatorId.ToString()}, null)</td>
                     <td>@coordintor.CurrentStatus.ToString()</td>
-                    <td>@coordintor.MessageStatuses.Count</td>
+                    <td>@coordintor.MessageCount</td>
                     <td>Don't have this yet</td>
                 </tr>
             }

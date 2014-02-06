@@ -13,7 +13,31 @@
 <script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
 
 <script type="text/javascript">
+    function setupProgressBar(sentMessages, failedMessages, scheduledMessages, pausedMessages, waitingforSchedulingMessages, cancelledMessages) { 
+        updateProgressBarSection(totalMessages, cancelledMessages, "progress_cancelled");
+        updateProgressBarSection(totalMessages, waitingforSchedulingMessages, "progress_waiting");
+        updateProgressBarSection(totalMessages, pausedMessages, "progress_paused");
+        updateProgressBarSection(totalMessages, failedMessages, "progress_failed");
+        updateProgressBarSection(totalMessages, sentMessages, "progress_success");
+        updateProgressBarSection(totalMessages, scheduledMessages, "progress_scheduled");
+    };
+
+    function updateProgressBarSection(totalMessageCount, sectionMessageCount, divId) {
+        var sectionPercentage = sectionMessageCount / totalMessages * 100;
+        $('#' + divId).width(sectionPercentage + "%");
+        $('#' + divId).text(sectionMessageCount);
+    }
+
     $(function () {
+        window.totalMessages = '@Model.MessageCount';
+        window.coordinatorId = '@Model.CoordinatorId';
+        var sentMessages = '@Model.MessageStatusCounter.SentCount';
+        var failedMessages = '@Model.MessageStatusCounter.FailedCount';
+        var scheduledMessages = '@Model.MessageStatusCounter.ScheduledCount';
+        var pausedMessages = '@Model.MessageStatusCounter.PausedCount';
+        var waitingForSchedulingMessages = '@Model.MessageStatusCounter.CancelledCount';
+        var cancelledMessages = '@Model.MessageStatusCounter.CancelledCount';
+        setupProgressBar(sentMessages, failedMessages, scheduledMessages, pausedMessages, waitingForSchedulingMessages, cancelledMessages);
 
         $('input[name="timeToResume"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
         $('input[name="finishTime"]').datetimepicker({ dateFormat: 'dd/mm/yy' });
@@ -21,14 +45,9 @@
 
         var schedule = $.connection.scheduleStatus;
 
-        schedule.client.scheduleUpdated = function (message) {
-            if ('@Model.CoordinatorId.ToString()' == message.CoordinatorId) {
-                var urlString = '@Url.Action("CoordinatorOverview", "Coordinator", new { coordinatorId = Model.CoordinatorId })';
-                $.ajax({
-                    url: urlString,
-                }).done(function (data) {
-                    $('#CoordinatorStatusOverview').html(data);
-                });
+        schedule.client.messageStatusUpdated = function (coordinatorId, sentCount, failedCount, scheduledCount, pausedCount, waitingForSchedulingCount, cancelledCount) {
+            if (coordinatorId == window.coordinatorId){
+                setupProgressBar(sentCount, failedCount, scheduledCount, pausedCount, waitingForSchedulingCount, cancelledCount);
             }
         };
         
@@ -98,26 +117,39 @@
     }
 </div>
 
-<fieldset>
-    <legend>Coordinator Overview</legend>
-    <div class="display-label">
-        @Html.DisplayName("Number of messages")
-        @Html.DisplayFor(model => model.MessageCount)
-    </div>
+<table class="table">
+    <tr>
+        <th>Number of Messages</th>
+        <td>@Model.MessageCount</td>
+    </tr>
+    <tr>
+        <th>Message Body</th>
+        <td>@Model.MessageBody</td>
+    </tr>
+    @if (Model.CurrentStatus == CoordinatorStatusTracking.Started)
+    {
+        if (Model.NextScheduledMessageDate != null)
+        {
+            <tr>
+                <th>Next Scheduled Message (UTC)</th>
+                <td>@Model.NextScheduledMessageDate</td>
+            </tr>
+        }
+        if (Model.FinalScheduledMessageDate != null)
+         {
+             <tr>
+                 <th>Final Scheduled Message (UTC)</th>
+                 <td>@Model.FinalScheduledMessageDate</td>
+             </tr>
+         }
+    }
+</table>
+<div class="progress progress-striped active" style="max-width: 100%;">
+    <div class="bar bar-info" id="progress_waiting" title="Waiting to be scheduled"></div>
+    <div class="bar bar-info" id="progress_scheduled" title="Scheduled to be sent"></div>
+    <div class="bar bar-info" id="progress_paused" title="Paused"></div>
+    <div class="bar bar-success" id="progress_success" title="Delivered!"></div>
+    <div class="bar bar-danger" id="progress_failed" title="Delivery failed"></div>
+    <div class="bar bar-danger" id="progress_cancelled" title="Cancelled"></div>
+</div>
 
-    <div class="display-label">
-            @Html.DisplayNameFor(model => model.Topic)
-        @Html.DisplayFor(model => model.Topic)
-    </div>
-
-    <div class="display-label">
-            @Html.DisplayName("Message Body")
-        @Html.DisplayFor(model => model.MessageBody)
-    </div>
-
-    <div id="CoordinatorStatusOverview">
-        @Html.Partial("CoordinatorStatusSummary", Model.CoordinatorCounters)
-    </div>
-    
-    <div id="FailedDetails"></div>
-</fieldset>

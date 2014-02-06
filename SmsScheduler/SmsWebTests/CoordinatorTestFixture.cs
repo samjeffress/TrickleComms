@@ -9,6 +9,7 @@ using NServiceBus;
 using NUnit.Framework;
 using Raven.Client;
 using Raven.Client.Embedded;
+using Raven.Client.Indexes;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
 using SmsMessages.Coordinator.Commands;
@@ -30,6 +31,7 @@ namespace SmsWebTests
         {
             var _store = new EmbeddableDocumentStore { RunInMemory = true };
             _store.Initialize();
+            IndexCreation.CreateIndexes(typeof(ScheduleMessagesInCoordinatorIndex).Assembly, _store);
             Top1CoordinatorId = Guid.NewGuid();
             var mostRecentCoordinators = new List<CoordinatorTrackingData>
                 {

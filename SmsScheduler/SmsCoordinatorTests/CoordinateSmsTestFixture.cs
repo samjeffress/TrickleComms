@@ -751,7 +751,7 @@ namespace SmsCoordinatorTests
                     s.Data = sagaData; s.RavenScheduleDocuments = ravenScheduleDocuments;
                 })
                     .ExpectPublish<CoordinatorCompleted>()
-                    .ExpectSend<CoordinatorCompleteEmailWithSummary>()
+                    .ExpectSendLocal<CoordinatorCompleteEmailWithSummary>()
                 .When(s => s.Timeout(new CoordinatorTimeout()))
                 .AssertSagaCompletionIs(true);
         }
