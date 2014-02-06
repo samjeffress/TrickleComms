@@ -101,6 +101,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountOutOfMoneyException.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="ISmsService.cs" />
     <Compile Include="ISmsTechWrapper.cs" />

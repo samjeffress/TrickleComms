@@ -67,7 +67,7 @@ namespace SmsTrackingModels
                         {
                             ActualSentTimeUtc = t.ConfirmationData == null ? (DateTime?)null : t.ConfirmationData.SentAtUtc,
                             Cost = t.ConfirmationData == null ? (decimal?)null : t.ConfirmationData.Price,
-                            FailureData = t.SmsFailureData == null ? null : new FailureData { Message = t.SmsFailureData.Message, MoreInfo = t.SmsFailureData.MoreInfo },
+                            FailureData = t.SmsFailureData == null ? null : new FailureData { Message = t.SmsFailureData.Message },
                             Number = t.SmsData.Mobile,
                             ScheduleMessageId = t.ScheduleId,
                             ScheduledSendingTimeUtc = t.ScheduleTimeUtc,
@@ -140,7 +140,5 @@ namespace SmsTrackingModels
     public class FailureData
     {
         public string Message { get; set; }
-
-        public string MoreInfo { get; set; }
     }
 }

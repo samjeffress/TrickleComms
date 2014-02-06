@@ -12,8 +12,6 @@ namespace SmsActioner
     {
         public ISmsService SmsService { get; set; }
 
-        public ITwilioWrapper TwilioWrapper { get; set; }
-
         public void Handle(SendOneMessageNow sendOneMessageNow)
         {
             Data.OriginalMessage = sendOneMessageNow;

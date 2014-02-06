@@ -34,7 +34,7 @@ namespace SmsActionerTests
             var messageSent = new MessageFailedSending
                 {
                     CorrelationId = Guid.NewGuid(),
-                    SmsFailed = new SmsFailed("232", "code", "bad", "no more", "fail"),
+                    SmsFailed = new SmsFailed("232", "code", "bad"),
                 };
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();

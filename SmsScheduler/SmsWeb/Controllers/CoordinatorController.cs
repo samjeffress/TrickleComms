@@ -292,7 +292,6 @@ namespace SmsWeb.Controllers
                                          ScheduleId = s.ScheduleId,
                                          Number = s.SmsData.Mobile,
                                          ErrorMessage = s.SmsFailureData.Message,
-                                         ErrorMoreInfo = s.SmsFailureData.MoreInfo,
                                          ErrorCode = s.SmsFailureData.Code
                                      })
                     .ToList();

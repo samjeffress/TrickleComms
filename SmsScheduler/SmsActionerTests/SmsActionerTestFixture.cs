@@ -37,7 +37,7 @@ namespace SmsActionerTests
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
-            var smsSent = new SmsFailed("sid", "code", "message", "moreinfo", "status");
+            var smsSent = new SmsFailed("sid", "code", "message");
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSent);
 
             Test.Initialize();
@@ -79,7 +79,7 @@ namespace SmsActionerTests
 
             const string sid = "12";
             var smsQueued = new SmsQueued(sid);
-            var smsFailed = new SmsFailed(sid, "c", "m", "m", "s");
+            var smsFailed = new SmsFailed(sid, "c", "m");
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsQueued);
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsFailed);
 

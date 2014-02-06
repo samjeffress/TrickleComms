@@ -25,18 +25,12 @@ namespace SmsMessages.CommonData
 
     public class SmsFailed : SmsStatus
     {
-        public SmsFailed(string sid, string code, string message, string moreInfo, string status)
+        public SmsFailed(string sid, string code, string message)
         {
             Sid = sid;
             Code = code;
             Message = message;
-            MoreInfo = moreInfo;
-            Status = status;
         }
-
-        public string Status { get; set; }
-
-        public string MoreInfo { get; set; }
 
         public string Code { get; set; }
 
@@ -45,8 +39,11 @@ namespace SmsMessages.CommonData
 
     public class SmsSending : SmsStatus
     {
-        public SmsSending(string sid)
+        public decimal Price { get; set; }
+
+        public SmsSending(string sid, decimal price)
         {
+            Price = price;
             Sid = sid;
         }
     }
