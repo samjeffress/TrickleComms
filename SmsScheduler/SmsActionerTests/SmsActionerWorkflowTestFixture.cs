@@ -10,7 +10,7 @@ using SmsMessages.MessageSending.Events;
 namespace SmsActionerTests
 {
     [TestFixture]
-    public class SmsActionerTestFixture
+    public class SmsActionerWorkflowTestFixture
     {
         // TODO: Add tests for data in messages being set
 

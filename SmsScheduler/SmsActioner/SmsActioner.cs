@@ -14,12 +14,12 @@ namespace SmsActioner
 
         public void Handle(SendOneMessageNow sendOneMessageNow)
         {
-            Data.OriginalMessage = sendOneMessageNow;
             var confirmationData = SmsService.Send(sendOneMessageNow);
             if (confirmationData is SmsSent)
                 throw new ArgumentException("SmsSent type is invalid - followup is required to get delivery status");
             if (confirmationData is SmsQueued)
                 throw new ArgumentException("SmsQueued type is invalid - followup is required to get delivery status");
+            Data.OriginalMessage = sendOneMessageNow;
             Data.SmsRequestId = confirmationData.Sid;
             ProcessConfirmationData(confirmationData);
         }

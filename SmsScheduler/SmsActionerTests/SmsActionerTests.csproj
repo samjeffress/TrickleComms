@@ -121,7 +121,8 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RavenTestBase.cs" />
-    <Compile Include="SmsActionerTestFixture.cs" />
+    <Compile Include="SmsActionerHandlerTestFixture.cs" />
+    <Compile Include="SmsActionerWorkflowTestFixture.cs" />
     <Compile Include="SmsSentTrackerTestFixture.cs" />
     <Compile Include="SmsServiceCheckTestFixture.cs" />
     <Compile Include="SmsServiceTestFixture.cs" />

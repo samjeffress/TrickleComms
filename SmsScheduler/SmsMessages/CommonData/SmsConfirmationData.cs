@@ -7,23 +7,6 @@ namespace SmsMessages.CommonData
         public string Sid { get; set; }
     }
 
-    public class SmsConfirmationData
-    {
-        public SmsConfirmationData(string receipt, DateTime sentAtUtc, Decimal price)
-        {
-            Receipt = receipt;
-            SentAtUtc = new DateTime(sentAtUtc.Ticks, DateTimeKind.Utc);
-            Price = price;
-        }
-
-        public string Receipt { get; set; }
-
-        public DateTime SentAtUtc { get; set; }
-
-        // TODO: Remove Price as it actually comes from SmsSending
-        public Decimal Price { get; set; }
-    }
-
     public class SmsFailed : SmsStatus
     {
         public SmsFailed(string sid, string code, string message)
@@ -66,5 +49,22 @@ namespace SmsMessages.CommonData
         }
 
         public SmsConfirmationData SmsConfirmationData { get; set; }
+    }
+
+    public class SmsConfirmationData
+    {
+        public SmsConfirmationData(string receipt, DateTime sentAtUtc, Decimal price)
+        {
+            Receipt = receipt;
+            SentAtUtc = new DateTime(sentAtUtc.Ticks, DateTimeKind.Utc);
+            Price = price;
+        }
+
+        public string Receipt { get; set; }
+
+        public DateTime SentAtUtc { get; set; }
+
+        // TODO: Remove Price as it actually comes from SmsSending
+        public Decimal Price { get; set; }
     }
 }
