@@ -49,10 +49,7 @@ namespace SmsActionerTests
             Assert.That(smsStatus, Is.TypeOf(typeof(SmsSent)));
             Assert.That(smsStatus.Sid, Is.EqualTo(sid));
             var smsSent = smsStatus as SmsSent;
-            Assert.That(smsSent.SmsConfirmationData.SentAtUtc, Is.EqualTo(sendAt));
-            Assert.That(smsSent.SmsConfirmationData.Receipt, Is.EqualTo(sid));
-            // TODO :Ensure that the price is set later
-            Assert.That(smsSent.SmsConfirmationData.Price, Is.EqualTo(0));
+            Assert.That(smsSent.SentAtUtc, Is.EqualTo(sendAt));
             smsTechWrapper.VerifyAllExpectations();
         }
 

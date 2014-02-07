@@ -20,7 +20,7 @@ namespace SmsActionerTests
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
-            var smsSent = new SmsSent(new SmsConfirmationData("r", DateTime.Now, 0.44m));
+            var smsSent = new SmsSent("r", DateTime.Now);
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSent);
 
             Test.Initialize();
@@ -77,7 +77,7 @@ namespace SmsActionerTests
             var smsService = MockRepository.GenerateMock<ISmsService>();
 
             var smsSending = new SmsSending("12", 0.06m);
-            var smsSent = new SmsSent(new SmsConfirmationData("r", DateTime.Now, .44m));
+            var smsSent = new SmsSent("r", DateTime.Now);
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSending);
             smsService.Expect(s => s.CheckStatus(smsSending.Sid)).Return(smsSent);
 
@@ -124,7 +124,7 @@ namespace SmsActionerTests
             const string sid = "12";
             var smsSending = new SmsSending(sid, 0.06m);
             var smsQueued = new SmsQueued(sid);
-            var smsSuccess = new SmsSent(new SmsConfirmationData("r", DateTime.Now, 3.3m));
+            var smsSuccess = new SmsSent("r", DateTime.Now);
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSending);
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Repeat.Once().Return(smsQueued);
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsSuccess);

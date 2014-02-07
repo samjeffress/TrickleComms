@@ -39,7 +39,7 @@ namespace SmsActioner
             {
                 session.Store(new SmsReceivedData { SmsId = Guid.Parse(message.Sid), SmsConfirmationData = new SmsConfirmationData(null, message.DateSent, message.Price), SmsData = new SmsData(message.From, message.Body)}, message.Sid);
                 session.SaveChanges();
-            } 
+            }
         }
     }
 }

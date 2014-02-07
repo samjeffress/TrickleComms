@@ -19,7 +19,7 @@ namespace SmsActionerTests
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
-            var smsSent = new SmsSent(new SmsConfirmationData("r", DateTime.Now, 0.06m));
+            var smsSent = new SmsSent("r", DateTime.Now);
 
             smsService
                 .Expect(s => s.Send(sendOneMessageNow))
@@ -190,7 +190,7 @@ namespace SmsActionerTests
             };
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
-            var smsSent = new SmsSent(new SmsConfirmationData("doesn't matter", DateTime.Now, 0));
+            var smsSent = new SmsSent("doesn't matter", DateTime.Now);
 
             smsService
                 .Expect(s => s.CheckStatus(data.SmsRequestId))
@@ -211,7 +211,7 @@ namespace SmsActionerTests
                         message.SmsMetaData == sendOneMessageNow.SmsMetaData &&
                         message.ConfirmationData.Price == data.Price && 
                         message.ConfirmationData.Receipt == data.SmsRequestId && 
-                        message.ConfirmationData.SentAtUtc == smsSent.SmsConfirmationData.SentAtUtc
+                        message.ConfirmationData.SentAtUtc == smsSent.SentAtUtc
                     )
                 .When(a => a.Timeout(timeout))
                 .AssertSagaCompletionIs(true);

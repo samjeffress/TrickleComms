@@ -42,13 +42,15 @@ namespace SmsMessages.CommonData
 
     public class SmsSent : SmsStatus
     {
-        public SmsSent(SmsConfirmationData confirmationData)
+        public SmsSent(string sid, DateTime sentAtUtc)
         {
-            Sid = confirmationData.Receipt;
-            SmsConfirmationData = confirmationData;
+            Sid = sid;
+            SentAtUtc = sentAtUtc;
         }
 
-        public SmsConfirmationData SmsConfirmationData { get; set; }
+        public DateTime SentAtUtc { get; set; }
+
+        //public SmsConfirmationData SmsConfirmationData { get; set; }
     }
 
     public class SmsConfirmationData
@@ -64,7 +66,6 @@ namespace SmsMessages.CommonData
 
         public DateTime SentAtUtc { get; set; }
 
-        // TODO: Remove Price as it actually comes from SmsSending
         public Decimal Price { get; set; }
     }
 }

@@ -50,7 +50,7 @@ namespace SmsActioner
                 var sentMessage = confirmationData as SmsSent;
                 Bus.Publish<MessageSent>(m =>
                 {
-                    m.ConfirmationData = new SmsConfirmationData(Data.SmsRequestId, sentMessage.SmsConfirmationData.SentAtUtc, Data.Price);
+                    m.ConfirmationData = new SmsConfirmationData(Data.SmsRequestId, sentMessage.SentAtUtc, Data.Price);
                     m.CorrelationId = Data.OriginalMessage.CorrelationId;
                     m.SmsData = Data.OriginalMessage.SmsData;
                     m.SmsMetaData = Data.OriginalMessage.SmsMetaData;

@@ -47,7 +47,7 @@ namespace SmsActioner
             if (recipientForSms.DeliveryStatus.Equals("pending", StringComparison.CurrentCultureIgnoreCase))
                 return new SmsQueued(sid);
             if (recipientForSms.DeliveryStatus.Equals("delivered", StringComparison.CurrentCultureIgnoreCase))
-                return new SmsSent(new SmsConfirmationData(sid, smsSentResponse.Message.SendAt, 0));
+                return new SmsSent(sid, smsSentResponse.Message.SendAt);
             throw new ArgumentException("Unexpected delivery status " + recipientForSms.DeliveryStatus);
         }
     }
