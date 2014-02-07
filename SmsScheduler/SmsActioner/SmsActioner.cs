@@ -56,6 +56,8 @@ namespace SmsActioner
             }
             else
             {
+                if (confirmationData is SmsSending)
+                    Data.Price = (confirmationData as SmsSending).Price;
                 RequestUtcTimeout<SmsPendingTimeout>(new TimeSpan(0, 0, 0, 10));
             }
         }
@@ -70,6 +72,8 @@ namespace SmsActioner
         public string SmsRequestId { get; set; }
 
         public SendOneMessageNow OriginalMessage { get; set; }
+
+        public decimal Price { get; set; }
     }
 
     public class SmsPendingTimeout

@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Linq;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
-using Twilio;
 
 namespace SmsActioner
 {
@@ -19,8 +19,6 @@ namespace SmsActioner
 
     public class SmsService : ISmsService
     {
-        public ITwilioWrapper TwilioWrapper { get; set; }
-
         public ISmsTechWrapper SmsTechWrapper { get; set; }
 
         /// <summary>
@@ -40,33 +38,17 @@ namespace SmsActioner
 
         public SmsStatus CheckStatus(string sid)
         {
-            var checkMessage = TwilioWrapper.CheckMessage(sid);
-            return ProcessSms(checkMessage);
-        }
-
-        private SmsStatus ProcessSms(SMSMessage createdSmsMessage)
-        {
-            if ((string.IsNullOrWhiteSpace(createdSmsMessage.Status) && createdSmsMessage.RestException != null)
-                || createdSmsMessage.Status.Equals("failed", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var e = createdSmsMessage.RestException;
-                return new SmsFailed(createdSmsMessage.Sid, e.Code, e.Message);
-            } 
-            
-            if (createdSmsMessage.Status.Equals("sent", StringComparison.CurrentCultureIgnoreCase))
-                return new SmsSent(new SmsConfirmationData(createdSmsMessage.Sid, createdSmsMessage.DateSent, createdSmsMessage.Price)); 
-
-            if (createdSmsMessage.Status.Equals("sending", StringComparison.CurrentCultureIgnoreCase))
-            {
-                return new SmsSending(createdSmsMessage.Sid, 10.10m);
-            }
-
-            
-
-            if (createdSmsMessage.Status.Equals("queued", StringComparison.CurrentCultureIgnoreCase))
-                return new SmsQueued(createdSmsMessage.Sid);
-
-            return null;
+            var smsSentResponse = SmsTechWrapper.CheckMessage(sid);
+            var recipientForSms = smsSentResponse.Recipients.First();
+            if (recipientForSms.DeliveryStatus.Equals("hard-bounce", StringComparison.CurrentCultureIgnoreCase))
+                return new SmsFailed(sid, recipientForSms.DeliveryStatus, "The number is invalid or disconnected.");
+            if (recipientForSms.DeliveryStatus.Equals("soft-bounce", StringComparison.CurrentCultureIgnoreCase))
+                return new SmsFailed(sid, recipientForSms.DeliveryStatus, "The message timed out after 72 hrs, either the recipient was out of range, their phone was off for longer than 72 hrs or the message was unable to be delivered due to a network outage or other connectivity issue.");
+            if (recipientForSms.DeliveryStatus.Equals("pending", StringComparison.CurrentCultureIgnoreCase))
+                return new SmsQueued(sid);
+            if (recipientForSms.DeliveryStatus.Equals("delivered", StringComparison.CurrentCultureIgnoreCase))
+                return new SmsSent(new SmsConfirmationData(sid, smsSentResponse.Message.SendAt, 0));
+            throw new ArgumentException("Unexpected delivery status " + recipientForSms.DeliveryStatus);
         }
     }
 }

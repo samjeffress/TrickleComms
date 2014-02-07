@@ -20,6 +20,7 @@ namespace SmsMessages.CommonData
 
         public DateTime SentAtUtc { get; set; }
 
+        // TODO: Remove Price as it actually comes from SmsSending
         public Decimal Price { get; set; }
     }
 
