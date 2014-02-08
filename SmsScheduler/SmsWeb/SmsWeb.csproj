@@ -274,7 +274,7 @@
     <Compile Include="Controllers\IDateTimeUtcFromOlsenMapping.cs" />
     <Compile Include="Controllers\MailgunConfigController.cs" />
     <Compile Include="Controllers\TagController.cs" />
-    <Compile Include="Controllers\TwilioConfigController.cs" />
+    <Compile Include="Controllers\SmsTechConfigController.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModel.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModelFromCsv.cs" />
@@ -465,10 +465,10 @@
     <Content Include="Views\ExampleLayouts\Marketing.cshtml" />
     <Content Include="Views\ExampleLayouts\Fluid.cshtml" />
     <Content Include="Views\Home\IndexConfigNotSet.cshtml" />
-    <Content Include="Views\Shared\_TwilioConfigEdit.cshtml" />
+    <Content Include="Views\Shared\_SmsTechConfigEdit.cshtml" />
     <Content Include="Views\Shared\_MailgunConfigEdit.cshtml" />
     <Content Include="Views\Shared\_MailgunConfigDetails.cshtml" />
-    <Content Include="Views\Shared\_TwilioConfigDetails.cshtml" />
+    <Content Include="Views\Shared\_SmsTechConfigDetails.cshtml" />
     <Content Include="Views\Shared\_CountryCodeConfigDetails.cshtml" />
     <Content Include="Views\Shared\_CountryCodeConfigEdit.cshtml" />
     <Content Include="Views\Home\Results.cshtml" />

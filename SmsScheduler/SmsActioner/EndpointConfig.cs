@@ -30,7 +30,6 @@ namespace SmsActioner
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);
-            Configure.Instance.Configurer.ConfigureComponent<TwilioWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<SmsTechWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
 
             var bus = configure.CreateBus().Start();            //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
