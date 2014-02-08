@@ -44,6 +44,7 @@
     <Compile Include="CountryCodeReplacement.cs" />
     <Compile Include="EmailDefaultNotification.cs" />
     <Compile Include="MailGunConfiguration.cs" />
+    <Compile Include="SmsTechConfiguration.cs" />
     <Compile Include="TwilioConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
