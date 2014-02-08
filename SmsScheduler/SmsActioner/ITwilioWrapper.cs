@@ -47,7 +47,6 @@ namespace SmsActioner
                 //_restClient.UpdateAccountName("toby toogood");
                 return _restClient.SendSmsMessage(twilioConfiguration.From, to, message);
             }
-            
         }
 
         public SMSMessage CheckMessage(string sid)
