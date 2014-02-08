@@ -95,10 +95,6 @@
     <Reference Include="TransmitSms">
       <HintPath>..\packages\TransmitSms.2.0.4\lib\net45\TransmitSms.dll</HintPath>
     </Reference>
-    <Reference Include="Twilio.Api, Version=3.4.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Twilio.3.6.1\lib\3.5\Twilio.Api.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountOutOfMoneyException.cs" />
