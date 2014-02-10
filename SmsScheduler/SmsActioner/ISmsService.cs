@@ -29,11 +29,15 @@ namespace SmsActioner
         public SmsStatus Send(SendOneMessageNow messageToSend)
         {
             var createdSmsMessage = SmsTechWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
+            if (createdSmsMessage.Error.Code.Equals("AUTH_FAILED"))
+                throw new SmsTechAuthenticationFailed(createdSmsMessage.Error.Description);
             if (createdSmsMessage.Error.Code.Equals("LEDGER_ERROR"))
                 throw new AccountOutOfMoneyException("Could not send message - account is currently out of money");
             if (createdSmsMessage.Error.Code.Equals("RECIPIENTS_ERROR"))
                 return new SmsFailed(createdSmsMessage.MessageId.ToString(), createdSmsMessage.Error.Code, createdSmsMessage.Error.Description);
-            return new SmsSending(createdSmsMessage.MessageId.ToString(), Convert.ToDecimal(createdSmsMessage.Cost));
+            if (createdSmsMessage.Error.Code.Equals("SUCCESS"))
+                return new SmsSending(createdSmsMessage.MessageId.ToString(), Convert.ToDecimal(createdSmsMessage.Cost));
+            throw new ArgumentException("Error code expected");
         }
 
         public SmsStatus CheckStatus(string sid)

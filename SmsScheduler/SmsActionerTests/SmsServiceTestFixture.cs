@@ -12,6 +12,23 @@ namespace SmsActionerTests
     public class SmsServiceTestFixture
     {
         [Test]
+        public void SmsServiceSending_WithoutERRORCode_ThrowsException()
+        {
+            var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
+            var smsTechWrapper = MockRepository.GenerateMock<ISmsTechWrapper>();
+            var smsService = new SmsService { SmsTechWrapper = smsTechWrapper };
+
+            var smsMessageSending = new SendSmsResponse {Cost = (float) 0.06, MessageId = 123456, Error = new Error { Code = string.Empty } };
+            smsTechWrapper
+                .Expect(t => t.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+                .Return(smsMessageSending);
+
+            Assert.That(() => smsService.Send(messageToSend), Throws.ArgumentException.With.Message.Contains("Error code expected"));
+
+            smsTechWrapper.VerifyAllExpectations();
+        }
+
+        [Test]
         public void SmsServiceSending()
         {
             var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
@@ -68,6 +85,21 @@ namespace SmsActionerTests
                 .Return(smsMessageSending);
 
             Assert.That(() => smsService.Send(messageToSend), Throws.Exception.TypeOf<AccountOutOfMoneyException>().With.Message.EqualTo(accountIsCurrentlyOutOfMoney));
+        }
+
+        [Test]
+        public void SmsServiceAuthenticationFailed()
+        {
+            var messageToSend = new SendOneMessageNow { SmsData = new SmsData("mobile", "message") };
+            var smsTechWrapper = MockRepository.GenerateMock<ISmsTechWrapper>();
+            var smsService = new SmsService { SmsTechWrapper = smsTechWrapper };
+
+            var smsMessageSending = new SendSmsResponse { Cost = (float)0.06, MessageId = 123456, Error = new Error { Code = "AUTH_FAILED", Description = "we don't know who you are!" } };
+            smsTechWrapper
+                .Expect(t => t.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message))
+                .Return(smsMessageSending);
+
+            Assert.That(() => smsService.Send(messageToSend), Throws.Exception.TypeOf<SmsTechAuthenticationFailed>().With.Message.EqualTo(smsMessageSending.Error.Description));
         }
     }
 
