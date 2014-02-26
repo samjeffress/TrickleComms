@@ -78,7 +78,7 @@ namespace SmsCoordinatorTests.Email
             emailService.Handle(coordinatorComplete);
 
             mailActioner.VerifyAllExpectations();
-            Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
+            Assert.That(message.From.Address, Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.EmailAddresses[0]));
         }
 
@@ -114,7 +114,7 @@ namespace SmsCoordinatorTests.Email
             emailService.Handle(coordinatorComplete);
 
             mailActioner.VerifyAllExpectations();
-            Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
+            Assert.That(message.From.Address, Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.EmailAddresses[0]));
             Assert.That(message.To[1].Address, Is.EqualTo(coordinatorComplete.EmailAddresses[1]));
             Assert.That(message.To[2].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
@@ -153,7 +153,7 @@ namespace SmsCoordinatorTests.Email
             emailService.Handle(coordinatorComplete);
 
             mailActioner.VerifyAllExpectations();
-            Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
+            Assert.That(message.From.Address, Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
             Assert.That(message.To[1].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[1]));
         }

@@ -53,7 +53,7 @@ namespace SmsCoordinator.Email
                     });
 
                 var mailMessage = new MailMessage();
-                mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom); 
+                mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom, "Trickle SMS Confirmation"); 
                 mailMessage.Body = body;
                 mailMessage.BodyEncoding = Encoding.UTF8;
                 mailMessage.IsBodyHtml = true;
@@ -98,7 +98,7 @@ namespace SmsCoordinator.Email
                 });
 
                 var mailMessage = new MailMessage();
-                mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom);
+                mailMessage.From = new MailAddress(mailgunConfiguration.DefaultFrom, "Trickle SMS Confirmation");
                 mailMessage.Body = body;
                 mailMessage.BodyEncoding = Encoding.UTF8;
                 mailMessage.IsBodyHtml = true;

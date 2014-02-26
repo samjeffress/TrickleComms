@@ -6,6 +6,7 @@ using SmsActioner;
 using SmsMessages.CommonData;
 using TransmitSms.Models.Recipients;
 using TransmitSms.Models.Sms;
+using SmsSentResponse = SmsActioner.SmsSentResponse;
 
 namespace SmsActionerTests
 {
