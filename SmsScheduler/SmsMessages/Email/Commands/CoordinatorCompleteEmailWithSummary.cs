@@ -18,5 +18,6 @@ namespace SmsMessages.Email.Commands
         public int FailedCount { get; set; }
         public int SuccessCount { get; set; }
         public decimal Cost { get; set; }
+        public string UserName { get; set; }
     }
 }
