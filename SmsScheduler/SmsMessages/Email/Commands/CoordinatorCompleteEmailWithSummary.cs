@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using SmsMessages.Coordinator.Events;
 
 namespace SmsMessages.Email.Commands
 {
@@ -19,20 +18,5 @@ namespace SmsMessages.Email.Commands
         public int FailedCount { get; set; }
         public int SuccessCount { get; set; }
         public decimal Cost { get; set; }
-    }
-
-    public class CoordinatorCreatedEmail
-    {
-        public CoordinatorCreated CoordinatorCreated { get; set; }
-
-        public CoordinatorCreatedEmail()
-        {
-            CoordinatorCreated = new CoordinatorCreated();
-        }
-
-        public CoordinatorCreatedEmail(CoordinatorCreated coordinatorCreated)
-        {
-            CoordinatorCreated = coordinatorCreated;
-        }
     }
 }
