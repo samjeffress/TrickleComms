@@ -40,12 +40,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsActioner", "SmsActioner\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmsActionerTests", "SmsActionerTests\SmsActionerTests.csproj", "{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}"
 EndProject
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "IncomingAzureApi", "IncomingAzureApi\IncomingAzureApi.ccproj", "{1BEA9EAF-6B22-410F-AE61-89C81BAD5905}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncomingSmsHandler", "IncomingSmsHandler\IncomingSmsHandler.csproj", "{A3AA1DEA-7A9F-4538-99A3-65662DFDF5D2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IncomingSmsTransport", "IncomingSmsTransport\IncomingSmsTransport.csproj", "{D73605A1-3A17-4B49-BCB4-B105ABCAD035}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,18 +90,6 @@ Global
 		{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4CF94D2D-5692-49D2-BFD5-268AD670FCFA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1BEA9EAF-6B22-410F-AE61-89C81BAD5905}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BEA9EAF-6B22-410F-AE61-89C81BAD5905}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BEA9EAF-6B22-410F-AE61-89C81BAD5905}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BEA9EAF-6B22-410F-AE61-89C81BAD5905}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3AA1DEA-7A9F-4538-99A3-65662DFDF5D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3AA1DEA-7A9F-4538-99A3-65662DFDF5D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3AA1DEA-7A9F-4538-99A3-65662DFDF5D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3AA1DEA-7A9F-4538-99A3-65662DFDF5D2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D73605A1-3A17-4B49-BCB4-B105ABCAD035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D73605A1-3A17-4B49-BCB4-B105ABCAD035}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D73605A1-3A17-4B49-BCB4-B105ABCAD035}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D73605A1-3A17-4B49-BCB4-B105ABCAD035}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
