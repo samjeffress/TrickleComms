@@ -65,10 +65,10 @@ namespace SmsWeb.App_Start
 			container.Register<ISessionFactory>(c => 
 				new SessionFactory(c.Resolve<ICacheClient>()));
 
-		    container.Register<IRavenDocStore>(new RavenDocStore());
-            container.Register<IDateTimeUtcFromOlsenMapping>(new DateTimeUtcFromOlsenMapping());
-            container.Register<ICoordinatorModelToMessageMapping>(new CoordinatorModelToMessageMapping(new DateTimeUtcFromOlsenMapping()));
-		    container.Register<ICoordinatorApiModelToMessageMapping>(new CoordinatorApiModelToMessageMapping());
+		    container.RegisterAs<RavenDocStore, IRavenDocStore>();// .Register<IRavenDocStore>(new RavenDocStore());
+            container.RegisterAs<DateTimeUtcFromOlsenMapping, IDateTimeUtcFromOlsenMapping>();
+            container.RegisterAs<CoordinatorModelToMessageMapping, ICoordinatorModelToMessageMapping>();//new CoordinatorModelToMessageMapping(new DateTimeUtcFromOlsenMapping()));
+		    container.RegisterAs<CoordinatorApiModelToMessageMapping, ICoordinatorApiModelToMessageMapping>(); // (new CoordinatorApiModelToMessageMapping());
 		    
             var busConfig = NServiceBus.Configure.With()
                 .DefineEndpointName("SmsWeb")
