@@ -41,7 +41,7 @@ namespace SmsScheduler
             Data.TimeoutCounter = 0;
             var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout(timeout, new ScheduleSmsTimeout { TimeoutCounter = 0});
-            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
                 if (scheduleTrackingData == null)
@@ -90,9 +90,17 @@ namespace SmsScheduler
 
         public void Handle(MessageSuccessfullyDelivered message)
         {
-            ReplyToOriginator(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile });
-            Bus.Publish(new ScheduledSmsSent { CoordinatorId = Data.RequestingCoordinatorId, ScheduledSmsId = Data.ScheduleMessageId, ConfirmationData = message.ConfirmationData, Number = message.SmsData.Mobile});
             using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            var originalMessage = Data.OriginalMessageData;
+            Bus.Publish(new ScheduledSmsSent
+                {
+                    CoordinatorId = originalMessage.RequestingCoordinatorId, 
+                    ScheduledSmsId = Data.ScheduleMessageId, 
+                    ConfirmationData = message.ConfirmationData, 
+                    Number = message.SmsData.Mobile,
+                    Username = originalMessage.Username
+                });
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
                 scheduleTrackingData.ConfirmationData = message.ConfirmationData;
@@ -107,7 +115,7 @@ namespace SmsScheduler
             if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc > pauseScheduling.MessageRequestTimeUtc)
                 return;
             Data.SchedulingPaused = true;
-            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
                 scheduleTrackingData.MessageStatus = MessageStatus.Paused;
@@ -124,7 +132,7 @@ namespace SmsScheduler
             Data.SchedulingPaused = false;
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             Data.TimeoutCounter++;
-            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
                 scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
@@ -143,7 +151,7 @@ namespace SmsScheduler
             Data.SchedulingPaused = false;
             Data.TimeoutCounter++;
             RequestUtcTimeout(message.NewScheduleTimeUtc, new ScheduleSmsTimeout { TimeoutCounter = Data.TimeoutCounter });
-            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
                 scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
@@ -164,7 +172,7 @@ namespace SmsScheduler
                                 SmsFailedData = failedMessage.SmsFailed
                             });
 
-            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
             {
                 var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
                 scheduleTrackingData.MessageStatus = MessageStatus.Failed;

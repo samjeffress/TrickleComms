@@ -34,7 +34,9 @@ namespace SmsSchedulerTests
             var sagaId = Guid.NewGuid();
             var messageSent = new MessageSuccessfullyDelivered { ConfirmationData = new SmsConfirmationData("a", DateTime.Now, 3), SmsData = new SmsData("1", "2") };
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
 
             var scheduledSmsData = new ScheduledSmsData 
@@ -67,9 +69,11 @@ namespace SmsSchedulerTests
             var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), ScheduleMessageId = Guid.NewGuid()};
             var sagaId = Guid.NewGuid();
             var messageFailed = new MessageFailedSending { SmsData = new SmsData("1", "2"), SmsFailed = new SmsFailed(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty) };
-            
+
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
 
             var scheduledSmsData = new ScheduledSmsData 
@@ -102,7 +106,9 @@ namespace SmsSchedulerTests
             var sagaId = Guid.NewGuid();
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
 
             var scheduledSmsData = new ScheduledSmsData 
@@ -132,9 +138,11 @@ namespace SmsSchedulerTests
         {
             var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now.AddDays(1), SmsData = new SmsData("1", "2") };
             var sagaId = Guid.NewGuid();
-            
+
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
 
             var scheduledSmsData = new ScheduledSmsData 
@@ -173,7 +181,9 @@ namespace SmsSchedulerTests
             var sagaId = Guid.NewGuid();
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
             
             var scheduledSmsData = new ScheduledSmsData 
@@ -213,7 +223,9 @@ namespace SmsSchedulerTests
             var sagaId = Guid.NewGuid();
 
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling }, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
             
             var scheduledSmsData = new ScheduledSmsData 
@@ -250,7 +262,9 @@ namespace SmsSchedulerTests
             var scheduleMessageId = Guid.NewGuid();
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleMessageId, MessageStatus = MessageStatus.Paused }, scheduleMessageId.ToString());
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
 
             var scheduledSmsData = new ScheduledSmsData
             {
@@ -282,7 +296,9 @@ namespace SmsSchedulerTests
             var scheduleMessageId = Guid.NewGuid(); 
             StoreDocument(new ScheduleTrackingData { ScheduleId = scheduleMessageId, MessageStatus = MessageStatus.Paused }, scheduleMessageId.ToString());
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
 
             var scheduledSmsData = new ScheduledSmsData
             {
@@ -353,7 +369,9 @@ namespace SmsSchedulerTests
             var originalMessage = new ScheduleSmsForSendingLater { SendMessageAtUtc = DateTime.Now };
             StoreDocument(new ScheduleTrackingData { ScheduleId = originalMessage.ScheduleMessageId, MessageStatus = MessageStatus.WaitingForScheduling}, originalMessage.ScheduleMessageId.ToString());
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()
@@ -375,7 +393,9 @@ namespace SmsSchedulerTests
             var pauseScheduledMessageIndefinitely = new PauseScheduledMessageIndefinitely(scheduleId);
             StoreDocument(new ScheduleTrackingData { ScheduleId = data.OriginalMessage.ScheduleMessageId, MessageStatus = MessageStatus.Scheduled}, data.OriginalMessage.ScheduleMessageId.ToString());
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            ravenDocStore.Expect(r => r.GetStore().OpenSession("SmsTracking")).Return(DocumentStore.OpenSession());
+            var database = "database";
+            ravenDocStore.Expect(r => r.Database()).Return(database);
+            ravenDocStore.Expect(r => r.GetStore().OpenSession(database)).Return(DocumentStore.OpenSession());
 
             Test.Initialize();
             Test.Saga<ScheduleSms>()

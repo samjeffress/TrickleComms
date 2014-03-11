@@ -9,6 +9,8 @@ namespace SmsActioner
     public interface IRavenDocStore
     {
         IDocumentStore GetStore();
+
+        string DatabaseName();
     }
  
     public class RavenDocStore : IRavenDocStore
@@ -32,6 +34,11 @@ namespace SmsActioner
         public IDocumentStore GetStore()
         {
             return _documentStore;
+        }
+
+        public string DatabaseName()
+        {
+            return "samjeffress-SmsTracking";
         }
     }
 }

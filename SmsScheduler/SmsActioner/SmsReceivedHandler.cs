@@ -35,7 +35,7 @@ namespace SmsActioner
 
         public void Handle(MessageReceived message)
         {
-            using (var session = RavenStore.GetStore().OpenSession("SmsTracking"))
+            using (var session = RavenStore.GetStore().OpenSession(RavenStore.DatabaseName()))
             {
                 session.Store(new SmsReceivedData
                 {

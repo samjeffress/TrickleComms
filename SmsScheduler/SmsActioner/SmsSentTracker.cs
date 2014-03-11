@@ -12,7 +12,7 @@ namespace SmsActioner
 
         public void Handle(MessageSuccessfullyDelivered message)
         {
-            using (var session = RavenStore.GetStore().OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession(RavenStore.DatabaseName()))
             {
                 session.Advanced.UseOptimisticConcurrency = true;
                 var messageSent = session.Load<SmsTrackingData>(message.CorrelationId);
@@ -24,7 +24,7 @@ namespace SmsActioner
 
         public void Handle(MessageFailedSending message)
         {
-            using (var session = RavenStore.GetStore().OpenSession())
+            using (var session = RavenStore.GetStore().OpenSession(RavenStore.DatabaseName()))
             {
                 session.Advanced.UseOptimisticConcurrency = true;
                 var messageSent = session.Load<SmsTrackingData>(message.CorrelationId);

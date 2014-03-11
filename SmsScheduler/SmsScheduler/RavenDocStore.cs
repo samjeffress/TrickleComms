@@ -11,6 +11,8 @@ namespace SmsScheduler
     public interface IRavenDocStore
     {
         IDocumentStore GetStore();
+
+        string Database();
     }
  
     public class RavenDocStore : IRavenDocStore
@@ -27,6 +29,11 @@ namespace SmsScheduler
         public IDocumentStore GetStore()
         {
             return _documentStore;
+        }
+
+        public string Database()
+        {
+            return "samjeffress-SmsTracking";
         }
     }
 }
