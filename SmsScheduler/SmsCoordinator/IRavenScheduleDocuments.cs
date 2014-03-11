@@ -23,6 +23,8 @@ namespace SmsCoordinator
 
     public class RavenScheduleDocuments : IRavenScheduleDocuments
     {
+        private const string Database = "SmsTracking";
+        public ILog Log { get; set; }
         public IRavenDocStore RavenDocStore { get; set; }
 
         public List<ScheduleTrackingData> GetActiveScheduleTrackingData(Guid coordinatorId)
@@ -44,7 +46,7 @@ namespace SmsCoordinator
 
             while (ravenStats.TotalResults > (page) * pageSize)
             {
-                using (var session = RavenDocStore.GetStore().OpenSession())
+                using (var session = RavenDocStore.GetStore().OpenSession(Database))
                 {
                     var tracking = session.Query<ScheduleTrackingData>("ScheduleMessagesInCoordinatorIndex")
                         .Where(s => s.CoordinatorId == coordinatorId)
@@ -66,6 +68,15 @@ namespace SmsCoordinator
         public void SaveSchedules(List<ScheduleSmsForSendingLater> messageList, Guid coordinatorId)
         {
             using (var session = RavenDocStore.GetStore().OpenSession())
+            var scheduleSummary = GetScheduleSummary(coordinatorId);
+            var scheduleCount = scheduleSummary.Sum(s => s.Count);
+
+            if (scheduleCount > 0 && scheduleCount == messageList.Count)
+            {
+                return;
+            }
+            // else - delete the existing schedules????
+            using (var session = RavenDocStore.GetStore().BulkInsert(Database))
             {
                 foreach (var scheduleSmsForSendingLater in messageList)
                 {
@@ -86,7 +97,7 @@ namespace SmsCoordinator
 
         public DateTime GetMaxScheduleDateTime(Guid coordinatorId)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession())
+            using (var session = RavenDocStore.GetStore().OpenSession(Database))
             {
                 return session.Query<ScheduleTrackingData>()
                    .Customize(s => s.WaitForNonStaleResultsAsOfNow())
@@ -99,7 +110,7 @@ namespace SmsCoordinator
 
         public bool AreCoordinatedSchedulesComplete(Guid coordinatorId)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession())
+            using (var session = RavenDocStore.GetStore().OpenSession(Database))
             {
                 var reduceResult = session
                     .Query<ScheduledMessages_ByCoordinatorIdAndStatus.ReduceResult, ScheduledMessages_ByCoordinatorIdAndStatus>()
@@ -116,19 +127,29 @@ namespace SmsCoordinator
 
         public void SaveCoordinator(CoordinatorCreated message)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession())
+            Log.Error("Saving coordinator data");
+            bool trackingDataExists;
+            using (var session = RavenDocStore.GetStore().OpenSession(Database))
+            {
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(message.CoordinatorId.ToString());
+                trackingDataExists = coordinatorTrackingData != null;
+            }
+
+            if (trackingDataExists) return;
+            using (var session = RavenDocStore.GetStore().BulkInsert(Database))
             {
                 var coordinatorTrackingData = new CoordinatorTrackingData
-                {
-                    CoordinatorId = message.CoordinatorId,
-                    CreationDateUtc = message.CreationDateUtc,
-                    MetaData = message.MetaData,
-                    ConfirmationEmailAddress = String.Join(", ", message.ConfirmationEmailAddresses),
-                    UserOlsenTimeZone = message.UserOlsenTimeZone,
-                    CurrentStatus = CoordinatorStatusTracking.Started,
-                    MessageBody = message.MessageBody,
-                    MessageCount = message.MessageCount
-                };
+                    {
+                        CoordinatorId = message.CoordinatorId,
+                        CreationDateUtc = message.CreationDateUtc,
+                        MetaData = message.MetaData,
+                        ConfirmationEmailAddress = String.Join(", ", message.ConfirmationEmailAddresses),
+                        UserOlsenTimeZone = message.UserOlsenTimeZone,
+                        CurrentStatus = CoordinatorStatusTracking.Started,
+                        MessageBody = message.MessageBody,
+                        MessageCount = message.MessageCount,
+                        Username = message.UserName
+                    };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
                 session.SaveChanges();
             }
@@ -136,7 +157,7 @@ namespace SmsCoordinator
 
         public void MarkCoordinatorAsComplete(Guid coordinatorId, DateTime utcCompleteDate)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession())
+            using (var session = RavenDocStore.GetStore().OpenSession(Database))
             {
                 var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorId.ToString());
                 coordinatorTrackingData.CompletionDateUtc = utcCompleteDate;
@@ -147,7 +168,7 @@ namespace SmsCoordinator
 
         public List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult> GetScheduleSummary(Guid coordinatorId)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession())
+            using (var session = RavenDocStore.GetStore().OpenSession(Database))
             {
                 var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
                         .Customize(x => x.WaitForNonStaleResults())

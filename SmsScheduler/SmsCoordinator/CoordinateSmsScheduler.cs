@@ -259,6 +259,9 @@ namespace SmsCoordinator
         public string OriginalMessageId { get; set; }
 
         public DateTime OriginalScheduleStartTime { get; set; }
+        
+	[Unique]
+        public Guid CoordinatorId { get; set; }
 
         public Guid CoordinatorId { get; set; }
 
