@@ -102,12 +102,12 @@ namespace SmsCoordinator
                 MessageBody = message.Messages.First().Message,
                 MessageCount = message.Messages.Count
             };
-
-            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
-            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             Bus.Publish(coordinatorCreated);
             Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
             RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
+
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
+            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
         }
 
         public void Handle(SendAllMessagesAtOnce message)
@@ -140,11 +140,11 @@ namespace SmsCoordinator
                 MessageBody = message.Messages.First().Message,
                 MessageCount = message.Messages.Count
             };
-            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
-            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             RequestUtcTimeout<CoordinatorTimeout>(message.SendTimeUtc.AddMinutes(2));
             Bus.Publish(coordinatorCreated);
             Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
+            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
         }
 
         public void Handle(PauseTrickledMessagesIndefinitely message)

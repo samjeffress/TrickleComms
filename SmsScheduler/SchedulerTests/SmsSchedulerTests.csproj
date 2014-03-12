@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScheduleStatusHandlerTestFixture.cs" />
     <Compile Include="SentLaterTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
