@@ -21,8 +21,6 @@ namespace SmsScheduler
         IHandleMessages<MessageSuccessfullyDelivered>,
         IHandleMessages<MessageFailedSending>
     {
-        //public IRavenDocStore RavenDocStore { get; set; }
-
         public override void ConfigureHowToFindSaga()
         {
             ConfigureMapping<MessageSuccessfullyDelivered>(data => data.Id, message => message.CorrelationId);
@@ -110,14 +108,6 @@ namespace SmsScheduler
                     ConfirmationData = message.ConfirmationData
                 });
 
-            // TODO: Move to handler
-            //using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
-            //{
-            //    var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
-            //    scheduleTrackingData.ConfirmationData = message.ConfirmationData;
-            //    scheduleTrackingData.MessageStatus = MessageStatus.Sent;
-            //    session.SaveChanges();
-            //}
             MarkAsComplete();
         }
 
@@ -126,13 +116,6 @@ namespace SmsScheduler
             if (Data.LastUpdateCommandRequestUtc != null && Data.LastUpdateCommandRequestUtc > pauseScheduling.MessageRequestTimeUtc)
                 return;
             Data.SchedulingPaused = true;
-            // TODO : Move to handler
-            //using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
-            //{
-            //    var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
-            //    scheduleTrackingData.MessageStatus = MessageStatus.Paused;
-            //    session.SaveChanges();
-            //}
             Bus.SendLocal(new ScheduleStatusChanged
                 {
                     ScheduleId = pauseScheduling.ScheduleMessageId,
@@ -156,13 +139,6 @@ namespace SmsScheduler
             Data.SchedulingPaused = false;
             var rescheduledTime = Data.OriginalMessage.SendMessageAtUtc.Add(scheduleSmsForSendingLater.Offset);
             Data.TimeoutCounter++;
-            //using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
-            //{
-            //    var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
-            //    scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
-            //    scheduleTrackingData.ScheduleTimeUtc = rescheduledTime;
-            //    session.SaveChanges();
-            //}
             RequestUtcTimeout(rescheduledTime, new ScheduleSmsTimeout { TimeoutCounter = Data.TimeoutCounter });
             Bus.Publish(new MessageRescheduled
                 {
@@ -195,13 +171,6 @@ namespace SmsScheduler
                     Status = MessageStatus.Scheduled,
                     ScheduleTimeUtc = message.NewScheduleTimeUtc
                 });
-            //using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
-            //{
-            //    var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
-            //    scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
-            //    scheduleTrackingData.ScheduleTimeUtc = message.NewScheduleTimeUtc;
-            //    session.SaveChanges();
-            //}
             Bus.Publish(new MessageRescheduled
                 {
                     CoordinatorId = Data.OriginalMessageData.RequestingCoordinatorId, 
@@ -230,14 +199,6 @@ namespace SmsScheduler
                     MoreInfo = failedMessage.SmsFailed.MoreInfo,
                     Status = failedMessage.SmsFailed.Status
                 });
-
-            //using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
-            //{
-            //    var scheduleTrackingData = session.Load<ScheduleTrackingData>(Data.ScheduleMessageId.ToString());
-            //    scheduleTrackingData.MessageStatus = MessageStatus.Failed;
-            //    scheduleTrackingData.SmsFailureData = failedMessage.SmsFailed;
-            //    session.SaveChanges();
-            //}
             MarkAsComplete();
         }
     }

@@ -34,7 +34,7 @@ namespace SmsCoordinator
             int pageSize = 100;
             RavenQueryStatistics ravenStats;
 
-            using (var session = RavenDocStore.GetStore().OpenSession())
+            using (var session = RavenDocStore.GetStore().OpenSession(Database))
             {
                 session.Query<ScheduleTrackingData>("ScheduleMessagesInCoordinatorIndex")
                     .Statistics(out ravenStats)

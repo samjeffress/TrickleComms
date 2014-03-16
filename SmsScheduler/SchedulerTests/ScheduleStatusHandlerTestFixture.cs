@@ -4,7 +4,6 @@ using Raven.Client;
 using Raven.Client.Embedded;
 using Rhino.Mocks;
 using SmsMessages.CommonData;
-using SmsMessages.Scheduling.Commands;
 using SmsMessages.Tracking.Scheduling.Commands;
 using SmsScheduler;
 using SmsTrackingModels;
@@ -98,7 +97,9 @@ namespace SmsSchedulerTests
 
             var updatedData = GetSchedule(trackingData.ScheduleId.ToString());
             Assert.That(updatedData.MessageStatus, Is.EqualTo(MessageStatus.Sent));
-            Assert.That(updatedData.ConfirmationData, Is.EqualTo(scheduleSucceeded.ConfirmationData));
+            Assert.That(updatedData.ConfirmationData.SentAtUtc, Is.EqualTo(scheduleSucceeded.ConfirmationData.SentAtUtc));
+            Assert.That(updatedData.ConfirmationData.Receipt, Is.EqualTo(scheduleSucceeded.ConfirmationData.Receipt));
+            Assert.That(updatedData.ConfirmationData.Price, Is.EqualTo(scheduleSucceeded.ConfirmationData.Price));
         }
 
         [Test]

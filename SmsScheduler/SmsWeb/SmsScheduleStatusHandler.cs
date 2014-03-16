@@ -76,7 +76,7 @@ namespace SmsWeb
         {
             if (coordinatorId != Guid.Empty)
             {
-                using (var session = RavenDocStore.GetStore().OpenSession())
+                using (var session = RavenDocStore.GetStore().OpenSession("samjeffress-SmsTracking"))
                 {
                     var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
                             .Where(s => s.CoordinatorId == coordinatorId.ToString())
