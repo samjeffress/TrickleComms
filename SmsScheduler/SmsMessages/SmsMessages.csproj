@@ -71,6 +71,7 @@
     <Compile Include="CommonData\SmsData.cs" />
     <Compile Include="CommonData\SmsMetaData.cs" />
     <Compile Include="Coordinator\Commands\TrickleSmsOverCalculatedIntervalsBetweenSetDates.cs" />
+    <Compile Include="Tracking\Scheduling\Commands\ScheduleCreated.cs" />
     <Compile Include="Tracking\Scheduling\Commands\ScheduleFailed.cs" />
     <Compile Include="Tracking\Scheduling\Commands\ScheduleStatusChanged.cs" />
     <Compile Include="Tracking\Scheduling\Commands\ScheduleSucceeded.cs" />

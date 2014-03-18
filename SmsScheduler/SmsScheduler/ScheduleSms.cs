@@ -39,32 +39,13 @@ namespace SmsScheduler
             Data.TimeoutCounter = 0;
             var timeout = new DateTime(scheduleSmsForSendingLater.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout(timeout, new ScheduleSmsTimeout { TimeoutCounter = 0});
-            Bus.SendLocal(new ScheduleStatusChanged
+            Bus.SendLocal(new ScheduleCreated
                 {
-                    ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId,
-                    Status = MessageStatus.Scheduled
+                    ScheduleId = Data.ScheduleMessageId,
+                    ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc,
+                    SmsData = scheduleSmsForSendingLater.SmsData,
+                    SmsMetaData = scheduleSmsForSendingLater.SmsMetaData
                 });
-            //using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
-            //{
-            //    var scheduleTrackingData = session.Load<ScheduleTrackingData>(scheduleSmsForSendingLater.ScheduleMessageId.ToString());
-            //    if (scheduleTrackingData == null)
-            //    {
-            //        var scheduleTracker = new ScheduleTrackingData
-            //        {
-            //            MessageStatus = MessageStatus.Scheduled,
-            //            ScheduleId = scheduleSmsForSendingLater.ScheduleMessageId,
-            //            SmsData = scheduleSmsForSendingLater.SmsData,
-            //            SmsMetaData = scheduleSmsForSendingLater.SmsMetaData,
-            //            ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc
-            //        };
-            //        session.Store(scheduleTracker, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
-            //    }
-            //    else
-            //    {
-            //        scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
-            //    }
-            //    session.SaveChanges();
-            //}
             Bus.Publish(new SmsScheduled
             {
                 ScheduleMessageId = Data.ScheduleMessageId, 
