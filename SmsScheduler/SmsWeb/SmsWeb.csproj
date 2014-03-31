@@ -275,9 +275,11 @@
     <Compile Include="Controllers\TagController.cs" />
     <Compile Include="Controllers\TwilioConfigController.cs" />
     <Compile Include="EndpointConfig.cs" />
+    <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModel.cs" />
     <Compile Include="Models\CoordinatedSharedMessageModelFromCsv.cs" />
     <Compile Include="Models\CoordinatorOverview.cs" />
+    <Compile Include="Models\CoordinatorSmsAndEmailModel.cs" />
     <Compile Include="Models\DefaultEmailModel.cs" />
     <Compile Include="Models\FileTypesAttribute.cs" />
     <Compile Include="Models\PagedResult.cs" />
