@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using System.Web.Mvc;
 using ConfigurationModels;
 using NServiceBus;
@@ -44,6 +45,17 @@ namespace SmsWeb.Controllers
             }
             ViewData.Add("CoordinatorExcludeList", selectListItems);
             return View("Create");
+        }
+
+        public ActionResult CreateSmsAndEmail()
+        {
+            return View("CreateSmsAndEmail");
+        }
+
+        [HttpPost]
+        public ActionResult CreateSmsAndEmail(CoordinatorSmsAndEmailModel model)
+        {
+            return View("CreateSmsAndEmail");
         }
 
         [HttpPost]

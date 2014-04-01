@@ -280,6 +280,7 @@
     <Compile Include="Models\CoordinatedSharedMessageModelFromCsv.cs" />
     <Compile Include="Models\CoordinatorOverview.cs" />
     <Compile Include="Models\CoordinatorSmsAndEmailModel.cs" />
+    <Compile Include="Models\CoordinatorTypeModel.cs" />
     <Compile Include="Models\DefaultEmailModel.cs" />
     <Compile Include="Models\FileTypesAttribute.cs" />
     <Compile Include="Models\PagedResult.cs" />
@@ -471,6 +472,7 @@
     <Content Include="Views\Shared\_ReceivedSmsIndex.cshtml" />
     <Content Include="Views\Shared\_ReceivedSmsCount.cshtml" />
     <Content Include="Views\Shared\_ReceivedSmsRespond.cshtml" />
+    <Content Include="Views\Coordinator\CreateSmsAndEmail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
