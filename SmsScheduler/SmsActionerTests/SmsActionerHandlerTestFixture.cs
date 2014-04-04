@@ -59,12 +59,15 @@ namespace SmsActionerTests
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
+            var timeoutCalculator = MockRepository.GenerateMock<ITimeoutCalculator>();
             var smsSending = new SmsSending("id", 0.06m);
+            var data = new SmsActionerData();
 
             smsService
                 .Expect(s => s.Send(sendOneMessageNow))
                 .Return(smsSending);
-            var data = new SmsActionerData();
+            var timeoutRequested = new TimeSpan();
+            timeoutCalculator.Expect(t => t.RequiredTimeout(data.NumberOfTimeoutRequests)).Return(timeoutRequested);
 
             Test.Initialize();
             Test.Saga<SmsActioner.SmsActioner>()
@@ -72,15 +75,18 @@ namespace SmsActionerTests
                     {
                         a.SmsService = smsService;
                         a.Data = data;
+                        a.TimeoutCalculator = timeoutCalculator;
                     })
                 .WhenReceivesMessageFrom("somewhere")
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == timeoutRequested)
                 .When(a => a.Handle(sendOneMessageNow));
 
             Assert.That(data.SmsRequestId, Is.EqualTo(smsSending.Sid));
             Assert.That(data.Price, Is.EqualTo(smsSending.Price));
             Assert.That(data.OriginalMessage, Is.EqualTo(sendOneMessageNow));
+            Assert.That(data.NumberOfTimeoutRequests, Is.EqualTo(1));
             smsService.VerifyAllExpectations();
+            timeoutCalculator.VerifyAllExpectations();
         }
 
         [Test]
@@ -229,15 +235,20 @@ namespace SmsActionerTests
                 Id = Guid.NewGuid(),
                 OriginalMessage = sendOneMessageNow,
                 Price = 0.06m,
-                SmsRequestId = "123"
+                SmsRequestId = "123",
+                NumberOfTimeoutRequests = 1
             };
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
+            var timeoutCalculator = MockRepository.GenerateMock<ITimeoutCalculator>();
             var smsQueued = new SmsQueued(data.SmsRequestId);
 
             smsService
                 .Expect(s => s.CheckStatus(data.SmsRequestId))
                 .Return(smsQueued);
+
+            var timeoutTimespan = new TimeSpan();
+            timeoutCalculator.Expect(t => t.RequiredTimeout(data.NumberOfTimeoutRequests)).Return(timeoutTimespan);
 
             Test.Initialize();
             Test.Saga<SmsActioner.SmsActioner>()
@@ -245,13 +256,16 @@ namespace SmsActionerTests
                     {
                         a.SmsService = smsService;
                         a.Data = data;
+                        a.TimeoutCalculator = timeoutCalculator;
                     })
                 .WhenReceivesMessageFrom("somewhere")
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == timeoutTimespan)
                 .When(a => a.Timeout(timeout))
                 .AssertSagaCompletionIs(false);
 
+            Assert.That(data.NumberOfTimeoutRequests, Is.EqualTo(2));
             smsService.VerifyAllExpectations();
+            timeoutCalculator.VerifyAllExpectations();
         }
     }
 }

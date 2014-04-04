@@ -75,16 +75,22 @@ namespace SmsActionerTests
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
+            var timeoutCalculator = MockRepository.GenerateMock<ITimeoutCalculator>();
 
             var smsSending = new SmsSending("12", 0.06m);
             var smsSent = new SmsSent("r", DateTime.Now);
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSending);
             smsService.Expect(s => s.CheckStatus(smsSending.Sid)).Return(smsSent);
+            var timeoutTimespan = new TimeSpan();
+            timeoutCalculator.Expect(t => t.RequiredTimeout(Arg<int>.Is.Anything)).Return(timeoutTimespan);
 
             Test.Initialize();
             Test.Saga<SmsActioner.SmsActioner>()
-                .WithExternalDependencies(a => a.SmsService = smsService)
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
+                .WithExternalDependencies(a => { 
+                    a.SmsService = smsService;
+                    a.TimeoutCalculator = timeoutCalculator;
+                })
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == timeoutTimespan)
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectPublish<MessageSent>()
                 .WhenSagaTimesOut()
@@ -97,17 +103,23 @@ namespace SmsActionerTests
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
+            var timeoutCalculator = MockRepository.GenerateMock<ITimeoutCalculator>();
 
             const string sid = "12";
             var smsSending = new SmsSending(sid, 0.06m);
             var smsFailed = new SmsFailed(sid, "c", "m");
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSending);
             smsService.Expect(s => s.CheckStatus(smsSending.Sid)).Return(smsFailed);
+            var timeoutTimespan = new TimeSpan();
+            timeoutCalculator.Expect(t => t.RequiredTimeout(Arg<int>.Is.Anything)).Return(timeoutTimespan);
 
             Test.Initialize();
             Test.Saga<SmsActioner.SmsActioner>()
-                .WithExternalDependencies(a => a.SmsService = smsService)
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
+                .WithExternalDependencies(a => { 
+                    a.SmsService = smsService;
+                    a.TimeoutCalculator = timeoutCalculator;
+                })
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == timeoutTimespan)
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectNotPublish<MessageSent>()
                 .WhenSagaTimesOut()
@@ -120,6 +132,7 @@ namespace SmsActionerTests
             var sendOneMessageNow = new SendOneMessageNow();
 
             var smsService = MockRepository.GenerateMock<ISmsService>();
+            var timeoutCalculator = MockRepository.GenerateMock<ITimeoutCalculator>();
 
             const string sid = "12";
             var smsSending = new SmsSending(sid, 0.06m);
@@ -128,14 +141,20 @@ namespace SmsActionerTests
             smsService.Expect(s => s.Send(sendOneMessageNow)).Return(smsSending);
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Repeat.Once().Return(smsQueued);
             smsService.Expect(s => s.CheckStatus(smsQueued.Sid)).Return(smsSuccess);
+            var timeoutTimespan = new TimeSpan();
+            timeoutCalculator.Expect(t => t.RequiredTimeout(Arg<int>.Is.Anything)).Return(timeoutTimespan);
 
             Test.Initialize();
             Test.Saga<SmsActioner.SmsActioner>()
-                .WithExternalDependencies(a => a.SmsService = smsService)
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
+                .WithExternalDependencies(a =>
+                {
+                    a.SmsService = smsService;
+                    a.TimeoutCalculator = timeoutCalculator;
+                })
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == timeoutTimespan)
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectNotPublish<MessageSent>()
-                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
+                    .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == timeoutTimespan)
                 .WhenSagaTimesOut()
                     .ExpectPublish<MessageSent>()
                 .WhenSagaTimesOut();
