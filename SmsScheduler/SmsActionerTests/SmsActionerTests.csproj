@@ -123,6 +123,7 @@
     <Compile Include="SmsSentTrackerTestFixture.cs" />
     <Compile Include="SmsServiceCheckTestFixture.cs" />
     <Compile Include="SmsServiceTestFixture.cs" />
+    <Compile Include="TimeoutCalculatorTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

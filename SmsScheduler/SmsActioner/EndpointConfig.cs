@@ -29,6 +29,7 @@ namespace SmsActioner
             appHost.Start(listeningOn);
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
+            Configure.Instance.Configurer.ConfigureComponent<TimeoutCalculator>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<SmsTechWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
 

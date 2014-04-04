@@ -12,6 +12,8 @@ namespace SmsActioner
     {
         public ISmsService SmsService { get; set; }
 
+        public ITimeoutCalculator TimeoutCalculator { get; set; }
+
         public void Handle(SendOneMessageNow sendOneMessageNow)
         {
             var confirmationData = SmsService.Send(sendOneMessageNow);
