@@ -20,9 +20,15 @@ namespace SmsWeb.Models
 
         public override bool IsValid(object value)
         {
-            if (value == null) return true;
+            if (value == null) 
+                return true;
 
-            var fileExt = System.IO.Path.GetExtension((value as HttpPostedFile).FileName).Substring(1);
+
+            var fileExt = string.Empty;
+            if (value is HttpPostedFile)
+                fileExt = System.IO.Path.GetExtension((value as HttpPostedFile).FileName).Substring(1);
+            if (value  is HttpPostedFileWrapper)
+                fileExt = System.IO.Path.GetExtension((value as HttpPostedFileWrapper).FileName).Substring(1);
             return _types.Contains(fileExt, StringComparer.OrdinalIgnoreCase);
         }
 

@@ -1,0 +1,55 @@
+﻿@using System.Globalization
+@model string[]
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryui")
+@Styles.Render("~/Content/themes/base/jquery-ui.css")
+
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Pick your columns</title>
+    </head>
+    <body>
+        <div>
+            @using(Html.BeginForm("CreateSmsAndEmailColumnPicker", "Coordinator", FormMethod.Post)){
+                <h3>Tell us which columns of your spreadsheet to use</h3>
+                <table>
+                    <tr>
+                        @for (var i = 0; i < Model.Count(); i++)
+                        {
+                            <td>Column @{ var col = i + 1;} @col</td>
+                        }
+                    </tr>
+                    <tr>
+                        @foreach (var columnValue in Model)
+                        {
+                            <td>@columnValue</td>
+                        }
+                    </tr>
+                    <tr>
+                        @for(var i = 0; i < Model.Count(); i++)
+                        {
+                        <td>
+                            <input type="radio" name="@i.ToString()" value="" id="@("notused" + i)" checked="checked"><label for="@("notused" + i)">Not Used</label><br/>
+                            <input type="radio" name="@i.ToString()" value="number" id="@("number" + i)"/><label for="@("number" + i)">Mobile Number</label><br/>
+                            <input type="radio" name="@i.ToString()" value="email" id="@("email" + i)"/><label for="@("email" + i)">Email Address</label><br/>
+                            <input type="radio" name="@i.ToString()" value="name" id="@("name" + i)"/><label for="@("name" + i)">Customer Name</label><br/>
+                            @*@Html.DropDownList(i.ToString(), new List<SelectListItem>
+                                {
+                                    new SelectListItem {},
+                                    new SelectListItem {Text = "Mobile Number", Value = "number"},
+                                    new SelectListItem {Text = "Email Address", Value = "email"},
+                                    new SelectListItem {Text = "Customer Name", Value = "name"},
+                                })*@
+                        </td>
+                        }
+                    </tr>
+                </table>
+            <input type="submit"/>
+            }
+        </div>
+    </body>
+</html>

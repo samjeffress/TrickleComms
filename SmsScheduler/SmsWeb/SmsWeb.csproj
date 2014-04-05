@@ -49,6 +49,12 @@
   <ItemGroup>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    <Reference Include="CsvHelper">
+      <HintPath>..\packages\CsvHelper.2.5.0\lib\net40-client\CsvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zip, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NServiceBus.Hosting.Azure.5.1.1\lib\net40\Ionic.Zip.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.1.0.0-rc2\lib\net40\Microsoft.AspNet.SignalR.Core.dll</HintPath>
@@ -473,6 +479,7 @@
     <Content Include="Views\Shared\_ReceivedSmsCount.cshtml" />
     <Content Include="Views\Shared\_ReceivedSmsRespond.cshtml" />
     <Content Include="Views\Coordinator\CreateSmsAndEmail.cshtml" />
+    <Content Include="Views\Coordinator\CreateSmsAndEmailPickRows.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
