@@ -13,6 +13,7 @@ namespace SmsWeb.Controllers
         public IBus Bus { get; set; }
         public IRavenDocStore Raven { get; set; }
         public ICoordinatorModelToMessageMapping Mapper { get; set; }
+        public ICurrentUser CurrentUser { get; set; }
         public ActionResult Create()
         {
             return View("CreateSmsAndEmail");
@@ -32,6 +33,8 @@ namespace SmsWeb.Controllers
         [HttpPost]
         public ActionResult CreateSmsAndEmailColumnPicker(FormCollection collection)
         {
+            // TODO: Validate column to data mapping
+            
             var trickleId = Guid.NewGuid();
             var numberPosition = -1;
             var emailPosition = -1;
@@ -72,20 +75,13 @@ namespace SmsWeb.Controllers
                 customerContacts.Add(customerContact);
             }
 
-            using (var transaction = new TransactionScope())
+            using (var session = Raven.GetStore().OpenSession())
             {
-                // nservicebus - send command, let handler parse file and break up items.
-                using (var session = Raven.GetStore().OpenSession())
-                {
-                    session.Store(customerContacts, trickleId + "_customerContacts");
-                }
-                Mapper.ma
-                Bus.Send()
-
-                transaction.Complete();
+                session.Store(customerContacts, trickleId + "_customerContacts");
             }
-            // TODO: Validate column to data mapping
-            // TODO: Get previous model from session
+            var message = Mapper.MapToTrickleSmsAndEmailOverPeriod(originalRequest, CurrentUser.Name());
+            Bus.Send("smscoordinator", message);
+
             throw new NotImplementedException();
         }
     }
