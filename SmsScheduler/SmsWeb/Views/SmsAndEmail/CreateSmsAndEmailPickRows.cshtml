@@ -33,10 +33,10 @@
                         @for(var i = 0; i < Model.Count(); i++)
                         {
                         <td>
-                            <input type="radio" name="@i.ToString()" value="" id="@("notused" + i)" checked="checked"><label for="@("notused" + i)">Not Used</label><br/>
-                            <input type="radio" name="@i.ToString()" value="number" id="@("number" + i)"/><label for="@("number" + i)">Mobile Number</label><br/>
-                            <input type="radio" name="@i.ToString()" value="email" id="@("email" + i)"/><label for="@("email" + i)">Email Address</label><br/>
-                            <input type="radio" name="@i.ToString()" value="name" id="@("name" + i)"/><label for="@("name" + i)">Customer Name</label><br/>
+                            <input type="radio" name="@i.ToString()" value="" id="@("notused_" + i)" checked="checked"><label for="@("notused" + i)">Not Used</label><br/>
+                            <input type="radio" name="@i.ToString()" value="number" id="@("number_" + i)"/><label for="@("number" + i)">Mobile Number</label><br/>
+                            <input type="radio" name="@i.ToString()" value="email" id="@("email_" + i)"/><label for="@("email" + i)">Email Address</label><br/>
+                            <input type="radio" name="@i.ToString()" value="name" id="@("name_" + i)"/><label for="@("name" + i)">Customer Name</label><br/>
                             @*@Html.DropDownList(i.ToString(), new List<SelectListItem>
                                 {
                                     new SelectListItem {},

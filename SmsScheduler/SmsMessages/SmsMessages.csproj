@@ -45,6 +45,7 @@
     <Compile Include="CommonData\MessageStatus.cs" />
     <Compile Include="Coordinator\Commands\RescheduleTrickledMessages.cs" />
     <Compile Include="Coordinator\Commands\SendAllMessagesAtOnce.cs" />
+    <Compile Include="Coordinator\Commands\TrickleSmsAndEmailBetweenSetTimes.cs" />
     <Compile Include="Coordinator\Events\CoordinatorCompleted.cs" />
     <Compile Include="Coordinator\Events\CoordinatorCreated.cs" />
     <Compile Include="Email\Commands\CoordinatorCompleteEmailWithSummary.cs" />

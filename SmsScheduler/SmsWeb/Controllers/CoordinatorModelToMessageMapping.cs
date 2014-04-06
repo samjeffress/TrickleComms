@@ -12,9 +12,11 @@ namespace SmsWeb.Controllers
     {
         TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
 
-        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
-        
-        SendAllMessagesAtOnce MapToSendAllAtOnce(CoordinatedSharedMessageModel coordinatedSharedMessageModel, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers);
+        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers, string username);
+
+        SendAllMessagesAtOnce MapToSendAllAtOnce(CoordinatedSharedMessageModel coordinatedSharedMessageModel, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers, string username);
+
+        TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(CoordinatorSmsAndEmailModel model, string username);
     }
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
@@ -81,6 +83,11 @@ namespace SmsWeb.Controllers
                 ConfirmationEmails = model.GetEmailList(),
                 UserOlsenTimeZone = model.UserTimeZone
             };
+        }
+
+        public TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(CoordinatorSmsAndEmailModel model, string username)
+        {
+            throw new NotImplementedException();
         }
     }
 }
