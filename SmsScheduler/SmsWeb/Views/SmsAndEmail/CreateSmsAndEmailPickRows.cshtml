@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model string[]
 
 @Scripts.Render("~/bundles/jquery")
@@ -14,7 +14,7 @@
     </head>
     <body>
         <div>
-            @using(Html.BeginForm("CreateSmsAndEmailColumnPicker", "Coordinator", FormMethod.Post)){
+            @using(Html.BeginForm("CreateSmsAndEmailColumnPicker", "SmsAndEmail", FormMethod.Post)){
                 <h3>Tell us which columns of your spreadsheet to use</h3>
                 <table>
                     <tr>

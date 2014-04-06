@@ -1,4 +1,4 @@
-﻿@model SmsWeb.Models.CoordinatorSmsAndEmailModel
+@model SmsWeb.Models.CoordinatorSmsAndEmailModel
 
 @{
     ViewBag.Title = "SMS Create";
@@ -62,7 +62,7 @@
 
 <h2>Create Coordinated Messages</h2>
 
-@using (Html.BeginForm("CreateSmsAndEmail", "Coordinator", FormMethod.Post, new Dictionary<string, object>() {{ "enctype", "multipart/form-data"}, {"class", "form-horizontal" }}))
+@using (Html.BeginForm("Create", "SmsAndEmail", FormMethod.Post, new Dictionary<string, object>() {{ "enctype", "multipart/form-data"}, {"class", "form-horizontal" }}))
 {
     @Html.ValidationSummary(true)
 

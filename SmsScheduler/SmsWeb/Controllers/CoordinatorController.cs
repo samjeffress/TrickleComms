@@ -48,25 +48,6 @@ namespace SmsWeb.Controllers
             return View("Create");
         }
 
-        public ActionResult CreateSmsAndEmail()
-        {
-            return View("CreateSmsAndEmail");
-        }
-
-        [HttpPost]
-        public ActionResult CreateSmsAndEmail(CoordinatorSmsAndEmailModel model)
-        {
-            // shouldn't stuff the csv into session
-            Session.Add("CoordinatorSmsAndEmailModel", model);
-            var textReader = TextReader.Null;
-            
-            var csvParser = new CsvHelper.CsvParser(new StreamReader(model.FileUpload.InputStream));
-            var firstRow = csvParser.Read();
-
-
-            return View("CreateSmsAndEmailPickRows", firstRow);
-        }
-
         [HttpPost]
         public ActionResult Create(CoordinatedSharedMessageModel coordinatedMessages)
         {
@@ -323,29 +304,6 @@ namespace SmsWeb.Controllers
                 var pagedResult = new PagedResult<ScheduleFailedModel> {CurrentPage = page, TotalPages = pages, ResultsPerPage = pageSize, ResultsList = pagedResults, CoordinatorId = coordinatorId};
                 return PartialView("CoordinatorSchedulesFailed", pagedResult);
             }
-        }
-
-        [HttpPost]
-        public ActionResult CreateSmsAndEmailColumnPicker(FormCollection collection)
-        {
-            var s = collection[0];
-            var s1 = collection.Keys[0];
-            // todo: use enum instead of string
-            var columnMapping = new Dictionary<int, string>();
-            for (var i = 0; i < collection.Count; i++)
-            {
-                var columnMap = collection[i];
-                var column = collection.Keys[i];
-                if (!string.IsNullOrWhiteSpace(columnMap))
-                {
-                    columnMapping.Add(Convert.ToInt32(column), columnMap);
-                }
-            }
-
-            // TODO: Validate column to data mapping
-            // TODO: Get previous model from session
-            // TODO: Get data from csv
-            throw new NotImplementedException();
         }
     }
 }
