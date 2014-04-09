@@ -87,7 +87,7 @@ namespace SmsWeb.Controllers
 
         public TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(CoordinatorSmsAndEmailModel model, string username)
         {
-            throw new NotImplementedException();
+            return new TrickleSmsAndEmailBetweenSetTimes();
         }
     }
 }
