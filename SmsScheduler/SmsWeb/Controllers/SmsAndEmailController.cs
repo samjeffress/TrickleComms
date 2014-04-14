@@ -96,14 +96,17 @@ namespace SmsWeb.Controllers
                 }
                 rowNumber++;
             }
-
-            using (var session = Raven.GetStore().OpenSession())
+            using (var transaction = new TransactionScope())
             {
-                session.Store(new CustomerContactList(customerContacts), trickleId + "_customerContacts");
-                session.SaveChanges();
+                using (var session = Raven.GetStore().OpenSession())
+                {
+                    session.Store(new CustomerContactList(customerContacts), trickleId + "_customerContacts");
+                    session.SaveChanges();
+                }
+                var message = Mapper.MapToTrickleSmsAndEmailOverPeriod(originalRequest, CurrentUser.Name());
+                Bus.Send("smscoordinator", message);
+                transaction.Complete();
             }
-            var message = Mapper.MapToTrickleSmsAndEmailOverPeriod(originalRequest, CurrentUser.Name());
-            Bus.Send("smscoordinator", message);
             return View("CreateSmsAndEmail");
         }
     }

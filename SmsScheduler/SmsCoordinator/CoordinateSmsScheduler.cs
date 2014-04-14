@@ -15,6 +15,7 @@ namespace SmsCoordinator
         Saga<CoordinateSmsSchedulingData>,
         IAmStartedByMessages<TrickleSmsOverCalculatedIntervalsBetweenSetDates>, 
         IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
+        IAmStartedByMessages<TrickleSmsAndEmailBetweenSetTimes>,
         IAmStartedByMessages<SendAllMessagesAtOnce>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
         IHandleMessages<ResumeTrickledMessages>,
@@ -108,6 +109,11 @@ namespace SmsCoordinator
 
             RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
             RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
+        }
+
+        public void Handle(TrickleSmsAndEmailBetweenSetTimes message)
+        {
+            throw new NotImplementedException();
         }
 
         public void Handle(SendAllMessagesAtOnce message)

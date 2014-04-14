@@ -37,6 +37,7 @@ namespace SmsActioner
 
             appHost.Container.Register(bus);
             appHost.Container.RegisterAutoWiredAs<RavenDocStore, IRavenDocStore>();//.RegisterAs<IRavenDocStore>(new RavenDocStore());
+            Configure.Instance.Configurer.ConfigureComponent<MailGunWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
         }
     }
 }

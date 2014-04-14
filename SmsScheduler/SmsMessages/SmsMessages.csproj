@@ -50,6 +50,7 @@
     <Compile Include="Coordinator\Events\CoordinatorCreated.cs" />
     <Compile Include="Email\Commands\CoordinatorCompleteEmailWithSummary.cs" />
     <Compile Include="Email\Commands\CoordinatorCreatedEmail.cs" />
+    <Compile Include="MessageSending\Commands\SendOneEmailNow.cs" />
     <Compile Include="MessageSending\Responses\MessageFailedSending.cs" />
     <Compile Include="MessageSending\Commands\MessageReceived.cs" />
     <Compile Include="MessageSending\Responses\MessageSuccessfullyDelivered.cs" />
