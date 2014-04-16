@@ -12,11 +12,6 @@ namespace SmsActioner
         EmailStatus CheckStatus(string emailId);
     }
 
-    public enum EmailStatus
-    {
-        Opened
-    }
-
     public class MailGunWrapper : IMailGunWrapper
     {
         private IRavenDocStore DocumentStore { get; set; }

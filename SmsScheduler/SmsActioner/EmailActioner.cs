@@ -42,11 +42,39 @@ namespace SmsActioner
         {
             // TODO : Mailgun Events api with Message-Id as filter
             // TODO : Figure out what we do about usage
+            // TODO: Figure out when we should stop checking the status (is opened enough - should we wait 24 hours to see if they click?)
             var emailStatus = MailGun.CheckStatus(Data.EmailId);
-            if (emailStatus == EmailStatus.Opened)
-                ReplyToOriginator(new EmailSuccessfullyDelivered());
-            else
-                throw new NotImplementedException();
+            switch (emailStatus)
+            {
+                case EmailStatus.Accepted:
+                    RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0,0,20,0));
+                    break;
+                case EmailStatus.Delivered:
+                    ReplyToOriginator(new EmailDelivered());
+                    break;
+                case EmailStatus.Failed:
+                    ReplyToOriginator(new EmailDeliveryFailed());
+                    MarkAsComplete();
+                    break;
+                case EmailStatus.Clicked:
+                    ReplyToOriginator(new EmailDeliveredAndClicked());
+                    MarkAsComplete();
+                    break;
+                case EmailStatus.Opened:
+                    ReplyToOriginator(new EmailDeliveredAndOpened());
+                    MarkAsComplete();
+                    break;
+                case EmailStatus.Complained:
+                    ReplyToOriginator(new EmailComplained());
+                    MarkAsComplete();
+                    break;
+                case EmailStatus.Unsubscribed:
+                    ReplyToOriginator(new EmailUnsubscribed());
+                    MarkAsComplete();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         public void Handle(SendEmail message)
