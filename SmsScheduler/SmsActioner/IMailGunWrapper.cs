@@ -9,6 +9,12 @@ namespace SmsActioner
     public interface IMailGunWrapper
     {
         string SendEmail(SendEmail message);
+        EmailStatus CheckStatus(string emailId);
+    }
+
+    public enum EmailStatus
+    {
+        Opened
     }
 
     public class MailGunWrapper : IMailGunWrapper
@@ -51,6 +57,11 @@ namespace SmsActioner
                 id = id.Trim();
                 return id;
             }
+        }
+
+        public EmailStatus CheckStatus(string emailId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -4,6 +4,7 @@ using NServiceBus.Saga;
 using SmsActioner.InternalMessages.Commands;
 using SmsActioner.InternalMessages.Responses;
 using SmsMessages.MessageSending.Commands;
+using SmsMessages.MessageSending.Responses;
 
 namespace SmsActioner
 {
@@ -33,14 +34,19 @@ namespace SmsActioner
 
         public void Handle(EmailSent message)
         {
-            Data.emailId = message.EmailId;
+            Data.EmailId = message.EmailId;
             RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 20, 0));
         }
 
         public void Timeout(EmailStatusPendingTimeout state)
         {
+            // TODO : Mailgun Events api with Message-Id as filter
             // TODO : Figure out what we do about usage
-            throw new NotImplementedException();
+            var emailStatus = MailGun.CheckStatus(Data.EmailId);
+            if (emailStatus == EmailStatus.Opened)
+                ReplyToOriginator(new EmailSuccessfullyDelivered());
+            else
+                throw new NotImplementedException();
         }
 
         public void Handle(SendEmail message)
@@ -60,6 +66,6 @@ namespace SmsActioner
         public string Originator { get; set; }
         public string OriginalMessageId { get; set; }
         public SendOneEmailNow OriginalMessage { get; set; }
-        public string emailId { get; set; }
+        public string EmailId { get; set; }
     }
 }
