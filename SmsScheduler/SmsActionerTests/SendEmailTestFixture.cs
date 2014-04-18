@@ -60,11 +60,11 @@ namespace SmsActionerTests
                 .When(s => s.Handle(sendOneEmailNow))
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
-                    .ExpectReplyToOrginator<EmailDelivered>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
-                    .ExpectSendLocal<EmailDelivered>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
+                    .ExpectReplyToOrginator<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Delivered)
+                    .ExpectSendLocal<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Delivered)
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((message, timespan) => timespan.Ticks == TimeSpan.FromHours(2).Ticks)
                 .WhenSagaTimesOut()
-                    .ExpectNotSendLocal<EmailDelivered>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
+                    .ExpectNotSendLocal<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((message, timespan) => timespan.Ticks == TimeSpan.FromHours(2).Ticks)
                 .WhenSagaTimesOut(); 
         }
@@ -91,7 +91,7 @@ namespace SmsActionerTests
                 .When(s => s.Handle(sendOneEmailNow))
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
-                    .ExpectNotSendLocal<EmailDelivered>(message => true)
+                    .ExpectNotSendLocal<EmailStatusUpdate>(message => true)
                     .ExpectNoTimeoutToBeSetIn<EmailStatusPendingTimeout>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
@@ -117,8 +117,8 @@ namespace SmsActionerTests
                 .When(s => s.Handle(sendOneEmailNow))
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
-                    .ExpectReplyToOrginator<EmailDeliveryFailed>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
-                    .ExpectSendLocal<EmailDeliveryFailed>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
+                    .ExpectReplyToOrginator<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Failed )
+                    .ExpectSendLocal<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Failed)
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
@@ -143,8 +143,8 @@ namespace SmsActionerTests
                 .When(s => s.Handle(sendOneEmailNow))
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
-                    .ExpectReplyToOrginator<EmailDeliveredAndOpened>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
-                    .ExpectSendLocal<EmailDeliveredAndOpened>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
+                    .ExpectReplyToOrginator<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Opened)
+                    .ExpectSendLocal<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Opened)
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
@@ -169,8 +169,8 @@ namespace SmsActionerTests
                 .When(s => s.Handle(sendOneEmailNow))
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
-                    .ExpectReplyToOrginator<EmailDeliveredAndClicked>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
-                    .ExpectSendLocal<EmailDeliveredAndClicked>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
+                    .ExpectReplyToOrginator<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Clicked)
+                    .ExpectSendLocal<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Clicked)
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
@@ -195,8 +195,8 @@ namespace SmsActionerTests
                 .When(s => s.Handle(sendOneEmailNow))
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
-                    .ExpectReplyToOrginator<EmailUnsubscribed>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
-                    .ExpectSendLocal<EmailUnsubscribed>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
+                    .ExpectReplyToOrginator<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Unsubscribed)
+                    .ExpectSendLocal<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Unsubscribed)
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }
@@ -221,8 +221,8 @@ namespace SmsActionerTests
                 .When(s => s.Handle(sendOneEmailNow))
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
-                    .ExpectReplyToOrginator<EmailComplained>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
-                    .ExpectSendLocal<EmailComplained>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId)
+                    .ExpectReplyToOrginator<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Complained)
+                    .ExpectSendLocal<EmailStatusUpdate>(message => message.EmailId == emailSent.EmailId && message.CorrelationId == sendOneEmailNow.CorrelationId && message.Status == EmailStatus.Complained)
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }

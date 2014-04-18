@@ -1,4 +1,5 @@
 using System;
+using SmsMessages;
 using SmsMessages.MessageSending.Responses;
 
 namespace SmsTrackingModels
@@ -14,7 +15,7 @@ namespace SmsTrackingModels
         { }
 
         // TODO: Use EmailStatus from SmsActioner
-        public string EmailStatus { get; set; }
+        public EmailStatus EmailStatus { get; set; }
 
         public string EmailId { get; set; }
 

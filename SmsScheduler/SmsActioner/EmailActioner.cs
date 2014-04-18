@@ -47,6 +47,7 @@ namespace SmsActioner
             // TODO: Figure out when we should stop checking the status (is opened enough - should we wait 24 hours to see if they click?)
             // TODO: Save Email Data
             var emailStatus = MailGun.CheckStatus(Data.EmailId);
+            var emailStatusUpdate = new EmailStatusUpdate(Data.OriginalMessage, Data.EmailId) { Status = emailStatus };
             switch (emailStatus)
             {
                 case EmailStatus.Accepted:
@@ -55,9 +56,8 @@ namespace SmsActioner
                 case EmailStatus.Delivered:
                     if (Data.DeliveredEmailCount == 0)
                     {
-                        var emailDelivered = new EmailDelivered(Data.OriginalMessage, Data.EmailId);
-                        ReplyToOriginator(emailDelivered);
-                        Bus.SendLocal(emailDelivered);
+                        ReplyToOriginator(emailStatusUpdate);
+                        Bus.SendLocal(emailStatusUpdate);
                     }
                     if (Data.DeliveredEmailCount > 10)
                     {
@@ -70,33 +70,28 @@ namespace SmsActioner
                     Data.DeliveredEmailCount++;
                     break;
                 case EmailStatus.Failed:
-                    var emailDeliveryFailed = new EmailDeliveryFailed(Data.OriginalMessage, Data.EmailId);
-                    ReplyToOriginator(emailDeliveryFailed);
-                    Bus.SendLocal(emailDeliveryFailed);
+                    ReplyToOriginator(emailStatusUpdate);
+                    Bus.SendLocal(emailStatusUpdate);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Clicked:
-                    var emailDeliveredAndClicked = new EmailDeliveredAndClicked(Data.OriginalMessage, Data.EmailId);
-                    ReplyToOriginator(emailDeliveredAndClicked);
-                    Bus.SendLocal(emailDeliveredAndClicked);
+                    ReplyToOriginator(emailStatusUpdate);
+                    Bus.SendLocal(emailStatusUpdate);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Opened:
-                    var emailDeliveredAndOpened = new EmailDeliveredAndOpened(Data.OriginalMessage, Data.EmailId);
-                    ReplyToOriginator(emailDeliveredAndOpened);
-                    Bus.SendLocal(emailDeliveredAndOpened);
+                    ReplyToOriginator(emailStatusUpdate);
+                    Bus.SendLocal(emailStatusUpdate);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Complained:
-                    var emailComplained = new EmailComplained(Data.OriginalMessage, Data.EmailId);
-                    ReplyToOriginator(emailComplained);
-                    Bus.SendLocal(emailComplained);
+                    ReplyToOriginator(emailStatusUpdate);
+                    Bus.SendLocal(emailStatusUpdate);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Unsubscribed:
-                    var emailUnsubscribed = new EmailUnsubscribed(Data.OriginalMessage, Data.EmailId);
-                    ReplyToOriginator(emailUnsubscribed);
-                    Bus.SendLocal(emailUnsubscribed);
+                    ReplyToOriginator(emailStatusUpdate);
+                    Bus.SendLocal(emailStatusUpdate);
                     MarkAsComplete();
                     break;
                 default:

@@ -3,7 +3,7 @@ using SmsMessages.MessageSending.Commands;
 
 namespace SmsMessages.MessageSending.Responses
 {
-    public abstract class EmailStatusUpdate
+    public class EmailStatusUpdate
     {
         public EmailStatusUpdate(SendOneEmailNow originalMessage, string emailId)
         {
@@ -42,41 +42,43 @@ namespace SmsMessages.MessageSending.Responses
         public string ConfirmationEmailAddress { get; set; }
 
         public string Username { get; set; }
+
+        public EmailStatus Status { get; set; }
     }
 
-    public class EmailDelivered : EmailStatusUpdate
-    {
-        public EmailDelivered(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
-        { }
-    }
+    //public class EmailDelivered : EmailStatusUpdate
+    //{
+    //    public EmailDelivered(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
+    //    { }
+    //}
 
-    public class EmailDeliveredAndOpened : EmailStatusUpdate
-    {
-        public EmailDeliveredAndOpened(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
-        { }
-    }
+    //public class EmailDeliveredAndOpened : EmailStatusUpdate
+    //{
+    //    public EmailDeliveredAndOpened(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
+    //    { }
+    //}
 
-    public class EmailDeliveredAndClicked : EmailStatusUpdate
-    {
-        public EmailDeliveredAndClicked(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
-        { }
-    }
+    //public class EmailDeliveredAndClicked : EmailStatusUpdate
+    //{
+    //    public EmailDeliveredAndClicked(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
+    //    { }
+    //}
 
-    public class EmailDeliveryFailed : EmailStatusUpdate
-    {
-        public EmailDeliveryFailed(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
-        { }
-    }
+    //public class EmailDeliveryFailed : EmailStatusUpdate
+    //{
+    //    public EmailDeliveryFailed(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
+    //    { }
+    //}
 
-    public class EmailUnsubscribed : EmailStatusUpdate
-    {
-        public EmailUnsubscribed(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
-        { }
-    }
+    //public class EmailUnsubscribed : EmailStatusUpdate
+    //{
+    //    public EmailUnsubscribed(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
+    //    { }
+    //}
 
-    public class EmailComplained : EmailStatusUpdate
-    {
-        public EmailComplained(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
-        { }
-    }
+    //public class EmailComplained : EmailStatusUpdate
+    //{
+    //    public EmailComplained(SendOneEmailNow originalMessage, string emailId) : base(originalMessage, emailId)
+    //    { }
+    //}
 }
