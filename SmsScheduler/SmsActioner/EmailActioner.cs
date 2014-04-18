@@ -3,6 +3,7 @@ using NServiceBus;
 using NServiceBus.Saga;
 using SmsActioner.InternalMessages.Commands;
 using SmsActioner.InternalMessages.Responses;
+using SmsMessages;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Responses;
 

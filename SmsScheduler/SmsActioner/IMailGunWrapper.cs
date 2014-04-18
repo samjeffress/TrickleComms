@@ -3,6 +3,7 @@ using ConfigurationModels;
 using Newtonsoft.Json;
 using RestSharp;
 using SmsActioner.InternalMessages.Commands;
+using SmsMessages;
 
 namespace SmsActioner
 {

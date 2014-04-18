@@ -1,4 +1,4 @@
-﻿namespace SmsActioner
+namespace SmsMessages
 {
     public enum EmailStatus
     {

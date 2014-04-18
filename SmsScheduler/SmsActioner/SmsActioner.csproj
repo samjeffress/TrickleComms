@@ -96,7 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EmailActioner.cs" />
-    <Compile Include="EmailStatus.cs" />
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="Host.cs" />
     <Compile Include="IMailGunWrapper.cs" />

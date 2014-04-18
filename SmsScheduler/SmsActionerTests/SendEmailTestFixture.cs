@@ -5,6 +5,7 @@ using Rhino.Mocks;
 using SmsActioner;
 using SmsActioner.InternalMessages.Commands;
 using SmsActioner.InternalMessages.Responses;
+using SmsMessages;
 using SmsMessages.MessageSending.Commands;
 using SmsMessages.MessageSending.Responses;
 

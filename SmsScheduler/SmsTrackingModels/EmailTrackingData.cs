@@ -1,9 +1,18 @@
 using System;
+using SmsMessages.MessageSending.Responses;
 
 namespace SmsTrackingModels
 {
     public class EmailTrackingData
     {
+        public EmailTrackingData(EmailStatusUpdate statusUpdate)
+        {
+            // TODO: Map fields
+        }
+
+        public EmailTrackingData()
+        { }
+
         // TODO: Use EmailStatus from SmsActioner
         public string EmailStatus { get; set; }
 
