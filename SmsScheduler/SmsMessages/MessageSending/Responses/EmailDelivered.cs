@@ -1,9 +1,12 @@
 
+using System;
+
 namespace SmsMessages.MessageSending.Responses
 {
     public class EmailDelivered
     {
-        // TODO: Add properties
+        public string EmailId { get; set; }
+        public Guid CorrelationId { get; set; }
     }
 
     public class EmailDeliveredAndOpened : EmailDelivered
@@ -18,16 +21,22 @@ namespace SmsMessages.MessageSending.Responses
 
     public class EmailDeliveryFailed
     {
-        // TODO: Add properties
+        public string EmailId { get; set; }
+
+        public Guid CorrelationId { get; set; }
     }
 
     public class EmailUnsubscribed
     {
-        // TODO: Add properties
+        public string EmailId { get; set; }
+
+        public Guid CorrelationId { get; set; }
     }
 
     public class EmailComplained
-    {
-        // TODO: Add properties   
+    { 
+        public string EmailId { get; set; }
+
+        public Guid CorrelationId { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace SmsActioner
 
     public class MailGunWrapper : IMailGunWrapper
     {
-        private IRavenDocStore DocumentStore { get; set; }
+        public IRavenDocStore DocumentStore { get; set; }
 
         public string SendEmail(SendEmail message)
         {
@@ -30,12 +30,10 @@ namespace SmsActioner
                 var client = new RestClient
                 {
                     BaseUrl = "https://api.mailgun.net/v2",
-                    Authenticator = new HttpBasicAuthenticator("api",
-                                                               mailgunConfiguration.ApiKey)
+                    Authenticator = new HttpBasicAuthenticator("api", mailgunConfiguration.ApiKey)
                 };
                 RestRequest request = new RestRequest();
-                request.AddParameter("domain",
-                                     "tricklesms.com", ParameterType.UrlSegment);
+                request.AddParameter("domain", "tricklesms.com", ParameterType.UrlSegment);
                 request.Resource = "{domain}/messages";
                 request.AddParameter("from", baseMessage.FromDisplayName + " <" + baseMessage.FromAddress + ">");
                 request.AddParameter("to", baseMessage.ToAddress);
@@ -46,7 +44,7 @@ namespace SmsActioner
                 request.Method = Method.POST;
                 var response = client.Execute(request);
                 var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
-                var id = responseContent.id as string;
+                var id = responseContent.id.ToString();
                 id = id.Replace('<', ' ');
                 id = id.Replace('>', ' ');
                 id = id.Trim();
@@ -56,7 +54,37 @@ namespace SmsActioner
 
         public EmailStatus CheckStatus(string emailId)
         {
-            throw new NotImplementedException();
+            using (var session = DocumentStore.GetStore().OpenSession(DocumentStore.DatabaseName()))
+            {
+                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                if (mailgunConfiguration == null)
+                {
+                    throw new NotImplementedException();
+                }
+
+                var client = new RestClient
+                {
+                    BaseUrl = "https://api.mailgun.net/v2",
+                    Authenticator = new HttpBasicAuthenticator("api", mailgunConfiguration.ApiKey)
+                };
+                RestRequest request = new RestRequest();
+                request.AddParameter("domain", "tricklesms.com", ParameterType.UrlSegment);
+                request.Resource = "{domain}/events";
+                // begin doesn't matter because we use message-id, but mailgun needs this field
+                request.AddParameter("begin", "Thu, 13 Oct 2011 18:02:00 GMT");
+                request.AddParameter("ascending", "yes");
+                request.AddParameter("limit", 25);
+                request.AddParameter("pretty", "yes");
+                request.AddParameter("message-id", emailId);
+                var response = client.Execute(request);
+                var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
+                var o = responseContent.items[0];
+                var eventStatus = o["event"].ToString();
+                EmailStatus result;
+                if (Enum.TryParse(eventStatus, true, out result))
+                    return result;
+                throw new NotImplementedException();
+            }
         }
     }
 }

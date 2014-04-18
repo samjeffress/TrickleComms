@@ -25,6 +25,7 @@ namespace SmsActioner
         public void Handle(SendOneEmailNow message)
         {
             Data.OriginalMessage = message;
+            Data.StartTime = DateTime.Now;
             Bus.SendLocal(new SendEmail
                 {
                     EmailSagaId = Data.Id,
@@ -50,26 +51,50 @@ namespace SmsActioner
                     RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0,0,20,0));
                     break;
                 case EmailStatus.Delivered:
-                    ReplyToOriginator(new EmailDelivered());
+                    if (Data.DeliveredEmailCount == 0)
+                    {
+                        var emailDelivered = new EmailDelivered { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                        ReplyToOriginator(emailDelivered);
+                        Bus.SendLocal(emailDelivered);
+                    }
+                    if (Data.DeliveredEmailCount > 10)
+                    {
+                        MarkAsComplete();
+                    }
+                    else
+                    {
+                        RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 2, 0, 0));   
+                    }
+                    Data.DeliveredEmailCount++;
                     break;
                 case EmailStatus.Failed:
-                    ReplyToOriginator(new EmailDeliveryFailed());
+                    var emailDeliveryFailed = new EmailDeliveryFailed {CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId};
+                    ReplyToOriginator(emailDeliveryFailed);
+                    Bus.SendLocal(emailDeliveryFailed);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Clicked:
-                    ReplyToOriginator(new EmailDeliveredAndClicked());
+                    var emailDeliveredAndClicked = new EmailDeliveredAndClicked { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                    ReplyToOriginator(emailDeliveredAndClicked);
+                    Bus.SendLocal(emailDeliveredAndClicked);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Opened:
-                    ReplyToOriginator(new EmailDeliveredAndOpened());
+                    var emailDeliveredAndOpened = new EmailDeliveredAndOpened { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                    ReplyToOriginator(emailDeliveredAndOpened);
+                    Bus.SendLocal(emailDeliveredAndOpened);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Complained:
-                    ReplyToOriginator(new EmailComplained());
+                    var emailComplained = new EmailComplained {CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId};
+                    ReplyToOriginator(emailComplained);
+                    Bus.SendLocal(emailComplained);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Unsubscribed:
-                    ReplyToOriginator(new EmailUnsubscribed());
+                    var emailUnsubscribed = new EmailUnsubscribed { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                    ReplyToOriginator(emailUnsubscribed);
+                    Bus.SendLocal(emailUnsubscribed);
                     MarkAsComplete();
                     break;
                 default:
@@ -95,5 +120,9 @@ namespace SmsActioner
         public string OriginalMessageId { get; set; }
         public SendOneEmailNow OriginalMessage { get; set; }
         public string EmailId { get; set; }
+
+        public DateTime StartTime { get; set; }
+
+        public int DeliveredEmailCount { get; set; }
     }
 }
