@@ -44,8 +44,6 @@ namespace SmsActioner
         {
             // TODO : Mailgun Events api with Message-Id as filter
             // TODO : Figure out what we do about usage
-            // TODO: Figure out when we should stop checking the status (is opened enough - should we wait 24 hours to see if they click?)
-            // TODO: Save Email Data
             var emailStatus = MailGun.CheckStatus(Data.EmailId);
             var emailStatusUpdate = new EmailStatusUpdate(Data.OriginalMessage, Data.EmailId) { Status = emailStatus };
             switch (emailStatus)
@@ -60,35 +58,15 @@ namespace SmsActioner
                         Bus.SendLocal(emailStatusUpdate);
                     }
                     if (Data.DeliveredEmailCount > 10)
-                    {
                         MarkAsComplete();
-                    }
                     else
-                    {
                         RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 2, 0, 0));   
-                    }
                     Data.DeliveredEmailCount++;
                     break;
                 case EmailStatus.Failed:
-                    ReplyToOriginator(emailStatusUpdate);
-                    Bus.SendLocal(emailStatusUpdate);
-                    MarkAsComplete();
-                    break;
                 case EmailStatus.Clicked:
-                    ReplyToOriginator(emailStatusUpdate);
-                    Bus.SendLocal(emailStatusUpdate);
-                    MarkAsComplete();
-                    break;
                 case EmailStatus.Opened:
-                    ReplyToOriginator(emailStatusUpdate);
-                    Bus.SendLocal(emailStatusUpdate);
-                    MarkAsComplete();
-                    break;
                 case EmailStatus.Complained:
-                    ReplyToOriginator(emailStatusUpdate);
-                    Bus.SendLocal(emailStatusUpdate);
-                    MarkAsComplete();
-                    break;
                 case EmailStatus.Unsubscribed:
                     ReplyToOriginator(emailStatusUpdate);
                     Bus.SendLocal(emailStatusUpdate);
