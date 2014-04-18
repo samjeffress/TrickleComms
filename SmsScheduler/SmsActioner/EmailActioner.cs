@@ -44,6 +44,7 @@ namespace SmsActioner
             // TODO : Mailgun Events api with Message-Id as filter
             // TODO : Figure out what we do about usage
             // TODO: Figure out when we should stop checking the status (is opened enough - should we wait 24 hours to see if they click?)
+            // TODO: Save Email Data
             var emailStatus = MailGun.CheckStatus(Data.EmailId);
             switch (emailStatus)
             {
@@ -53,7 +54,7 @@ namespace SmsActioner
                 case EmailStatus.Delivered:
                     if (Data.DeliveredEmailCount == 0)
                     {
-                        var emailDelivered = new EmailDelivered { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                        var emailDelivered = new EmailDelivered(Data.OriginalMessage, Data.EmailId);
                         ReplyToOriginator(emailDelivered);
                         Bus.SendLocal(emailDelivered);
                     }
@@ -68,31 +69,31 @@ namespace SmsActioner
                     Data.DeliveredEmailCount++;
                     break;
                 case EmailStatus.Failed:
-                    var emailDeliveryFailed = new EmailDeliveryFailed {CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId};
+                    var emailDeliveryFailed = new EmailDeliveryFailed(Data.OriginalMessage, Data.EmailId);
                     ReplyToOriginator(emailDeliveryFailed);
                     Bus.SendLocal(emailDeliveryFailed);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Clicked:
-                    var emailDeliveredAndClicked = new EmailDeliveredAndClicked { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                    var emailDeliveredAndClicked = new EmailDeliveredAndClicked(Data.OriginalMessage, Data.EmailId);
                     ReplyToOriginator(emailDeliveredAndClicked);
                     Bus.SendLocal(emailDeliveredAndClicked);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Opened:
-                    var emailDeliveredAndOpened = new EmailDeliveredAndOpened { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                    var emailDeliveredAndOpened = new EmailDeliveredAndOpened(Data.OriginalMessage, Data.EmailId);
                     ReplyToOriginator(emailDeliveredAndOpened);
                     Bus.SendLocal(emailDeliveredAndOpened);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Complained:
-                    var emailComplained = new EmailComplained {CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId};
+                    var emailComplained = new EmailComplained(Data.OriginalMessage, Data.EmailId);
                     ReplyToOriginator(emailComplained);
                     Bus.SendLocal(emailComplained);
                     MarkAsComplete();
                     break;
                 case EmailStatus.Unsubscribed:
-                    var emailUnsubscribed = new EmailUnsubscribed { CorrelationId = Data.OriginalMessage.CorrelationId, EmailId = Data.EmailId };
+                    var emailUnsubscribed = new EmailUnsubscribed(Data.OriginalMessage, Data.EmailId);
                     ReplyToOriginator(emailUnsubscribed);
                     Bus.SendLocal(emailUnsubscribed);
                     MarkAsComplete();
