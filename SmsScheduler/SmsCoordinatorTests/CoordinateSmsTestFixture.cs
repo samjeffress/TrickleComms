@@ -756,5 +756,79 @@ namespace SmsCoordinatorTests
                 .When(s => s.Timeout(new CoordinatorTimeout()))
                 .AssertSagaCompletionIs(true);
         }
+
+        [Test]
+        public void TrickleThreeMessagesOverTenMinutesSmsAndEmailOneMessageFailsCoordinatorStillCompletes()
+        {
+            var coordinatorId = Guid.NewGuid();
+            var smsAndEmailDataId = Guid.NewGuid().ToString();
+            var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
+            var listOfSmsAndEmailToSend = new CustomerContactList(new List<CustomerContact>
+                {
+                    new CustomerContact { CustomerName = "barry", EmailAddress = "barry@email.com", MobileNumber = "+61488888888" },
+                    new CustomerContact { CustomerName = "toby", EmailAddress = string.Empty, MobileNumber = "+6141111111" },
+                    new CustomerContact { CustomerName = "frank", EmailAddress = "frank@gmail.com", MobileNumber = string.Empty }
+                });
+            ravenScheduleDocuments.Expect(r => r.GetSmsAndEmailCoordinatorData(smsAndEmailDataId)).Return(listOfSmsAndEmailToSend);
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
+            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
+            var startTime = DateTime.Now.AddHours(3);
+            var duration = new TimeSpan(0, 10, 0);
+
+            var trickleMultipleMessages = new TrickleSmsAndEmailBetweenSetTimes()
+            {
+                StartTimeUtc = startTime,
+                SmsAndEmailDataId = smsAndEmailDataId,
+                Duration = duration,
+                CoordinatorId = coordinatorId,
+                MetaData = new SmsMetaData()
+            };
+
+            var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
+            var messageTiming = new List<DateTime> { startTime, startTime.AddMinutes(5), startTime.AddMinutes(10) };
+            timingManager.Expect(t => t.CalculateTiming(startTime, duration, 3))
+                .Return(messageTiming);
+
+            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
+            Test.Initialize();
+            Test.Saga<CoordinateSmsScheduler>()
+                .WithExternalDependencies(s =>
+                {
+                    s.TimingManager = timingManager;
+                    s.Data = sagaData;
+                    s.RavenScheduleDocuments = ravenScheduleDocuments;
+                })
+                    .ExpectSendToDestination<ScheduleSmsForSendingLater>((l, d) => 
+                        l.SmsData.Mobile == listOfSmsAndEmailToSend.CustomerContacts[0].MobileNumber && 
+                        l.SendMessageAtUtc == messageTiming[0] &&
+                        d.Queue == "smsscheduler")
+                    .ExpectSendToDestination<ScheduleEmailForSendingLater>((l, d) =>
+                        l.EmailData.ToAddress == listOfSmsAndEmailToSend.CustomerContacts[0].EmailAddress &&
+                        // TODO: some asserts around subject / from
+                        l.SendMessageAtUtc == messageTiming[0] &&
+                        d.Queue == "smsscheduler")
+                    //.ExpectSendToDestination<ScheduleSmsForSendingLater>((l, d) => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile && d.Queue == "smsscheduler")
+                    .ExpectSendToDestination<ScheduleSmsForSendingLater>((l, d) => 
+                        l.SmsData.Mobile == listOfSmsAndEmailToSend.CustomerContacts[1].MobileNumber && 
+                        l.SendMessageAtUtc == messageTiming[1] &&
+                        d.Queue == "smsscheduler")
+                    .ExpectSendToDestination<ScheduleEmailForSendingLater>((l, d) =>
+                        l.EmailData.ToAddress == listOfSmsAndEmailToSend.CustomerContacts[2].EmailAddress &&
+                            // TODO: some asserts around subject / from
+                        l.SendMessageAtUtc == messageTiming[2] &&
+                        d.Queue == "smsscheduler")
+                    .ExpectPublish<CoordinatorCreated>()
+                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
+                .When(s => s.Handle(trickleMultipleMessages))
+                    .AssertSagaCompletionIs(false)
+                    .ExpectPublish<CoordinatorCompleted>()
+                .When(s => s.Timeout(new CoordinatorTimeout()))
+                .AssertSagaCompletionIs(true);
+
+            timingManager.VerifyAllExpectations();
+        }
     }
 }

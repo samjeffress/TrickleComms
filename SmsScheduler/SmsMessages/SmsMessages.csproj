@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonData\EmailData.cs" />
     <Compile Include="CommonData\MessageStatus.cs" />
     <Compile Include="Coordinator\Commands\RescheduleTrickledMessages.cs" />
     <Compile Include="Coordinator\Commands\SendAllMessagesAtOnce.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="MessageSending\Commands\MessageReceived.cs" />
     <Compile Include="MessageSending\Responses\MessageSuccessfullyDelivered.cs" />
     <Compile Include="Scheduling\Commands\RescheduleScheduledMessageWithNewTime.cs" />
+    <Compile Include="Scheduling\Commands\ScheduleEmailForSendingLater.cs" />
     <Compile Include="Scheduling\Events\MessageRescheduled.cs" />
     <Compile Include="Scheduling\Events\MessageSchedulePaused.cs" />
     <Compile Include="Scheduling\Events\ScheduledSmsFailed.cs" />

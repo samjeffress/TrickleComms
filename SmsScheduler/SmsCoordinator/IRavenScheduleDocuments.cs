@@ -19,6 +19,7 @@ namespace SmsCoordinator
         void SaveCoordinator(CoordinatorCreated message);
         void MarkCoordinatorAsComplete(Guid coordinatorId, DateTime utcCompleteDate);
         List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult> GetScheduleSummary(Guid coordinatorId);
+        CustomerContactList GetSmsAndEmailCoordinatorData(string smsAndEmailDataId);
     }
 
     public class RavenScheduleDocuments : IRavenScheduleDocuments
@@ -177,6 +178,11 @@ namespace SmsCoordinator
 
                 return coordinatorSummary;
             }
+        }
+
+        public CustomerContactList GetSmsAndEmailCoordinatorData(string smsAndEmailDataId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -87,6 +87,7 @@ namespace SmsWeb.Controllers
 
         public TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(CoordinatorSmsAndEmailModel model, string username)
         {
+            // TODO: Map trickle sms to model
             return new TrickleSmsAndEmailBetweenSetTimes();
         }
     }
