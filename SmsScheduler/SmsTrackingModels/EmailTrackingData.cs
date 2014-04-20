@@ -8,13 +8,24 @@ namespace SmsTrackingModels
     {
         public EmailTrackingData(EmailStatusUpdate statusUpdate)
         {
-            // TODO: Map fields
+            EmailStatus = statusUpdate.Status;
+            EmailId = statusUpdate.EmailId;
+            //SentTime = statusUpdate - do we need the sent time??
+            ToAddress = statusUpdate.ToAddress;
+            FromAddress = statusUpdate.FromAddress;
+            FromDisplayName = statusUpdate.FromDisplayName;
+            ReplyToAddress = statusUpdate.ReplyToAddress;
+            Subject = statusUpdate.Subject;
+            BodyHtml = statusUpdate.BodyHtml;
+            BodyText = statusUpdate.BodyText;
+            CorrelationId = statusUpdate.CorrelationId;
+            ConfirmationEmailAddress = statusUpdate.ConfirmationEmailAddress;
+            Username = statusUpdate.Username;
         }
 
         public EmailTrackingData()
         { }
 
-        // TODO: Use EmailStatus from SmsActioner
         public EmailStatus EmailStatus { get; set; }
 
         public string EmailId { get; set; }

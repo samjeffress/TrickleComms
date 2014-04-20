@@ -19,7 +19,7 @@ namespace SmsActioner
                     emailTrackingData.EmailStatus = message.Status;
                 else
                 {
-                    session.Store(new EmailTrackingData(message) { EmailStatus = message.Status }, message.CorrelationId.ToString());
+                    session.Store(new EmailTrackingData(message), message.CorrelationId.ToString());
                 }
                 session.SaveChanges();
             }

@@ -43,7 +43,6 @@ namespace SmsActioner
         public void Timeout(EmailStatusPendingTimeout state)
         {
             // TODO : Mailgun Events api with Message-Id as filter
-            // TODO : Figure out what we do about usage
             var emailStatus = MailGun.CheckStatus(Data.EmailId);
             var emailStatusUpdate = new EmailStatusUpdate(Data.OriginalMessage, Data.EmailId) { Status = emailStatus };
             switch (emailStatus)
