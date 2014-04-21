@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SmsMessages.CommonData;
 
 namespace SmsMessages.Scheduling.Commands
@@ -6,15 +7,19 @@ namespace SmsMessages.Scheduling.Commands
     public class ScheduleEmailForSendingLater
     {
         public ScheduleEmailForSendingLater()
-        {}
+        {
+            Tags = new List<string>();
+        }
 
-        public ScheduleEmailForSendingLater(DateTime sendMessageAtUtc, EmailData emailData, Guid coorelationId, string username)
+        public ScheduleEmailForSendingLater(DateTime sendMessageAtUtc, EmailData emailData, SmsMetaData metaData, Guid coorelationId, string username)
         {
             ScheduleMessageId = Guid.NewGuid();
             EmailData = emailData;
             SendMessageAtUtc = sendMessageAtUtc;
             CorrelationId = coorelationId;
             Username = username;
+            Tags = metaData.Tags;
+            Topic = metaData.Topic;
         }
 
         public virtual DateTime SendMessageAtUtc { get; set; }
@@ -28,5 +33,9 @@ namespace SmsMessages.Scheduling.Commands
         public virtual string ConfirmationEmail { get; set; }
 
         public virtual string Username { get; set; }
+
+        public virtual List<string> Tags { get; set; }
+
+        public virtual string Topic { get; set; }
     }
 }

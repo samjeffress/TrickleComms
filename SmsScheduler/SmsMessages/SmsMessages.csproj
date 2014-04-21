@@ -49,6 +49,7 @@
     <Compile Include="Coordinator\Commands\TrickleSmsAndEmailBetweenSetTimes.cs" />
     <Compile Include="Coordinator\Events\CoordinatorCompleted.cs" />
     <Compile Include="Coordinator\Events\CoordinatorCreated.cs" />
+    <Compile Include="Coordinator\Events\CoordinatorCreatedWithEmailAndSms.cs" />
     <Compile Include="EmailStatus.cs" />
     <Compile Include="Email\Commands\CoordinatorCompleteEmailWithSummary.cs" />
     <Compile Include="Email\Commands\CoordinatorCreatedEmail.cs" />

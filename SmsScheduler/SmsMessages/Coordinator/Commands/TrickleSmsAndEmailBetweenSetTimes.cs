@@ -26,5 +26,9 @@ namespace SmsMessages.Coordinator.Commands
         public string UserOlsenTimeZone { get; set; }
 
         public string Username { get; set; }
+
+        public string SmsMessage { get; set; }
+
+        public EmailData EmailData { get; set; }
     }
 }

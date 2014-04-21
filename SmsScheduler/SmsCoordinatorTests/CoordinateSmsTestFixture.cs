@@ -770,8 +770,8 @@ namespace SmsCoordinatorTests
                     new CustomerContact { CustomerName = "frank", EmailAddress = "frank@gmail.com", MobileNumber = string.Empty }
                 });
             ravenScheduleDocuments.Expect(r => r.GetSmsAndEmailCoordinatorData(smsAndEmailDataId)).Return(listOfSmsAndEmailToSend);
-            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreatedWithEmailAndSms>.Is.Anything));
+            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<object>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
@@ -784,7 +784,8 @@ namespace SmsCoordinatorTests
                 SmsAndEmailDataId = smsAndEmailDataId,
                 Duration = duration,
                 CoordinatorId = coordinatorId,
-                MetaData = new SmsMetaData()
+                MetaData = new SmsMetaData(),
+                EmailData = new EmailData()
             };
 
             var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
@@ -820,7 +821,7 @@ namespace SmsCoordinatorTests
                             // TODO: some asserts around subject / from
                         l.SendMessageAtUtc == messageTiming[2] &&
                         d.Queue == "smsscheduler")
-                    .ExpectPublish<CoordinatorCreated>()
+                    .ExpectPublish<CoordinatorCreatedWithEmailAndSms>()
                     .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
                 .When(s => s.Handle(trickleMultipleMessages))
                     .AssertSagaCompletionIs(false)

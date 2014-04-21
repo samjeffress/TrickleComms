@@ -22,5 +22,19 @@ namespace SmsTrackingModels
         public string MobileNumber { get; set; }
         public string EmailAddress { get; set; }
         public string CustomerName { get; set; }
+
+        public bool EmailCustomer()
+        {
+            if (string.IsNullOrWhiteSpace(EmailAddress))
+                return false;
+            return true;
+        }
+
+        public bool SmsCustomer()
+        {
+            if (string.IsNullOrWhiteSpace(MobileNumber))
+                return false;
+            return true;
+        }
     }
 }
