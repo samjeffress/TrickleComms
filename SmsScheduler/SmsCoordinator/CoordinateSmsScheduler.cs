@@ -151,7 +151,7 @@ namespace SmsCoordinator
                 }
             }
             messageList.ForEach(m => Bus.Send("smsscheduler", m));
-            var coordinatorCreated = new CoordinatorCreatedWithEmailAndSms()
+            var coordinatorCreated = new CoordinatorCreatedWithEmailAndSms
             {
                 CoordinatorId = Data.CoordinatorId,
                 CreationDateUtc = DateTime.UtcNow,

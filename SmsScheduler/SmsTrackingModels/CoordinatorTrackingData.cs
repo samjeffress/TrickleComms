@@ -21,6 +21,7 @@ namespace SmsTrackingModels
 
         public Guid CoordinatorId { get; set; }
 
+        [Obsolete("This refers to SMS Count")]
         public int MessageCount { get; set; }
 
         public CoordinatorStatusTracking CurrentStatus { get; set; }
@@ -37,7 +38,18 @@ namespace SmsTrackingModels
 
         public string UserOlsenTimeZone { get; set; }
 
+        [Obsolete("This refers to SMS Body")]
         public string MessageBody { get; set; }
+
+        public string Username { get; set; }
+
+        public string SmsBody { get { return MessageBody; } set { MessageBody = value; } }
+        
+        public int SmsCount { get { return MessageCount; } set { MessageCount = value; } }
+
+        public EmailData EmailData { get; set; }
+
+        public int EmailCount { get; set; }
 
         public List<MessageSendingStatus> GetListOfCoordinatedSchedules(IDocumentStore documentStore)
         {

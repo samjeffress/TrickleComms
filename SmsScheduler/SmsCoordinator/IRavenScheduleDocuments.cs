@@ -212,7 +212,6 @@ namespace SmsCoordinator
 
         public void SaveCoordinator(CoordinatorCreatedWithEmailAndSms message)
         {
-            throw new NotImplementedException("Probably need to store a separate model");
             bool trackingDataExists;
             using (var session = RavenDocStore.GetStore().OpenSession(Database))
             {
@@ -233,10 +232,11 @@ namespace SmsCoordinator
                     CurrentStatus = CoordinatorStatusTracking.Started,
                     MessageBody = message.SmsMessage,
                     MessageCount = message.SmsCount,
+                    EmailData = message.EmailData,
+                    EmailCount = message.EmailCount,
                     Username = message.UserName
                 };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
-                //session.SaveChanges();
             }
         }
 
@@ -266,7 +266,11 @@ namespace SmsCoordinator
 
         public CustomerContactList GetSmsAndEmailCoordinatorData(string smsAndEmailDataId)
         {
-            throw new NotImplementedException();
+            using (var session = RavenDocStore.GetStore().OpenSession(Database))
+            {
+                var coordinatorSummary = session.Load<CustomerContactList>(smsAndEmailDataId);
+                return coordinatorSummary;
+            }
         }
     }
 }
