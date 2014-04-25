@@ -5,6 +5,10 @@ namespace SmsMessages.MessageSending.Responses
 {
     public class EmailStatusUpdate
     {
+        [Obsolete("for testing only")]
+        public EmailStatusUpdate()
+        { }
+        
         public EmailStatusUpdate(SendOneEmailNow originalMessage, string emailId)
         {
             EmailId = emailId;
