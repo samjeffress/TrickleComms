@@ -12,6 +12,7 @@ namespace SmsCoordinator
 {
     public interface IRavenScheduleDocuments
     {
+        // NOTE : From this we only need ScheduleId
         List<ScheduleTrackingData> GetActiveScheduleTrackingData(Guid coordinatorId);
         void SaveSchedules(List<ScheduleSmsForSendingLater> messageList, Guid coordinatorId);
         void SaveSchedules(List<object> messageList, Guid coordinatorId);

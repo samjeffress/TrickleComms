@@ -13,6 +13,7 @@ namespace SmsScheduler
     {
         public IRavenDocStore RavenDocStore { get; set; }
 
+        // TODO: Save the user that created the request too
         public void Handle(ScheduleCreated message)
         {
             using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))

@@ -60,6 +60,7 @@
     <Compile Include="MessageSending\Responses\MessageSuccessfullyDelivered.cs" />
     <Compile Include="Scheduling\Commands\RescheduleScheduledMessageWithNewTime.cs" />
     <Compile Include="Scheduling\Commands\ScheduleEmailForSendingLater.cs" />
+    <Compile Include="Scheduling\Events\EmailScheduled.cs" />
     <Compile Include="Scheduling\Events\MessageRescheduled.cs" />
     <Compile Include="Scheduling\Events\MessageSchedulePaused.cs" />
     <Compile Include="Scheduling\Events\ScheduledSmsFailed.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="CommonData\SmsData.cs" />
     <Compile Include="CommonData\SmsMetaData.cs" />
     <Compile Include="Coordinator\Commands\TrickleSmsOverCalculatedIntervalsBetweenSetDates.cs" />
+    <Compile Include="Tracking\Scheduling\Commands\EmailScheduleCreated.cs" />
     <Compile Include="Tracking\Scheduling\Commands\ScheduleCreated.cs" />
     <Compile Include="Tracking\Scheduling\Commands\ScheduleFailed.cs" />
     <Compile Include="Tracking\Scheduling\Commands\ScheduleStatusChanged.cs" />
