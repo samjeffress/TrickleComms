@@ -63,6 +63,8 @@
     <Compile Include="Scheduling\Events\EmailScheduled.cs" />
     <Compile Include="Scheduling\Events\MessageRescheduled.cs" />
     <Compile Include="Scheduling\Events\MessageSchedulePaused.cs" />
+    <Compile Include="Scheduling\Events\ScheduledEmailFailed.cs" />
+    <Compile Include="Scheduling\Events\ScheduledEmailSent.cs" />
     <Compile Include="Scheduling\Events\ScheduledSmsFailed.cs" />
     <Compile Include="Scheduling\Events\SmsScheduled.cs" />
     <Compile Include="Scheduling\Commands\PauseScheduledMessageIndefinitely.cs" />

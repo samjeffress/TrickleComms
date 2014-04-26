@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NServiceBus;
 using NServiceBus.Testing;
 using NUnit.Framework;
@@ -46,7 +45,7 @@ namespace SmsSchedulerTests
                 .ExpectSend<SendOneEmailNow>()
                 .WhenSagaTimesOut()
                 .ExpectPublish<ScheduledEmailSent>()
-                .ExpectSendLocal<ScheduleSucceeded>()
+                .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
                 .When(s => s.Handle(new EmailStatusUpdate { Status = EmailStatus.Opened }))
                 .AssertSagaCompletionIs(true);
         }
@@ -77,7 +76,7 @@ namespace SmsSchedulerTests
                 .ExpectSend<SendOneEmailNow>()
                 .WhenSagaTimesOut()
                 .ExpectPublish<ScheduledEmailFailed>()
-                .ExpectSendLocal<ScheduleFailed>()
+                .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Failed)
                 .When(s => s.Handle(new EmailStatusUpdate { Status = EmailStatus.Failed }))
                 .AssertSagaCompletionIs(true);
         }
@@ -150,7 +149,7 @@ namespace SmsSchedulerTests
                 .ExpectSend<SendOneEmailNow>()
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 1 }))
                 .ExpectPublish<ScheduledEmailSent>()
-                .ExpectSendLocal<ScheduleSucceeded>()
+                .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
                 .When(s => s.Handle(new EmailStatusUpdate { Status = EmailStatus.Opened}))
                 .AssertSagaCompletionIs(true);
         }
@@ -192,7 +191,7 @@ namespace SmsSchedulerTests
                 .ExpectSend<SendOneEmailNow>()
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 1 }))
                 .ExpectPublish<ScheduledEmailSent>()
-                .ExpectSendLocal<ScheduleSucceeded>()
+                .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
                 .When(s => s.Handle(new EmailStatusUpdate { Status = EmailStatus.Opened }))
                 .AssertSagaCompletionIs(true);
         }
@@ -230,7 +229,7 @@ namespace SmsSchedulerTests
                 .ExpectSend<SendOneEmailNow>()
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 1 }))
                 .ExpectPublish<ScheduledEmailSent>()
-                .ExpectSendLocal<ScheduleSucceeded>()
+                .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
                 .When(s => s.Handle(new EmailStatusUpdate { Status = EmailStatus.Opened }))
                 .AssertSagaCompletionIs(true);
         }
@@ -247,7 +246,7 @@ namespace SmsSchedulerTests
                     ScheduleMessageId = scheduleMessageId,
                     Originator = "place",
                     OriginalMessageId = Guid.NewGuid().ToString(),
-                    OriginalMessageData = new OriginalEmailMessageData(new ScheduleEmailForSendingLater { EmailData = new EmailData()})
+                    OriginalMessageData = new OriginalEmailMessageData(new ScheduleEmailForSendingLater { EmailData = new EmailData()}) {OriginalRequestSendTime = DateTime.Now }
                 };
 
             Test.Initialize();
@@ -391,31 +390,232 @@ namespace SmsSchedulerTests
         [Test]
         public void EmailStatusUpdate_EmailIsOpened_PublishSuccess()
         {
-            throw new NotImplementedException();
+            const EmailStatus emailStatus = EmailStatus.Opened;
+            var emailData = new EmailData
+                {
+                    ToAddress = "toaddress"
+                };
+            var requestMessage = new ScheduleEmailForSendingLater(DateTime.Now.AddMinutes(5), emailData, new SmsMetaData(), Guid.NewGuid(), "username");
+            var data = new ScheduledEmailData
+                {
+                    ScheduleMessageId = requestMessage.CorrelationId,
+                    OriginalMessageData = new OriginalEmailMessageData(requestMessage)
+                };
+            var emailStatusUpdate = new EmailStatusUpdate { Status = emailStatus };
+
+            Test.Initialize();
+            Test.Saga<EmailScheduler>()
+                .WithExternalDependencies(a => { a.Data = data; })
+                .WhenReceivesMessageFrom("address")
+                .ExpectPublish<ScheduledEmailSent>(m =>
+                    m.CoordinatorId == requestMessage.CorrelationId
+                    && m.EmailStatus == emailStatus
+                    && m.ScheduledSmsId == data.ScheduleMessageId
+                    && m.ToAddress == emailData.ToAddress
+                    && m.Username == requestMessage.Username)
+                .ExpectSendLocal<ScheduleStatusChanged>(s => 
+                    s.Status == MessageStatus.Sent
+                    && s.ScheduleId == data.ScheduleMessageId)
+                .When(s => s.Handle(emailStatusUpdate))
+                .AssertSagaCompletionIs(true);
         }
+
+        [Test]
         public void EmailStatusUpdate_EmailIsClicked_PublishSuccess()
         {
-            throw new NotImplementedException();
+            const EmailStatus emailStatus = EmailStatus.Clicked;
+            var emailData = new EmailData
+            {
+                ToAddress = "toaddress"
+            };
+            var requestMessage = new ScheduleEmailForSendingLater(DateTime.Now.AddMinutes(5), emailData, new SmsMetaData(), Guid.NewGuid(), "username");
+            var data = new ScheduledEmailData
+            {
+                ScheduleMessageId = requestMessage.CorrelationId,
+                OriginalMessageData = new OriginalEmailMessageData(requestMessage)
+            };
+            var emailStatusUpdate = new EmailStatusUpdate { Status = emailStatus };
+
+            Test.Initialize();
+            Test.Saga<EmailScheduler>()
+                .WithExternalDependencies(a => { a.Data = data; })
+                .WhenReceivesMessageFrom("address")
+                .ExpectPublish<ScheduledEmailSent>(m =>
+                    m.CoordinatorId == requestMessage.CorrelationId
+                    && m.EmailStatus == emailStatus
+                    && m.ScheduledSmsId == data.ScheduleMessageId
+                    && m.ToAddress == emailData.ToAddress
+                    && m.Username == requestMessage.Username)
+                .ExpectSendLocal<ScheduleStatusChanged>(s =>
+                    s.Status == MessageStatus.Sent
+                    && s.ScheduleId == data.ScheduleMessageId)
+                .When(s => s.Handle(emailStatusUpdate))
+                .AssertSagaCompletionIs(true);
         }
-        public void EmailStatusUpdate_EmailIsDelivered_PublishSuccess()
+        [Test]
+        public void EmailStatusUpdate_EmailIsDelivered_SetsTimeoutForFurtherInformation_TimeoutExpires_PublishSuccess()
         {
-            throw new NotImplementedException();
+            const EmailStatus emailStatus = EmailStatus.Delivered;
+            var emailData = new EmailData
+            {
+                ToAddress = "toaddress"
+            };
+            var requestMessage = new ScheduleEmailForSendingLater(DateTime.Now.AddMinutes(5), emailData, new SmsMetaData(), Guid.NewGuid(), "username");
+            var data = new ScheduledEmailData
+            {
+                ScheduleMessageId = requestMessage.CorrelationId,
+                OriginalMessageData = new OriginalEmailMessageData(requestMessage)
+            };
+            var emailStatusUpdate = new EmailStatusUpdate { Status = emailStatus };
+
+            Test.Initialize();
+            Test.Saga<EmailScheduler>()
+                .WithExternalDependencies(a => { a.Data = data; })
+                .WhenReceivesMessageFrom("address")
+                    .ExpectTimeoutToBeSetIn<ScheduleEmailDeliveredTimeout>((message, timespan) => timespan.Ticks == new TimeSpan(1, 0, 0, 0).Ticks)
+                .When(s => s.Handle(emailStatusUpdate))
+                    .ExpectPublish<ScheduledEmailSent>(m =>
+                        m.CoordinatorId == requestMessage.CorrelationId
+                        && m.EmailStatus == emailStatus
+                        && m.ScheduledSmsId == data.ScheduleMessageId
+                        && m.ToAddress == emailData.ToAddress
+                        && m.Username == requestMessage.Username)
+                    .ExpectSendLocal<ScheduleStatusChanged>(s =>
+                        s.Status == MessageStatus.Sent
+                        && s.ScheduleId == data.ScheduleMessageId)
+                .WhenSagaTimesOut()
+                .AssertSagaCompletionIs(true);
         }
+
+        [Test]
         public void EmailStatusUpdate_EmailIsFailed_ReplyFailed()
         {
-            throw new NotImplementedException();
+            const EmailStatus emailStatus = EmailStatus.Failed;
+            var emailData = new EmailData
+            {
+                ToAddress = "toaddress"
+            };
+            var requestMessage = new ScheduleEmailForSendingLater(DateTime.Now.AddMinutes(5), emailData, new SmsMetaData(), Guid.NewGuid(), "username");
+            var data = new ScheduledEmailData
+            {
+                ScheduleMessageId = requestMessage.CorrelationId,
+                OriginalMessageData = new OriginalEmailMessageData(requestMessage)
+            };
+            var emailStatusUpdate = new EmailStatusUpdate { Status = emailStatus };
+
+            Test.Initialize();
+            Test.Saga<EmailScheduler>()
+                .WithExternalDependencies(a => { a.Data = data; })
+                .WhenReceivesMessageFrom("address")
+                .ExpectPublish<ScheduledEmailFailed>(m =>
+                    m.CoordinatorId == requestMessage.CorrelationId
+                    && m.EmailStatus == emailStatus
+                    && m.ScheduledSmsId == data.ScheduleMessageId
+                    && m.ToAddress == emailData.ToAddress
+                    && m.Username == requestMessage.Username)
+                .ExpectSendLocal<ScheduleStatusChanged>(s =>
+                    s.Status == MessageStatus.Failed
+                    && s.ScheduleId == data.ScheduleMessageId)
+                .When(s => s.Handle(emailStatusUpdate))
+                .AssertSagaCompletionIs(true);
         }
+
+        [Test]
         public void EmailStatusUpdate_EmailIsRejected_ReplyFailed()
         {
-            throw new NotImplementedException();
+            const EmailStatus emailStatus = EmailStatus.Rejected;
+            var emailData = new EmailData
+            {
+                ToAddress = "toaddress"
+            };
+            var requestMessage = new ScheduleEmailForSendingLater(DateTime.Now.AddMinutes(5), emailData, new SmsMetaData(), Guid.NewGuid(), "username");
+            var data = new ScheduledEmailData
+            {
+                ScheduleMessageId = requestMessage.CorrelationId,
+                OriginalMessageData = new OriginalEmailMessageData(requestMessage)
+            };
+            var emailStatusUpdate = new EmailStatusUpdate { Status = emailStatus };
+
+            Test.Initialize();
+            Test.Saga<EmailScheduler>()
+                .WithExternalDependencies(a => { a.Data = data; })
+                .WhenReceivesMessageFrom("address")
+                .ExpectPublish<ScheduledEmailFailed>(m =>
+                    m.CoordinatorId == requestMessage.CorrelationId
+                    && m.EmailStatus == emailStatus
+                    && m.ScheduledSmsId == data.ScheduleMessageId
+                    && m.ToAddress == emailData.ToAddress
+                    && m.Username == requestMessage.Username)
+                .ExpectSendLocal<ScheduleStatusChanged>(s =>
+                    s.Status == MessageStatus.Failed
+                    && s.ScheduleId == data.ScheduleMessageId)
+                .When(s => s.Handle(emailStatusUpdate))
+                .AssertSagaCompletionIs(true);
         }
+        [Test]
         public void EmailStatusUpdate_EmailIsUnsubscribed_ReplyFailed()
         {
-            throw new NotImplementedException();
+            const EmailStatus emailStatus = EmailStatus.Unsubscribed;
+            var emailData = new EmailData
+            {
+                ToAddress = "toaddress"
+            };
+            var requestMessage = new ScheduleEmailForSendingLater(DateTime.Now.AddMinutes(5), emailData, new SmsMetaData(), Guid.NewGuid(), "username");
+            var data = new ScheduledEmailData
+            {
+                ScheduleMessageId = requestMessage.CorrelationId,
+                OriginalMessageData = new OriginalEmailMessageData(requestMessage)
+            };
+            var emailStatusUpdate = new EmailStatusUpdate { Status = emailStatus };
+
+            Test.Initialize();
+            Test.Saga<EmailScheduler>()
+                .WithExternalDependencies(a => { a.Data = data; })
+                .WhenReceivesMessageFrom("address")
+                .ExpectPublish<ScheduledEmailFailed>(m =>
+                    m.CoordinatorId == requestMessage.CorrelationId
+                    && m.EmailStatus == emailStatus
+                    && m.ScheduledSmsId == data.ScheduleMessageId
+                    && m.ToAddress == emailData.ToAddress
+                    && m.Username == requestMessage.Username)
+                .ExpectSendLocal<ScheduleStatusChanged>(s =>
+                    s.Status == MessageStatus.Failed
+                    && s.ScheduleId == data.ScheduleMessageId)
+                .When(s => s.Handle(emailStatusUpdate))
+                .AssertSagaCompletionIs(true);
         }
+
+        [Test]
         public void EmailStatusUpdate_EmailIsComplained_ReplyFailed()
         {
-            throw new NotImplementedException();
+            const EmailStatus emailStatus = EmailStatus.Complained;
+            var emailData = new EmailData
+            {
+                ToAddress = "toaddress"
+            };
+            var requestMessage = new ScheduleEmailForSendingLater(DateTime.Now.AddMinutes(5), emailData, new SmsMetaData(), Guid.NewGuid(), "username");
+            var data = new ScheduledEmailData
+            {
+                ScheduleMessageId = requestMessage.CorrelationId,
+                OriginalMessageData = new OriginalEmailMessageData(requestMessage)
+            };
+            var emailStatusUpdate = new EmailStatusUpdate { Status = emailStatus };
+
+            Test.Initialize();
+            Test.Saga<EmailScheduler>()
+                .WithExternalDependencies(a => { a.Data = data; })
+                .WhenReceivesMessageFrom("address")
+                .ExpectPublish<ScheduledEmailFailed>(m =>
+                    m.CoordinatorId == requestMessage.CorrelationId
+                    && m.EmailStatus == emailStatus
+                    && m.ScheduledSmsId == data.ScheduleMessageId
+                    && m.ToAddress == emailData.ToAddress
+                    && m.Username == requestMessage.Username)
+                .ExpectSendLocal<ScheduleStatusChanged>(s =>
+                    s.Status == MessageStatus.Failed
+                    && s.ScheduleId == data.ScheduleMessageId)
+                .When(s => s.Handle(emailStatusUpdate))
+                .AssertSagaCompletionIs(true);
         }
     }
 }
