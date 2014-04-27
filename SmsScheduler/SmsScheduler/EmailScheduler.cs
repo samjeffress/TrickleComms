@@ -23,6 +23,15 @@ namespace SmsScheduler
         IHandleMessages<EmailStatusUpdate>,
         IHandleTimeouts<ScheduleEmailDeliveredTimeout>
     {
+        public override void ConfigureHowToFindSaga()
+        {
+            ConfigureMapping<EmailStatusUpdate>(data => data.Id, message => message.CorrelationId);
+            ConfigureMapping<PauseScheduledMessageIndefinitely>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
+            ConfigureMapping<ResumeScheduledMessageWithOffset>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
+            ConfigureMapping<RescheduleScheduledMessageWithNewTime>(data => data.ScheduleMessageId, message => message.ScheduleMessageId);
+            base.ConfigureHowToFindSaga();
+        }
+
         public void Handle(ScheduleEmailForSendingLater message)
         {
             Data.OriginalMessageData = new OriginalEmailMessageData(message);
