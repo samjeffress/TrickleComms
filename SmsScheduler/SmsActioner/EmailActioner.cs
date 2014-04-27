@@ -89,14 +89,14 @@ namespace SmsActioner
 
     public class EmailActionerData : IContainSagaData
     {
-        public Guid Id { get; set; }
-        public string Originator { get; set; }
-        public string OriginalMessageId { get; set; }
-        public SendOneEmailNow OriginalMessage { get; set; }
-        public string EmailId { get; set; }
+        public virtual Guid Id { get; set; }
+        public virtual string Originator { get; set; }
+        public virtual string OriginalMessageId { get; set; }
+        public virtual SendOneEmailNow OriginalMessage { get; set; }
+        public virtual string EmailId { get; set; }
 
-        public DateTime StartTime { get; set; }
+        public virtual DateTime StartTime { get; set; }
 
-        public int DeliveredEmailCount { get; set; }
+        public virtual int DeliveredEmailCount { get; set; }
     }
 }
