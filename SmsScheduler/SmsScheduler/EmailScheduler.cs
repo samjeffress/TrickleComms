@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages;
@@ -39,7 +38,6 @@ namespace SmsScheduler
             Data.TimeoutCounter = 0;
             var timeout = new DateTime(message.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout(timeout, new ScheduleEmailTimeout { TimeoutCounter = 0 });
-            // TODO : Create handler for EmailScheduleCreated
             Bus.SendLocal(new EmailScheduleCreated
             {
                 ScheduleId = Data.ScheduleMessageId,
@@ -69,13 +67,13 @@ namespace SmsScheduler
                 var sendOneEmailNow = new SendOneEmailNow
                 {
                     CorrelationId = Data.Id,
-                    BodyHtml = Data.OriginalMessageData.EmailData.BodyHtml,
-                    BodyText = Data.OriginalMessageData.EmailData.BodyText,
-                    FromAddress = Data.OriginalMessageData.EmailData.FromAddress,
-                    FromDisplayName = Data.OriginalMessageData.EmailData.FromDisplayName,
-                    ReplyToAddress = Data.OriginalMessageData.EmailData.ReplyToAddress,
-                    Subject = Data.OriginalMessageData.EmailData.Subject,
-                    ToAddress = Data.OriginalMessageData.EmailData.ToAddress,
+                    BodyHtml = Data.OriginalMessageData.BodyHtml,
+                    BodyText = Data.OriginalMessageData.BodyText,
+                    FromAddress = Data.OriginalMessageData.FromAddress,
+                    FromDisplayName = Data.OriginalMessageData.FromDisplayName,
+                    ReplyToAddress = Data.OriginalMessageData.ReplyToAddress,
+                    Subject = Data.OriginalMessageData.Subject,
+                    ToAddress = Data.OriginalMessageData.ToAddress,
                     Username = originalMessage.Username
                 };
                 Bus.Send(sendOneEmailNow);
@@ -161,7 +159,7 @@ namespace SmsScheduler
                         CoordinatorId = Data.OriginalMessageData.RequestingCoordinatorId,
                         EmailStatus = message.Status,
                         ScheduledSmsId = Data.ScheduleMessageId,
-                        ToAddress = Data.OriginalMessageData.EmailData.ToAddress,
+                        ToAddress = Data.OriginalMessageData.ToAddress,
                         Username = Data.OriginalMessageData.Username
                     };
                 Bus.Publish(scheduledEmailSent);
@@ -181,7 +179,7 @@ namespace SmsScheduler
                     CoordinatorId = Data.OriginalMessageData.RequestingCoordinatorId,
                     EmailStatus = message.Status,
                     ScheduledSmsId = Data.ScheduleMessageId,
-                    ToAddress = Data.OriginalMessageData.EmailData.ToAddress,
+                    ToAddress = Data.OriginalMessageData.ToAddress,
                     Username = Data.OriginalMessageData.Username
                 };
                 Bus.Publish(scheduledEmailFailed);
@@ -208,7 +206,7 @@ namespace SmsScheduler
                 CoordinatorId = Data.OriginalMessageData.RequestingCoordinatorId,
                 EmailStatus = EmailStatus.Delivered,
                 ScheduledSmsId = Data.ScheduleMessageId,
-                ToAddress = Data.OriginalMessageData.EmailData.ToAddress,
+                ToAddress = Data.OriginalMessageData.ToAddress,
                 Username = Data.OriginalMessageData.Username
             };
             Bus.Publish(scheduledEmailSent);
@@ -251,8 +249,13 @@ namespace SmsScheduler
         {
             RequestingCoordinatorId = requestMessage.CorrelationId;
             Username = requestMessage.Username;
-            // TODO : Flatten EmailData to make it more friendly for azure storage
-            EmailData = requestMessage.EmailData;
+            ToAddress = requestMessage.EmailData.ToAddress;
+            FromAddress = requestMessage.EmailData.FromAddress;
+            FromDisplayName = requestMessage.EmailData.FromDisplayName;
+            ReplyToAddress = requestMessage.EmailData.ReplyToAddress;
+            Subject = requestMessage.EmailData.Subject;
+            BodyHtml = requestMessage.EmailData.BodyHtml;
+            BodyText = requestMessage.EmailData.BodyText;
             Topic = requestMessage.Topic;
             Tags = requestMessage.Tags;
             ConfirmationEmail = requestMessage.ConfirmationEmail;
@@ -261,10 +264,16 @@ namespace SmsScheduler
 
         public virtual Guid RequestingCoordinatorId { get; set; }
         public virtual string Username { get; set; }
-        public virtual EmailData EmailData { get; set; }
         public virtual string Topic { get; set; }
         public virtual IList<string> Tags { get; set; }
         public virtual string ConfirmationEmail { get; set; }
         public virtual DateTime OriginalRequestSendTime { get; set; }
+        public virtual string ToAddress { get; set; }
+        public virtual string FromAddress { get; set; }
+        public virtual string FromDisplayName { get; set; }
+        public virtual string ReplyToAddress { get; set; }
+        public virtual string Subject { get; set; }
+        public virtual string BodyHtml { get; set; }
+        public virtual string BodyText { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using SmsTrackingModels;
 namespace SmsScheduler
 {
     public class ScheduleStatusHandlers :
+        IHandleMessages<EmailScheduleCreated>,
         IHandleMessages<ScheduleCreated>,
         IHandleMessages<ScheduleStatusChanged>,
         IHandleMessages<ScheduleSucceeded>,
@@ -14,6 +15,32 @@ namespace SmsScheduler
         public IRavenDocStore RavenDocStore { get; set; }
 
         // TODO: Save the user that created the request too
+        
+        public void Handle(EmailScheduleCreated message)
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))
+            {
+                var scheduleTrackingData = session.Load<ScheduleTrackingData>(message.ScheduleId.ToString());
+                if (scheduleTrackingData == null)
+                {
+                    var scheduleTracker = new ScheduleTrackingData
+                    {
+                        MessageStatus = MessageStatus.Scheduled,
+                        ScheduleId = message.ScheduleId,
+                        EmailData = message.EmailData, 
+                        SmsMetaData = new SmsMetaData { Tags = message.Tags, Topic = message.Topic },
+                        ScheduleTimeUtc = message.ScheduleTimeUtc
+                    };
+                    session.Store(scheduleTracker, message.ScheduleId.ToString());
+                }
+                else
+                {
+                    scheduleTrackingData.MessageStatus = MessageStatus.Scheduled;
+                }
+                session.SaveChanges();
+            }
+        }
+
         public void Handle(ScheduleCreated message)
         {
             using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.Database()))

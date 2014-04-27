@@ -311,13 +311,13 @@ namespace SmsSchedulerTests
             var timeoutMessage = new ScheduleEmailTimeout();
             scheduleEmail.Timeout(timeoutMessage);
 
-            Assert.That(sendOneEmailNow.BodyHtml, Is.EqualTo(data.OriginalMessageData.EmailData.BodyHtml));
-            Assert.That(sendOneEmailNow.BodyText, Is.EqualTo(data.OriginalMessageData.EmailData.BodyText));
-            Assert.That(sendOneEmailNow.FromAddress, Is.EqualTo(data.OriginalMessageData.EmailData.FromAddress));
-            Assert.That(sendOneEmailNow.FromDisplayName, Is.EqualTo(data.OriginalMessageData.EmailData.FromDisplayName));
-            Assert.That(sendOneEmailNow.ReplyToAddress, Is.EqualTo(data.OriginalMessageData.EmailData.ReplyToAddress));
-            Assert.That(sendOneEmailNow.Subject, Is.EqualTo(data.OriginalMessageData.EmailData.Subject));
-            Assert.That(sendOneEmailNow.ToAddress, Is.EqualTo(data.OriginalMessageData.EmailData.ToAddress));
+            Assert.That(sendOneEmailNow.BodyHtml, Is.EqualTo(data.OriginalMessageData.BodyHtml));
+            Assert.That(sendOneEmailNow.BodyText, Is.EqualTo(data.OriginalMessageData.BodyText));
+            Assert.That(sendOneEmailNow.FromAddress, Is.EqualTo(data.OriginalMessageData.FromAddress));
+            Assert.That(sendOneEmailNow.FromDisplayName, Is.EqualTo(data.OriginalMessageData.FromDisplayName));
+            Assert.That(sendOneEmailNow.ReplyToAddress, Is.EqualTo(data.OriginalMessageData.ReplyToAddress));
+            Assert.That(sendOneEmailNow.Subject, Is.EqualTo(data.OriginalMessageData.Subject));
+            Assert.That(sendOneEmailNow.ToAddress, Is.EqualTo(data.OriginalMessageData.ToAddress));
             Assert.That(sendOneEmailNow.Username, Is.EqualTo(data.OriginalMessageData.Username));
             Assert.That(sendOneEmailNow.CorrelationId, Is.EqualTo(data.Id));
 
