@@ -24,16 +24,18 @@ namespace SmsWeb.Controllers
         [HttpPost]
         public ActionResult Create(CoordinatorSmsAndEmailModel model)
         {
+            var trickleId = Guid.NewGuid();
             // shouldn't stuff the csv into session
             Session.Add("CoordinatorSmsAndEmailModel", model);
+            Session.Add("trickleId", trickleId.ToString());
             foreach (string file in Request.Files)
             {
                 HttpPostedFileBase hpf = Request.Files[file] as HttpPostedFileBase;
                 if (hpf.ContentLength == 0)
                     continue;
                 string savedFileName = Path.Combine(
-                   AppDomain.CurrentDomain.BaseDirectory,
-                   Path.GetFileName(hpf.FileName));
+                    AppDomain.CurrentDomain.BaseDirectory, trickleId.ToString());
+                   //Path.GetFileName(hpf.FileName));
                 hpf.SaveAs(savedFileName);
             }
             var csvParser = new CsvHelper.CsvParser(new StreamReader(model.FileUpload.InputStream));
@@ -44,9 +46,8 @@ namespace SmsWeb.Controllers
         [HttpPost]
         public ActionResult CreateSmsAndEmailColumnPicker(FormCollection collection)
         {
+            var trickleIdString = Session["trickleId"] as string;
             // TODO: Validate column to data mapping
-            
-            var trickleId = Guid.NewGuid();
             var numberPosition = -1;
             var emailPosition = -1;
             var namePosition = -1;
@@ -99,12 +100,13 @@ namespace SmsWeb.Controllers
             }
             using (var transaction = new TransactionScope())
             {
+                var customerContactsId = trickleIdString + "_customerContacts";
                 using (var session = Raven.GetStore().OpenSession())
                 {
-                    session.Store(new CustomerContactList(customerContacts), trickleId + "_customerContacts");
+                    session.Store(new CustomerContactList(customerContacts), customerContactsId);
                     session.SaveChanges();
                 }
-                var message = Mapper.MapToTrickleSmsAndEmailOverPeriod(originalRequest, CurrentUser.Name());
+                var message = Mapper.MapToTrickleSmsAndEmailOverPeriod(Guid.Parse(trickleIdString), customerContactsId, originalRequest, CurrentUser.Name());
                 Bus.Send("smscoordinator", message);
                 transaction.Complete();
             }

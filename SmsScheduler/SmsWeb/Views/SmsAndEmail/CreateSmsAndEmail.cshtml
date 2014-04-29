@@ -40,15 +40,15 @@
             CheckIfMessagesWillBeSentOvernight();
         });
 
-        $('#Numbers').bind('change keyup blur focus', function () {
-            showOrHideTiming();
-        });
-        showOrHideTiming();
+        //$('#Numbers').bind('change keyup blur focus', function () {
+        //    showOrHideTiming();
+        //});
+        //showOrHideTiming();
         
         $('#Message').bind('keyup', function () {   
-            CountMessageChar($('#Message'));
+            CountMessageChar($('#SmsContent'));
         });
-        CountMessageChar($('#Message'));
+        CountMessageChar($('#SmsContent'));
 
         CheckSendAll();
         CheckTimeSeparated();

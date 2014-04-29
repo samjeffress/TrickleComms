@@ -16,7 +16,7 @@ namespace SmsWeb.Controllers
 
         SendAllMessagesAtOnce MapToSendAllAtOnce(CoordinatedSharedMessageModel coordinatedSharedMessageModel, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers, string username);
 
-        TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(CoordinatorSmsAndEmailModel model, string username);
+        TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(Guid trickleId, string customerContactsId, CoordinatorSmsAndEmailModel model, string username);
     }
 
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
@@ -85,10 +85,30 @@ namespace SmsWeb.Controllers
             };
         }
 
-        public TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(CoordinatorSmsAndEmailModel model, string username)
+        public TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(Guid trickleId, string customerContactsId, CoordinatorSmsAndEmailModel model, string username)
         {
-            // TODO: Map trickle sms to model
-            return new TrickleSmsAndEmailBetweenSetTimes();
+            var mapToTrickleSmsAndEmailOverPeriod = new TrickleSmsAndEmailBetweenSetTimes
+                {
+                    ConfirmationEmails = new List<string> {model.ConfirmationEmail },
+                    CoordinatorId = trickleId,
+                    MetaData = new SmsMetaData { Topic = model.Topic, Tags = model.GetTagList() },
+                    StartTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
+                    Duration = model.SendAllBy.Value.Subtract(model.StartTime),
+                    EmailData = new EmailData
+                        {
+                            BodyHtml = model.EmailHtmlContent,
+                            FromAddress = "samjeffress@gmail.com", // TODO: Get from details from config??
+                            BodyText = string.Empty,
+                            FromDisplayName = "Sam Jeffress Test",
+                            ReplyToAddress = "samjeffress@gmail.com",
+                            Subject = "test"
+                        },
+                    UserOlsenTimeZone = model.UserTimeZone,
+                    Username = username,
+                    SmsAndEmailDataId = customerContactsId,
+                    SmsMessage = model.SmsContent
+                };
+            return mapToTrickleSmsAndEmailOverPeriod;
         }
     }
 }
