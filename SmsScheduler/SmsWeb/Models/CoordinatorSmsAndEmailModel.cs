@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
+using System.Web.Mvc;
 
 namespace SmsWeb.Models
 {
@@ -9,6 +10,7 @@ namespace SmsWeb.Models
     {
         public List<Contact> Contacts { get; set; }
         public string SmsContent { get; set; }
+        [AllowHtml]
         public string EmailHtmlContent { get; set; }
 
         [Required]

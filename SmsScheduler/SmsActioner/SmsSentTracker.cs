@@ -27,7 +27,7 @@ namespace SmsActioner
             using (var session = RavenStore.GetStore().OpenSession(RavenStore.DatabaseName()))
             {
                 session.Advanced.UseOptimisticConcurrency = true;
-                var messageSent = session.Load<SmsTrackingData>(message.CorrelationId);
+                var messageSent = session.Load<SmsTrackingData>(message.CorrelationId.ToString());
                 if (messageSent != null) return;
                 session.Store(new SmsTrackingData(message), message.CorrelationId.ToString());
                 session.SaveChanges();

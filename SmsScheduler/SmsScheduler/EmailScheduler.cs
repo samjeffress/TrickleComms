@@ -76,7 +76,7 @@ namespace SmsScheduler
                     ToAddress = Data.OriginalMessageData.ToAddress,
                     Username = originalMessage.Username
                 };
-                Bus.Send(sendOneEmailNow);
+                Bus.Send("smsactioner", sendOneEmailNow);
             }
         }
 

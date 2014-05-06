@@ -4,7 +4,9 @@ using System.IO;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
+using CsvHelper.Configuration;
 using NServiceBus;
+using Raven.Json.Linq;
 using SmsTrackingModels;
 using SmsWeb.Models;
 
@@ -25,22 +27,26 @@ namespace SmsWeb.Controllers
         public ActionResult Create(CoordinatorSmsAndEmailModel model)
         {
             var trickleId = Guid.NewGuid();
-            // shouldn't stuff the csv into session
             Session.Add("CoordinatorSmsAndEmailModel", model);
             Session.Add("trickleId", trickleId.ToString());
-            foreach (string file in Request.Files)
+            var hpf = Request.Files[0];
+            if (hpf.ContentLength == 0)
+                throw new ArgumentException("no content");
+
+            var csvReader = new CsvHelper.CsvReader(new StreamReader(hpf.InputStream), new CsvConfiguration { HasHeaderRecord = false });
+            var csvFileContents = new CsvFileContents();
+            while (csvReader.Read())
             {
-                HttpPostedFileBase hpf = Request.Files[file] as HttpPostedFileBase;
-                if (hpf.ContentLength == 0)
-                    continue;
-                string savedFileName = Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory, trickleId.ToString());
-                   //Path.GetFileName(hpf.FileName));
-                hpf.SaveAs(savedFileName);
+                csvFileContents.Rows.Add(csvReader.CurrentRecord);
             }
-            var csvParser = new CsvHelper.CsvParser(new StreamReader(model.FileUpload.InputStream));
-            var firstRow = csvParser.Read();
-            return View("CreateSmsAndEmailPickRows", firstRow);
+
+            var fileContentsId = trickleId.ToString() + "_fileContents";
+            using (var session = Raven.GetStore().OpenSession())
+            {
+                session.Store(csvFileContents, fileContentsId);
+                session.SaveChanges();
+            }
+            return View("CreateSmsAndEmailPickRows", csvFileContents.Rows[0]);
         }
 
         [HttpPost]
@@ -75,29 +81,46 @@ namespace SmsWeb.Controllers
 
             var originalRequest = Session["CoordinatorSmsAndEmailModel"] as CoordinatorSmsAndEmailModel;
 
-            var csvPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.GetFileName(originalRequest.FileUpload.FileName));
-            var csvParser = new CsvHelper.CsvParser(new StreamReader(csvPath));
+            var fileContentsId = trickleIdString + "_fileContents";
+            CsvFileContents fileContents;
+            using (var session = Raven.GetStore().OpenSession())
+            {
+                fileContents = session.Load<CsvFileContents>(fileContentsId);
+            }
 
             var customerContacts = new List<CustomerContact>();
-            var rowNumber = 0;
-            while (true)
+
+            for (int i = 0; i < fileContents.Rows.Count; i++)
             {
-                var row = csvParser.Read();
-                if (row == null)
-                    break;
-                if (rowNumber > 0 || !firstRowIsHeader)
+                if (i > 0 || !firstRowIsHeader)
                 {
                     var customerContact = new CustomerContact();
                     if (numberPosition >= 0)
-                        customerContact.MobileNumber = row[numberPosition];
+                        customerContact.MobileNumber = fileContents.Rows[i][numberPosition];
                     if (emailPosition >= 0)
-                        customerContact.EmailAddress = row[emailPosition];
+                        customerContact.EmailAddress = fileContents.Rows[i][emailPosition];
                     if (namePosition >= 0)
-                        customerContact.CustomerName = row[namePosition];
+                        customerContact.CustomerName = fileContents.Rows[i][namePosition];
                     customerContacts.Add(customerContact);
                 }
-                rowNumber++;
             }
+
+            //var rowNumber = 0;
+            //while (csvReader.Read())
+            //{
+            //    if (rowNumber > 0 || !firstRowIsHeader)
+            //    {
+            //        var customerContact = new CustomerContact();
+            //        if (numberPosition >= 0)
+            //            customerContact.MobileNumber = csvReader.GetField<string>(numberPosition);
+            //        if (emailPosition >= 0)
+            //            customerContact.EmailAddress = csvReader.GetField<string>(emailPosition);
+            //        if (namePosition >= 0)
+            //            customerContact.CustomerName = csvReader.GetField<string>(namePosition);
+            //        customerContacts.Add(customerContact);
+            //    }
+            //    rowNumber++;
+            //}
             using (var transaction = new TransactionScope())
             {
                 var customerContactsId = trickleIdString + "_customerContacts";
@@ -112,5 +135,14 @@ namespace SmsWeb.Controllers
             }
             return View("CreateSmsAndEmail");
         }
+    }
+
+    public class CsvFileContents
+    {
+        public CsvFileContents()
+        {
+            Rows = new List<string[]>();
+        }
+        public List<string[]> Rows { get; set; }
     }
 }
