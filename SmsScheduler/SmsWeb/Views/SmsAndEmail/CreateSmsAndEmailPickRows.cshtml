@@ -1,5 +1,5 @@
 @using System.Globalization
-@model string[]
+@model List<string[]>
 
 @Scripts.Render("~/bundles/jquery")
 @Scripts.Render("~/bundles/jqueryui")
@@ -18,19 +18,22 @@
                 <h3>Tell us which columns of your spreadsheet to use</h3>
                 <table>
                     <tr>
-                        @for (var i = 0; i < Model.Count(); i++)
+                        @for (var i = 0; i < Model[0].Count(); i++)
                         {
                             <td>Column @{ var col = i + 1;} @col</td>
                         }
                     </tr>
+                    @foreach (var row in Model)
+                    {
+                        <tr>
+                            @foreach (var columnValue in row)
+                            {
+                                <td>@columnValue</td>
+                            }
+                        </tr>    
+                    }
                     <tr>
-                        @foreach (var columnValue in Model)
-                        {
-                            <td>@columnValue</td>
-                        }
-                    </tr>
-                    <tr>
-                        @for(var i = 0; i < Model.Count(); i++)
+                        @for(var i = 0; i < Model[0].Count(); i++)
                         {
                             <td>
                                 <input type="radio" name="@("column_" +i)" value="" id="@("notused_" + i)" checked="checked"><label for="@("notused_" + i)">Not Used</label><br/>

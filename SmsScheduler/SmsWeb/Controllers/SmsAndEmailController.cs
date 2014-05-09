@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Transactions;
 using System.Web;
 using System.Web.Mvc;
@@ -46,7 +47,7 @@ namespace SmsWeb.Controllers
                 session.Store(csvFileContents, fileContentsId);
                 session.SaveChanges();
             }
-            return View("CreateSmsAndEmailPickRows", csvFileContents.Rows[0]);
+            return View("CreateSmsAndEmailPickRows", csvFileContents.Rows.Take(5).ToList());
         }
 
         [HttpPost]
@@ -54,30 +55,8 @@ namespace SmsWeb.Controllers
         {
             var trickleIdString = Session["trickleId"] as string;
             // TODO: Validate column to data mapping
-            var numberPosition = -1;
-            var emailPosition = -1;
-            var namePosition = -1;
-            var firstRowIsHeader = false;
-
-            for (var i = 0; i < collection.Count; i++)
-            {
-                var a = collection[i].Split('_');
-                if (a.Length == 2)
-                {
-                    if (a[0].Equals("number"))
-                        numberPosition = Convert.ToInt32(a[1]);
-                    if (a[0].Equals("email"))
-                        emailPosition = Convert.ToInt32(a[1]);
-                    if (a[0].Equals("name"))
-                        namePosition = Convert.ToInt32(a[1]);
-                }
-                else
-                {
-                    if (collection.Keys[i].Equals("firstRowIsHeader"))
-                        if (collection[i].Equals("on", StringComparison.CurrentCultureIgnoreCase))
-                            firstRowIsHeader = true;
-                }
-            }
+            var firstRowIsHeader = collection["firstRowIsHeader"].Equals("on", StringComparison.CurrentCultureIgnoreCase);
+            var columnMapping = GetColumnsForMergeFields(collection);
 
             var originalRequest = Session["CoordinatorSmsAndEmailModel"] as CoordinatorSmsAndEmailModel;
 
@@ -95,32 +74,16 @@ namespace SmsWeb.Controllers
                 if (i > 0 || !firstRowIsHeader)
                 {
                     var customerContact = new CustomerContact();
-                    if (numberPosition >= 0)
-                        customerContact.MobileNumber = fileContents.Rows[i][numberPosition];
-                    if (emailPosition >= 0)
-                        customerContact.EmailAddress = fileContents.Rows[i][emailPosition];
-                    if (namePosition >= 0)
-                        customerContact.CustomerName = fileContents.Rows[i][namePosition];
+                    if (columnMapping.ContainsKey("Phone"))
+                        customerContact.MobileNumber = fileContents.Rows[i][columnMapping["Phone"]];
+                    if (columnMapping.ContainsKey("Email"))
+                        customerContact.EmailAddress = fileContents.Rows[i][columnMapping["Email"]];
+                    if (columnMapping.ContainsKey("CustomerName"))
+                        customerContact.CustomerName = fileContents.Rows[i][columnMapping["CustomerName"]];
                     customerContacts.Add(customerContact);
                 }
             }
 
-            //var rowNumber = 0;
-            //while (csvReader.Read())
-            //{
-            //    if (rowNumber > 0 || !firstRowIsHeader)
-            //    {
-            //        var customerContact = new CustomerContact();
-            //        if (numberPosition >= 0)
-            //            customerContact.MobileNumber = csvReader.GetField<string>(numberPosition);
-            //        if (emailPosition >= 0)
-            //            customerContact.EmailAddress = csvReader.GetField<string>(emailPosition);
-            //        if (namePosition >= 0)
-            //            customerContact.CustomerName = csvReader.GetField<string>(namePosition);
-            //        customerContacts.Add(customerContact);
-            //    }
-            //    rowNumber++;
-            //}
             using (var transaction = new TransactionScope())
             {
                 var customerContactsId = trickleIdString + "_customerContacts";
@@ -134,6 +97,26 @@ namespace SmsWeb.Controllers
                 transaction.Complete();
             }
             return View("CreateSmsAndEmail");
+        }
+
+        private Dictionary<string, int> GetColumnsForMergeFields(FormCollection collection)
+        {
+            var mergeFieldColumn = new Dictionary<string, int>();
+            
+            for (var i = 0; i < collection.Count; i++)
+            {
+                var a = collection[i].Split('_');
+                if (a.Length == 2)
+                {
+                    if (a[0].Equals("number"))
+                        mergeFieldColumn.Add("Phone", Convert.ToInt32(a[1]));
+                    if (a[0].Equals("email"))
+                        mergeFieldColumn.Add("Email", Convert.ToInt32(a[1]));
+                    if (a[0].Equals("name"))
+                        mergeFieldColumn.Add("CustomerName", Convert.ToInt32(a[1]));
+                }
+            }
+            return mergeFieldColumn;
         }
     }
 
