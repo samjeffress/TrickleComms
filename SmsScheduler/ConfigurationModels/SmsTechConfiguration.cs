@@ -2,13 +2,13 @@
 
 namespace ConfigurationModels
 {
-    public class TwilioConfiguration
+    public class SmsTechConfiguration
     {
         [Required]
-        public string AuthToken { get; set; }
+        public string ApiSecret { get; set; }
 
         [Required]
-        public string AccountSid { get; set; }
+        public string ApiKey { get; set; }
 
         [Required]
         public string From { get; set; }

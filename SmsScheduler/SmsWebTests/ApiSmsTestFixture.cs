@@ -134,7 +134,7 @@ namespace SmsWebTests
                     Status = MessageTrackedStatus.Failed, 
                     CorrelationId = smsFailed, 
                     SmsData = new SmsData("1", "yo"), 
-                    SmsFailureData = new SmsFailed("1", "2", "3", "4", "5")
+                    SmsFailureData = new SmsFailed("1", "2", "3")
                 };
                 session.Store(smsSuccessfulTracking, smsSuccessful.ToString());
                 session.Store(smsFailedTracking, smsFailed.ToString());

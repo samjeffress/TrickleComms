@@ -10,8 +10,6 @@ namespace SmsWeb.Models
 
         public string ErrorMessage { get; set; }
 
-        public string ErrorMoreInfo { get; set; }
-
         public string ErrorCode { get; set; }
     }
 }

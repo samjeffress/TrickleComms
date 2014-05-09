@@ -7,36 +7,14 @@ namespace SmsMessages.CommonData
         public string Sid { get; set; }
     }
 
-    public class SmsConfirmationData
-    {
-        public SmsConfirmationData(string receipt, DateTime sentAtUtc, Decimal price)
-        {
-            Receipt = receipt;
-            SentAtUtc = new DateTime(sentAtUtc.Ticks, DateTimeKind.Utc);
-            Price = price;
-        }
-
-        public string Receipt { get; set; }
-
-        public DateTime SentAtUtc { get; set; }
-
-        public Decimal Price { get; set; }
-    }
-
     public class SmsFailed : SmsStatus
     {
-        public SmsFailed(string sid, string code, string message, string moreInfo, string status)
+        public SmsFailed(string sid, string code, string message)
         {
             Sid = sid;
             Code = code;
             Message = message;
-            MoreInfo = moreInfo;
-            Status = status;
         }
-
-        public string Status { get; set; }
-
-        public string MoreInfo { get; set; }
 
         public string Code { get; set; }
 
@@ -45,8 +23,11 @@ namespace SmsMessages.CommonData
 
     public class SmsSending : SmsStatus
     {
-        public SmsSending(string sid)
+        public decimal Price { get; set; }
+
+        public SmsSending(string sid, decimal price)
         {
+            Price = price;
             Sid = sid;
         }
     }
@@ -61,12 +42,30 @@ namespace SmsMessages.CommonData
 
     public class SmsSent : SmsStatus
     {
-        public SmsSent(SmsConfirmationData confirmationData)
+        public SmsSent(string sid, DateTime sentAtUtc)
         {
-            Sid = confirmationData.Receipt;
-            SmsConfirmationData = confirmationData;
+            Sid = sid;
+            SentAtUtc = sentAtUtc;
         }
 
-        public SmsConfirmationData SmsConfirmationData { get; set; }
+        public DateTime SentAtUtc { get; set; }
+
+        //public SmsConfirmationData SmsConfirmationData { get; set; }
+    }
+
+    public class SmsConfirmationData
+    {
+        public SmsConfirmationData(string receipt, DateTime sentAtUtc, Decimal price)
+        {
+            Receipt = receipt;
+            SentAtUtc = new DateTime(sentAtUtc.Ticks, DateTimeKind.Utc);
+            Price = price;
+        }
+
+        public string Receipt { get; set; }
+
+        public DateTime SentAtUtc { get; set; }
+
+        public Decimal Price { get; set; }
     }
 }

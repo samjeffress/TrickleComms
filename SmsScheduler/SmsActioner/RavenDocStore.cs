@@ -19,7 +19,7 @@ namespace SmsActioner
             _documentStore = new DocumentStore
                 {
                     Url = ConfigurationManager.AppSettings["RavenUrl"], 
-                    ApiKey = ConfigurationManager.AppSettings["RavenApiKey"], 
+                    //ApiKey = ConfigurationManager.AppSettings["RavenApiKey"], 
                     ResourceManagerId = Guid.NewGuid()
                 };
             _documentStore.Initialize();

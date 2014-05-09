@@ -149,7 +149,7 @@ namespace SmsCoordinator
             using (var session = RavenDocStore.GetStore().OpenSession())
             {
                 var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
-                        .Customize(x => x.WaitForNonStaleResults())
+                        .Customize(x => x.WaitForNonStaleResultsAsOfNow(new TimeSpan(0,0,30)))
                         .Where(s => s.CoordinatorId == coordinatorId.ToString())
                         .ToList();
 

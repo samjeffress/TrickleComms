@@ -68,7 +68,7 @@ namespace SmsCoordinatorTests.Email
             var coordinatorComplete = new CoordinatorCreated { ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now }}, MetaData = new SmsMetaData()};
             emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
 
-            Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
+            Assert.That(message.From.Address, Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
             Assert.That(message.To[1].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[1]));
         }
@@ -95,7 +95,7 @@ namespace SmsCoordinatorTests.Email
             var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddresses = new List<string> { "toby@things.com" }, ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
             emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
 
-            Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
+            Assert.That(message.From.Address, Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddresses[0]));
             Assert.That(message.To[1].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[0]));
             Assert.That(message.To[2].Address, Is.EqualTo(emailDefaultNotification.EmailAddresses[1]));
@@ -122,7 +122,7 @@ namespace SmsCoordinatorTests.Email
             var coordinatorComplete = new CoordinatorCreated { ConfirmationEmailAddresses = new List<string> { "toby@things.com" }, ScheduledMessages = new List<MessageSchedule> { new MessageSchedule { ScheduledTimeUtc = DateTime.Now } }, MetaData = new SmsMetaData() };
             emailService.Handle(new CoordinatorCreatedEmail(coordinatorComplete));
 
-            Assert.That(message.From.ToString(), Is.EqualTo(mailgunConfig.DefaultFrom));
+            Assert.That(message.From.Address, Is.EqualTo(mailgunConfig.DefaultFrom));
             Assert.That(message.To[0].Address, Is.EqualTo(coordinatorComplete.ConfirmationEmailAddresses[0]));
         }
     }

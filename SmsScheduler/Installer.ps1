@@ -70,7 +70,6 @@ function InstallEndpoints
 	}
 
     InstallService "SmsCoordinator" "Service for coordinating sms"
-    InstallService "EmailSender" "Service for sending emails from Sms Coordinator"
     InstallService "SmsScheduler" "Service for scheduling sms messages"
     InstallService "SmsActioner" "Service for delivering sms"
 }
@@ -136,7 +135,7 @@ function Build
 {
 	$clean = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /t:Clean"
 	$build = $msbuild + " " + $path + "\SmsScheduler.sln /p:Configuration=Release /p:VisualStudioVersion=11.0 /t:Build"
-    $webPackage = $msbuild + " " + $path + "\SmsWeb\SmsWeb.csproj /p:Configuration=Release /t:Package"
+    $webPackage = $msbuild + " " + $path + "\SmsWeb\SmsWeb.csproj /p:Configuration=Release /verbosity:detailed /t:Package"
 
 	Invoke-Expression $clean
 	Invoke-Expression $build
@@ -177,12 +176,6 @@ function UnitTests
 
 function StopEndpoints
 {
-	if(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue)
-	{
-		"Stopping service SmsEmailSender"
-		Stop-Service SmsEmailSender
-	}
-
 	if(Get-Service "SmsCoordinator" -ErrorAction SilentlyContinue)
 	{
 		"Stopping service SmsCoordinator"
@@ -204,22 +197,10 @@ function StopEndpoints
 
 function StopEndpoints
 {
-	if(Get-Service "SmsEmailSender" -ErrorAction SilentlyContinue)
-	{
-		"Stopping service SmsEmailSender"
-		Stop-Service SmsEmailSender
-	}
-
 	if(Get-Service "SmsCoordinator" -ErrorAction SilentlyContinue)
 	{
 		"Stopping service SmsCoordinator"
 		Stop-Service SmsCoordinator
-	}
-
-	if(Get-Service "SmsTracking" -ErrorAction SilentlyContinue)
-	{
-		"Stopping service SmsTracking"
-		Stop-Service SmsTracking
 	}
 
 	if(Get-Service "SmsScheduler" -ErrorAction SilentlyContinue)

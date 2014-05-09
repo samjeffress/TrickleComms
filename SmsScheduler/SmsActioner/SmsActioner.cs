@@ -12,12 +12,16 @@ namespace SmsActioner
     {
         public ISmsService SmsService { get; set; }
 
-        public ITwilioWrapper TwilioWrapper { get; set; }
+        public ITimeoutCalculator TimeoutCalculator { get; set; }
 
         public void Handle(SendOneMessageNow sendOneMessageNow)
         {
-            Data.OriginalMessage = sendOneMessageNow;
             var confirmationData = SmsService.Send(sendOneMessageNow);
+            if (confirmationData is SmsSent)
+                throw new ArgumentException("SmsSent type is invalid - followup is required to get delivery status");
+            if (confirmationData is SmsQueued)
+                throw new ArgumentException("SmsQueued type is invalid - followup is required to get delivery status");
+            Data.OriginalMessage = sendOneMessageNow;
             Data.SmsRequestId = confirmationData.Sid;
             ProcessConfirmationData(confirmationData);
         }
@@ -48,7 +52,7 @@ namespace SmsActioner
                 var sentMessage = confirmationData as SmsSent;
                 Bus.Publish<MessageSent>(m =>
                 {
-                    m.ConfirmationData = sentMessage.SmsConfirmationData;
+                    m.ConfirmationData = new SmsConfirmationData(Data.SmsRequestId, sentMessage.SentAtUtc, Data.Price);
                     m.CorrelationId = Data.OriginalMessage.CorrelationId;
                     m.SmsData = Data.OriginalMessage.SmsData;
                     m.SmsMetaData = Data.OriginalMessage.SmsMetaData;
@@ -58,7 +62,11 @@ namespace SmsActioner
             }
             else
             {
-                RequestUtcTimeout<SmsPendingTimeout>(new TimeSpan(0, 0, 0, 10));
+                if (confirmationData is SmsSending)
+                    Data.Price = (confirmationData as SmsSending).Price;
+                var requiredTimeout = TimeoutCalculator.RequiredTimeout(Data.NumberOfTimeoutRequests);
+                RequestUtcTimeout<SmsPendingTimeout>(requiredTimeout);
+                Data.NumberOfTimeoutRequests++;
             }
         }
     }
@@ -72,6 +80,10 @@ namespace SmsActioner
         public string SmsRequestId { get; set; }
 
         public SendOneMessageNow OriginalMessage { get; set; }
+
+        public decimal Price { get; set; }
+
+        public int NumberOfTimeoutRequests { get; set; }
     }
 
     public class SmsPendingTimeout

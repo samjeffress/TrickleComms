@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Web.Mvc;
 using ConfigurationModels;
 using Raven.Client.Linq;
@@ -17,10 +16,10 @@ namespace SmsWeb.Controllers
         {
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
-                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
+                var smsTechConfiguration = session.Load<SmsTechConfiguration>("SmsTechConfig");
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
 
-                if (twilioConfiguration == null || mailgunConfiguration == null)
+                if (smsTechConfiguration == null || mailgunConfiguration == null)
                 {
                     return View("IndexConfigNotSet");
                 }

@@ -76,7 +76,7 @@ namespace SmsWeb.API
             var response = new ResponseStatus { Errors = new List<ResponseError>() };
             if (request.StartTimeUtc == DateTime.MinValue)
                 response.Errors.Add(new ResponseError { Message = "Start time must be set" });
-            if (request.StartTimeUtc < DateTime.Now.ToUniversalTime())
+            if (request.StartTimeUtc < DateTime.Now.ToUniversalTime().AddMinutes(-10))
                 response.Errors.Add(new ResponseError { Message = "Start time must not be in the past" });
             if (string.IsNullOrWhiteSpace(request.Message))
                 response.Errors.Add(new ResponseError {Message = "Sms Message Required"});
