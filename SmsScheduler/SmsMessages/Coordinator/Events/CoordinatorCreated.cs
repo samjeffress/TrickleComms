@@ -26,6 +26,8 @@ namespace SmsMessages.Coordinator.Events
         public string MessageBody { get; set; }
 
         public int MessageCount { get; set; }
+
+        public string UserName { get; set; }
     }
 
     public class MessageSchedule

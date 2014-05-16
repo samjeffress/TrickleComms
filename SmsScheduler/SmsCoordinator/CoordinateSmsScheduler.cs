@@ -47,7 +47,7 @@ namespace SmsCoordinator
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId, message.Username);
                 messageList.Add(smsForSendingLater);
             }
             Bus.Send(messageList.ToArray());
@@ -85,7 +85,7 @@ namespace SmsCoordinator
                 var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
                 lastScheduledMessageTime = message.StartTimeUtc.Add(extraTime);
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId)
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId, message.Username)
                 {
                     CorrelationId = Data.CoordinatorId
                 };
@@ -186,7 +186,7 @@ namespace SmsCoordinator
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.SendTimeUtc, smsData, message.MetaData, Data.CoordinatorId)
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.SendTimeUtc, smsData, message.MetaData, Data.CoordinatorId, message.Username)
                 {
                     CorrelationId = Data.CoordinatorId
                 };
@@ -324,9 +324,7 @@ namespace SmsCoordinator
 
         public DateTime OriginalScheduleStartTime { get; set; }
         
-	[Unique]
-        public Guid CoordinatorId { get; set; }
-
+    	[Unique]
         public Guid CoordinatorId { get; set; }
 
         public DateTime? LastUpdatingCommandRequestUtc { get; set; }
@@ -336,5 +334,7 @@ namespace SmsCoordinator
         public string Topic { get; set; }
 
         public string UserOlsenTimeZone { get; set; }
+
+        public string Username { get; set; }
     }
 }

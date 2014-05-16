@@ -28,7 +28,6 @@ namespace SmsCoordinator
     public class RavenScheduleDocuments : IRavenScheduleDocuments
     {
         private const string Database = "SmsTracking";
-        public ILog Log { get; set; }
         public IRavenDocStore RavenDocStore { get; set; }
 
         public List<ScheduleTrackingData> GetActiveScheduleTrackingData(Guid coordinatorId)
@@ -71,7 +70,6 @@ namespace SmsCoordinator
 
         public void SaveSchedules(List<ScheduleSmsForSendingLater> messageList, Guid coordinatorId)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession())
             var scheduleSummary = GetScheduleSummary(coordinatorId);
             var scheduleCount = scheduleSummary.Sum(s => s.Count);
 
@@ -95,7 +93,6 @@ namespace SmsCoordinator
                     };
                     session.Store(scheduleTracker, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
                 }
-                session.SaveChanges();
             }
         }
 
@@ -183,7 +180,6 @@ namespace SmsCoordinator
 
         public void SaveCoordinator(CoordinatorCreated message)
         {
-            Log.Error("Saving coordinator data");
             bool trackingDataExists;
             using (var session = RavenDocStore.GetStore().OpenSession(Database))
             {
@@ -207,7 +203,6 @@ namespace SmsCoordinator
                         Username = message.UserName
                     };
                 session.Store(coordinatorTrackingData, message.CoordinatorId.ToString());
-                session.SaveChanges();
             }
         }
 

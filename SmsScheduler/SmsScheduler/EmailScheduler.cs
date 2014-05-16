@@ -194,7 +194,7 @@ namespace SmsScheduler
             
             if (message.Status == EmailStatus.Delivered)
             {
-                RequestTimeout<ScheduleEmailDeliveredTimeout>(new TimeSpan(1, 0, 0, 0));
+                RequestUtcTimeout<ScheduleEmailDeliveredTimeout>(new TimeSpan(1, 0, 0, 0));
             }
         }
 

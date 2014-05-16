@@ -43,9 +43,9 @@ namespace SmsActioner
                 request.AddParameter("html", baseMessage.BodyHtml);
                 request.AddParameter("h:Reply-To", baseMessage.ReplyToAddress);
                 request.Method = Method.POST;
-                var response = client.Execute(request);
-                var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
-                var id = responseContent.id.ToString();
+                var response = client.Execute<dynamic>(request);
+                //var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
+                var id = response.Data.id;
                 id = id.Replace('<', ' ');
                 id = id.Replace('>', ' ');
                 id = id.Trim();
@@ -77,9 +77,9 @@ namespace SmsActioner
                 request.AddParameter("limit", 25);
                 request.AddParameter("pretty", "yes");
                 request.AddParameter("message-id", emailId);
-                var response = client.Execute(request);
-                var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
-                var o = responseContent.items[0];
+                var response = client.Execute<dynamic>(request);
+                //var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
+                var o = response.Data.items[0];
                 var eventStatus = o["event"].ToString();
                 EmailStatus result;
                 if (Enum.TryParse(eventStatus, true, out result))

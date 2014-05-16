@@ -98,7 +98,6 @@
     <Compile Include="EmailActioner.cs" />
     <Compile Include="EmailSentTracker.cs" />
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="Host.cs" />
     <Compile Include="IMailGunWrapper.cs" />
     <Compile Include="InternalMessages\Commands\SendEmail.cs" />
     <Compile Include="InternalMessages\Responses\EmailSent.cs" />

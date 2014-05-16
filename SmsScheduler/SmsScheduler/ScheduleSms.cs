@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsMessages.CommonData;
@@ -33,6 +34,7 @@ namespace SmsScheduler
 
         public void Handle(ScheduleSmsForSendingLater scheduleSmsForSendingLater)
         {
+            Data.OriginalMessageData = new OriginalMessageData(scheduleSmsForSendingLater);
             Data.OriginalMessage = scheduleSmsForSendingLater;
             Data.ScheduleMessageId = scheduleSmsForSendingLater.ScheduleMessageId == Guid.NewGuid() ? Data.Id : scheduleSmsForSendingLater.ScheduleMessageId;
             Data.RequestingCoordinatorId = scheduleSmsForSendingLater.CorrelationId;
@@ -73,7 +75,6 @@ namespace SmsScheduler
 
         public void Handle(MessageSuccessfullyDelivered message)
         {
-            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
             var originalMessage = Data.OriginalMessageData;
             Bus.Publish(new ScheduledSmsSent
                 {
@@ -200,6 +201,35 @@ namespace SmsScheduler
         public Guid RequestingCoordinatorId { get; set; }
 
         public int TimeoutCounter { get; set; }
+
+        public OriginalMessageData OriginalMessageData { get; set; }
+    }
+
+
+    public class OriginalMessageData
+    {
+        public OriginalMessageData() { }
+
+        public OriginalMessageData(ScheduleSmsForSendingLater requestMessage)
+        {
+            RequestingCoordinatorId = requestMessage.CorrelationId;
+            Username = requestMessage.Username;
+            Number = requestMessage.SmsData.Mobile;
+            Message = requestMessage.SmsData.Message;
+            Topic = requestMessage.SmsMetaData.Topic;
+            Tags = requestMessage.SmsMetaData.Tags;
+            ConfirmationEmail = requestMessage.ConfirmationEmail;
+            OriginalRequestSendTime = requestMessage.SendMessageAtUtc;
+        }
+
+        public Guid RequestingCoordinatorId { get; set; }
+        public string Username { get; set; }
+        public string Number { get; set; }
+        public string Message { get; set; }
+        public string Topic { get; set; }
+        public IList<string> Tags { get; set; }
+        public string ConfirmationEmail { get; set; }
+        public DateTime OriginalRequestSendTime { get; set; }
     }
 
     public class ScheduleSmsTimeout

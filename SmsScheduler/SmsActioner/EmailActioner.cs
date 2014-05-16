@@ -37,7 +37,7 @@ namespace SmsActioner
         public void Handle(EmailSent message)
         {
             Data.EmailId = message.EmailId;
-            RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 20, 0));
+            RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 20, 0));
         }
 
         public void Timeout(EmailStatusPendingTimeout state)
@@ -48,7 +48,7 @@ namespace SmsActioner
             switch (emailStatus)
             {
                 case EmailStatus.Accepted:
-                    RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0,0,20,0));
+                    RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0,0,20,0));
                     break;
                 case EmailStatus.Delivered:
                     if (Data.DeliveredEmailCount == 0)
@@ -59,7 +59,7 @@ namespace SmsActioner
                     if (Data.DeliveredEmailCount > 10)
                         MarkAsComplete();
                     else
-                        RequestTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 2, 0, 0));   
+                        RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 2, 0, 0));   
                     Data.DeliveredEmailCount++;
                     break;
                 case EmailStatus.Failed:

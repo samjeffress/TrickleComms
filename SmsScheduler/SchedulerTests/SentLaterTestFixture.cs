@@ -313,7 +313,7 @@ namespace SmsSchedulerTests
                     .ExpectPublish<SmsScheduled>(m => m.CoordinatorId == data.Id && m.ScheduleMessageId == originalMessage.ScheduleMessageId)
                 .When(s => s.Handle(originalMessage));
 
-            Assert.That(data.OriginalMessageData, Is.EqualTo(originalMessage));
+            Assert.That(data.OriginalMessage, Is.EqualTo(originalMessage));
         }
 
         [Test]

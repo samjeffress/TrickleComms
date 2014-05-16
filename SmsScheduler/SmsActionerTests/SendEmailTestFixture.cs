@@ -92,7 +92,7 @@ namespace SmsActionerTests
                     .ExpectTimeoutToBeSetIn<EmailStatusPendingTimeout>((timeout, timespan) => timespan.Ticks == TimeSpan.FromMinutes(20).Ticks)
                 .When(s => s.Handle(emailSent))
                     .ExpectNotSendLocal<EmailStatusUpdate>(message => true)
-                    .ExpectNoTimeoutToBeSetIn<EmailStatusPendingTimeout>()
+                    //.ExpectNoTimeoutToBeSetIn<EmailStatusPendingTimeout>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
         }

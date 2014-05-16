@@ -73,19 +73,20 @@ namespace SmsWebTests
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var docSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
             docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
 
             mapper
-                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
                 .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage());
             var trickleMessage = new TrickleSmsWithDefinedTimeBetweenEachMessage();
             bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.NotNull))
                 .WhenCalled(i => trickleMessage = (TrickleSmsWithDefinedTimeBetweenEachMessage) ((object[]) (i.Arguments[0]))[0]);
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -114,19 +115,20 @@ namespace SmsWebTests
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var docSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
             docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
 
             mapper
-                .Expect(m => m.MapToSendAllAtOnce(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Expect(m => m.MapToSendAllAtOnce(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
                 .Return(new SendAllMessagesAtOnce());
             var trickleMessage = new SendAllMessagesAtOnce();
             bus.Expect(b => b.Send(Arg<SendAllMessagesAtOnce>.Is.NotNull))
                 .WhenCalled(i => trickleMessage = (SendAllMessagesAtOnce) ((object[]) (i.Arguments[0]))[0]);
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -154,19 +156,20 @@ namespace SmsWebTests
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var docSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
             docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
 
             mapper
-                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Equal(new List<string>())))
+                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Equal(new List<string>()), Arg<string>.Is.Anything))
                     .Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates());
             var trickleMessage = new TrickleSmsOverCalculatedIntervalsBetweenSetDates();
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull))
                 .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)((object[])(i.Arguments[0]))[0]);
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -194,6 +197,7 @@ namespace SmsWebTests
             var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var docSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
@@ -202,7 +206,7 @@ namespace SmsWebTests
             var coordinatorMessage = new CoordinatedSharedMessageModel();
             var excludeList = new List<string>();
             mapper
-                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
                 .Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates())
                 .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]))
                 .WhenCalled(t => excludeList = (List<string>)(t.Arguments[2]));
@@ -210,7 +214,7 @@ namespace SmsWebTests
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull))
                 .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)((object[])(i.Arguments[0]))[0]);
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -242,6 +246,7 @@ namespace SmsWebTests
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var docSession = MockRepository.GenerateMock<IDocumentSession>();
             var trackingSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
@@ -254,12 +259,12 @@ namespace SmsWebTests
             var coordinatorMessage = new CoordinatedSharedMessageModel();
             var excludeList = previousCoordinatorToExclude.GetListOfCoordinatedSchedules(ravenDocStore.GetStore()).Select(s => s.Number).ToList();
             mapper
-                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Equal(excludeList)))
+                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Equal(excludeList), Arg<string>.Is.Anything))
                 .Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates())
                 .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]));
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -293,6 +298,7 @@ namespace SmsWebTests
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var configSession = MockRepository.GenerateMock<IDocumentSession>();
             var trackingSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(configSession);
@@ -311,13 +317,13 @@ namespace SmsWebTests
 
             List<string> excludeList = null;
             mapper
-                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
                 .Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates())
                 .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]))
                 .WhenCalled(t => excludeList = (List<string>)(t.Arguments[2]));
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -348,6 +354,7 @@ namespace SmsWebTests
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var configSession = MockRepository.GenerateMock<IDocumentSession>();
             var trackingSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(configSession);
@@ -358,13 +365,13 @@ namespace SmsWebTests
             
             List<string> excludeList = null;
             mapper
-                .Expect(m => m.MapToSendAllAtOnce(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Expect(m => m.MapToSendAllAtOnce(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
                 .Return(new SendAllMessagesAtOnce())
                 .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]))
                 .WhenCalled(t => excludeList = (List<string>)(t.Arguments[2]));
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -398,6 +405,7 @@ namespace SmsWebTests
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var docSession = MockRepository.GenerateMock<IDocumentSession>();
             var trackingSession = MockRepository.GenerateMock<IDocumentSession>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
@@ -414,13 +422,13 @@ namespace SmsWebTests
 
             List<string> excludeList = null;
             mapper
-                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
                 .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage())
                 .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]))
                 .WhenCalled(t => excludeList = (List<string>)(t.Arguments[2]));
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
@@ -630,12 +638,13 @@ namespace SmsWebTests
             var docStore = MockRepository.GenerateMock<IDocumentStore>();
             var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
             var bus = MockRepository.GenerateMock<IBus>();
+            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
 
             ravenDocStore.Expect(d => d.GetStore()).Return(docStore);
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
             docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
             mapper
-                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything))
+                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
                 .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage());
             bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.Anything));
 
@@ -651,7 +660,7 @@ namespace SmsWebTests
                 UserTimeZone = "Australia/Sydney"
             };
 
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), RavenDocStore = ravenDocStore, Mapper = mapper, Bus = bus };
+            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), RavenDocStore = ravenDocStore, Mapper = mapper, Bus = bus, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
 
             Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));

@@ -8,13 +8,14 @@ namespace SmsMessages.Scheduling.Commands
         public ScheduleSmsForSendingLater()
         {}
 
-        public ScheduleSmsForSendingLater(DateTime sendMessageAtUtc, SmsData smsData, SmsMetaData smsMetaData, Guid coorelationId)
+        public ScheduleSmsForSendingLater(DateTime sendMessageAtUtc, SmsData smsData, SmsMetaData smsMetaData, Guid coorelationId, string username)
         {
             ScheduleMessageId = Guid.NewGuid();
             SendMessageAtUtc = sendMessageAtUtc;
             SmsData = smsData;
             SmsMetaData = smsMetaData;
             CorrelationId = coorelationId;
+            Username = username;
         }
 
         public DateTime SendMessageAtUtc { get; set; }
@@ -28,5 +29,7 @@ namespace SmsMessages.Scheduling.Commands
         public Guid CorrelationId { get; set; }
 
         public string ConfirmationEmail { get; set; }
+
+        public string Username { get; set; }
     }
 }
