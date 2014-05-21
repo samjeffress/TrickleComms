@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Transactions;
-using System.Web;
 using System.Web.Mvc;
 using CsvHelper.Configuration;
 using NServiceBus;
-using Raven.Json.Linq;
 using SmsTrackingModels;
 using SmsWeb.Models;
 
@@ -19,6 +17,7 @@ namespace SmsWeb.Controllers
         public IRavenDocStore Raven { get; set; }
         public ICoordinatorModelToMessageMapping Mapper { get; set; }
         public ICurrentUser CurrentUser { get; set; }
+
         public ActionResult Create()
         {
             return View("CreateSmsAndEmail");
@@ -34,29 +33,35 @@ namespace SmsWeb.Controllers
             if (hpf.ContentLength == 0)
                 throw new ArgumentException("no content");
 
-            var csvReader = new CsvHelper.CsvReader(new StreamReader(hpf.InputStream), new CsvConfiguration { HasHeaderRecord = false });
             var csvFileContents = new CsvFileContents();
-            while (csvReader.Read())
+            using (var csvReader = new CsvHelper.CsvReader(new StreamReader(hpf.InputStream), new CsvConfiguration { HasHeaderRecord = false }))
             {
-                csvFileContents.Rows.Add(csvReader.CurrentRecord);
+                // TODO : Not reading first row properly
+                while (csvReader.Read())
+                {
+                    csvFileContents.Rows.Add(csvReader.CurrentRecord);
+                }
             }
-
+            
             var fileContentsId = trickleId.ToString() + "_fileContents";
             using (var session = Raven.GetStore().OpenSession())
             {
                 session.Store(csvFileContents, fileContentsId);
                 session.SaveChanges();
             }
-            return View("CreateSmsAndEmailPickRows", csvFileContents.Rows.Take(5).ToList());
+
+            var dataColumnPicker = new DataColumnPicker {TrickleId = trickleId, FirstRowIsHeader = true};
+
+            var dropDownList = csvFileContents.CreateSelectList();
+            ViewData.Add("selectListData", dropDownList);
+            return View("CreateSmsAndEmailPickRows", dataColumnPicker);
         }
 
         [HttpPost]
-        public ActionResult CreateSmsAndEmailColumnPicker(FormCollection collection)
+        public ActionResult CreateSmsAndEmailColumnPicker(DataColumnPicker model)
         {
             var trickleIdString = Session["trickleId"] as string;
             // TODO: Validate column to data mapping
-            var firstRowIsHeader = collection["firstRowIsHeader"].Equals("on", StringComparison.CurrentCultureIgnoreCase);
-            var columnMapping = GetColumnsForMergeFields(collection);
 
             var originalRequest = Session["CoordinatorSmsAndEmailModel"] as CoordinatorSmsAndEmailModel;
 
@@ -71,15 +76,15 @@ namespace SmsWeb.Controllers
 
             for (int i = 0; i < fileContents.Rows.Count; i++)
             {
-                if (i > 0 || !firstRowIsHeader)
+                if (i > 0 || !model.FirstRowIsHeader)
                 {
                     var customerContact = new CustomerContact();
-                    if (columnMapping.ContainsKey("Phone"))
-                        customerContact.MobileNumber = fileContents.Rows[i][columnMapping["Phone"]];
-                    if (columnMapping.ContainsKey("Email"))
-                        customerContact.EmailAddress = fileContents.Rows[i][columnMapping["Email"]];
-                    if (columnMapping.ContainsKey("CustomerName"))
-                        customerContact.CustomerName = fileContents.Rows[i][columnMapping["CustomerName"]];
+                    if (model.PhoneNumberColumn.HasValue)
+                        customerContact.MobileNumber = fileContents.Rows[i][model.PhoneNumberColumn.Value];
+                    if (model.EmailColumn.HasValue)
+                        customerContact.EmailAddress = fileContents.Rows[i][model.EmailColumn.Value];
+                    if (model.CustomerNameColumn.HasValue)
+                        customerContact.CustomerName = fileContents.Rows[i][model.CustomerNameColumn.Value];
                     customerContacts.Add(customerContact);
                 }
             }
@@ -98,26 +103,6 @@ namespace SmsWeb.Controllers
             }
             return View("CreateSmsAndEmail");
         }
-
-        private Dictionary<string, int> GetColumnsForMergeFields(FormCollection collection)
-        {
-            var mergeFieldColumn = new Dictionary<string, int>();
-            
-            for (var i = 0; i < collection.Count; i++)
-            {
-                var a = collection[i].Split('_');
-                if (a.Length == 2)
-                {
-                    if (a[0].Equals("number"))
-                        mergeFieldColumn.Add("Phone", Convert.ToInt32(a[1]));
-                    if (a[0].Equals("email"))
-                        mergeFieldColumn.Add("Email", Convert.ToInt32(a[1]));
-                    if (a[0].Equals("name"))
-                        mergeFieldColumn.Add("CustomerName", Convert.ToInt32(a[1]));
-                }
-            }
-            return mergeFieldColumn;
-        }
     }
 
     public class CsvFileContents
@@ -127,5 +112,23 @@ namespace SmsWeb.Controllers
             Rows = new List<string[]>();
         }
         public List<string[]> Rows { get; set; }
+
+        public List<SelectListItem> CreateSelectList()
+        {
+            var selectListItems = new List<SelectListItem>();
+            selectListItems.Add(new SelectListItem { Selected = true, Text = "Not In Data", Value = null});
+            var rowDatas = Rows.Take(5).ToList();
+            var columnCount = 0;
+            if (rowDatas.Count > 0)
+                columnCount = rowDatas[0].Count();
+
+            for (int i = 0; i < columnCount; i++)
+            {
+                var columnValues = rowDatas.Select(r => r[i]).ToList();
+                var text = "Column " + i.ToString() + ": " + string.Join(",", columnValues);
+                selectListItems.Add(new SelectListItem { Selected = false, Text = text, Value = i.ToString() });
+            }
+            return selectListItems;
+        }
     }
 }

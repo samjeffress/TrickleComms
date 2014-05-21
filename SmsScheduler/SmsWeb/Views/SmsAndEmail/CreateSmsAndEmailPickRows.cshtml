@@ -1,10 +1,8 @@
-@using System.Globalization
-@model List<string[]>
+@model SmsWeb.Models.DataColumnPicker 
 
 @Scripts.Render("~/bundles/jquery")
 @Scripts.Render("~/bundles/jqueryui")
 @Styles.Render("~/Content/themes/base/jquery-ui.css")
-
 
 <!DOCTYPE html>
 
@@ -14,44 +12,29 @@
     </head>
     <body>
         <div>
-            @using(Html.BeginForm("CreateSmsAndEmailColumnPicker", "SmsAndEmail", FormMethod.Post)){
+            @using (Html.BeginForm("CreateSmsAndEmailColumnPicker", "SmsAndEmail", FormMethod.Post))
+            {
                 <h3>Tell us which columns of your spreadsheet to use</h3>
-                <table>
-                    <tr>
-                        @for (var i = 0; i < Model[0].Count(); i++)
-                        {
-                            <td>Column @{ var col = i + 1;} @col</td>
-                        }
-                    </tr>
-                    @foreach (var row in Model)
-                    {
-                        <tr>
-                            @foreach (var columnValue in row)
-                            {
-                                <td>@columnValue</td>
-                            }
-                        </tr>    
-                    }
-                    <tr>
-                        @for(var i = 0; i < Model[0].Count(); i++)
-                        {
-                            <td>
-                                <input type="radio" name="@("column_" +i)" value="" id="@("notused_" + i)" checked="checked"><label for="@("notused_" + i)">Not Used</label><br/>
-                                <input type="radio" name="@("column_" +i)" value="number_@i" id="@("number_" + i)"/><label for="@("number_" + i)">Mobile Number</label><br/>
-                                <input type="radio" name="@("column_" +i)" value="email_@i" id="@("email_" + i)"/><label for="@("email_" + i)">Email Address</label><br/>
-                                <input type="radio" name="@("column_" +i)" value="name_@i" id="@("name_" + i)"/><label for="@("name_" + i)">Customer Name</label><br/>
-                                @*@Html.DropDownList(i.ToString(), new List<SelectListItem>
-                                {
-                                    new SelectListItem {},
-                                    new SelectListItem {Text = "Mobile Number", Value = "number"},
-                                    new SelectListItem {Text = "Email Address", Value = "email"},
-                                    new SelectListItem {Text = "Customer Name", Value = "name"},
-                                })*@
-                            </td>
-                        }
-                    </tr>
-                </table>
-                <label for="firstRowIsHeader">My first row is a header</label><input type="checkbox" id="firstRowIsHeader" name="firstRowIsHeader"/>
+                <div>
+                    @Html.LabelFor(m => m.FirstRowIsHeader, "My first row is a header")
+                    @Html.CheckBoxFor(m => m.FirstRowIsHeader)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.CustomerIdColumn, "Customer Id")
+                    @Html.DropDownListFor(m => m.CustomerIdColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.CustomerNameColumn, "Customer Name")
+                    @Html.DropDownListFor(m => m.CustomerNameColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.PhoneNumberColumn, "Mobile Number")
+                    @Html.DropDownListFor(m => m.PhoneNumberColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.EmailColumn, "Email")
+                    @Html.DropDownListFor(m => m.EmailColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
             <input type="submit"/>
             }
         </div>
