@@ -65,11 +65,12 @@ namespace SmsWeb.App_Start
 			container.Register<ISessionFactory>(c => 
 				new SessionFactory(c.Resolve<ICacheClient>()));
 
-		    container.Register<IRavenDocStore>(new RavenDocStore());
-            container.Register<IDateTimeUtcFromOlsenMapping>(new DateTimeUtcFromOlsenMapping());
-            container.Register<ICoordinatorModelToMessageMapping>(new CoordinatorModelToMessageMapping(new DateTimeUtcFromOlsenMapping()));
-		    container.Register<ICoordinatorApiModelToMessageMapping>(new CoordinatorApiModelToMessageMapping());
-		    
+            container.RegisterAutoWiredAs<RavenDocStore, IRavenDocStore>();
+            container.RegisterAutoWiredAs<DateTimeUtcFromOlsenMapping, IDateTimeUtcFromOlsenMapping>();
+            container.RegisterAutoWiredAs<CoordinatorModelToMessageMapping, ICoordinatorModelToMessageMapping>();
+            container.RegisterAutoWiredAs<CoordinatorApiModelToMessageMapping, ICoordinatorApiModelToMessageMapping>();
+		    container.RegisterAutoWiredAs<CurrentUser, ICurrentUser>();
+
             var busConfig = NServiceBus.Configure.With()
                 .DefineEndpointName("SmsWeb")
                 .DefaultBuilder()
@@ -83,16 +84,16 @@ namespace SmsWeb.App_Start
                     .PurgeOnStartup(false)
                 .UnicastBus()
                     .LoadMessageHandlers();
-		    NServiceBus.Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
+            NServiceBus.Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             NServiceBus.Configure.Instance.Configurer.ConfigureComponent<SmsScheduleStatusHandler>(DependencyLifecycle.InstancePerCall);
                     //.LoadMessageHandlers<SmsScheduleStatusHandler>();
 
-            //busConfig.Configurer.ConfigureComponent<DateTimeUtcFromOlsenMapping>(DependencyLifecycle.SingleInstance);
+            busConfig.Configurer.ConfigureComponent<DateTimeUtcFromOlsenMapping>(DependencyLifecycle.SingleInstance);
 
-		    var bus = busConfig.CreateBus().Start();//() => NServiceBus.Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
+            var bus = busConfig.CreateBus().Start();//() => NServiceBus.Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
 
             //container.Register(new SmsScheduleStatusHandler(new RavenDocStore()));
-		    container.Register(bus);
+            container.Register(bus);
 			//Set MVC to use the same Funq IOC as ServiceStack
 			ControllerBuilder.Current.SetControllerFactory(new FunqControllerFactory(container));
 		}

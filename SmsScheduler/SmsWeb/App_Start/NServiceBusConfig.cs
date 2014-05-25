@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using NServiceBus;
-using NServiceBus.Config;
-using NServiceBus.ObjectBuilder;
+using NServiceBus.Features;
 
 namespace SmsWeb.App_Start
 {
@@ -24,12 +23,14 @@ namespace SmsWeb.App_Start
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
                 .DefiningMessagesAs(t => t.Namespace != null && !t.Namespace.Contains("NServiceBus") &&
                     (t.Namespace.EndsWith(".Messages") || t.Namespace.EndsWith(".Responses")))
-                    .DisableSecondLevelRetries().DisableTimeoutManager()
+                    .DisableTimeoutManager()
                 .MsmqTransport()
                 .MessageForwardingInCaseOfFault()
                 .PurgeOnStartup(false)
                 .UnicastBus()
                 .LoadMessageHandlers();
+            Configure.Features.Disable<SecondLevelRetries>();
+            
             Config.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
         }
 

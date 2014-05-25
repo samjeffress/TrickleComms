@@ -74,7 +74,7 @@ namespace SmsActioner
         }
     }
 
-    public class SmsActionerData : ISagaEntity
+    public class SmsActionerData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

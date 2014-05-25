@@ -185,7 +185,7 @@ namespace SmsScheduler
         }
     }
 
-    public class ScheduledSmsData : ISagaEntity
+    public class ScheduledSmsData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

@@ -50,7 +50,8 @@ namespace SmsCoordinator
                 var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId, message.Username);
                 messageList.Add(smsForSendingLater);
             }
-            Bus.Send(messageList.ToArray());
+            messageList.ForEach(m => Bus.Send(m));
+            //Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
@@ -91,7 +92,8 @@ namespace SmsCoordinator
                 };
                 messageList.Add(smsForSendingLater);
             }
-            Bus.Send(messageList.ToArray());
+            messageList.ForEach(m => Bus.Send(m));
+            //Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
@@ -192,7 +194,8 @@ namespace SmsCoordinator
                 };
                 messageList.Add(smsForSendingLater);
             }
-            Bus.Send(messageList.ToArray());
+            messageList.ForEach(m => Bus.Send(m));
+            //Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
@@ -316,7 +319,7 @@ namespace SmsCoordinator
     {
     }
 
-    public class CoordinateSmsSchedulingData : ISagaEntity
+    public class CoordinateSmsSchedulingData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

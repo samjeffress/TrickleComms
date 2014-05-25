@@ -1,62 +1,13 @@
-﻿using NServiceBus;
-using SmsCoordinator.Email;
-using SmsMessages.Scheduling.Events;
 
 namespace SmsCoordinator
 {
-    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization, AsA_Publisher
+    using NServiceBus;
+
+	/*
+		This class configures this endpoint as a Server. More information about how to configure the NServiceBus host
+		can be found here: http://particular.net/articles/the-nservicebus-host
+	*/
+	public class EndpointConfig : IConfigureThisEndpoint, AsA_Server
     {
-        public void Init()
-        {
-            var configure = Configure.With()
-            .DefaultBuilder()
-                .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
-                .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
-                .DefiningMessagesAs(t => t.Namespace != null && (t.Namespace.EndsWith("Messages") || t.Namespace.EndsWith("Responses")))
-                .DefiningMessagesAs(t => t.Namespace == "SmsMessages")
-                .DefiningMessagesAs(t => t.Namespace == "SmsTrackingMessages.Messages")
-            .RunTimeoutManager()
-            .Log4Net()
-            .XmlSerializer()
-            .MsmqTransport()
-                .IsTransactional(true)
-                .PurgeOnStartup(false)
-            .RavenPersistence()
-            .Sagas()
-                .RavenSagaPersister()
-            .UnicastBus()
-                .ImpersonateSender(false)
-                .LoadMessageHandlers();
-//                .RavenSubscriptionStorage();
-
-            Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
-            Configure.Instance.Configurer.ConfigureComponent<CalculateSmsTiming>(DependencyLifecycle.InstancePerUnitOfWork);
-            Configure.Instance.Configurer.ConfigureComponent<RavenScheduleDocuments>(DependencyLifecycle.InstancePerUnitOfWork);
-            Configure.Instance.Configurer.ConfigureComponent<MailActioner>(DependencyLifecycle.InstancePerCall);
-            Configure.Instance.Configurer.ConfigureComponent<DateTimeUtcFromOlsenMapping>(DependencyLifecycle.SingleInstance);
-
-            configure.CreateBus().Start();
-            //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
-        }
-
-    }
-
-    public class StartUp : IWantToRunAtStartup
-    {
-        public IBus Bus { get; set; }
-
-        public void Run()
-        {
-            // NOTE: To remove messages that were previously used, but no longer needed.
-            Bus.Unsubscribe<SmsScheduled>();
-            Bus.Unsubscribe<MessageRescheduled>();
-            Bus.Unsubscribe<MessageSchedulePaused>();
-            Bus.Unsubscribe<ScheduledSmsSent>();
-            Bus.Unsubscribe<ScheduledSmsFailed>();
-        }
-
-        public void Stop()
-        {
-        }
     }
 }
