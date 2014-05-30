@@ -22,20 +22,20 @@ namespace SmsMessages.Scheduling.Commands
             Topic = metaData.Topic;
         }
 
-        public virtual DateTime SendMessageAtUtc { get; set; }
+        public DateTime SendMessageAtUtc { get; set; }
 
-        public virtual EmailData EmailData { get; set; }
+        public EmailData EmailData { get; set; }
 
-        public virtual Guid ScheduleMessageId { get; set; }
+        public Guid ScheduleMessageId { get; set; }
 
-        public virtual Guid CorrelationId { get; set; }
+        public Guid CorrelationId { get; set; }
 
-        public virtual string ConfirmationEmail { get; set; }
+        public string ConfirmationEmail { get; set; }
 
-        public virtual string Username { get; set; }
+        public string Username { get; set; }
 
-        public virtual List<string> Tags { get; set; }
+        public List<string> Tags { get; set; }
 
-        public virtual string Topic { get; set; }
+        public string Topic { get; set; }
     }
 }
