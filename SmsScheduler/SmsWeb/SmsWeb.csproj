@@ -297,7 +297,7 @@
     <Compile Include="BootstrapSupport\ViewHelperExtensions.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CoordinatorController.cs" />
-    <Compile Include="Controllers\CoordinatorModelToMessageMapping.cs" />
+    <Compile Include="CoordinatorModelToMessageMapping.cs" />
     <Compile Include="Controllers\CountryCodeConfigController.cs" />
     <Compile Include="Controllers\DefaultEmailController.cs" />
     <Compile Include="Controllers\HomeController.cs" />

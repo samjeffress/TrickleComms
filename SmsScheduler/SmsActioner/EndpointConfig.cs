@@ -44,14 +44,14 @@ namespace SmsActioner
             //var bus = configure.CreateBus().Start();            //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
 
 
-            // using the bus in this context is too early - shouldn't actually be started here
-            const string listeningOn = "http://*:8888/";
-            var appHost = new AppHost();
-            appHost.Init();
-            appHost.Start(listeningOn);
-            //appHost.Container.Register(bus);
-            appHost.Container.RegisterAutoWired<IBus>();
-            appHost.Container.RegisterAutoWiredAs<RavenDocStore, IRavenDocStore>();//.RegisterAs<IRavenDocStore>(new RavenDocStore());
+            //// using the bus in this context is too early - shouldn't actually be started here
+            //const string listeningOn = "http://*:8888/";
+            //var appHost = new AppHost();
+            //appHost.Init();
+            //appHost.Start(listeningOn);
+            ////appHost.Container.Register(bus);
+            //appHost.Container.RegisterAutoWired<IBus>();
+            //appHost.Container.RegisterAutoWiredAs<RavenDocStore, IRavenDocStore>();//.RegisterAs<IRavenDocStore>(new RavenDocStore());
         }
 
         //public void Start()
