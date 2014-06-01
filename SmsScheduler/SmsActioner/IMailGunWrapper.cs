@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ConfigurationModels;
 using Newtonsoft.Json;
 using RestSharp;
@@ -44,8 +45,12 @@ namespace SmsActioner
                 request.AddParameter("h:Reply-To", baseMessage.ReplyToAddress);
                 request.Method = Method.POST;
                 var response = client.Execute<dynamic>(request);
+                var content = SimpleJson.DeserializeObject<Dictionary<string,string>>(response.Content);
+                string id = content["id"];
                 //var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
-                var id = response.Data.id;
+                //var innercontent = SimpleJson.DeserializeObject<dynamic>(content);
+                //var id = innercontent.id;
+                //var id = response.Data.id;
                 id = id.Replace('<', ' ');
                 id = id.Replace('>', ' ');
                 id = id.Trim();

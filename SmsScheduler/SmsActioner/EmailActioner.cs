@@ -19,6 +19,7 @@ namespace SmsActioner
 
         public override void ConfigureHowToFindSaga()
         {
+            ConfigureMapping<SendEmail>(data => data.Id, message => message.EmailSagaId);
             ConfigureMapping<EmailSent>(data => data.Id, message => message.EmailSagaId);
             base.ConfigureHowToFindSaga();
         }

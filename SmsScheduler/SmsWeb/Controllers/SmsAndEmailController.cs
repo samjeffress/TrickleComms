@@ -101,7 +101,14 @@ namespace SmsWeb.Controllers
                 Bus.Send("smscoordinator", message);
                 transaction.Complete();
             }
-            return View("CreateSmsAndEmail");
+            //return View("CreateSmsAndEmail");
+            return RedirectToAction("Details", new { coordinatorId = trickleIdString });
+        }
+
+        public ActionResult Details(string coordinatorId)
+        {
+
+            return View("Details", "stuff");
         }
     }
 

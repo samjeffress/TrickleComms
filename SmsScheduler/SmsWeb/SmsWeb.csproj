@@ -512,6 +512,7 @@
     <Content Include="Views\Shared\_ReceivedSmsRespond.cshtml" />
     <Content Include="Views\SmsAndEmail\CreateSmsAndEmail.cshtml" />
     <Content Include="Views\SmsAndEmail\CreateSmsAndEmailPickRows.cshtml" />
+    <Content Include="Views\SmsAndEmail\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -11,11 +11,13 @@ namespace SmsTrackingModels
         public CoordinatorTrackingData()
         {
             MetaData = new SmsMetaData();
+            EmailData = new EmailData();
         }
 
         public CoordinatorTrackingData(List<MessageSendingStatus> listOfSendingStatusForTesting)
         {
             MetaData = new SmsMetaData();
+            EmailData = new EmailData();
             testMessageSendingStatus = listOfSendingStatusForTesting;
         }
 
