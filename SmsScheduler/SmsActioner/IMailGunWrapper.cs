@@ -73,7 +73,7 @@ namespace SmsActioner
                     BaseUrl = "https://api.mailgun.net/v2",
                     Authenticator = new HttpBasicAuthenticator("api", mailgunConfiguration.ApiKey)
                 };
-                RestRequest request = new RestRequest();
+                var request = new RestRequest();
                 request.AddParameter("domain", "tricklesms.com", ParameterType.UrlSegment);
                 request.Resource = "{domain}/events";
                 // begin doesn't matter because we use message-id, but mailgun needs this field
@@ -83,13 +83,10 @@ namespace SmsActioner
                 request.AddParameter("pretty", "yes");
                 request.AddParameter("message-id", emailId);
                 var response = client.Execute<dynamic>(request);
-                //var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
 
                 var responseContent = JsonConvert.DeserializeObject<dynamic>(response.Content);
                 var itemCount = responseContent.items.Count;
                 var eventStatus = responseContent.items[itemCount-1]["event"].Value;
-                //var o = response.Data.items[0];
-                //var eventStatus = o["event"].ToString();
                 EmailStatus result;
                 if (Enum.TryParse(eventStatus, true, out result))
                     return result;
