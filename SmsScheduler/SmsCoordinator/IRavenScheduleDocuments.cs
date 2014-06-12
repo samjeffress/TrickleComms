@@ -227,7 +227,7 @@ namespace SmsCoordinator
                     UserOlsenTimeZone = message.UserOlsenTimeZone,
                     CurrentStatus = CoordinatorStatusTracking.Started,
                     MessageBody = message.SmsMessage,
-                    MessageCount = message.SmsCount,
+                    MessageCount = message.SmsCount + message.EmailCount,
                     EmailData = message.EmailData,
                     EmailCount = message.EmailCount,
                     Username = message.UserName
