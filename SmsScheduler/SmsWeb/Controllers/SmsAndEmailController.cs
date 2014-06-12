@@ -6,7 +6,9 @@ using System.Transactions;
 using System.Web.Mvc;
 using CsvHelper.Configuration;
 using NServiceBus;
+using SmsMessages.CommonData;
 using SmsTrackingModels;
+using SmsTrackingModels.RavenIndexs;
 using SmsWeb.Models;
 
 namespace SmsWeb.Controllers
@@ -107,8 +109,41 @@ namespace SmsWeb.Controllers
 
         public ActionResult Details(string coordinatorId)
         {
+            using (var session = Raven.GetStore().OpenSession())
+            {
+                var coordinatorSummary = session.Query<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult, ScheduledMessagesStatusCountInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId == coordinatorId)
+                    .ToList();
+                var coordinatorTrackingData = session.Load<CoordinatorTrackingData>(coordinatorId);
+                if (coordinatorSummary.Count == 0 || coordinatorTrackingData == null)
+                {
+                    throw new NotImplementedException("need to have some data...");
+                    return View("DetailsNotCreated", model: coordinatorId);
+                }
 
-            return View("Details", "stuff");
+                DateTime? nextSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                                 .Where(s => s.CoordinatorId == Guid.Parse(coordinatorId) && s.MessageStatus == MessageStatus.Scheduled)
+                                 .OrderBy(s => s.ScheduleTimeUtc)
+                                 .Select(s => s.ScheduleTimeUtc)
+                                 .FirstOrDefault();
+                if (nextSmsDateUtc == DateTime.MinValue)
+                    nextSmsDateUtc = null;
+
+                DateTime? finalSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                    .Where(s => s.CoordinatorId == Guid.Parse(coordinatorId) && s.MessageStatus == MessageStatus.Scheduled)
+                    .OrderByDescending(s => s.ScheduleTimeUtc)
+                    .Select(s => s.ScheduleTimeUtc)
+                    .FirstOrDefault();
+                if (finalSmsDateUtc == DateTime.MinValue)
+                    finalSmsDateUtc = null;
+
+                var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
+                overview.NextScheduledMessageDate = nextSmsDateUtc;
+                overview.FinalScheduledMessageDate = finalSmsDateUtc;
+                if (HttpContext.Session != null && HttpContext.Session["CoordinatorState_" + coordinatorId] != null && HttpContext.Session["CoordinatorState_" + coordinatorId] is CoordinatorStatusTracking)
+                    overview.CurrentStatus = (CoordinatorStatusTracking)HttpContext.Session["CoordinatorState_" + coordinatorId];
+                return View("Details", overview);
+            }
         }
     }
 

@@ -33,8 +33,7 @@ namespace SmsWeb.Models
                 ScheduledCount = scheduledSummary == null ? 0 : scheduledSummary.Count,
                 FailedCount = failedSummary == null ? 0 : failedSummary.Count,
                 CancelledCount = cancelledSummary == null ? 0 : cancelledSummary.Count,
-                WaitingForSchedulingCount =
-                    waitingForSchedulingSummary == null ? 0 : waitingForSchedulingSummary.Count,
+                WaitingForSchedulingCount = waitingForSchedulingSummary == null ? 0 : waitingForSchedulingSummary.Count,
                 PausedCount = pausedSummary == null ? 0 : pausedSummary.Count,
             };
             MessageBody = coordinatorTrackingData.MessageBody;

@@ -194,17 +194,21 @@ namespace SmsWeb.Controllers
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
-                var nextSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                DateTime? nextSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
                     .Where(s => s.CoordinatorId == Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
                     .OrderBy(s => s.ScheduleTimeUtc)
                     .Select(s => s.ScheduleTimeUtc)
                     .FirstOrDefault();
+                if (nextSmsDateUtc == DateTime.MinValue)
+                    nextSmsDateUtc = null;
 
-                var finalSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                DateTime? finalSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
                     .Where(s => s.CoordinatorId== Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
                     .OrderByDescending(s => s.ScheduleTimeUtc)
                     .Select(s => s.ScheduleTimeUtc)
                     .FirstOrDefault();
+                if (finalSmsDateUtc == DateTime.MinValue)
+                    finalSmsDateUtc = null;
 
                 var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
                 overview.NextScheduledMessageDate = nextSmsDateUtc;
