@@ -84,7 +84,7 @@ namespace SmsWebTests
                 .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage());
             var trickleMessage = new TrickleSmsWithDefinedTimeBetweenEachMessage();
             bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsWithDefinedTimeBetweenEachMessage) ((object[]) (i.Arguments[0]))[0]);
+                .WhenCalled(i => trickleMessage = (TrickleSmsWithDefinedTimeBetweenEachMessage) (i.Arguments[0]));
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
@@ -126,7 +126,7 @@ namespace SmsWebTests
                 .Return(new SendAllMessagesAtOnce());
             var trickleMessage = new SendAllMessagesAtOnce();
             bus.Expect(b => b.Send(Arg<SendAllMessagesAtOnce>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (SendAllMessagesAtOnce) ((object[]) (i.Arguments[0]))[0]);
+                .WhenCalled(i => trickleMessage = (SendAllMessagesAtOnce) (i.Arguments[0]));
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
@@ -167,7 +167,7 @@ namespace SmsWebTests
                     .Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates());
             var trickleMessage = new TrickleSmsOverCalculatedIntervalsBetweenSetDates();
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)((object[])(i.Arguments[0]))[0]);
+                .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)(i.Arguments[0]));
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
@@ -212,7 +212,7 @@ namespace SmsWebTests
                 .WhenCalled(t => excludeList = (List<string>)(t.Arguments[2]));
             var trickleMessage = new TrickleSmsOverCalculatedIntervalsBetweenSetDates();
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)((object[])(i.Arguments[0]))[0]);
+                .WhenCalled(i => trickleMessage = (TrickleSmsOverCalculatedIntervalsBetweenSetDates)(i.Arguments[0]));
 
             var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
             var actionResult = (RedirectToRouteResult)controller.Create(model);
@@ -690,7 +690,7 @@ namespace SmsWebTests
             ResumeTrickledMessages resumeMessage = null;
             bus
                 .Expect(b => b.Send(Arg<ResumeTrickledMessages>.Is.Anything))
-                .WhenCalled(b => resumeMessage = (ResumeTrickledMessages) ((object[])b.Arguments[0])[0]);
+                .WhenCalled(b => resumeMessage = (ResumeTrickledMessages)b.Arguments[0]);
             
             dateTimeMapper
                 .Expect(d => d.DateTimeWithOlsenZoneToUtc(DateTime.Parse(collection["timeToResume"]), collection["UserTimeZone"]))
@@ -731,7 +731,7 @@ namespace SmsWebTests
             RescheduleTrickledMessages rescheduleMessage = null;
             bus
                 .Expect(b => b.Send(Arg<RescheduleTrickledMessages>.Is.Anything))
-                .WhenCalled(b => rescheduleMessage = (RescheduleTrickledMessages)((object[])b.Arguments[0])[0]);
+                .WhenCalled(b => rescheduleMessage = (RescheduleTrickledMessages)(b.Arguments[0]));
             
             dateTimeMapper
                 .Expect(d => d.DateTimeWithOlsenZoneToUtc(DateTime.Parse(collection["timeToResume"]), collection["UserTimeZone"]))

@@ -187,7 +187,11 @@ namespace SmsSchedulerTests
                 Id = sagaId, 
                 Originator = "place", 
                 OriginalMessageId = Guid.NewGuid().ToString(),
-                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData() }
+                OriginalMessage = new ScheduleSmsForSendingLater
+                    {
+                        SmsData = new SmsData("1", "msg"), 
+                        SmsMetaData = new SmsMetaData()
+                    }
             };
 
             Test.Initialize();
@@ -214,14 +218,16 @@ namespace SmsSchedulerTests
         {
             var sagaId = Guid.NewGuid();
             var scheduleMessageId = Guid.NewGuid();
-         
+
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater {SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData(), SendMessageAtUtc = DateTime.Now};
             var scheduledSmsData = new ScheduledSmsData
             {
                 Id = sagaId,
                 ScheduleMessageId = scheduleMessageId,
                 Originator = "place",
                 OriginalMessageId = Guid.NewGuid().ToString(),
-                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData(),SendMessageAtUtc = DateTime.Now }
+                OriginalMessage = scheduleSmsForSendingLater,
+                OriginalMessageData = new OriginalMessageData(scheduleSmsForSendingLater)
             };
 
             Test.Initialize();
@@ -238,15 +244,17 @@ namespace SmsSchedulerTests
         public void ReschedulePausedSchedule_Data()
         {
             var sagaId = Guid.NewGuid();
-            var scheduleMessageId = Guid.NewGuid(); 
+            var scheduleMessageId = Guid.NewGuid();
 
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater {SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData(), SendMessageAtUtc = DateTime.Now};
             var scheduledSmsData = new ScheduledSmsData
             {
                 Id = sagaId,
                 ScheduleMessageId = scheduleMessageId,
                 Originator = "place",
                 OriginalMessageId = Guid.NewGuid().ToString(),
-                OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "msg"), SmsMetaData = new SmsMetaData(),SendMessageAtUtc = DateTime.Now }
+                OriginalMessage = scheduleSmsForSendingLater,
+                OriginalMessageData = new OriginalMessageData(scheduleSmsForSendingLater)
             };
 
             Test.Initialize();
@@ -267,7 +275,7 @@ namespace SmsSchedulerTests
 
             var sendOneMessageNow = new SendOneMessageNow();
             bus.Expect(b => b.Send(Arg<SendOneMessageNow>.Is.NotNull))
-                .WhenCalled(i => sendOneMessageNow = (SendOneMessageNow)((object[])(i.Arguments[0]))[0]);
+                .WhenCalled(i => sendOneMessageNow = (SendOneMessageNow)((i.Arguments[0])));
 
             var dataId = Guid.NewGuid();
             var originalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("3443", "message"), SmsMetaData = new SmsMetaData { Tags = new List<string> { "a", "b" }, Topic = "topic" } };
@@ -319,7 +327,12 @@ namespace SmsSchedulerTests
         [Test]
         public void PauseMessageSetsSchedulePauseFlag_Data()
         {
-            var data = new ScheduledSmsData { OriginalMessage = new ScheduleSmsForSendingLater { SmsData = new SmsData("1", "2")}};
+            var scheduleSmsForSendingLater = new ScheduleSmsForSendingLater {SmsData = new SmsData("1", "2")};
+            var data = new ScheduledSmsData
+                {
+                    OriginalMessage = scheduleSmsForSendingLater,
+                    OriginalMessageData = new OriginalMessageData(scheduleSmsForSendingLater)
+                };
             var scheduleId = Guid.NewGuid();
             var pauseScheduledMessageIndefinitely = new PauseScheduledMessageIndefinitely(scheduleId);
             Test.Initialize();

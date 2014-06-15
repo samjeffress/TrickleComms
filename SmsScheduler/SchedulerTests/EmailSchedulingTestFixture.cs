@@ -42,7 +42,7 @@ namespace SmsSchedulerTests
                 .ExpectTimeoutToBeSetAt<ScheduleEmailTimeout>((state, timeout) => timeout == scheduleEmailForSendingLater.SendMessageAtUtc)
                 .ExpectSendLocal<EmailScheduleCreated>()
                 .When(s => s.Handle(scheduleEmailForSendingLater))
-                .ExpectSend<SendOneEmailNow>()
+                .ExpectSendToDestination<SendOneEmailNow>((m, d) => d.Queue == "smsactioner")
                 .WhenSagaTimesOut()
                 .ExpectPublish<ScheduledEmailSent>()
                 .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
@@ -73,7 +73,7 @@ namespace SmsSchedulerTests
                 .WithExternalDependencies(a => { a.Data = scheduledEmailData; })
                 .ExpectTimeoutToBeSetAt<ScheduleEmailTimeout>((state, timeout) => timeout == scheduleEmailForSendingLater.SendMessageAtUtc)
                 .When(s => s.Handle(scheduleEmailForSendingLater))
-                .ExpectSend<SendOneEmailNow>()
+                .ExpectSendToDestination<SendOneEmailNow>((m,d) => d.Queue == "smsactioner")
                 .WhenSagaTimesOut()
                 .ExpectPublish<ScheduledEmailFailed>()
                 .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Failed)
@@ -146,7 +146,7 @@ namespace SmsSchedulerTests
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan())))
                 .ExpectNotSend<SendOneEmailNow>(now => false)
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 0 }))
-                .ExpectSend<SendOneEmailNow>()
+                .ExpectSendToDestination<SendOneEmailNow>((m,d) => d.Queue == "smsactioner")
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 1 }))
                 .ExpectPublish<ScheduledEmailSent>()
                 .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
@@ -188,7 +188,7 @@ namespace SmsSchedulerTests
                 .When(s => s.Handle(new RescheduleScheduledMessageWithNewTime(Guid.Empty, new DateTime(2040, 4, 4, 4, 4, 4, DateTimeKind.Utc))))
                 .ExpectNotSend<SendOneEmailNow>(now => false)
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 0 }))
-                .ExpectSend<SendOneEmailNow>()
+                .ExpectSendToDestination<SendOneEmailNow>((m,d) => d.Queue == "smsactioner")
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 1 }))
                 .ExpectPublish<ScheduledEmailSent>()
                 .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
@@ -226,7 +226,7 @@ namespace SmsSchedulerTests
                 .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Scheduled)
                 .When(s => s.Handle(new ResumeScheduledMessageWithOffset(Guid.Empty, new TimeSpan()) { MessageRequestTimeUtc = DateTime.Now }))
                 .When(s => s.Handle(new PauseScheduledMessageIndefinitely(Guid.Empty) { MessageRequestTimeUtc = DateTime.Now.AddMinutes(-10) }))
-                .ExpectSend<SendOneEmailNow>()
+                .ExpectSendToDestination<SendOneEmailNow>((m,d) => d.Queue == "smsactioner")
                 .When(s => s.Timeout(new ScheduleEmailTimeout { TimeoutCounter = 1 }))
                 .ExpectPublish<ScheduledEmailSent>()
                 .ExpectSendLocal<ScheduleStatusChanged>(s => s.Status == MessageStatus.Sent)
@@ -291,8 +291,8 @@ namespace SmsSchedulerTests
             var bus = MockRepository.GenerateMock<IBus>();
 
             var sendOneEmailNow = new SendOneEmailNow();
-            bus.Expect(b => b.Send(Arg<SendOneEmailNow>.Is.NotNull))
-               .WhenCalled(i => sendOneEmailNow = (SendOneEmailNow)(i.Arguments[0]));
+            bus.Expect(b => b.Send(Arg<string>.Is.Anything, Arg<SendOneEmailNow>.Is.NotNull))
+               .WhenCalled(i => sendOneEmailNow = (SendOneEmailNow)(i.Arguments[1]));
 
             var dataId = Guid.NewGuid();
             var originalMessage = new ScheduleEmailForSendingLater { EmailData = new EmailData

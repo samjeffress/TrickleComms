@@ -54,6 +54,7 @@
     <Compile Include="EmailStatus.cs" />
     <Compile Include="Email\Commands\CoordinatorCompleteEmailWithSummary.cs" />
     <Compile Include="Email\Commands\CoordinatorCreatedEmail.cs" />
+    <Compile Include="Email\Events\EmailSent.cs" />
     <Compile Include="MessageSending\Commands\SendOneEmailNow.cs" />
     <Compile Include="MessageSending\Responses\EmailDelivered.cs" />
     <Compile Include="MessageSending\Responses\MessageFailedSending.cs" />

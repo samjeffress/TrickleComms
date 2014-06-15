@@ -6,7 +6,10 @@ namespace SmsMessages.Scheduling.Commands
     public class ScheduleSmsForSendingLater
     {
         public ScheduleSmsForSendingLater()
-        {}
+        {
+            SmsData = new SmsData(string.Empty, string.Empty);
+            SmsMetaData = new SmsMetaData();
+        }
 
         public ScheduleSmsForSendingLater(DateTime sendMessageAtUtc, SmsData smsData, SmsMetaData smsMetaData, Guid coorelationId, string username)
         {

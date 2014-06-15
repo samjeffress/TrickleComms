@@ -56,6 +56,16 @@ namespace SmsActioner
                     {
                         ReplyToOriginator(emailStatusUpdate);
                         Bus.SendLocal(emailStatusUpdate);
+                        Bus.Publish(new SmsMessages.Email.Events.EmailSent
+                            {
+                                EmailAddress = Data.OriginalMessage.ToAddress,
+                                BodyHtml = Data.OriginalMessage.BodyHtml,
+                                BodyText = Data.OriginalMessage.BodyText,
+                                Subject = Data.OriginalMessage.Subject,
+                                Id = Data.OriginalMessage.CorrelationId,
+                                SendTimeUtc = Data.StartTime.ToUniversalTime()
+                                
+                            });
                     }
                     if (Data.DeliveredEmailCount > 10)
                         MarkAsComplete();
