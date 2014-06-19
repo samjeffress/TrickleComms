@@ -25,6 +25,7 @@ namespace SmsScheduler
                 {
                     var scheduleTracker = new ScheduleTrackingData
                     {
+                        CoordinatorId = message.CorrelationId,
                         MessageStatus = MessageStatus.Scheduled,
                         ScheduleId = message.ScheduleId,
                         EmailData = message.EmailData, 
@@ -50,6 +51,7 @@ namespace SmsScheduler
                 {
                     var scheduleTracker = new ScheduleTrackingData
                     {
+                        CoordinatorId = message.CorrelationId,
                         MessageStatus = MessageStatus.Scheduled,
                         ScheduleId = message.ScheduleId,
                         SmsData = message.SmsData,

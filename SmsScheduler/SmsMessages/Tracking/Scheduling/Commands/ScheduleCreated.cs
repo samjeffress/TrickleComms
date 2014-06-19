@@ -12,5 +12,7 @@ namespace SmsMessages.Tracking.Scheduling.Commands
         public SmsMetaData SmsMetaData { get; set; }
 
         public DateTime ScheduleTimeUtc { get; set; }
+
+        public Guid CorrelationId { get; set; }
     }
 }

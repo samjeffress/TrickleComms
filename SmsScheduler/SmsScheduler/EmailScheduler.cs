@@ -38,8 +38,10 @@ namespace SmsScheduler
             Data.TimeoutCounter = 0;
             var timeout = new DateTime(message.SendMessageAtUtc.Ticks, DateTimeKind.Utc);
             RequestUtcTimeout(timeout, new ScheduleEmailTimeout { TimeoutCounter = 0 });
+            // TODO: Save coordinator id
             Bus.SendLocal(new EmailScheduleCreated
             {
+                CorrelationId = message.CorrelationId,
                 ScheduleId = Data.ScheduleMessageId,
                 ScheduleTimeUtc = message.SendMessageAtUtc,
                 EmailData = message.EmailData,

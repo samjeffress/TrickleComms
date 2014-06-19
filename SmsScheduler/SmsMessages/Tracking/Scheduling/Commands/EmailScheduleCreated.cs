@@ -21,5 +21,7 @@ namespace SmsMessages.Tracking.Scheduling.Commands
         public List<string> Tags { get; set; }
 
         public DateTime ScheduleTimeUtc { get; set; }
+
+        public Guid CorrelationId { get; set; }
     }
 }

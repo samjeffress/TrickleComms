@@ -43,6 +43,7 @@ namespace SmsScheduler
             RequestUtcTimeout(timeout, new ScheduleSmsTimeout { TimeoutCounter = 0});
             Bus.SendLocal(new ScheduleCreated
                 {
+                    CorrelationId = scheduleSmsForSendingLater.CorrelationId,
                     ScheduleId = Data.ScheduleMessageId,
                     ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc,
                     SmsData = scheduleSmsForSendingLater.SmsData,
