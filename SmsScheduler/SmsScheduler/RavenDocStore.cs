@@ -33,7 +33,7 @@ namespace SmsScheduler
 
         public string Database()
         {
-            return "samjeffress-SmsTracking";
+            return "SmsTracking";
         }
     }
 }

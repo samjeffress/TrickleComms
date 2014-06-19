@@ -38,7 +38,7 @@ namespace SmsActioner
 
         public string DatabaseName()
         {
-            return "samjeffress-SmsTracking";
+            return "SmsTracking";
         }
     }
 }
