@@ -38,7 +38,7 @@ namespace SmsActioner
         public void Handle(EmailSent message)
         {
             Data.EmailId = message.EmailId;
-            RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 20, 0));
+            RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 2, 0));
         }
 
         public void Timeout(EmailStatusPendingTimeout state)
@@ -49,7 +49,7 @@ namespace SmsActioner
             switch (emailStatus)
             {
                 case EmailStatus.Accepted:
-                    RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0,0,20,0));
+                    RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0,0,2,0));
                     break;
                 case EmailStatus.Delivered:
                     if (Data.DeliveredEmailCount == 0)
@@ -68,6 +68,7 @@ namespace SmsActioner
                             });
                     }
                     if (Data.DeliveredEmailCount > 10)
+                        // TODO: Should notify originator that there is no more checking
                         MarkAsComplete();
                     else
                         RequestUtcTimeout<EmailStatusPendingTimeout>(new TimeSpan(0, 2, 0, 0));   

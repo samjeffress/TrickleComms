@@ -196,6 +196,11 @@ namespace SmsScheduler
             
             if (message.Status == EmailStatus.Delivered)
             {
+                Bus.SendLocal(new ScheduleStatusChanged
+                {
+                    ScheduleId = Data.ScheduleMessageId,
+                    Status = MessageStatus.Delivered
+                });
                 RequestUtcTimeout<ScheduleEmailDeliveredTimeout>(new TimeSpan(1, 0, 0, 0));
             }
         }

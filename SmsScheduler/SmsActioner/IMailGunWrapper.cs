@@ -20,7 +20,7 @@ namespace SmsActioner
 
         public string SendEmail(SendEmail message)
         {
-            using (var session = DocumentStore.GetStore().OpenSession(DocumentStore.DatabaseName()))
+            using (var session = DocumentStore.GetStore().OpenSession(DocumentStore.ConfigurationDatabaseName()))
             {
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null)
@@ -60,7 +60,7 @@ namespace SmsActioner
 
         public EmailStatus CheckStatus(string emailId)
         {
-            using (var session = DocumentStore.GetStore().OpenSession(DocumentStore.DatabaseName()))
+            using (var session = DocumentStore.GetStore().OpenSession(DocumentStore.ConfigurationDatabaseName()))
             {
                 var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
                 if (mailgunConfiguration == null)

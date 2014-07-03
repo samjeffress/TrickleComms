@@ -7,6 +7,10 @@ namespace SmsMessages.CommonData
         Sent,
         Paused,
         Cancelled,
-        Failed
+        Failed,
+        /// <summary>
+        /// Delivered to email server successfully - does not apply to SMS
+        /// </summary>
+        Delivered
     }
 }
