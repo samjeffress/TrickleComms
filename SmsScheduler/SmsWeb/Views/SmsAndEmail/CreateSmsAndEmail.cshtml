@@ -24,34 +24,14 @@
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
         $('input[name="SendAllBy"]').datetimepicker({dateFormat: 'dd/mm/yy'});
 
-        $('#TimeSeparatedButton').bind('click', function() {
-            ShowTimeSeparated();
-        });
-
-        $('#SendAllByButton').bind('click', function() {
-            ShowSendAll();
-        });
-        
-        $('#AllAtOnceButton').bind('click', function () {
-            HideTimingOptions();
-        });
-
-        $('#StartTime,#SendAllBy,#TimeSeparatorSeconds').bind('change keyup blur focus', function () {
+        $('#StartTime,#SendAllBy').bind('change keyup blur focus', function () {
             CheckIfMessagesWillBeSentOvernight();
         });
-
-        //$('#Numbers').bind('change keyup blur focus', function () {
-        //    showOrHideTiming();
-        //});
-        //showOrHideTiming();
         
         $('#Message').bind('keyup', function () {   
             CountMessageChar($('#SmsContent'));
         });
         CountMessageChar($('#SmsContent'));
-
-        CheckSendAll();
-        CheckTimeSeparated();
 
         $('#Tags').tagsInput({ autocomplete_url: "/Tag/Search/" });
 
@@ -108,23 +88,11 @@
         </div>
         
         <div id="CoordinationTiming">
-            <div style="padding-bottom: 10px; display: inline-block">
-                <p>Select how you want to coordinate the timing:</p>
-                <input type="button" value="Time Separated" id="TimeSeparatedButton" class="UnSelectedButton" />
-                <input type="button" value="Send All By Time" id="SendAllByButton" class="UnSelectedButton" />
-                <input type="button" value="All At Once" id="AllAtOnceButton" class="UnSelectedButton"/>
-            </div>
-            @Html.HiddenFor(model => model.SendAllAtOnce)
-        
             <div id="OvernightWarning" class="warning blockHidden">
                 Warning - this will result in messages being sent overnight for your local timezone!
             </div>    
-            <div id="TimeSeparatedDiv" class="control-group">
-                @Html.LabelFor(model => model.TimeSeparatorSeconds, "Time Separated (seconds)")
-                @Html.EditorFor(model => model.TimeSeparatorSeconds)
-            </div>
             <div id="SendAllByDiv" class="control-group">
-                @Html.LabelFor(model => model.SendAllBy, "Send All By Time")
+                @Html.LabelFor(model => model.SendAllBy, "End Time")
                 @Html.EditorFor(model => model.SendAllBy)
             </div>
         </div>
