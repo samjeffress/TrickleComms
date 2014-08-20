@@ -1,42 +1,72 @@
-﻿using NServiceBus;
+using Funq;
+using NServiceBus;
+using NServiceBus.Features;
+using NServiceBus.Installation.Environments;
 
 namespace SmsActioner
 {
-    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization, AsA_Publisher
+    public class EndpointConfig : IConfigureThisEndpoint, IWantCustomInitialization, AsA_Publisher, UsingTransport<Msmq> // , IWantToRunWhenBusStartsAndStops
     {
         public void Init()
         {
-            var configure = Configure.With()
+            Configure.Features.Enable<Sagas>();
+            Configure.Transactions.Enable();
+            Configure.Serialization.Xml();
+
+            var configure = Configure.With().DefaultBuilder();
+            Configure.Instance.RavenPersistence();
+            Configure.Instance.RavenSubscriptionStorage();
+            Configure.Instance.RavenSagaPersister();
+
+            configure
             .DefaultBuilder()
                 .DefiningCommandsAs(t => t.Namespace != null && t.Namespace.EndsWith("Commands"))
-                .DefiningMessagesAs(t => t.Namespace != null && (t.Namespace.EndsWith(".Messages") || t.Namespace.EndsWith(".Responses")))
                 .DefiningEventsAs(t => t.Namespace != null && t.Namespace.EndsWith("Events"))
-            .RunTimeoutManager()
+                .DefiningMessagesAs(t => t.Namespace != null &&
+                    (t.Namespace.StartsWith("SmsMessages") || t.Namespace.StartsWith("SmsActioner.InternalMessages"))
+                    && (t.Namespace.EndsWith(".Messages") || t.Namespace.EndsWith(".Responses")))
             .Log4Net()
-            .XmlSerializer()
-            .MsmqTransport()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
             .RavenPersistence()
-            .Sagas()
                 .RavenSagaPersister()
             .UnicastBus()
                 .ImpersonateSender(false)
                 .LoadMessageHandlers();
 
-            const string listeningOn = "http://*:8888/";
-            var appHost = new AppHost();
-            appHost.Init();
-            appHost.Start(listeningOn);
 
             Configure.Instance.Configurer.ConfigureComponent<RavenDocStore>(DependencyLifecycle.SingleInstance);
             Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<TwilioWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
+            Configure.Instance.Configurer.ConfigureComponent<MailGunWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
+            
+        //var bus = configure.CreateBus()
+        //.Start(() => Configure.Instance.ForInstallationOn<Windows>().Install());
+            //var bus = configure.CreateBus().Start();            //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
 
-            var bus = configure.CreateBus().Start();            //.Start(() => Configure.Instance.ForInstallationOn<NServiceBus.Installation.Environments.Windows>().Install());
 
-            appHost.Container.Register(bus);
-            appHost.Container.RegisterAutoWiredAs<RavenDocStore, IRavenDocStore>();//.RegisterAs<IRavenDocStore>(new RavenDocStore());
+            //// using the bus in this context is too early - shouldn't actually be started here
+            //const string listeningOn = "http://*:8888/";
+            //var appHost = new AppHost();
+            //appHost.Init();
+            //appHost.Start(listeningOn);
+            ////appHost.Container.Register(bus);
+            //appHost.Container.RegisterAutoWired<IBus>();
+            //appHost.Container.RegisterAutoWiredAs<RavenDocStore, IRavenDocStore>();//.RegisterAs<IRavenDocStore>(new RavenDocStore());
         }
+
+        //public void Start()
+        //{
+        //    const string listeningOn = "http://*:8888/";
+        //    var appHost = new AppHost();
+        //    appHost.Init();
+        //    appHost.Start(listeningOn);
+        //    appHost.Container.RegisterAutoWired<IBus>();
+        //    appHost.Container.RegisterAutoWiredAs<RavenDocStore, IRavenDocStore>();//.RegisterAs<IRavenDocStore>(new RavenDocStore());
+        //}
+
+        //public void Stop()
+        //{
+        //}
     }
 }

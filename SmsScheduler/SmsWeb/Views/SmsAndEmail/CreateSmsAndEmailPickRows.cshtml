@@ -1,0 +1,42 @@
+@model SmsWeb.Models.DataColumnPicker 
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryui")
+@Styles.Render("~/Content/themes/base/jquery-ui.css")
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Pick your columns</title>
+    </head>
+    <body>
+        <div>
+            @using (Html.BeginForm("CreateSmsAndEmailColumnPicker", "SmsAndEmail", FormMethod.Post))
+            {
+                <h3>Tell us which columns of your spreadsheet to use</h3>
+                <div>
+                    @Html.LabelFor(m => m.FirstRowIsHeader, "My first row is a header")
+                    @Html.CheckBoxFor(m => m.FirstRowIsHeader)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.CustomerIdColumn, "Customer Id")
+                    @Html.DropDownListFor(m => m.CustomerIdColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.CustomerNameColumn, "Customer Name")
+                    @Html.DropDownListFor(m => m.CustomerNameColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.PhoneNumberColumn, "Mobile Number")
+                    @Html.DropDownListFor(m => m.PhoneNumberColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
+                <div>
+                    @Html.LabelFor(m => m.EmailColumn, "Email")
+                    @Html.DropDownListFor(m => m.EmailColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                </div>
+            <input type="submit"/>
+            }
+        </div>
+    </body>
+</html>

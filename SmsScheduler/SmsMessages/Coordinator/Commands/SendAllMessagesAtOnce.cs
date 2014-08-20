@@ -25,5 +25,8 @@ namespace SmsMessages.Coordinator.Commands
         public List<string> ConfirmationEmails { get; set; }
 
         public string UserOlsenTimeZone { get; set; }
+
+        // TODO: Map a value into the username
+        public string Username { get; set; }
     }
 }

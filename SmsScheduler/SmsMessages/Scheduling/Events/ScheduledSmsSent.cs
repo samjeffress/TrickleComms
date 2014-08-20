@@ -12,5 +12,7 @@ namespace SmsMessages.Scheduling.Events
         public SmsConfirmationData ConfirmationData { get; set; }
 
         public string Number { get; set; }
+
+        public string Username { get; set; }
     }
 }

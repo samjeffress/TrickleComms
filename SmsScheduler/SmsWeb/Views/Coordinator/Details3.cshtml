@@ -35,7 +35,7 @@
         var failedMessages = '@Model.MessageStatusCounter.FailedCount';
         var scheduledMessages = '@Model.MessageStatusCounter.ScheduledCount';
         var pausedMessages = '@Model.MessageStatusCounter.PausedCount';
-        var waitingForSchedulingMessages = '@Model.MessageStatusCounter.CancelledCount';
+        var waitingForSchedulingMessages = '@Model.MessageStatusCounter.WaitingForSchedulingCount';
         var cancelledMessages = '@Model.MessageStatusCounter.CancelledCount';
         setupProgressBar(sentMessages, failedMessages, scheduledMessages, pausedMessages, waitingForSchedulingMessages, cancelledMessages);
 
@@ -132,14 +132,27 @@
         {
             <tr>
                 <th>Next Scheduled Message (UTC)</th>
-                <td>@Model.NextScheduledMessageDate</td>
+                <td>
+                    @if (Model.NextScheduledMessageDate == null){
+                        @:Waiting for scheduling
+                    } else {
+                        @Model.NextScheduledMessageDate
+                    }
+                </td>
             </tr>
         }
         if (Model.FinalScheduledMessageDate != null)
          {
              <tr>
                  <th>Final Scheduled Message (UTC)</th>
-                 <td>@Model.FinalScheduledMessageDate</td>
+                 <td>
+                     @if (Model.FinalScheduledMessageDate == null)
+                     {
+                         @:Waiting for scheduling
+                     } else {
+                        @Model.FinalScheduledMessageDate  
+                     }
+                 </td>
              </tr>
          }
     }

@@ -1,0 +1,118 @@
+@model SmsWeb.Models.CoordinatorSmsAndEmailModel
+
+@{
+    ViewBag.Title = "SMS Create";
+    Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
+}
+
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryui")
+@Styles.Render("~/Content/themes/base/jquery-ui.css")
+
+<script type="text/javascript" src="~/Scripts/jquery-ui-timepicker-addon.js" ></script>
+<script type="text/javascript" src="~/Scripts/Coordinator.js" ></script>
+<script type="text/javascript" src="~/Scripts/MessageBuilder.js" ></script>
+<script type="text/javascript" src="~/Scripts/jstz-1.0.4.min.js"></script>
+
+<script type="text/javascript" src="~/Scripts/jquery.tagsinput.js"></script>
+@Styles.Render("~/Content/jquery.tagsinput.css")
+@Styles.Render("~/Content/Homegrown.css")
+@Styles.Render("~/Content/timepicker.css")
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
+        $('input[name="SendAllBy"]').datetimepicker({dateFormat: 'dd/mm/yy'});
+
+        $('#StartTime,#SendAllBy').bind('change keyup blur focus', function () {
+            CheckIfMessagesWillBeSentOvernight();
+        });
+        
+        $('#Message').bind('keyup', function () {   
+            CountMessageChar($('#SmsContent'));
+        });
+        CountMessageChar($('#SmsContent'));
+
+        $('#Tags').tagsInput({ autocomplete_url: "/Tag/Search/" });
+
+        $('#UserTimeZone').val(jstz.determine().name());
+    });
+</script>
+
+
+<h2>Create Coordinated Messages</h2>
+
+@using (Html.BeginForm("Create", "SmsAndEmail", FormMethod.Post, new Dictionary<string, object>() {{ "enctype", "multipart/form-data"}, {"class", "form-horizontal" }}))
+{
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <div class="control-group">
+            @Html.LabelFor(model => model.Topic)
+            @Html.EditorFor(model => model.Topic)
+            @Html.ValidationMessageFor(model => model.Topic)
+        </div>
+
+        <div class="control-group">
+            @Html.LabelFor(model => model.SmsContent)
+            @{ 
+                var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.SmsContent) && Model.SmsContent.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
+                messageValidationClass = messageValidationClass + ", span6";
+            }
+            @Html.TextAreaFor(model => model.SmsContent, new Dictionary<string, object> { { "class", @messageValidationClass } })
+            @Html.ValidationMessageFor(model => model.SmsContent)
+            <div id="messageCounter"></div>
+        </div>
+        
+        <div class="control-group">
+            @Html.LabelFor(model => model.EmailHtmlContent)
+            @Html.TextAreaFor(model => model.EmailHtmlContent)
+            @Html.ValidationMessageFor(model => model.EmailHtmlContent)
+        </div>
+        
+        <div class="control-group">
+            <input type="file" name="FileUpload"/>
+        </div>
+
+    </fieldset>
+    
+    <fieldset id="Timing">
+        <div class="control-group">
+            @Html.LabelFor(model => model.StartTime, "Start Time")
+            @Html.EditorFor(model => model.StartTime)
+            @Html.ValidationMessageFor(model => model.StartTime)
+            @Html.HiddenFor(model => model.UserTimeZone)
+            @Html.ValidationMessageFor(model => model.UserTimeZone)
+            @Html.ValidationMessageFor(model => model.SendAllBy)
+            @Html.ValidationMessageFor(model => model.TimeSeparatorSeconds)
+        </div>
+        
+        <div id="CoordinationTiming">
+            <div id="OvernightWarning" class="warning blockHidden">
+                Warning - this will result in messages being sent overnight for your local timezone!
+            </div>    
+            <div id="SendAllByDiv" class="control-group">
+                @Html.LabelFor(model => model.SendAllBy, "End Time")
+                @Html.EditorFor(model => model.SendAllBy)
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <div class="control-group">
+            @Html.LabelFor(model => model.ConfirmationEmail, "Confirmation Email")
+            @Html.EditorFor(model => model.ConfirmationEmail)
+            @Html.ValidationMessageFor(model => model.ConfirmationEmail)
+        </div>
+        
+        <div class="control-group">
+            @Html.LabelFor(model => model.Tags)
+            @Html.EditorFor(model => model.Tags)
+            @Html.ValidationMessageFor(model => model.Tags)
+        </div>
+
+    </fieldset>
+    <p>
+        <input type="submit" value="Create" />
+    </p>
+}

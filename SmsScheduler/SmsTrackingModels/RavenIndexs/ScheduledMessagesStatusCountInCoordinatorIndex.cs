@@ -15,6 +15,9 @@ namespace SmsTrackingModels.RavenIndexs
                                            CoordinatorId = schedule.CoordinatorId.ToString(),
                                            Status = schedule.MessageStatus.ToString(),
                                            Topic = schedule.SmsMetaData.Topic,
+                                           //PhoneNumber = schedule.SmsData == null ? null : schedule.SmsData.Mobile,
+                                           //EmailAddress = schedule.EmailData == null ? null : schedule.EmailData.ToAddress,
+                                           Type = schedule.ScheduleType,
                                            Count = 1,
                                            Cost = schedule.ConfirmationData == null ? 0 : schedule.ConfirmationData.Price
                                        };
@@ -25,6 +28,9 @@ namespace SmsTrackingModels.RavenIndexs
                                         result.Topic,
                                         result.CoordinatorId,
                                         result.Status,
+                                        result.Type
+                                        //result.PhoneNumber,
+                                        //result.EmailAddress
                                     }
                                 into g
                                 select new ReduceResult
@@ -32,6 +38,9 @@ namespace SmsTrackingModels.RavenIndexs
                                         Topic = g.Key.Topic,
                                         CoordinatorId = g.Key.CoordinatorId,
                                         Status = g.Key.Status,
+                                        Type = g.Key.Type,
+                                        //PhoneNumber = g.Key.PhoneNumber,
+                                        //EmailAddress = g.Key.EmailAddress,
                                         Count = g.Sum(x => x.Count),
                                         Cost = g.Sum(x => x.Cost)
                                     };
@@ -52,6 +61,10 @@ namespace SmsTrackingModels.RavenIndexs
             public int Count { get; set; }
 
             public decimal Cost { get; set; }
+
+            public string EmailAddress { get; set; }
+
+            public ScheduleType Type { get; set; }
         }
     }
 }

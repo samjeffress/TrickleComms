@@ -11,16 +11,19 @@ namespace SmsTrackingModels
         public CoordinatorTrackingData()
         {
             MetaData = new SmsMetaData();
+            EmailData = new EmailData();
         }
 
         public CoordinatorTrackingData(List<MessageSendingStatus> listOfSendingStatusForTesting)
         {
             MetaData = new SmsMetaData();
+            EmailData = new EmailData();
             testMessageSendingStatus = listOfSendingStatusForTesting;
         }
 
         public Guid CoordinatorId { get; set; }
 
+        [Obsolete("This refers to SMS Count")]
         public int MessageCount { get; set; }
 
         public CoordinatorStatusTracking CurrentStatus { get; set; }
@@ -37,7 +40,18 @@ namespace SmsTrackingModels
 
         public string UserOlsenTimeZone { get; set; }
 
+        [Obsolete("This refers to SMS Body")]
         public string MessageBody { get; set; }
+
+        public string Username { get; set; }
+
+        public string SmsBody { get { return MessageBody; } set { MessageBody = value; } }
+        
+        public int SmsCount { get { return MessageCount; } set { MessageCount = value; } }
+
+        public EmailData EmailData { get; set; }
+
+        public int EmailCount { get; set; }
 
         public List<MessageSendingStatus> GetListOfCoordinatedSchedules(IDocumentStore documentStore)
         {
@@ -68,7 +82,8 @@ namespace SmsTrackingModels
                             ActualSentTimeUtc = t.ConfirmationData == null ? (DateTime?)null : t.ConfirmationData.SentAtUtc,
                             Cost = t.ConfirmationData == null ? (decimal?)null : t.ConfirmationData.Price,
                             FailureData = t.SmsFailureData == null ? null : new FailureData { Message = t.SmsFailureData.Message, MoreInfo = t.SmsFailureData.MoreInfo },
-                            Number = t.SmsData.Mobile,
+                            Number = t.SmsData == null ? null : t.SmsData.Mobile,
+                            EmailAddress = t.EmailData == null ? null : t.EmailData.ToAddress,
                             ScheduleMessageId = t.ScheduleId,
                             ScheduledSendingTimeUtc = t.ScheduleTimeUtc,
                             Status = ParseMessageStatus(t.MessageStatus)
@@ -100,6 +115,8 @@ namespace SmsTrackingModels
                 return MessageStatusTracking.WaitingForScheduling;
             if (messageStatus == MessageStatus.Scheduled)
                 return MessageStatusTracking.Scheduled;
+            if (messageStatus == MessageStatus.Delivered)
+                return MessageStatusTracking.Delivered;
             throw new NotImplementedException();
         }
     }
@@ -109,6 +126,8 @@ namespace SmsTrackingModels
         public Guid ScheduleMessageId { get; set; }
 
         public string Number { get; set; }
+
+        public string EmailAddress { get; set; }
 
         public DateTime ScheduledSendingTimeUtc { get; set; }
 
@@ -126,6 +145,8 @@ namespace SmsTrackingModels
         WaitingForScheduling,
         Scheduled,
         Paused,
+        // Delivered - email has been sent to server, not sure if user has got it yet
+        Delivered,
         CompletedSuccess,
         CompletedFailure
     }

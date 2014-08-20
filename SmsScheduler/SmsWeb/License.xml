@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<license id="9be3e8e1-7a04-4ce5-b9bd-5e06fa71e97a" expiration="2015-05-22T00:00:00.0000000" type="Trial" Applications="All" Edition="Enterprise" NumberOfNodes="3" LicenseVersion="3.3" MaxMessageThroughputPerSecond="Max" AllowedNumberOfWorkerNodes="Max" UpgradeProtectionExpiration="2015-05-22">
+  <name>Trickle</name>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+      <SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+      <Reference URI="">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+        <DigestValue>lEl+4P3w+KT9TLF1LCLtUjCwR+M=</DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue>QEoa5ouWq2lUnIinN8GPmLe+iaMDci7gQUM8/RF4v8g+gvkp+YaGdJNDwT9HjjbzCOeXgy65tPMZMqTAQCx5WmccD70swtivK+oJnxlc+RJ5e00K7S0abaBR7TZOKKp+a71mmbFbNjJAeeUjAibJG3VJ76JfToLya8UlqMmAqNU=</SignatureValue>
+  </Signature>
+</license>

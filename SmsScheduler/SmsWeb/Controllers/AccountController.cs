@@ -17,18 +17,12 @@ namespace SmsWeb.Controllers
     [InitializeSimpleMembership]
     public class AccountController : Controller
     {
-        //
-        // GET: /Account/Login
-
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
-
-        //
-        // POST: /Account/Login
 
         [HttpPost]
         [AllowAnonymous]
@@ -45,9 +39,6 @@ namespace SmsWeb.Controllers
             return View(model);
         }
 
-        //
-        // POST: /Account/LogOff
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
@@ -57,44 +48,35 @@ namespace SmsWeb.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        //
-        // GET: /Account/Register
+        //[AllowAnonymous]
+        //public ActionResult Register()
+        //{
+        //    return View();
+        //}
 
-        [AllowAnonymous]
-        public ActionResult Register()
-        {
-            return View();
-        }
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult Register(RegisterModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        // Attempt to register the user
+        //        try
+        //        {
+        //            WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
+        //            WebSecurity.Login(model.UserName, model.Password);
+        //            return RedirectToAction("Index", "Home");
+        //        }
+        //        catch (MembershipCreateUserException e)
+        //        {
+        //            ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
+        //        }
+        //    }
 
-        //
-        // POST: /Account/Register
-
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public ActionResult Register(RegisterModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Attempt to register the user
-                try
-                {
-                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
-                    WebSecurity.Login(model.UserName, model.Password);
-                    return RedirectToAction("Index", "Home");
-                }
-                catch (MembershipCreateUserException e)
-                {
-                    ModelState.AddModelError("", ErrorCodeToString(e.StatusCode));
-                }
-            }
-
-            // If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        //
-        // POST: /Account/Disassociate
+        //    // If we got this far, something failed, redisplay form
+        //    return View(model);
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -136,9 +118,6 @@ namespace SmsWeb.Controllers
             ViewBag.ReturnUrl = Url.Action("Manage");
             return View();
         }
-
-        //
-        // POST: /Account/Manage
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -200,9 +179,6 @@ namespace SmsWeb.Controllers
             return View(model);
         }
 
-        //
-        // POST: /Account/ExternalLogin
-
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -210,9 +186,6 @@ namespace SmsWeb.Controllers
         {
             return new ExternalLoginResult(provider, Url.Action("ExternalLoginCallback", new { ReturnUrl = returnUrl }));
         }
-
-        //
-        // GET: /Account/ExternalLoginCallback
 
         [AllowAnonymous]
         public ActionResult ExternalLoginCallback(string returnUrl)
@@ -243,9 +216,6 @@ namespace SmsWeb.Controllers
                 return View("ExternalLoginConfirmation", new RegisterExternalLoginModel { UserName = result.UserName, ExternalLoginData = loginData });
             }
         }
-
-        //
-        // POST: /Account/ExternalLoginConfirmation
 
         [HttpPost]
         [AllowAnonymous]
@@ -289,9 +259,6 @@ namespace SmsWeb.Controllers
             ViewBag.ReturnUrl = returnUrl;
             return View(model);
         }
-
-        //
-        // GET: /Account/ExternalLoginFailure
 
         [AllowAnonymous]
         public ActionResult ExternalLoginFailure()

@@ -1,4 +1,6 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using NServiceBus.Saga;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
@@ -72,7 +74,7 @@ namespace SmsActioner
         }
     }
 
-    public class SmsActionerData : ISagaEntity
+    public class SmsActionerData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }

@@ -59,7 +59,7 @@ function CheckIfMessagesWillBeSentOvernight() {
         var endDate;
         var startDateTime = $.datepicker.parseDate("dd/mm/yy", $('#StartTime').val());
         var startDate = new Date(startDateTime.getFullYear(), startDateTime.getMonth(), startDateTime.getDate());
-        if ($('#TimeSeparatorSeconds').val().length > 0) {
+        if ($('#TimeSeparatorSeconds').length > 0 && $('#TimeSeparatorSeconds').val().length > 0) {
             // calculate the end date
             var timeBetweenMessages = $('#TimeSeparatorSeconds').val();
             var numberOfMessages = MobileNumberCount();

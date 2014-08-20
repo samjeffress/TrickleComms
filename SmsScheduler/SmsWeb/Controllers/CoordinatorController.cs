@@ -15,36 +15,7 @@ namespace SmsWeb.Controllers
 {
     public class CoordinatorController : Controller
     {
-        public IBus Bus { get; set; }
-
-        public IRavenDocStore RavenDocStore { get; set; }
-
-        public ICoordinatorModelToMessageMapping Mapper { get; set; }
-
-        public IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
-
-        public ActionResult Index()
-        {
-            using (var session = RavenDocStore.GetStore().OpenSession())
-            {
-                var coordinatorTrackingData = session.Query<CoordinatorTrackingData>()
-                    .Where(c => c.CurrentStatus != CoordinatorStatusTracking.Completed)
-                    .ToList();
-                return View("Index", coordinatorTrackingData);
-            }
-        }
-
-        public ActionResult Create()
-        {
-            List<SelectListItem> selectListItems;
-            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
-            {
-                var thing = session.Query<CoordinatorTrackingData>().OrderByDescending(c => c.CreationDateUtc).Take(10).ToList();
-                selectListItems = thing.Select(c => new SelectListItem { Selected = false, Text = CoordinatorToExcludeText(c), Value = c.CoordinatorId.ToString() }).ToList();
-            }
-            ViewData.Add("CoordinatorExcludeList", selectListItems);
-            return View("Create");
-        }
+        public ICurrentUser CurrentUser { get; set; }
 
         [HttpPost]
         public ActionResult Create(CoordinatedSharedMessageModel coordinatedMessages)
@@ -77,19 +48,19 @@ namespace SmsWeb.Controllers
                 var messageTypeRequired = coordinatedMessages.GetMessageTypeFromModel();
                 if (messageTypeRequired == typeof(TrickleSmsWithDefinedTimeBetweenEachMessage))
                 {
-                    var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
+                    var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name());
                     trickleSmsSpacedByTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsSpacedByTimePeriod);
                 }
                 else if (messageTypeRequired == typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates))
                 {
-                    var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
+                    var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name());
                     trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
                     Bus.Send(trickleSmsOverTimePeriod);    
                 }
                 else if (messageTypeRequired == typeof(SendAllMessagesAtOnce))
                 {
-                    var sendAllAtOnce = Mapper.MapToSendAllAtOnce(coordinatedMessages, countryCodeReplacement, cleanExcludeList);
+                    var sendAllAtOnce = Mapper.MapToSendAllAtOnce(coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name());
                     sendAllAtOnce.CoordinatorId = coordinatorId;
                     Bus.Send(sendAllAtOnce);    
                 }
@@ -118,6 +89,37 @@ namespace SmsWeb.Controllers
             }
             ViewData.Add("CoordinatorExcludeList", selectListItems);
             return View("Create", coordinatedMessages);
+        }
+
+        public IBus Bus { get; set; }
+
+        public IRavenDocStore RavenDocStore { get; set; }
+
+        public ICoordinatorModelToMessageMapping Mapper { get; set; }
+
+        public IDateTimeUtcFromOlsenMapping DateTimeOlsenMapping { get; set; }
+
+        public ActionResult Index()
+        {
+            using (var session = RavenDocStore.GetStore().OpenSession())
+            {
+                var coordinatorTrackingData = session.Query<CoordinatorTrackingData>()
+                    .Where(c => c.CurrentStatus != CoordinatorStatusTracking.Completed)
+                    .ToList();
+                return View("Index", coordinatorTrackingData);
+            }
+        }
+
+        public ActionResult Create()
+        {
+            List<SelectListItem> selectListItems;
+            using (var session = RavenDocStore.GetStore().OpenSession("SmsTracking"))
+            {
+                var thing = session.Query<CoordinatorTrackingData>().OrderByDescending(c => c.CreationDateUtc).Take(10).ToList();
+                selectListItems = thing.Select(c => new SelectListItem { Selected = false, Text = CoordinatorToExcludeText(c), Value = c.CoordinatorId.ToString() }).ToList();
+            }
+            ViewData.Add("CoordinatorExcludeList", selectListItems);
+            return View("Create");
         }
 
         private string CoordinatorToExcludeText(CoordinatorTrackingData coordinatorTrackingData)
@@ -192,17 +194,21 @@ namespace SmsWeb.Controllers
                     return View("DetailsNotCreated", model: coordinatorid);
                 }
 
-                var nextSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                DateTime? nextSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
                     .Where(s => s.CoordinatorId == Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
                     .OrderBy(s => s.ScheduleTimeUtc)
                     .Select(s => s.ScheduleTimeUtc)
                     .FirstOrDefault();
+                if (nextSmsDateUtc == DateTime.MinValue)
+                    nextSmsDateUtc = null;
 
-                var finalSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
+                DateTime? finalSmsDateUtc = session.Query<ScheduleTrackingData, ScheduleMessagesInCoordinatorIndex>()
                     .Where(s => s.CoordinatorId== Guid.Parse(coordinatorid) && s.MessageStatus == MessageStatus.Scheduled)
                     .OrderByDescending(s => s.ScheduleTimeUtc)
                     .Select(s => s.ScheduleTimeUtc)
                     .FirstOrDefault();
+                if (finalSmsDateUtc == DateTime.MinValue)
+                    finalSmsDateUtc = null;
 
                 var overview = new CoordinatorOverview(coordinatorTrackingData, coordinatorSummary);
                 overview.NextScheduledMessageDate = nextSmsDateUtc;

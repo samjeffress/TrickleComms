@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -42,18 +43,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonData\EmailData.cs" />
     <Compile Include="CommonData\MessageStatus.cs" />
     <Compile Include="Coordinator\Commands\RescheduleTrickledMessages.cs" />
     <Compile Include="Coordinator\Commands\SendAllMessagesAtOnce.cs" />
+    <Compile Include="Coordinator\Commands\TrickleSmsAndEmailBetweenSetTimes.cs" />
     <Compile Include="Coordinator\Events\CoordinatorCompleted.cs" />
     <Compile Include="Coordinator\Events\CoordinatorCreated.cs" />
+    <Compile Include="Coordinator\Events\CoordinatorCreatedWithEmailAndSms.cs" />
+    <Compile Include="EmailStatus.cs" />
     <Compile Include="Email\Commands\CoordinatorCompleteEmailWithSummary.cs" />
+    <Compile Include="Email\Commands\CoordinatorCreatedEmail.cs" />
+    <Compile Include="Email\Events\EmailSent.cs" />
+    <Compile Include="MessageSending\Commands\SendOneEmailNow.cs" />
+    <Compile Include="MessageSending\Responses\EmailDelivered.cs" />
     <Compile Include="MessageSending\Responses\MessageFailedSending.cs" />
     <Compile Include="MessageSending\Commands\MessageReceived.cs" />
     <Compile Include="MessageSending\Responses\MessageSuccessfullyDelivered.cs" />
     <Compile Include="Scheduling\Commands\RescheduleScheduledMessageWithNewTime.cs" />
+    <Compile Include="Scheduling\Commands\ScheduleEmailForSendingLater.cs" />
+    <Compile Include="Scheduling\Events\EmailScheduled.cs" />
     <Compile Include="Scheduling\Events\MessageRescheduled.cs" />
     <Compile Include="Scheduling\Events\MessageSchedulePaused.cs" />
+    <Compile Include="Scheduling\Events\ScheduledEmailFailed.cs" />
+    <Compile Include="Scheduling\Events\ScheduledEmailSent.cs" />
     <Compile Include="Scheduling\Events\ScheduledSmsFailed.cs" />
     <Compile Include="Scheduling\Events\SmsScheduled.cs" />
     <Compile Include="Scheduling\Commands\PauseScheduledMessageIndefinitely.cs" />
@@ -70,6 +83,11 @@
     <Compile Include="CommonData\SmsData.cs" />
     <Compile Include="CommonData\SmsMetaData.cs" />
     <Compile Include="Coordinator\Commands\TrickleSmsOverCalculatedIntervalsBetweenSetDates.cs" />
+    <Compile Include="Tracking\Scheduling\Commands\EmailScheduleCreated.cs" />
+    <Compile Include="Tracking\Scheduling\Commands\ScheduleCreated.cs" />
+    <Compile Include="Tracking\Scheduling\Commands\ScheduleFailed.cs" />
+    <Compile Include="Tracking\Scheduling\Commands\ScheduleStatusChanged.cs" />
+    <Compile Include="Tracking\Scheduling\Commands\ScheduleSucceeded.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MessageSending\Messages\" />

@@ -15,6 +15,7 @@ namespace SmsCoordinator
         Saga<CoordinateSmsSchedulingData>,
         IAmStartedByMessages<TrickleSmsOverCalculatedIntervalsBetweenSetDates>, 
         IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
+        IAmStartedByMessages<TrickleSmsAndEmailBetweenSetTimes>,
         IAmStartedByMessages<SendAllMessagesAtOnce>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
         IHandleMessages<ResumeTrickledMessages>,
@@ -46,10 +47,11 @@ namespace SmsCoordinator
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId);
+                var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId, message.Username);
                 messageList.Add(smsForSendingLater);
             }
-            Bus.Send(messageList.ToArray());
+            messageList.ForEach(m => Bus.Send(m));
+            //Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
@@ -84,13 +86,14 @@ namespace SmsCoordinator
                 var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
                 lastScheduledMessageTime = message.StartTimeUtc.Add(extraTime);
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId)
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId, message.Username)
                 {
                     CorrelationId = Data.CoordinatorId
                 };
                 messageList.Add(smsForSendingLater);
             }
-            Bus.Send(messageList.ToArray());
+            messageList.ForEach(m => Bus.Send(m));
+            //Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
@@ -102,12 +105,75 @@ namespace SmsCoordinator
                 MessageBody = message.Messages.First().Message,
                 MessageCount = message.Messages.Count
             };
-
-            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
-            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             Bus.Publish(coordinatorCreated);
             Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
             RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
+
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
+            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
+        }
+
+        public void Handle(TrickleSmsAndEmailBetweenSetTimes message)
+        {
+            Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
+            Data.OriginalScheduleStartTime = message.StartTimeUtc;
+            Data.EmailAddresses = message.ConfirmationEmails;
+            Data.UserOlsenTimeZone = message.UserOlsenTimeZone;
+            Data.Topic = message.MetaData.Topic;
+            Data.Username = message.Username;
+            var smsAndEmailCoordinatorData = RavenScheduleDocuments.GetSmsAndEmailCoordinatorData(message.SmsAndEmailDataId);
+            if (smsAndEmailCoordinatorData == null)
+                throw new NotImplementedException("Need the data!");
+            var messageTiming = TimingManager.CalculateTiming(message.StartTimeUtc, message.Duration, smsAndEmailCoordinatorData.CustomerContacts.Count);
+            var lastScheduledMessageTime = DateTime.Now.AddTicks(message.Duration.Ticks);
+            var messageList = new List<object>();
+            var smsList = new List<ScheduleSmsForSendingLater>();
+            var emailList = new List<ScheduleEmailForSendingLater>();
+            for (int i = 0; i < smsAndEmailCoordinatorData.CustomerContacts.Count; i++)
+            {
+                if (smsAndEmailCoordinatorData.CustomerContacts[i].SmsCustomer())
+                {
+                    var smsData = new SmsData(smsAndEmailCoordinatorData.CustomerContacts[i].MobileNumber, message.SmsMessage);
+                    var smsForSendingLater = new ScheduleSmsForSendingLater(messageTiming[i], smsData, message.MetaData, Data.CoordinatorId, message.Username)
+                    {
+                        CorrelationId = Data.CoordinatorId
+                    };
+                    messageList.Add(smsForSendingLater);
+                    smsList.Add(smsForSendingLater);
+                }
+                if (smsAndEmailCoordinatorData.CustomerContacts[i].EmailCustomer())
+                {
+                    var emailData = new EmailData(message.EmailData, smsAndEmailCoordinatorData.CustomerContacts[i].EmailAddress);
+                    var emailForSendingLater = new ScheduleEmailForSendingLater(messageTiming[i], emailData, message.MetaData, Data.CoordinatorId, message.Username)
+                    {
+                        CorrelationId = Data.CoordinatorId
+                    };
+                    messageList.Add(emailForSendingLater);
+                    emailList.Add(emailForSendingLater);
+                }
+            }
+            messageList.ForEach(m => Bus.Send("smsscheduler", m));
+            var coordinatorCreated = new CoordinatorCreatedWithEmailAndSms
+            {
+                CoordinatorId = Data.CoordinatorId,
+                CreationDateUtc = DateTime.UtcNow,
+                MetaData = message.MetaData,
+                ConfirmationEmailAddresses = message.ConfirmationEmails,
+                UserOlsenTimeZone = message.UserOlsenTimeZone,
+                SmsMessage = message.SmsMessage,
+                SmsCount = smsAndEmailCoordinatorData.CustomerContacts.Count(c => c.SmsCustomer()),
+                EmailCount = smsAndEmailCoordinatorData.CustomerContacts.Count(c => c.EmailCustomer()),
+                EmailData = message.EmailData,
+                UserName = message.Username
+            };
+
+            RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
+            Bus.Publish(coordinatorCreated);
+            // TODO: Send email message
+            //Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
+
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
+            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
         }
 
         public void Handle(SendAllMessagesAtOnce message)
@@ -122,13 +188,14 @@ namespace SmsCoordinator
             for (int i = 0; i < message.Messages.Count; i++)
             {
                 var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.SendTimeUtc, smsData, message.MetaData, Data.CoordinatorId)
+                var smsForSendingLater = new ScheduleSmsForSendingLater(message.SendTimeUtc, smsData, message.MetaData, Data.CoordinatorId, message.Username)
                 {
                     CorrelationId = Data.CoordinatorId
                 };
                 messageList.Add(smsForSendingLater);
             }
-            Bus.Send(messageList.ToArray());
+            messageList.ForEach(m => Bus.Send(m));
+            //Bus.Send(messageList.ToArray());
             var coordinatorCreated = new CoordinatorCreated
             {
                 CoordinatorId = Data.CoordinatorId,
@@ -140,11 +207,11 @@ namespace SmsCoordinator
                 MessageBody = message.Messages.First().Message,
                 MessageCount = message.Messages.Count
             };
-            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
-            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
             RequestUtcTimeout<CoordinatorTimeout>(message.SendTimeUtc.AddMinutes(2));
             Bus.Publish(coordinatorCreated);
             Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
+            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
+            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
         }
 
         public void Handle(PauseTrickledMessagesIndefinitely message)
@@ -252,14 +319,15 @@ namespace SmsCoordinator
     {
     }
 
-    public class CoordinateSmsSchedulingData : ISagaEntity
+    public class CoordinateSmsSchedulingData : IContainSagaData
     {
         public Guid Id { get; set; }
         public string Originator { get; set; }
         public string OriginalMessageId { get; set; }
 
         public DateTime OriginalScheduleStartTime { get; set; }
-
+        
+    	[Unique]
         public Guid CoordinatorId { get; set; }
 
         public DateTime? LastUpdatingCommandRequestUtc { get; set; }
@@ -269,5 +337,7 @@ namespace SmsCoordinator
         public string Topic { get; set; }
 
         public string UserOlsenTimeZone { get; set; }
+
+        public string Username { get; set; }
     }
 }

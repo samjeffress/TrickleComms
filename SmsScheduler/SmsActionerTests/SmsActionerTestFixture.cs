@@ -28,7 +28,7 @@ namespace SmsActionerTests
             Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
                     .ExpectPublish<MessageSent>()
-                    .ExpectReplyToOrginator<MessageSuccessfullyDelivered>()
+                    .ExpectReplyToOriginator<MessageSuccessfullyDelivered>()
                     .ExpectSendLocal<MessageSuccessfullyDelivered>()
                 .When(a => a.Handle(sendOneMessageNow))
                 .AssertSagaCompletionIs(true);
@@ -46,7 +46,7 @@ namespace SmsActionerTests
             Test.Initialize();
             Test.Saga<SmsActioner.SmsActioner>()
                 .WithExternalDependencies(a => a.SmsService = smsService)
-                    .ExpectReplyToOrginator<MessageFailedSending>()
+                    .ExpectReplyToOriginator<MessageFailedSending>()
                     .ExpectSendLocal<MessageFailedSending>()
                 .When(a => a.Handle(sendOneMessageNow))
                 .AssertSagaCompletionIs(true);
@@ -70,7 +70,7 @@ namespace SmsActionerTests
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectPublish<MessageSent>()
-                    .ExpectReplyToOrginator<MessageSuccessfullyDelivered>()
+                    .ExpectReplyToOriginator<MessageSuccessfullyDelivered>()
                     .ExpectSendLocal<MessageSuccessfullyDelivered>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
@@ -95,7 +95,7 @@ namespace SmsActionerTests
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .When(a => a.Handle(sendOneMessageNow))
                     .ExpectNotPublish<MessageSent>()
-                    .ExpectReplyToOrginator<MessageFailedSending>()
+                    .ExpectReplyToOriginator<MessageFailedSending>()
                     .ExpectSendLocal<MessageFailedSending>()
                 .WhenSagaTimesOut()
                 .AssertSagaCompletionIs(true);
@@ -124,7 +124,7 @@ namespace SmsActionerTests
                     .ExpectTimeoutToBeSetIn<SmsPendingTimeout>((timeoutMessage, timespan) => timespan == TimeSpan.FromSeconds(10))
                 .WhenSagaTimesOut()
                     .ExpectPublish<MessageSent>()
-                    .ExpectReplyToOrginator<MessageSuccessfullyDelivered>()
+                    .ExpectReplyToOriginator<MessageSuccessfullyDelivered>()
                     .ExpectSendLocal<MessageSuccessfullyDelivered>()
                 .WhenSagaTimesOut();
         }

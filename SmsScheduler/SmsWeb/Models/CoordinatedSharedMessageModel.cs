@@ -7,7 +7,7 @@ using SmsMessages.Coordinator.Commands;
 
 namespace SmsWeb.Models
 {
-    public class CoordinatedSharedMessageModel
+    public class CoordinatedSharedMessageModel : CoordinatorTypeModel
     {
         public CoordinatedSharedMessageModel()
         {
@@ -20,56 +20,13 @@ namespace SmsWeb.Models
         [Required]
         public string Message { get; set; }
 
-        [Required]
-        public DateTime StartTime { get; set; }
-
-        [Required]
-        public string UserTimeZone { get; set; }
-
-        public int? TimeSeparatorSeconds { get; set; }
-
-        public DateTime? SendAllBy { get; set; }
-
-        public bool? SendAllAtOnce { get; set; }
-
-        public string Tags { get; set; }
-
-        public string Topic { get; set; }
-
-        public string ConfirmationEmail { get; set; }
-
-        public List<Guid> CoordinatorsToExclude { get; set; }
-
-        public List<string> GetTagList()
-        {
-            return string.IsNullOrWhiteSpace(Tags) ? null : Tags.Split(new[] { ',', ';', ':' }).ToList().Select(t => t.Trim()).ToList();
-        }
-
-        public List<string> GetEmailList()
-        {
-            return string.IsNullOrWhiteSpace(ConfirmationEmail) ? null : ConfirmationEmail.Split(new[] {',', ';', ':'}).ToList().Select(t => t.Trim()).ToList();
-        }
-
         public List<string> GetCleanInternationalisedNumbers(CountryCodeReplacement countryCodeReplacement)
         {
             return Numbers.Split(new[] { ',', ';', ':' }).Select(number => countryCodeReplacement != null ? countryCodeReplacement.CleanAndInternationaliseNumber(number) : number.Trim()).ToList();
         }
 
-        public bool IsMessageTypeValid()
-        {
-            try
-            {
-                GetMessageTypeFromModel();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         // TODO : Add tests for this method
-        public Type GetMessageTypeFromModel()
+        public override Type GetMessageTypeFromModel()
         {
             Type requestType = typeof(object);
             var trueCount = 0;
