@@ -37,7 +37,16 @@ namespace SmsWeb.Models
                 PausedCount = pausedSummary == null ? 0 : pausedSummary.Count,
             };
             MessageBody = coordinatorTrackingData.MessageBody;
+            CoordinatorSummary = coordinatorSummary;
+            EmailBody = coordinatorTrackingData.EmailData != null ? coordinatorTrackingData.EmailData.BodyHtml : string.Empty;
+            SmsBody = coordinatorTrackingData.SmsBody ?? string.Empty;
         }
+
+        public string SmsBody { get; set; }
+
+        public string EmailBody { get; set; }
+
+        public List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult> CoordinatorSummary { get; set; }
 
         public Guid CoordinatorId { get; set; }
 

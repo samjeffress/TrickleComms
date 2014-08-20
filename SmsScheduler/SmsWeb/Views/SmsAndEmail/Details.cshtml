@@ -157,12 +157,45 @@
          }
     }
 </table>
-<div class="progress active" style="max-width: 100%;">
-    <div class="bar bar-info" id="progress_waiting" title="Waiting to be scheduled"></div>
-    <div class="bar bar-info" id="progress_scheduled" title="Scheduled to be sent"></div>
-    <div class="bar bar-info" id="progress_paused" title="Paused"></div>
-    <div class="bar bar-success" id="progress_success" title="Delivered!"></div>
-    <div class="bar bar-danger" id="progress_failed" title="Delivery failed"></div>
-    <div class="bar bar-danger" id="progress_cancelled" title="Cancelled"></div>
-</div>
+@*<div class="progress active" style="max-width: 100%;">*@
+@*    <div class="bar bar-info" id="progress_waiting" title="Waiting to be scheduled"></div>*@
+@*    <div class="bar bar-info" id="progress_scheduled" title="Scheduled to be sent"></div>*@
+@*    <div class="bar bar-info" id="progress_paused" title="Paused"></div>*@
+@*    <div class="bar bar-success" id="progress_success" title="Delivered!"></div>*@
+@*    <div class="bar bar-danger" id="progress_failed" title="Delivery failed"></div>*@
+@*    <div class="bar bar-danger" id="progress_cancelled" title="Cancelled"></div>*@
+@*</div>*@
+
+@if (Model.CoordinatorSummary.Count(c => c.Type == ScheduleType.Sms) > 0)
+{
+    <div>
+        <h3>SMS</h3>
+        <p>@Model.SmsBody</p>
+        <table class="table minwidth-table">
+            <thead><tr><th>Status</th><th>Count</th><th>Cost</th></tr></thead>
+            <tbody>
+                @foreach (var summary in Model.CoordinatorSummary.Where(c => c.Type == ScheduleType.Sms))
+                {
+                    <tr><td>@summary.Status</td><td>@summary.Count</td><td>@summary.Cost</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+@if (Model.CoordinatorSummary.Count(c => c.Type == ScheduleType.Email) > 0)
+{
+    <div>
+        <h3>Email</h3>
+        <p>@Model.EmailBody</p>
+        <table class="table minwidth-table">
+            <thead><tr><th>Status</th><th>Count</th></tr></thead>
+            <tbody>
+                @foreach (var summary in Model.CoordinatorSummary.Where(c => c.Type == ScheduleType.Email))
+                {
+                    <tr><td>@summary.Status</td><td>@summary.Count</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
 
