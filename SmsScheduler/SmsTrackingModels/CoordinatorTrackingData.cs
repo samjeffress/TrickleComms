@@ -115,6 +115,8 @@ namespace SmsTrackingModels
                 return MessageStatusTracking.WaitingForScheduling;
             if (messageStatus == MessageStatus.Scheduled)
                 return MessageStatusTracking.Scheduled;
+            if (messageStatus == MessageStatus.Delivered)
+                return MessageStatusTracking.Delivered;
             throw new NotImplementedException();
         }
     }
@@ -143,6 +145,8 @@ namespace SmsTrackingModels
         WaitingForScheduling,
         Scheduled,
         Paused,
+        // Delivered - email has been sent to server, not sure if user has got it yet
+        Delivered,
         CompletedSuccess,
         CompletedFailure
     }

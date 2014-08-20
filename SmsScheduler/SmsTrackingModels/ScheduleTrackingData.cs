@@ -26,5 +26,13 @@ namespace SmsTrackingModels
         public string Username { get; set; }
 
         public EmailData EmailData { get; set; }
+
+        public ScheduleType ScheduleType { get; set; }
+    }
+
+    public enum ScheduleType
+    {
+        Email,
+        Sms
     }
 }

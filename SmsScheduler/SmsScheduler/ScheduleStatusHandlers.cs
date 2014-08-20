@@ -30,7 +30,8 @@ namespace SmsScheduler
                         ScheduleId = message.ScheduleId,
                         EmailData = message.EmailData, 
                         SmsMetaData = new SmsMetaData { Tags = message.Tags, Topic = message.Topic },
-                        ScheduleTimeUtc = message.ScheduleTimeUtc
+                        ScheduleTimeUtc = message.ScheduleTimeUtc,
+                        ScheduleType = ScheduleType.Email
                     };
                     session.Store(scheduleTracker, message.ScheduleId.ToString());
                 }
@@ -56,7 +57,8 @@ namespace SmsScheduler
                         ScheduleId = message.ScheduleId,
                         SmsData = message.SmsData,
                         SmsMetaData = message.SmsMetaData,
-                        ScheduleTimeUtc = message.ScheduleTimeUtc
+                        ScheduleTimeUtc = message.ScheduleTimeUtc,
+                        ScheduleType = ScheduleType.Sms
                     };
                     session.Store(scheduleTracker, message.ScheduleId.ToString());
                 }

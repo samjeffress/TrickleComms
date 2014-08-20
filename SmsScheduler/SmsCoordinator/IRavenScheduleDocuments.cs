@@ -89,7 +89,8 @@ namespace SmsCoordinator
                         SmsData = scheduleSmsForSendingLater.SmsData,
                         SmsMetaData = scheduleSmsForSendingLater.SmsMetaData,
                         ScheduleTimeUtc = scheduleSmsForSendingLater.SendMessageAtUtc,
-                        CoordinatorId = coordinatorId
+                        CoordinatorId = coordinatorId,
+                        ScheduleType = ScheduleType.Sms
                     };
                     session.Store(scheduleTracker, scheduleSmsForSendingLater.ScheduleMessageId.ToString());
                 }
@@ -122,7 +123,8 @@ namespace SmsCoordinator
                             SmsMetaData = smsSchedule.SmsMetaData,
                             ScheduleTimeUtc = smsSchedule.SendMessageAtUtc,
                             CoordinatorId = coordinatorId,
-                            Username = smsSchedule.Username
+                            Username = smsSchedule.Username,
+                            ScheduleType = ScheduleType.Sms
                         };
                         session.Store(scheduleTracker, smsSchedule.ScheduleMessageId.ToString());   
                     }
@@ -138,7 +140,8 @@ namespace SmsCoordinator
                             SmsMetaData = new SmsMetaData { Tags = emailSchedule.Tags, Topic = emailSchedule.Topic },
                             ScheduleTimeUtc = emailSchedule.SendMessageAtUtc,
                             CoordinatorId = coordinatorId,
-                            Username = emailSchedule.Username
+                            Username = emailSchedule.Username,
+                            ScheduleType = ScheduleType.Email
                         };
                         session.Store(scheduleTracker, emailSchedule.ScheduleMessageId.ToString());  
                     }
