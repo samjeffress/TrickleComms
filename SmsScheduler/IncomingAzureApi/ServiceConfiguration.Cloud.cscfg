@@ -3,9 +3,9 @@
   <Role name="IncomingSmsHandler">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="***REMOVED***=" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="" />
       <Setting name="MessageForwardingInCaseOfFaultConfig" value="error" />
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="***REMOVED***" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="" />
     </ConfigurationSettings>
     <Certificates>
     </Certificates>
