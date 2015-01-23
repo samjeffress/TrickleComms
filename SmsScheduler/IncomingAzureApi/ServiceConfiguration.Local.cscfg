@@ -5,7 +5,7 @@
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="MessageForwardingInCaseOfFaultConfig" value="error" />
-      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="***REMOVED***" />
+      <Setting name="AzureServiceBusQueueConfig.ConnectionString" value="******REMOVED*******" />
     </ConfigurationSettings>
     <Certificates>
     </Certificates>
