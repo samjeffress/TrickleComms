@@ -35,7 +35,7 @@ namespace SmsWebTests
 
             SendOneMessageNow sendMessageNow = null;
             bus.Expect(b => b.Send(Arg<SendOneMessageNow>.Is.Anything))
-                .WhenCalled(b => sendMessageNow = (SendOneMessageNow) ((object[]) b.Arguments[0])[0]);
+                .WhenCalled(b => sendMessageNow = (SendOneMessageNow) b.Arguments[0]);
 
             var receivedMessageController = new ReceivedMessageController
             {
