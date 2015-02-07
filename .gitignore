@@ -23,3 +23,6 @@ build_output
 *.cscfg
 csx
 rcf
+
+#xamarin
+*.userprefs

@@ -2,6 +2,7 @@
 
 namespace SmsMessages.Email.Events
 {
+	[Obsolete("Using webhooks, so don't need to have internal messages as we aren't doing timeouts")]
     public class EmailSent
     {
         public string EmailAddress { get; set; }

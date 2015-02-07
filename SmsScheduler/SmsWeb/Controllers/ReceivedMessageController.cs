@@ -60,7 +60,8 @@ namespace SmsWeb.Controllers
                 incomingSms.Acknowledge = true;
                 session.SaveChanges();
             }
-            return Index();
+//            return RedirectToAction("Index"); //should it be this?
+             return Index();
         }
 
         public PartialViewResult Ignore(string incomingSmsId)
