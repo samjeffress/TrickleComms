@@ -34,7 +34,8 @@ namespace SmsWeb.Filters
                         if (!context.Database.Exists())
                         {
                             // Create the SimpleMembership database without Entity Framework migration schema
-                            ((IObjectContextAdapter)context).ObjectContext.CreateDatabase();
+							// TODO: Readd when we get build sorted on mac 
+//                            ((IObjectContextAdapter)context).ObjectContext.CreateDatabase();
                         }
                     }
 
