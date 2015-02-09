@@ -14,7 +14,7 @@ namespace SmsCoordinator
     public class CoordinateSmsScheduler : 
         Saga<CoordinateSmsSchedulingData>,
         IAmStartedByMessages<TrickleSmsOverCalculatedIntervalsBetweenSetDates>, 
-        IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
+//        IAmStartedByMessages<TrickleSmsWithDefinedTimeBetweenEachMessage>,
         IAmStartedByMessages<TrickleSmsAndEmailBetweenSetTimes>,
         IAmStartedByMessages<SendAllMessagesAtOnce>,
         IHandleMessages<PauseTrickledMessagesIndefinitely>,
@@ -72,46 +72,46 @@ namespace SmsCoordinator
             Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
         }
 
-        public void Handle(TrickleSmsWithDefinedTimeBetweenEachMessage message)
-        {
-            Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
-            Data.OriginalScheduleStartTime = message.StartTimeUtc;
-            Data.EmailAddresses = message.ConfirmationEmails;
-            Data.UserOlsenTimeZone = message.UserOlsenTimeZone;
-            Data.Topic = message.MetaData.Topic;
-            var messageList = new List<ScheduleSmsForSendingLater>();
-            DateTime lastScheduledMessageTime = DateTime.Now;
-            for(int i = 0; i < message.Messages.Count; i++)
-            {
-                var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
-                lastScheduledMessageTime = message.StartTimeUtc.Add(extraTime);
-                var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
-                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId, message.Username)
-                {
-                    CorrelationId = Data.CoordinatorId
-                };
-                messageList.Add(smsForSendingLater);
-            }
-            messageList.ForEach(m => Bus.Send(m));
-            //Bus.Send(messageList.ToArray());
-            var coordinatorCreated = new CoordinatorCreated
-            {
-                CoordinatorId = Data.CoordinatorId,
-                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTimeUtc = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
-                CreationDateUtc = DateTime.UtcNow,
-                MetaData = message.MetaData,
-                ConfirmationEmailAddresses = message.ConfirmationEmails,
-                UserOlsenTimeZone = message.UserOlsenTimeZone,
-                MessageBody = message.Messages.First().Message,
-                MessageCount = message.Messages.Count
-            };
-            Bus.Publish(coordinatorCreated);
-            Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
-            RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
-
-            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
-            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
-        }
+//        public void Handle(TrickleSmsWithDefinedTimeBetweenEachMessage message)
+//        {
+//            Data.CoordinatorId = message.CoordinatorId == Guid.Empty ? Data.Id : message.CoordinatorId;
+//            Data.OriginalScheduleStartTime = message.StartTimeUtc;
+//            Data.EmailAddresses = message.ConfirmationEmails;
+//            Data.UserOlsenTimeZone = message.UserOlsenTimeZone;
+//            Data.Topic = message.MetaData.Topic;
+//            var messageList = new List<ScheduleSmsForSendingLater>();
+//            DateTime lastScheduledMessageTime = DateTime.Now;
+//            for(int i = 0; i < message.Messages.Count; i++)
+//            {
+//                var extraTime = TimeSpan.FromTicks(message.TimeSpacing.Ticks*i);
+//                lastScheduledMessageTime = message.StartTimeUtc.Add(extraTime);
+//                var smsData = new SmsData(message.Messages[i].Mobile, message.Messages[i].Message);
+//                var smsForSendingLater = new ScheduleSmsForSendingLater(message.StartTimeUtc.Add(extraTime), smsData, message.MetaData, Data.CoordinatorId, message.Username)
+//                {
+//                    CorrelationId = Data.CoordinatorId
+//                };
+//                messageList.Add(smsForSendingLater);
+//            }
+//            messageList.ForEach(m => Bus.Send(m));
+//            //Bus.Send(messageList.ToArray());
+//            var coordinatorCreated = new CoordinatorCreated
+//            {
+//                CoordinatorId = Data.CoordinatorId,
+//                ScheduledMessages = messageList.Select(m => new MessageSchedule { Number = m.SmsData.Mobile, ScheduledTimeUtc = m.SendMessageAtUtc, ScheduleMessageId = m.ScheduleMessageId }).ToList(),
+//                CreationDateUtc = DateTime.UtcNow,
+//                MetaData = message.MetaData,
+//                ConfirmationEmailAddresses = message.ConfirmationEmails,
+//                UserOlsenTimeZone = message.UserOlsenTimeZone,
+//                MessageBody = message.Messages.First().Message,
+//                MessageCount = message.Messages.Count
+//            };
+//            Bus.Publish(coordinatorCreated);
+//            Bus.SendLocal(new CoordinatorCreatedEmail(coordinatorCreated));
+//            RequestUtcTimeout<CoordinatorTimeout>(lastScheduledMessageTime.AddMinutes(2));
+//
+//            RavenScheduleDocuments.SaveCoordinator(coordinatorCreated);
+//            RavenScheduleDocuments.SaveSchedules(messageList, Data.CoordinatorId);
+//        }
 
         public void Handle(TrickleSmsAndEmailBetweenSetTimes message)
         {

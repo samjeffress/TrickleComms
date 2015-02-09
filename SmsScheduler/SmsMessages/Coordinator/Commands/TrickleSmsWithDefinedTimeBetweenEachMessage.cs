@@ -4,6 +4,7 @@ using SmsMessages.CommonData;
 
 namespace SmsMessages.Coordinator.Commands
 {
+	[Obsolete("Simplifying by only using TrickleSmsOverCalculatedIntervalsBetweenSetDates", true)]
     public class TrickleSmsWithDefinedTimeBetweenEachMessage
     {
         public TrickleSmsWithDefinedTimeBetweenEachMessage()

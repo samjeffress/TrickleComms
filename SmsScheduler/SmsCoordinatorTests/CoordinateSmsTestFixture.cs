@@ -126,201 +126,12 @@ namespace SmsCoordinatorTests
 
             timingManager.VerifyAllExpectations();
         }
-
-        [Test]
-        public void TrickleThreeMessagesSpacedAMinuteApart()
-        {
-            var coordinatorId = Guid.NewGuid();
-            var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
-            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
-            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
-            var startTime = DateTime.Now.AddHours(3);
-            var timeSpacing = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
-            {
-                StartTimeUtc = startTime,
-                Messages = new List<SmsData>
-                {
-                    new SmsData("mobile#1", "message"), 
-                    new SmsData("mobile#2", "message2"),
-                    new SmsData("mobile#3", "message3")
-                },
-                TimeSpacing = timeSpacing,
-                CoordinatorId = coordinatorId,
-                MetaData = new SmsMetaData()
-            };
-
-            var sagaData = new CoordinateSmsSchedulingData {Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
-            Test.Initialize();
-            Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; })
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
-                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
-                .When(s => s.Handle(trickleMultipleMessages))
-                    .AssertSagaCompletionIs(false)
-                    .ExpectPublish<CoordinatorCompleted>()
-                .When(s => s.Timeout(new CoordinatorTimeout()))
-                .AssertSagaCompletionIs(true);
-        }
-
-        [Test]
-        public void TrickleThreeMessagesSpacedAMinuteApartPausedAfterFirstThenResumed()
-        {
-            var coordinatorId = Guid.NewGuid();
-            var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
-            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
-            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
-
-            var startTime = DateTime.Now.AddHours(3);
-            var timeSpacing = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
-            {
-                StartTimeUtc = startTime,
-                Messages = new List<SmsData>
-                {
-                    new SmsData("mobile#1", "message"), 
-                    new SmsData("mobile#2", "message2"),
-                    new SmsData("mobile#3", "message3")
-                },
-                TimeSpacing = timeSpacing,
-                CoordinatorId = coordinatorId,
-                MetaData = new SmsMetaData()
-            };
-
-            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
-            Test.Initialize();
-            Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; })
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
-                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
-                .When(s => s.Handle(trickleMultipleMessages))
-                    .ExpectSend<PauseScheduledMessageIndefinitely>()
-                    .ExpectSend<PauseScheduledMessageIndefinitely>()
-                .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
-                    .ExpectSend<ResumeScheduledMessageWithOffset>()
-                    .ExpectSend<ResumeScheduledMessageWithOffset>()
-                .When(s => s.Handle(new ResumeTrickledMessages()))
-                    .AssertSagaCompletionIs(false)
-                    .ExpectPublish<CoordinatorCompleted>()
-                .When(s => s.Timeout(new CoordinatorTimeout()))
-                .AssertSagaCompletionIs(true);
-        }
-
-        [Test]
-        public void TrickleThreeMessagesSpacedAMinuteApartPausedAfterFirstThenRescheduled()
-        {
-            var coordinatorId = Guid.NewGuid();
-            var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
-            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
-            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
-            var startTime = DateTime.Now.AddHours(3);
-            var timeSpacing = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
-            {
-                StartTimeUtc = startTime,
-                Messages = new List<SmsData>
-                {
-                    new SmsData("mobile#1", "message"), 
-                    new SmsData("mobile#2", "message2"),
-                    new SmsData("mobile#3", "message3")
-                },
-                TimeSpacing = timeSpacing,
-                CoordinatorId = coordinatorId,
-                MetaData = new SmsMetaData()
-            };
-
-            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
-            Test.Initialize();
-            Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; })
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
-                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
-                .When(s => s.Handle(trickleMultipleMessages))
-                    .ExpectSend<PauseScheduledMessageIndefinitely>()
-                    .ExpectSend<PauseScheduledMessageIndefinitely>()
-                .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
-                    .ExpectSend<RescheduleScheduledMessageWithNewTime>()
-                    .ExpectSend<RescheduleScheduledMessageWithNewTime>()
-                .When(s => s.Handle(new RescheduleTrickledMessages()))
-                    .AssertSagaCompletionIs(false)
-                    .ExpectPublish<CoordinatorCompleted>()
-                .When(s => s.Timeout(new CoordinatorTimeout()))
-                .AssertSagaCompletionIs(true);
-        }
-
-        [Test]
-        public void TrickleThreeMessagesPausedAfterFirstThenResumed()
-        {
-            var coordinatorId = Guid.NewGuid();
-            var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
-            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
-            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
-            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
-            var startTime = DateTime.Now.AddHours(3);
-            var timeSpacing = new TimeSpan(0, 10, 0);
-            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
-            {
-                StartTimeUtc = startTime,
-                Messages = new List<SmsData>
-                {
-                    new SmsData("mobile#1", "message"), 
-                    new SmsData("mobile#2", "message2"),
-                    new SmsData("mobile#3", "message3")
-                },
-                TimeSpacing = timeSpacing,
-                CoordinatorId = coordinatorId,
-                MetaData = new SmsMetaData()
-            };
-
-            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
-            Test.Initialize();
-            Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; })
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
-                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
-                .When(s => s.Handle(trickleMultipleMessages))
-                    .ExpectSend<PauseScheduledMessageIndefinitely>()
-                    .ExpectSend<PauseScheduledMessageIndefinitely>()
-                .When(s => s.Handle(new PauseTrickledMessagesIndefinitely()))
-                    .ExpectSend<ResumeScheduledMessageWithOffset>()
-                    .ExpectSend<ResumeScheduledMessageWithOffset>()
-                .When(s => s.Handle(new ResumeTrickledMessages()))
-                    .AssertSagaCompletionIs(false)
-                    .ExpectPublish<CoordinatorCompleted>()
-                .When(s => s.Timeout(new CoordinatorTimeout()))
-                .AssertSagaCompletionIs(true);
-        }
         
         [Test]
         public void TrickleThreeMessagesFirstSentPausedThenResumedOutOfOrder()
         {
             var startTime = DateTime.Now.AddHours(3);
-            var timeSpacing = new TimeSpan(0, 10, 0);
+            var duration = new TimeSpan(0, 10, 0);
             var coordinatorId = Guid.NewGuid();
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
@@ -329,7 +140,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
             ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
-            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
+			var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
                 StartTimeUtc = startTime,
                 Messages = new List<SmsData>
@@ -337,8 +148,8 @@ namespace SmsCoordinatorTests
                     new SmsData("mobile#1", "message"), 
                     new SmsData("mobile#2", "message2"),
                     new SmsData("mobile#3", "message3")
-                },
-                TimeSpacing = timeSpacing,
+                }, 
+				Duration = duration,
                 CoordinatorId = coordinatorId,
                 MetaData = new SmsMetaData()
             };
@@ -369,7 +180,7 @@ namespace SmsCoordinatorTests
         {
             var coordinatorId = Guid.NewGuid();
             var startTime = DateTime.Now.AddHours(3);
-            var timeSpacing = new TimeSpan(0, 10, 0);
+            var duration = new TimeSpan(0, 10, 0);
             var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
             ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.Anything, Arg<Guid>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetActiveScheduleTrackingData(coordinatorId)).Return(new List<ScheduleTrackingData> { new ScheduleTrackingData(), new ScheduleTrackingData() });
@@ -379,7 +190,7 @@ namespace SmsCoordinatorTests
             ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
             ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
-            var trickleMultipleMessages = new TrickleSmsWithDefinedTimeBetweenEachMessage
+			var trickleMultipleMessages = new TrickleSmsOverCalculatedIntervalsBetweenSetDates
             {
                 StartTimeUtc = startTime,
                 Messages = new List<SmsData>
@@ -388,7 +199,7 @@ namespace SmsCoordinatorTests
                     new SmsData("mobile#2", "message2"),
                     new SmsData("mobile#3", "message3")
                 },
-                TimeSpacing = timeSpacing,
+                Duration = duration,
                 CoordinatorId = coordinatorId,
                 MetaData = new SmsMetaData()
             };
@@ -527,60 +338,6 @@ namespace SmsCoordinatorTests
 
             Assert.That(sendingMessages.Count, Is.EqualTo(2));
             timingManager.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void TrickleMessagesSpacedByTimespan_Data()
-        {
-            var messageList = new List<SmsData> { new SmsData("9384938", "3943lasdkf;j"), new SmsData("99999", "dj;alsdfkj") };
-            var trickleMessagesOverTime = new TrickleSmsWithDefinedTimeBetweenEachMessage {  TimeSpacing = new TimeSpan(1000), Messages = messageList, StartTimeUtc = DateTime.Now, UserOlsenTimeZone = "timeZone", CoordinatorId = Guid.NewGuid(), MetaData = new SmsMetaData()};
-            var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
-            var sendingMessages = new List<ScheduleSmsForSendingLater>();
-            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<ScheduleSmsForSendingLater>>.Is.NotNull, Arg<Guid>.Is.Equal(trickleMessagesOverTime.CoordinatorId)))
-                .WhenCalled(r => sendingMessages = (List<ScheduleSmsForSendingLater>)r.Arguments[0]);
-            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreated>.Is.Anything));
-
-            var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
-            
-            var sagaData = new CoordinateSmsSchedulingData { Originator = "originator", Id = Guid.NewGuid() };
-            Test.Initialize();
-            Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(s =>
-                {
-                    s.TimingManager = timingManager;
-                    s.Data = sagaData;
-                    s.RavenScheduleDocuments = ravenScheduleDocuments;
-                })
-                    .ExpectSend<ScheduleSmsForSendingLater>(l =>
-                        //l.Count == 2 &&
-                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks &&
-                        l.SmsData.Message == trickleMessagesOverTime.Messages[0].Message &&
-                        l.SmsData.Mobile == trickleMessagesOverTime.Messages[0].Mobile &&
-                        l.SmsMetaData == trickleMessagesOverTime.MetaData)
-                    .ExpectSend<ScheduleSmsForSendingLater>(l => 
-                        l.SendMessageAtUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
-                        l.SmsData.Message == trickleMessagesOverTime.Messages[1].Message &&
-                        l.SmsData.Mobile == trickleMessagesOverTime.Messages[1].Mobile &&
-                        l.SmsMetaData == trickleMessagesOverTime.MetaData)
-                    .ExpectPublish<CoordinatorCreated>(c =>
-                        c.CoordinatorId == trickleMessagesOverTime.CoordinatorId &&
-                        c.ScheduledMessages.Count == 2 &&
-                        c.ScheduledMessages[0].Number == trickleMessagesOverTime.Messages[0].Mobile &&
-                        c.ScheduledMessages[0].ScheduleMessageId == sendingMessages[0].ScheduleMessageId && 
-                        c.ScheduledMessages[0].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[0].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks &&
-
-                        c.ScheduledMessages[1].Number == trickleMessagesOverTime.Messages[1].Mobile &&
-                        c.ScheduledMessages[1].ScheduleMessageId == sendingMessages[1].ScheduleMessageId && 
-                        c.ScheduledMessages[1].ScheduleMessageId != Guid.Empty && // HACK : Need to make this valid
-                        c.ScheduledMessages[1].ScheduledTimeUtc.Ticks == trickleMessagesOverTime.StartTimeUtc.Ticks + trickleMessagesOverTime.TimeSpacing.Ticks &&
-                        c.UserOlsenTimeZone == trickleMessagesOverTime.UserOlsenTimeZone)
-                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => timeout == trickleMessagesOverTime.StartTimeUtc.Add(trickleMessagesOverTime.TimeSpacing).AddMinutes(2))
-                .When(s => s.Handle(trickleMessagesOverTime));
-
-            Assert.That(sendingMessages.Count, Is.EqualTo(2));
-            timingManager.VerifyAllExpectations();
-            ravenScheduleDocuments.VerifyAllExpectations();
         }
 
         [Test]
@@ -755,81 +512,6 @@ namespace SmsCoordinatorTests
                     .ExpectSendLocal<CoordinatorCompleteEmailWithSummary>()
                 .When(s => s.Timeout(new CoordinatorTimeout()))
                 .AssertSagaCompletionIs(true);
-        }
-
-        [Test]
-        public void TrickleThreeMessagesOverTenMinutesSmsAndEmailOneMessageFailsCoordinatorStillCompletes()
-        {
-            var coordinatorId = Guid.NewGuid();
-            var smsAndEmailDataId = Guid.NewGuid().ToString();
-            var ravenScheduleDocuments = MockRepository.GenerateStrictMock<IRavenScheduleDocuments>();
-            var listOfSmsAndEmailToSend = new CustomerContactList(new List<CustomerContact>
-                {
-                    new CustomerContact { CustomerName = "barry", EmailAddress = "barry@email.com", MobileNumber = "+61488888888" },
-                    new CustomerContact { CustomerName = "toby", EmailAddress = string.Empty, MobileNumber = "+6141111111" },
-                    new CustomerContact { CustomerName = "frank", EmailAddress = "frank@gmail.com", MobileNumber = string.Empty }
-                });
-            ravenScheduleDocuments.Expect(r => r.GetSmsAndEmailCoordinatorData(smsAndEmailDataId)).Return(listOfSmsAndEmailToSend);
-            ravenScheduleDocuments.Expect(r => r.SaveCoordinator(Arg<CoordinatorCreatedWithEmailAndSms>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.SaveSchedules(Arg<List<object>>.Is.Anything, Arg<Guid>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.AreCoordinatedSchedulesComplete(coordinatorId)).Return(true);
-            ravenScheduleDocuments.Expect(r => r.MarkCoordinatorAsComplete(Arg<Guid>.Is.Equal(coordinatorId), Arg<DateTime>.Is.Anything));
-            ravenScheduleDocuments.Expect(r => r.GetScheduleSummary(coordinatorId)).Return(new List<ScheduledMessagesStatusCountInCoordinatorIndex.ReduceResult>());
-            var startTime = DateTime.Now.AddHours(3);
-            var duration = new TimeSpan(0, 10, 0);
-
-            var trickleMultipleMessages = new TrickleSmsAndEmailBetweenSetTimes()
-            {
-                StartTimeUtc = startTime,
-                SmsAndEmailDataId = smsAndEmailDataId,
-                Duration = duration,
-                CoordinatorId = coordinatorId,
-                MetaData = new SmsMetaData(),
-                EmailData = new EmailData()
-            };
-
-            var timingManager = MockRepository.GenerateMock<ICalculateSmsTiming>();
-            var messageTiming = new List<DateTime> { startTime, startTime.AddMinutes(5), startTime.AddMinutes(10) };
-            timingManager.Expect(t => t.CalculateTiming(startTime, duration, 3))
-                .Return(messageTiming);
-
-            var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
-            Test.Initialize();
-            Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(s =>
-                {
-                    s.TimingManager = timingManager;
-                    s.Data = sagaData;
-                    s.RavenScheduleDocuments = ravenScheduleDocuments;
-                })
-                    .ExpectSendToDestination<ScheduleSmsForSendingLater>((l, d) => 
-                        l.SmsData.Mobile == listOfSmsAndEmailToSend.CustomerContacts[0].MobileNumber && 
-                        l.SendMessageAtUtc == messageTiming[0] &&
-                        d.Queue == "smsscheduler")
-                    .ExpectSendToDestination<ScheduleEmailForSendingLater>((l, d) =>
-                        l.EmailData.ToAddress == listOfSmsAndEmailToSend.CustomerContacts[0].EmailAddress &&
-                        // TODO: some asserts around subject / from
-                        l.SendMessageAtUtc == messageTiming[0] &&
-                        d.Queue == "smsscheduler")
-                    //.ExpectSendToDestination<ScheduleSmsForSendingLater>((l, d) => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile && d.Queue == "smsscheduler")
-                    .ExpectSendToDestination<ScheduleSmsForSendingLater>((l, d) => 
-                        l.SmsData.Mobile == listOfSmsAndEmailToSend.CustomerContacts[1].MobileNumber && 
-                        l.SendMessageAtUtc == messageTiming[1] &&
-                        d.Queue == "smsscheduler")
-                    .ExpectSendToDestination<ScheduleEmailForSendingLater>((l, d) =>
-                        l.EmailData.ToAddress == listOfSmsAndEmailToSend.CustomerContacts[2].EmailAddress &&
-                            // TODO: some asserts around subject / from
-                        l.SendMessageAtUtc == messageTiming[2] &&
-                        d.Queue == "smsscheduler")
-                    .ExpectPublish<CoordinatorCreatedWithEmailAndSms>()
-                    .ExpectTimeoutToBeSetAt<CoordinatorTimeout>((state, timeout) => true)
-                .When(s => s.Handle(trickleMultipleMessages))
-                    .AssertSagaCompletionIs(false)
-                    .ExpectPublish<CoordinatorCompleted>()
-                .When(s => s.Timeout(new CoordinatorTimeout()))
-                .AssertSagaCompletionIs(true);
-
-            timingManager.VerifyAllExpectations();
         }
     }
 }
