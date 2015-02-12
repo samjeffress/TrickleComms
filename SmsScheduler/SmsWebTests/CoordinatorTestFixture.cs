@@ -589,44 +589,6 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void CreateEditExcludeCoordinatorTopTenNoCoordinatorsSelected()
-        {
-            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            var docSession = MockRepository.GenerateMock<IDocumentSession>();
-            var docStore = MockRepository.GenerateMock<IDocumentStore>();
-            var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
-            var bus = MockRepository.GenerateMock<IBus>();
-            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
-
-            ravenDocStore.Expect(d => d.GetStore()).Return(docStore);
-            docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
-            docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
-            mapper
-                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
-				.Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates());
-			bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.Anything));
-
-            docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
-            var model = new CoordinatedSharedMessageModel
-            {
-                Numbers = "04040404040, 3984938",
-                Message = "Message",
-                StartTime = DateTime.Now.AddHours(2),
-                CoordinatorsToExclude = new List<Guid>(),
-                TimeSeparatorSeconds = 4,
-                Topic = "frank",
-                UserTimeZone = "Australia/Sydney"
-            };
-
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), RavenDocStore = ravenDocStore, Mapper = mapper, Bus = bus, CurrentUser = currentUser };
-            var actionResult = (RedirectToRouteResult)controller.Create(model);
-
-            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
-
-            ravenDocStore.VerifyAllExpectations();
-        }
-
-        [Test]
         public void RescheduleWithResumeTime()
         {
             var bus = MockRepository.GenerateMock<IBus>();

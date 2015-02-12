@@ -18,9 +18,6 @@ namespace SmsWeb.API
 
         public DateTime StartTimeUtc { get; set; }
 
-		[Obsolete("this refers to 'coordinator separated by defined time' which is no longer available")]
-        public TimeSpan? TimeSeparator { get; set; }
-
         public DateTime? SendAllByUtc { get; set; }
 
         public bool SendAllAtOnce { get; set; }

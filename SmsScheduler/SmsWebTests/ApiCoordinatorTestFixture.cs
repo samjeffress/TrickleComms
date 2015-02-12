@@ -28,31 +28,9 @@ namespace SmsWebTests
         }
 
         [Test]
-        public void PostInvalidBothTimeSeparatorAndSendBySet()
-        {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddMinutes(3), SendAllByUtc = DateTime.Now.AddMinutes(33), TimeSeparator = new TimeSpan(300)};
-            var service = new CoordinatorService();
-            var response = service.OnPost(request) as CoordinatorResponse;
-
-            Assert.That(response.ResponseStatus.ErrorCode, Is.EqualTo("InvalidMessage"));
-            Assert.That(response.ResponseStatus.Errors[0].Message, Is.EqualTo("Message must contain either Time Separator OR DateTime to send all messages by."));
-        }
-
-        [Test]
         public void PostInvalidBothSendAllAtOnceAndSendBySet()
         {
             var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddMinutes(3), SendAllByUtc = DateTime.Now.AddMinutes(33), SendAllAtOnce = true};
-            var service = new CoordinatorService();
-            var response = service.OnPost(request) as CoordinatorResponse;
-
-            Assert.That(response.ResponseStatus.ErrorCode, Is.EqualTo("InvalidMessage"));
-            Assert.That(response.ResponseStatus.Errors[0].Message, Is.EqualTo("Message must contain either Time Separator OR DateTime to send all messages by."));
-        }
-
-        [Test]
-        public void PostInvalidBothTimeSeparatorAndSendAllAtOnceSet()
-        {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddMinutes(3), SendAllAtOnce = true, TimeSeparator = new TimeSpan(300)};
             var service = new CoordinatorService();
             var response = service.OnPost(request) as CoordinatorResponse;
 
@@ -137,26 +115,6 @@ namespace SmsWebTests
             mapper.Expect(m => m.MapToTrickleOverPeriod(Arg<Coordinator>.Is.Equal(request), Arg<Guid>.Is.Anything));
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
             
-            var service = new CoordinatorService { Bus = bus, Mapper = mapper };
-            var response = service.OnPost(request) as CoordinatorResponse;
-
-            Assert.That(response.ResponseStatus.ErrorCode, Is.Null);
-            Assert.That(response.RequestId, Is.Not.EqualTo(Guid.Empty));
-
-            bus.VerifyAllExpectations();
-            mapper.VerifyAllExpectations();
-        }
-
-        [Test]
-        public void PostValidTimeSeparatedCoordinator()
-        {
-            var request = new Coordinator { Message = "msg", Numbers = new List<string> { "1" }, StartTimeUtc = DateTime.Now.AddDays(1), TimeSeparator = new TimeSpan(0,0,3), Topic = "topic"};
-            var bus = MockRepository.GenerateMock<IBus>();
-            var mapper = MockRepository.GenerateMock<ICoordinatorApiModelToMessageMapping>();
-
-            mapper.Expect(m => m.MapToTrickleOverPeriod(Arg<Coordinator>.Is.Equal(request), Arg<Guid>.Is.Anything));
-			bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
-
             var service = new CoordinatorService { Bus = bus, Mapper = mapper };
             var response = service.OnPost(request) as CoordinatorResponse;
 
