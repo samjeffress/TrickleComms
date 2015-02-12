@@ -12,8 +12,6 @@ namespace SmsWeb
     {
         TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers, string username);
 
-        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers, string username);
-
         SendAllMessagesAtOnce MapToSendAllAtOnce(CoordinatedSharedMessageModel coordinatedSharedMessageModel, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers, string username);
 
         TrickleSmsAndEmailBetweenSetTimes MapToTrickleSmsAndEmailOverPeriod(Guid trickleId, string customerContactsId, CoordinatorSmsAndEmailModel model, string username);
@@ -22,25 +20,6 @@ namespace SmsWeb
     // TODO: Make sure username is getting mapped through
     public class CoordinatorModelToMessageMapping : ICoordinatorModelToMessageMapping
     {
-        public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(CoordinatedSharedMessageModel model, CountryCodeReplacement countryCodeReplacement, List<string> excludedNumbers, string username)
-        {
-            return new TrickleSmsWithDefinedTimeBetweenEachMessage
-                {
-                    Messages = model
-                        .GetCleanInternationalisedNumbers(countryCodeReplacement)
-                        .Where(n => !excludedNumbers.Contains(n))
-                        .Select(n => new SmsData(n, model.Message))
-                        .ToList(),
-                    StartTimeUtc = DateTimeOlsenMapping.DateTimeWithOlsenZoneToUtc(model.StartTime, model.UserTimeZone),
-                    TimeSpacing = TimeSpan.FromSeconds(model.TimeSeparatorSeconds.Value),
-                    MetaData = new SmsMetaData { Tags = model.GetTagList(), Topic = model.Topic },
-                    ConfirmationEmail = model.ConfirmationEmail,
-                    ConfirmationEmails = model.GetEmailList(),
-                    UserOlsenTimeZone = model.UserTimeZone,
-                    Username = username
-                };
-        }
-
         public CoordinatorModelToMessageMapping(IDateTimeUtcFromOlsenMapping dateTimeUtcFromOlsenMapping)
         {
             DateTimeOlsenMapping = dateTimeUtcFromOlsenMapping;

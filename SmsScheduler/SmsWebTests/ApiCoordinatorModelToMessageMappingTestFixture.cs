@@ -9,38 +9,6 @@ namespace SmsWebTests
     public class ApiCoordinatorModelToMessageMappingTestFixture
     {
         [Test]
-        public void MapToTrickleSpacedByTimePeriod()
-        {
-            var model = new Coordinator
-                {
-                    Numbers = new List<string> {"04040404040","11111111111" },
-                    Message = "Message",
-                    StartTimeUtc = DateTime.UtcNow.AddHours(2),
-                    TimeSeparator = new TimeSpan(0, 0,0, 90),
-                    Tags = new List<string> {"tag1", "tag2" },
-                    Topic = "Dance Dance Revolution!",
-                    OlsenTimeZone = "Australia/Sydney",
-                    ConfirmationEmails = new List<string> { "email1", "email2" }
-                };
-
-            var requestId = Guid.NewGuid();
-            var mapper = new CoordinatorApiModelToMessageMapping();
-            var message = mapper.MapToTrickleSpacedByPeriod(model, requestId);
-
-            Assert.That(message.Messages.Count, Is.EqualTo(2));
-            Assert.That(message.Messages[0].Mobile, Is.EqualTo(model.Numbers[0]));
-            Assert.That(message.Messages[0].Message, Is.EqualTo(model.Message));
-            Assert.That(message.Messages[1].Mobile, Is.EqualTo(model.Numbers[1]));
-            Assert.That(message.Messages[1].Message, Is.EqualTo(model.Message));
-            Assert.That(message.MetaData.Tags, Is.EqualTo(model.Tags));
-            Assert.That(message.MetaData.Topic, Is.EqualTo(model.Topic));
-            Assert.That(message.StartTimeUtc, Is.EqualTo(model.StartTimeUtc));
-            Assert.That(message.TimeSpacing, Is.EqualTo(model.TimeSeparator));
-            Assert.That(message.UserOlsenTimeZone, Is.EqualTo(model.OlsenTimeZone));
-            Assert.That(message.ConfirmationEmails, Is.EqualTo(model.ConfirmationEmails));
-        }
-
-        [Test]
         public void MapToTrickleOverTimePeriod()
         {
             var model = new Coordinator

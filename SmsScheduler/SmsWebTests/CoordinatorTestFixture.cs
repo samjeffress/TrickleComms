@@ -55,48 +55,6 @@ namespace SmsWebTests
         }
 
         [Test]        
-        public void CreateSeparatedByTimeSpanReturnsDetails()
-        {
-            var model = new CoordinatedSharedMessageModel
-            {
-                Numbers= "04040404040, 04040402",
-                Message = "Message",
-                StartTime = DateTime.Now.AddHours(2),
-                TimeSeparatorSeconds = 5000,
-                Tags = "tag1, tag2",
-                Topic = "New Feature!",
-                UserTimeZone = "Australia/Sydney"
-            };
-
-            var bus = MockRepository.GenerateMock<IBus>();
-            var mapper = MockRepository.GenerateMock<ICoordinatorModelToMessageMapping>();
-            var ravenDocStore = MockRepository.GenerateMock<IRavenDocStore>();
-            var docStore = MockRepository.GenerateMock<IDocumentStore>();
-            var docSession = MockRepository.GenerateMock<IDocumentSession>();
-            var currentUser = MockRepository.GenerateStub<ICurrentUser>();
-
-            ravenDocStore.Expect(r => r.GetStore()).Return(docStore);
-            docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
-            docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
-
-            mapper
-                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage());
-            var trickleMessage = new TrickleSmsWithDefinedTimeBetweenEachMessage();
-            bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.NotNull))
-                .WhenCalled(i => trickleMessage = (TrickleSmsWithDefinedTimeBetweenEachMessage) (i.Arguments[0]));
-
-            var controller = new CoordinatorController { ControllerContext = new ControllerContext(), Bus = bus, Mapper = mapper, RavenDocStore = ravenDocStore, CurrentUser = currentUser };
-            var actionResult = (RedirectToRouteResult)controller.Create(model);
-
-            Assert.That(actionResult.RouteValues["action"], Is.EqualTo("Details"));
-            Assert.That(trickleMessage.CoordinatorId, Is.Not.EqualTo(Guid.Empty));
-
-            bus.VerifyAllExpectations();
-            mapper.VerifyAllExpectations();
-        }
-
-        [Test]        
         public void CreateSendAllAtOnceReturnsDetails()
         {
             var model = new CoordinatedSharedMessageModel
@@ -393,7 +351,7 @@ namespace SmsWebTests
                 Numbers = "04040404040, 1, 2, 3, 7, 12",
                 Message = "asfdkjadfskl asflkj;faskjf;aslkjf;lasdkjfaslkfjas;lkfjslkfjas;lkfjsalkfjas;fklasj;flksdjf;lkasjflskdjflkasjflksjlk lskaf jlsk fdaskl dflksjfalk sflkj sfkl jlkjs flkj skjkj sadflkjsaflj",
                 StartTime = DateTime.Now.AddHours(2),
-                TimeSeparatorSeconds = 3,
+				SendAllBy = DateTime.Now.AddHours(3),
                 CoordinatorsToExclude = new List<Guid> { CoordinatorToExclude1, CoordinatorToExclude2 },
                 Topic = "frank",
                 UserTimeZone = "Australia/Sydney"
@@ -422,8 +380,8 @@ namespace SmsWebTests
 
             List<string> excludeList = null;
             mapper
-                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage())
+                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
+				.Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates())
                 .WhenCalled(t => coordinatorMessage = (CoordinatedSharedMessageModel)(t.Arguments[0]))
                 .WhenCalled(t => excludeList = (List<string>)(t.Arguments[2]));
             bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
@@ -644,9 +602,9 @@ namespace SmsWebTests
             docStore.Expect(d => d.OpenSession("Configuration")).Return(docSession);
             docStore.Expect(d => d.OpenSession("SmsTracking")).Return(SmsTrackingSession);
             mapper
-                .Expect(m => m.MapToTrickleSpacedByPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
-                .Return(new TrickleSmsWithDefinedTimeBetweenEachMessage());
-            bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.Anything));
+                .Expect(m => m.MapToTrickleOverPeriod(Arg<CoordinatedSharedMessageModel>.Is.Anything, Arg<CountryCodeReplacement>.Is.Anything, Arg<List<string>>.Is.Anything, Arg<string>.Is.Anything))
+				.Return(new TrickleSmsOverCalculatedIntervalsBetweenSetDates());
+			bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.Anything));
 
             docSession.Expect(d => d.Load<CountryCodeReplacement>("CountryCodeConfig")).Return(new CountryCodeReplacement());
             var model = new CoordinatedSharedMessageModel

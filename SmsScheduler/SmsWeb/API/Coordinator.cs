@@ -18,6 +18,7 @@ namespace SmsWeb.API
 
         public DateTime StartTimeUtc { get; set; }
 
+		[Obsolete("this refers to 'coordinator separated by defined time' which is no longer available")]
         public TimeSpan? TimeSeparator { get; set; }
 
         public DateTime? SendAllByUtc { get; set; }
@@ -99,21 +100,15 @@ namespace SmsWeb.API
                     coordinatorResponse.RequestId = Guid.NewGuid();
                 else
                     coordinatorResponse.RequestId = request.RequestId;
-                if (GetMessageTypeFromModel(request) == typeof(TrickleSmsWithDefinedTimeBetweenEachMessage))
-                {
-                    var message = Mapper.MapToTrickleSpacedByPeriod(request, coordinatorResponse.RequestId);
-                    Bus.Send(message);
-                }
-                else if (GetMessageTypeFromModel(request) == typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates))
-                {
-                    var message = Mapper.MapToTrickleOverPeriod(request, coordinatorResponse.RequestId);
-                    Bus.Send(message);
-                }
-                else if (GetMessageTypeFromModel(request) == typeof (SendAllMessagesAtOnce))
-                {
-                    var message = Mapper.MapToSendAllAtOnce(request, coordinatorResponse.RequestId);
-                    Bus.Send(message);
-                }
+				if (GetMessageTypeFromModel (request) == typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates)) {
+					var message = Mapper.MapToTrickleOverPeriod (request, coordinatorResponse.RequestId);
+					Bus.Send (message);
+				} else if (GetMessageTypeFromModel (request) == typeof(SendAllMessagesAtOnce)) {
+					var message = Mapper.MapToSendAllAtOnce (request, coordinatorResponse.RequestId);
+					Bus.Send (message);
+				} else {
+					throw new NotImplementedException ("This option has been removed");
+				}
             }
 
             return coordinatorResponse;
@@ -140,11 +135,6 @@ namespace SmsWeb.API
             if (request.SendAllByUtc.HasValue)
             {
                 requestType = typeof (TrickleSmsOverCalculatedIntervalsBetweenSetDates);
-                trueCount++;
-            }
-            if (request.TimeSeparator.HasValue)
-            {
-                requestType = typeof (TrickleSmsWithDefinedTimeBetweenEachMessage);
                 trueCount++;
             }
             if (request.SendAllAtOnce)

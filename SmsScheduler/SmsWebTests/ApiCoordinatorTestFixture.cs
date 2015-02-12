@@ -154,8 +154,8 @@ namespace SmsWebTests
             var bus = MockRepository.GenerateMock<IBus>();
             var mapper = MockRepository.GenerateMock<ICoordinatorApiModelToMessageMapping>();
 
-            mapper.Expect(m => m.MapToTrickleSpacedByPeriod(Arg<Coordinator>.Is.Equal(request), Arg<Guid>.Is.Anything));
-            bus.Expect(b => b.Send(Arg<TrickleSmsWithDefinedTimeBetweenEachMessage>.Is.NotNull));
+            mapper.Expect(m => m.MapToTrickleOverPeriod(Arg<Coordinator>.Is.Equal(request), Arg<Guid>.Is.Anything));
+			bus.Expect(b => b.Send(Arg<TrickleSmsOverCalculatedIntervalsBetweenSetDates>.Is.NotNull));
 
             var service = new CoordinatorService { Bus = bus, Mapper = mapper };
             var response = service.OnPost(request) as CoordinatorResponse;

@@ -35,12 +35,7 @@ namespace SmsWeb.Models
                 requestType = typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates);
                 trueCount++;
             }
-            if (TimeSeparatorSeconds.HasValue)
-            {
-                requestType = typeof(TrickleSmsWithDefinedTimeBetweenEachMessage);
-                trueCount++;
-            }
-            if (SendAllAtOnce.GetValueOrDefault() || Numbers.Split(',').Count() == 1)
+            else if (SendAllAtOnce.GetValueOrDefault() || Numbers.Split(',').Count() == 1)
             {
                 requestType = typeof(SendAllMessagesAtOnce);
                 trueCount++;

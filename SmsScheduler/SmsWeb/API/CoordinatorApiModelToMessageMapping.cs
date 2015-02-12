@@ -9,8 +9,6 @@ namespace SmsWeb.API
     {
         TrickleSmsOverCalculatedIntervalsBetweenSetDates MapToTrickleOverPeriod(Coordinator model, Guid requestId);
 
-        TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(Coordinator model, Guid requestId);
-
         SendAllMessagesAtOnce MapToSendAllAtOnce(Coordinator model, Guid requestId);
     }
 
@@ -25,22 +23,6 @@ namespace SmsWeb.API
                     model.Numbers.Select(n => new SmsData(n, model.Message)).
                     ToList(),
                 StartTimeUtc = model.StartTimeUtc.ToUniversalTime(),
-                MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
-                CoordinatorId = requestId,
-                ConfirmationEmails = model.ConfirmationEmails,
-                UserOlsenTimeZone = string.IsNullOrWhiteSpace(model.OlsenTimeZone) ? "UTC" : model.OlsenTimeZone
-            };
-        }
-
-        public TrickleSmsWithDefinedTimeBetweenEachMessage MapToTrickleSpacedByPeriod(Coordinator model, Guid requestId)
-        {
-            return new TrickleSmsWithDefinedTimeBetweenEachMessage
-            {
-                Messages =
-                    model.Numbers.Select(n => new SmsData(n, model.Message)).
-                    ToList(),
-                StartTimeUtc = model.StartTimeUtc.ToUniversalTime(),
-                TimeSpacing = model.TimeSeparator.Value,
                 MetaData = new SmsMetaData { Tags = model.Tags, Topic = model.Topic },
                 CoordinatorId = requestId,
                 ConfirmationEmails = model.ConfirmationEmails,

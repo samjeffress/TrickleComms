@@ -46,24 +46,17 @@ namespace SmsWeb.Controllers
                 if (coordinatedMessages.Message.Length > 160)
                     coordinatedMessages.Message = coordinatedMessages.Message.Substring(0, 160);
                 var messageTypeRequired = coordinatedMessages.GetMessageTypeFromModel();
-                if (messageTypeRequired == typeof(TrickleSmsWithDefinedTimeBetweenEachMessage))
-                {
-                    var trickleSmsSpacedByTimePeriod = Mapper.MapToTrickleSpacedByPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name());
-                    trickleSmsSpacedByTimePeriod.CoordinatorId = coordinatorId;
-                    Bus.Send(trickleSmsSpacedByTimePeriod);
-                }
-                else if (messageTypeRequired == typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates))
-                {
-                    var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod(coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name());
-                    trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
-                    Bus.Send(trickleSmsOverTimePeriod);    
-                }
-                else if (messageTypeRequired == typeof(SendAllMessagesAtOnce))
-                {
-                    var sendAllAtOnce = Mapper.MapToSendAllAtOnce(coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name());
-                    sendAllAtOnce.CoordinatorId = coordinatorId;
-                    Bus.Send(sendAllAtOnce);    
-                }
+				if (messageTypeRequired == typeof(TrickleSmsOverCalculatedIntervalsBetweenSetDates)) {
+					var trickleSmsOverTimePeriod = Mapper.MapToTrickleOverPeriod (coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name ());
+					trickleSmsOverTimePeriod.CoordinatorId = coordinatorId;
+					Bus.Send (trickleSmsOverTimePeriod);    
+				} else if (messageTypeRequired == typeof(SendAllMessagesAtOnce)) {
+					var sendAllAtOnce = Mapper.MapToSendAllAtOnce (coordinatedMessages, countryCodeReplacement, cleanExcludeList, CurrentUser.Name ());
+					sendAllAtOnce.CoordinatorId = coordinatorId;
+					Bus.Send (sendAllAtOnce);    
+				} else {
+					throw new NotImplementedException ("This option has been removed");
+				}
 
                 return RedirectToAction("Details", "Coordinator", new {coordinatorId = coordinatorId.ToString()});
             }

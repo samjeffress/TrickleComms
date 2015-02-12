@@ -7,6 +7,7 @@ namespace SmsWeb.Models
 {
     public abstract class CoordinatorTypeModel
     {
+		[Obsolete("This refers to 'coordinator with defined time between messages' which is no longer available")]
         public int? TimeSeparatorSeconds { get; set; }
 
         public DateTime? SendAllBy { get; set; }
