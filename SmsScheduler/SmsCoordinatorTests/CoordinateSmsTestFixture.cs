@@ -157,7 +157,7 @@ namespace SmsCoordinatorTests
             var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; })
+				.WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; d.TimingManager = new CalculateSmsTiming();})
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
@@ -207,7 +207,7 @@ namespace SmsCoordinatorTests
             var sagaData = new CoordinateSmsSchedulingData { Id = Guid.NewGuid(), Originator = "o", OriginalMessageId = "i" };
             Test.Initialize();
             Test.Saga<CoordinateSmsScheduler>()
-                .WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; })
+				.WithExternalDependencies(d => { d.Data = sagaData; d.RavenScheduleDocuments = ravenScheduleDocuments; d.TimingManager = new CalculateSmsTiming(); })
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[0].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[1].Mobile)
                     .ExpectSend<ScheduleSmsForSendingLater>(l => l.SmsData.Mobile == trickleMultipleMessages.Messages[2].Mobile)
