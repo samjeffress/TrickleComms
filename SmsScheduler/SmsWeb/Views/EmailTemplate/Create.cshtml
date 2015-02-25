@@ -1,0 +1,34 @@
+﻿@model ConfigurationModels.EmailTemplate
+
+@{
+    ViewBag.Title = "Email Template - Create";
+    Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
+}
+
+<h2>Create</h2>
+
+@using (Html.BeginForm("Create", "EmailTemplate", FormMethod.Post))
+{
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <div class="control-group">
+            @Html.LabelFor(model => model.TemplateName)
+            @Html.EditorFor(model => model.TemplateName)
+            @Html.ValidationMessageFor(model => model.TemplateName)
+        </div>
+
+        <div class="control-group">
+            @Html.LabelFor(model => model.TemplateContent)
+            @Html.TextAreaFor(model => model.TemplateContent)
+            @Html.ValidationMessageFor(model => model.TemplateContent)
+        </div>
+<!-- List of fields -->
+    </fieldset>
+
+
+    <p>
+        <input type="submit" value="Create" />
+    </p>
+}
+

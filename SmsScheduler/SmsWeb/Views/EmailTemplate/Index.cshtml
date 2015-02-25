@@ -1,0 +1,28 @@
+﻿@model List<ConfigurationModels.EmailTemplate>
+
+@{
+    ViewBag.Title = "Email Template - Details";
+    Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
+}
+
+<h2>Index</h2>
+<table>
+	<thead>
+		<tr>
+			<th>Template Name</th>
+			<th>Template</th>
+			<th>Variable Count</th>
+		</tr>
+	</thead>
+	<tbody>
+	@foreach(var template in Model){
+		<tr>
+			<td>@template.TemplateName</td>
+			<!-- shorter version -->
+			<td>@template.TemplateContent</td>
+			<td>@template.TemplateVariables.Count()</td>
+		</tr>
+	}
+	</tbody>
+</table>
+
