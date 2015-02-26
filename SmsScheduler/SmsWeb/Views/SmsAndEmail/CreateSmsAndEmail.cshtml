@@ -46,6 +46,11 @@
 {
     @Html.ValidationSummary(true)
 
+<div>
+<h2>Select template or setup your own content... (add more here)</h2>
+@Html.DropDownListFor(model => model.TemplateName, ViewData["CommunicationTemplates"] as List<SelectListItem>)
+</div>
+
     <fieldset>
         <div class="control-group">
             @Html.LabelFor(model => model.Topic)

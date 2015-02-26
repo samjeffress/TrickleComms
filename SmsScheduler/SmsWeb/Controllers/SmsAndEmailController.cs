@@ -22,7 +22,17 @@ namespace SmsWeb.Controllers
 
         public ActionResult Create()
         {
-            return View("CreateSmsAndEmail");
+
+            List<SelectListItem> templateItems;
+            using (var session = Raven.GetStore().OpenSession("Configuration"))
+            {
+                templateItems.add(new SelectListItem { Selected = true, Text = string.Empty, Value = string.Empty});
+                var templates = session.Query<CommunicationTemplate>().Take(30).ToList();
+                templateItems = templates.Select(c => new SelectListItem { Selected = false, Text = c.TemplateName, Value = c.TemplateName }).ToList();
+            }
+            ViewData.Add("CommunicationTemplates", templateItems);
+
+            return View("CreateSmsAndEmail", );
         }
 
         [HttpPost]

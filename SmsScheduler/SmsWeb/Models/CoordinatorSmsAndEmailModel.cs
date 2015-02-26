@@ -13,6 +13,8 @@ namespace SmsWeb.Models
         [AllowHtml]
         public string EmailHtmlContent { get; set; }
 
+        public string TemplateName { get; set; }
+
         [Required]
         [FileTypes("csv,xls,xlsx")]
         public HttpPostedFileBase FileUpload { get; set; }
