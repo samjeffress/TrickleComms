@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Transactions;
 using System.Web.Mvc;
+using ConfigurationModels;
 using CsvHelper.Configuration;
 using NServiceBus;
 using SmsMessages.CommonData;
@@ -23,16 +24,16 @@ namespace SmsWeb.Controllers
         public ActionResult Create()
         {
 
-            List<SelectListItem> templateItems;
+            var templateItems = new List<SelectListItem>();
             using (var session = Raven.GetStore().OpenSession("Configuration"))
             {
-                templateItems.add(new SelectListItem { Selected = true, Text = string.Empty, Value = string.Empty});
+                templateItems.Add(new SelectListItem { Selected = true, Text = string.Empty, Value = string.Empty});
                 var templates = session.Query<CommunicationTemplate>().Take(30).ToList();
                 templateItems = templates.Select(c => new SelectListItem { Selected = false, Text = c.TemplateName, Value = c.TemplateName }).ToList();
             }
             ViewData.Add("CommunicationTemplates", templateItems);
 
-            return View("CreateSmsAndEmail", );
+            return View("CreateSmsAndEmail");
         }
 
         [HttpPost]

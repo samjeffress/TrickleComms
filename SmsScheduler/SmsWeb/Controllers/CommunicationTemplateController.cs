@@ -66,7 +66,7 @@ namespace SmsWeb.Controllers
 				{
 					throw new Exception("should have a document here...");
 				}
-				return View (existingTemplate);
+				return View(existingTemplate);
 			}
         }
 
@@ -104,12 +104,12 @@ namespace SmsWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult Delete(string templateName)
+        public ActionResult Delete(CommunicationTemplate template)
         {
             try {
 				using(var session = Raven.GetStore().OpenSession("Configuration"))
 				{
-					var existingTemplate = session.Load<CommunicationTemplate>(templateName);
+                    var existingTemplate = session.Load<CommunicationTemplate>(template.TemplateName);
 					if (existingTemplate == null)
 					{
 						throw new Exception("should have a document here...");

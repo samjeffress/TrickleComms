@@ -296,6 +296,7 @@
     <Compile Include="BootstrapSupport\ControlGroupExtensions.cs" />
     <Compile Include="BootstrapSupport\ViewHelperExtensions.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CommunicationTemplateController.cs" />
     <Compile Include="Controllers\CoordinatorController.cs" />
     <Compile Include="CoordinatorModelToMessageMapping.cs" />
     <Compile Include="Controllers\CountryCodeConfigController.cs" />
@@ -485,6 +486,9 @@
     <Content Include="Views\Coordinator\Create.cshtml" />
     <Content Include="Views\Coordinator\Index.cshtml" />
     <Content Include="Views\Home\NoResults.cshtml" />
+    <Content Include="Views\CommunicationTemplate\Create.cshtml" />
+    <Content Include="Views\CommunicationTemplate\Details.cshtml" />
+    <Content Include="Views\CommunicationTemplate\Index.cshtml" />
     <Content Include="Views\Coordinator\DetailsNotCreated.cshtml" />
     <Content Include="Views\Coordinator\CoordinatorPagedOverview.cshtml" />
     <Content Include="Views\Home\ConfigMenu.cshtml" />

@@ -7,10 +7,11 @@
 
 <h2>Details</h2>
     <p>@Model.TemplateName</p>
-    <p>@Model.TemplateContent</p>
-    <ul>
-    @foreach(var variable  = Model.TemplateVariable){
-    	<li>@variable.TemplateName</li>
+    <p>@Model.EmailContent</p>
+    <p>@Model.SmsContent</p>
+<ul>
+    @foreach(var variable in Model.TemplateVariables){
+        <li>@variable.TemplateName</li>
     }
-    </ul>
+</ul>
 
