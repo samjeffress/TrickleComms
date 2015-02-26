@@ -2,10 +2,11 @@ using System.Collections.Generic;
 
 namespace ConfigurationModels
 {
-	public class EmailTemplate
+	public class CommunicationTemplate
 	{
 		public string TemplateName { get; set; }
-		public string TemplateContent { get; set; }
+		public string EmailContent { get; set; }
+		public string SmsContent { get; set; }
 		public List<TemplateVariable> TemplateVariables { get; set; }
 	}
 
@@ -13,5 +14,11 @@ namespace ConfigurationModels
 	{
 		public string TemplateName { get; set; }
 		public bool Mandatory { get; set; }
+	}
+
+	public bool ValidEmailTemplate()
+	{
+		// check variables are correct mostly
+		return true;
 	}
 }

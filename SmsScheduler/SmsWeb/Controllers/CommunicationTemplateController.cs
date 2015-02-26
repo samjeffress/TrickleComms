@@ -6,7 +6,7 @@ using ConfigurationModels;
 
 namespace SmsWeb.Controllers
 {
-    public class EmailTemplateController : Controller
+    public class CommunicationTemplateController : Controller
     {
 		public IRavenDocStore Raven { get; set; }
 		public ICurrentUser CurrentUser { get; set; }
@@ -16,7 +16,7 @@ namespace SmsWeb.Controllers
 			using (var session = Raven.GetStore().OpenSession("Configuration"))
 			{
 				// TODO: Paging ?? 
-				var templates = session.Query<EmailTemplate>().ToList();
+				var templates = session.Query<CommunicationTemplate>().ToList();
 				return View (templates);
 			}
         }
@@ -25,7 +25,7 @@ namespace SmsWeb.Controllers
         {
 			using(var session = Raven.GetStore().OpenSession("Configuration"))
 			{
-				var existingTemplate = session.Load<EmailTemplate>(templateName);
+				var existingTemplate = session.Load<CommunicationTemplate>(templateName);
 				if (existingTemplate == null)
 				{
 					throw new Exception("should have a document here...");
@@ -40,11 +40,11 @@ namespace SmsWeb.Controllers
         } 
 
         [HttpPost]
-        public ActionResult Create(EmailTemplate model)
+        public ActionResult Create(CommunicationTemplate model)
         {
             try {
 				using(var session = Raven.GetStore().OpenSession("Configuration")){
-					var existingTemplate = session.Load<EmailTemplate>(model.TemplateName);
+					var existingTemplate = session.Load<CommunicationTemplate>(model.TemplateName);
 					if (existingTemplate != null){
 						throw new Exception("shouldn't exist");
 					}
@@ -61,7 +61,7 @@ namespace SmsWeb.Controllers
         {
 			using(var session = Raven.GetStore().OpenSession("Configuration"))
 			{
-				var existingTemplate = session.Load<EmailTemplate>(templateName);
+				var existingTemplate = session.Load<CommunicationTemplate>(templateName);
 				if (existingTemplate == null)
 				{
 					throw new Exception("should have a document here...");
@@ -71,12 +71,12 @@ namespace SmsWeb.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(string templateName, EmailTemplate model)
+        public ActionResult Edit(string templateName, CommunicationTemplate model)
         {
             try {
 				using(var session = Raven.GetStore().OpenSession("Configuration"))
 				{
-					var existingTemplate = session.Load<EmailTemplate>(templateName);
+					var existingTemplate = session.Load<CommunicationTemplate>(templateName);
 					if (existingTemplate == null)
 					{
 						throw new Exception("should have a document here...");
@@ -94,7 +94,7 @@ namespace SmsWeb.Controllers
         {
 			using(var session = Raven.GetStore().OpenSession("Configuration"))
 			{
-				var existingTemplate = session.Load<EmailTemplate>(templateName);
+				var existingTemplate = session.Load<CommunicationTemplate>(templateName);
 				if (existingTemplate == null)
 				{
 					throw new Exception("should have a document here...");
@@ -109,7 +109,7 @@ namespace SmsWeb.Controllers
             try {
 				using(var session = Raven.GetStore().OpenSession("Configuration"))
 				{
-					var existingTemplate = session.Load<EmailTemplate>(templateName);
+					var existingTemplate = session.Load<CommunicationTemplate>(templateName);
 					if (existingTemplate == null)
 					{
 						throw new Exception("should have a document here...");

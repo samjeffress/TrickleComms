@@ -1,7 +1,7 @@
-﻿@model ConfigurationModels.EmailTemplate
+﻿@model ConfigurationModels.CommunicationTemplate
 
 @{
-    ViewBag.Title = "Email Template - Create";
+    ViewBag.Title = "Communication Template - Create";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
@@ -19,10 +19,18 @@
         </div>
 
         <div class="control-group">
-            @Html.LabelFor(model => model.TemplateContent)
-            @Html.TextAreaFor(model => model.TemplateContent)
-            @Html.ValidationMessageFor(model => model.TemplateContent)
+            @Html.LabelFor(model => model.EmailContent)
+            @Html.TextAreaFor(model => model.EmailContent)
+            @Html.ValidationMessageFor(model => model.EmailContent)
         </div>
+
+
+        <div class="control-group">
+            @Html.LabelFor(model => model.SmsContent)
+            @Html.TextAreaFor(model => model.SmsContent)
+            @Html.ValidationMessageFor(model => model.SmsContent)
+        </div>
+
 <!-- List of fields -->
     </fieldset>
 

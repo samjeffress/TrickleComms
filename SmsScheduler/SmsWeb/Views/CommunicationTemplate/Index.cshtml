@@ -1,7 +1,7 @@
-﻿@model List<ConfigurationModels.EmailTemplate>
+﻿@model List<ConfigurationModels.CommunicationTemplate>
 
 @{
-    ViewBag.Title = "Email Template - Details";
+    ViewBag.Title = "Communication Template - Details";
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
@@ -10,7 +10,8 @@
 	<thead>
 		<tr>
 			<th>Template Name</th>
-			<th>Template</th>
+			<th>Email Template</th>
+			<th>Sms Template</th>
 			<th>Variable Count</th>
 		</tr>
 	</thead>
@@ -19,7 +20,8 @@
 		<tr>
 			<td>@template.TemplateName</td>
 			<!-- shorter version -->
-			<td>@template.TemplateContent</td>
+			<td>@template.EmailContent</td>
+			<td>@template.SmsContent</td>
 			<td>@template.TemplateVariables.Count()</td>
 		</tr>
 	}
