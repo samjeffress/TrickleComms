@@ -22,7 +22,7 @@
 			<!-- shorter version -->
 			<td>@template.EmailContent</td>
 			<td>@template.SmsContent</td>
-			<td>@template.TemplateVariables.Count()</td>
+			<td>@(template.TemplateVariables == null ? 0 : template.TemplateVariables.Count())</td>
 		</tr>
 	}
 	</tbody>

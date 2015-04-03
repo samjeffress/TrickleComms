@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 using ConfigurationModels;
+using SmsWeb.Models;
 
 namespace SmsWeb.Controllers
 {
@@ -40,7 +40,7 @@ namespace SmsWeb.Controllers
         } 
 
         [HttpPost]
-        public ActionResult Create(CommunicationTemplate model)
+        public ActionResult Create(TemplateModel model)
         {
             try {
 				using(var session = Raven.GetStore().OpenSession("Configuration")){
@@ -48,7 +48,15 @@ namespace SmsWeb.Controllers
 					if (existingTemplate != null){
 						throw new Exception("shouldn't exist");
 					}
-					session.Store(model, model.TemplateName);
+				    var communicationTemplate = new CommunicationTemplate()
+				    {
+				        EmailContent = model.EmailContent,
+				        SmsContent = model.SmsContent,
+				        TemplateName = model.TemplateName,
+                        // TODO : Exstract template variables....
+				        TemplateVariables = null
+				    };
+					session.Store(communicationTemplate, communicationTemplate.TemplateName);
 					session.SaveChanges();
 				}
                 return RedirectToAction ("Index");
