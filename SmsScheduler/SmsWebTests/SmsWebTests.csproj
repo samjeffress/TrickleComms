@@ -95,6 +95,7 @@
     <Compile Include="ApiCoordinatorTestFixture.cs" />
     <Compile Include="ApiSmsScheduleTestFixture.cs" />
     <Compile Include="ApiSmsTestFixture.cs" />
+    <Compile Include="CommunicationTemplateTestFixture.cs" />
     <Compile Include="CoordinatorModelToMessageMappingTestFixture.cs" />
     <Compile Include="CoordinatorTestFixture.cs" />
     <Compile Include="CountryCodeConfigTest.cs" />
