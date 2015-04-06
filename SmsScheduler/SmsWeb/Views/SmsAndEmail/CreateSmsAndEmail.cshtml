@@ -21,6 +21,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
 
+        $("#AdhocContentArea").hide();
         $('input[name="StartTime"]').datetimepicker({dateFormat: 'dd/mm/yy'});
         $('input[name="SendAllBy"]').datetimepicker({dateFormat: 'dd/mm/yy'});
 
@@ -36,6 +37,7 @@
         $('#Tags').tagsInput({ autocomplete_url: "/Tag/Search/" });
 
         $('#UserTimeZone').val(jstz.determine().name());
+
     });
 </script>
 
@@ -50,32 +52,36 @@
 </div>
     <fieldset>
         <div class="control-group">
-            @Html.LabelFor(model => model.TemplateName)
-            @Html.DropDownListFor(model => model.TemplateName, ViewData["CommunicationTemplates"] as List<SelectListItem>)
+            @Html.LabelFor(model => model.TemplateName, "Template Name")
+            @Html.DropDownListFor(model => model.TemplateName, ViewData["CommunicationTemplates"] as List<SelectListItem>) OR <button class="btn" type="button" id="AdhocContentButton" onclick="$('#AdhocContentArea').toggle()">Adhoc Content</button>
         </div>
 
-        <div class="control-group">
-            @Html.LabelFor(model => model.Topic)
-            @Html.EditorFor(model => model.Topic)
-            @Html.ValidationMessageFor(model => model.Topic)
+        <div id="AdhocContentArea">
+            <div class="control-group">
+                @Html.LabelFor(model => model.Topic)
+                @Html.EditorFor(model => model.Topic)
+                @Html.ValidationMessageFor(model => model.Topic)
+            </div>
+
+            <div class="control-group">
+                @Html.LabelFor(model => model.SmsContent, "Sms Content")
+                @{
+    var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.SmsContent) && Model.SmsContent.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
+    messageValidationClass = messageValidationClass + ", span6";
+                }
+                @Html.TextAreaFor(model => model.SmsContent, new Dictionary<string, object> { { "class", @messageValidationClass } })
+                @Html.ValidationMessageFor(model => model.SmsContent)
+                <div id="messageCounter"></div>
+            </div>
+
+            <div class="control-group">
+                @Html.LabelFor(model => model.EmailHtmlContent, "Email HTML Content")
+                @Html.TextAreaFor(model => model.EmailHtmlContent)
+                @Html.ValidationMessageFor(model => model.EmailHtmlContent)
+            </div>
         </div>
 
-        <div class="control-group">
-            @Html.LabelFor(model => model.SmsContent)
-            @{
-                var messageValidationClass = Model != null && !string.IsNullOrWhiteSpace(Model.SmsContent) && Model.SmsContent.Length <= 160 ? "messageInputValid" : "messageInputInvalid";
-                messageValidationClass = messageValidationClass + ", span6";
-            }
-            @Html.TextAreaFor(model => model.SmsContent, new Dictionary<string, object> {{"class", @messageValidationClass}})
-            @Html.ValidationMessageFor(model => model.SmsContent)
-            <div id="messageCounter"></div>
-        </div>
 
-        <div class="control-group">
-            @Html.LabelFor(model => model.EmailHtmlContent)
-            @Html.TextAreaFor(model => model.EmailHtmlContent)
-            @Html.ValidationMessageFor(model => model.EmailHtmlContent)
-        </div>
 
         <div class="control-group">
             <input type="file" name="FileUpload"/>
