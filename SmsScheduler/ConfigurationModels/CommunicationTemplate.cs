@@ -29,31 +29,49 @@ namespace ConfigurationModels
 	            var startIndexes = EmailContent.IndexesOf("{");
 	            var endIndexes = EmailContent.IndexesOf("}");
 
-	            if (startIndexes.Count != endIndexes.Count)
-	            {
-                    throw new Exception("Odd number of opening and closing brackets in template");
-	            }
+	            GetTemplateVariableNames(startIndexes, endIndexes, EmailContent);
+	        }
 
-	            for (int i = 0; i < startIndexes.Count; i++)
-	            {
-	                if (startIndexes[i] > endIndexes[i])
-	                {
-                        throw new Exception("Brackets must be open and closed before creating new ones");
-	                }
-	                if (i != 0)
-	                {
-	                    if (startIndexes[i] < endIndexes[i-1])
-                            throw new Exception("Brackets must be open and closed before creating new ones");
-	                }
-	            }
+	        if (!string.IsNullOrWhiteSpace(SmsContent))
+	        {
+                var startIndexes = SmsContent.IndexesOf("{");
+                var endIndexes = SmsContent.IndexesOf("}");
 
-                // assuming equal
+                GetTemplateVariableNames(startIndexes, endIndexes, SmsContent);
+	        }
+	    }
 
-	            for (var i = 0; i < startIndexes.Count; i++)
+	    private void GetTemplateVariableNames(List<int> startIndexes, List<int> endIndexes, string content)
+	    {
+	        if (startIndexes.Count != endIndexes.Count)
+	        {
+	            throw new Exception("Odd number of opening and closing brackets in template");
+	        }
+
+	        for (int i = 0; i < startIndexes.Count; i++)
+	        {
+	            if (startIndexes[i] > endIndexes[i])
 	            {
-	                int variableLength = endIndexes[i] - (startIndexes[i] + 1);
-                    TemplateVariables.Add(new TemplateVariable { VariableName = EmailContent.Substring(startIndexes[i]+1, variableLength) });
+	                throw new Exception("Brackets must be open and closed before creating new ones");
 	            }
+	            if (i != 0)
+	            {
+	                if (startIndexes[i] < endIndexes[i - 1])
+	                    throw new Exception("Brackets must be open and closed before creating new ones");
+	            }
+	        }
+
+	        for (var i = 0; i < startIndexes.Count; i++)
+	        {
+	            int variableLength = endIndexes[i] - (startIndexes[i] + 1);
+	            var variableName = content.Substring(startIndexes[i] + 1, variableLength);
+                if (!TemplateVariables.Any(t => t.VariableName.Equals(variableName, StringComparison.CurrentCultureIgnoreCase)))
+                {
+                    TemplateVariables.Add(new TemplateVariable
+                    {
+                        VariableName = variableName
+                    });
+                }
 	        }
 	    }
 	}

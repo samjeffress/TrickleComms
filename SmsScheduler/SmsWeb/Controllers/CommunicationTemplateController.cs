@@ -48,6 +48,7 @@ namespace SmsWeb.Controllers
 					if (existingTemplate != null){
 						throw new Exception("shouldn't exist");
 					}
+                    
 				    var communicationTemplate = new CommunicationTemplate()
 				    {
 				        EmailContent = model.EmailContent,
@@ -56,6 +57,7 @@ namespace SmsWeb.Controllers
                         // TODO : Exstract template variables....
 				        TemplateVariables = null
 				    };
+				    communicationTemplate.ExtractVariables();
 					session.Store(communicationTemplate, communicationTemplate.TemplateName);
 					session.SaveChanges();
 				}

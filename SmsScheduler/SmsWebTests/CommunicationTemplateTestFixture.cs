@@ -20,6 +20,33 @@ namespace SmsWebTests
         }
 
         [Test]
+        public void SmsContainsCurlyBracketUsesVariableName()
+        {
+            var communicationTemplate = new CommunicationTemplate();
+            communicationTemplate.SmsContent = "stuff{var1}stuff{var2}";
+
+            communicationTemplate.ExtractVariables();
+
+            Assert.That(communicationTemplate.TemplateVariables[0].VariableName, Is.EqualTo("var1"));
+            Assert.That(communicationTemplate.TemplateVariables[1].VariableName, Is.EqualTo("var2"));
+            Assert.That(communicationTemplate.TemplateVariables.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void SmsAndEmailContainsCurlyBracketUsesVariableName_DuplicateEntriesRemoved()
+        {
+            var communicationTemplate = new CommunicationTemplate();
+            communicationTemplate.SmsContent = "stuff{var1}stuff{var2}";
+            communicationTemplate.EmailContent = "<stuff>{var1}</stuff><p>{var2}</p>";
+
+            communicationTemplate.ExtractVariables();
+
+            Assert.That(communicationTemplate.TemplateVariables[0].VariableName, Is.EqualTo("var1"));
+            Assert.That(communicationTemplate.TemplateVariables[1].VariableName, Is.EqualTo("var2"));
+            Assert.That(communicationTemplate.TemplateVariables.Count, Is.EqualTo(2));
+        }
+
+        [Test]
         public void EmailContainsUnevenNumberOfCurlyBracketsRaisesException()
         {
             var communicationTemplate = new CommunicationTemplate();
