@@ -65,6 +65,16 @@ namespace SmsWeb.Controllers
 
             var dataColumnPicker = new DataColumnPicker {TrickleId = trickleId, FirstRowIsHeader = true};
 
+            if (!string.IsNullOrWhiteSpace(model.TemplateName))
+            { 
+                using (var session = Raven.GetStore().OpenSession("Configuration"))
+                {
+                    var communicationTemplate = session.Load<CommunicationTemplate>(model.TemplateName);
+                    if (communicationTemplate.TemplateVariables  != null)
+                        communicationTemplate.TemplateVariables.ForEach(t => dataColumnPicker.TemplateVariableColumns.Add(t.VariableName, null));
+                }
+            }
+
             var dropDownList = csvFileContents.CreateSelectList();
             ViewData.Add("selectListData", dropDownList);
             return View("CreateSmsAndEmailPickRows", dataColumnPicker);

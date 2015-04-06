@@ -1,3 +1,4 @@
+@using Raven.Abstractions.Extensions
 @model SmsWeb.Models.DataColumnPicker 
 
 @Scripts.Render("~/bundles/jquery")
@@ -35,6 +36,17 @@
                     @Html.LabelFor(m => m.EmailColumn, "Email")
                     @Html.DropDownListFor(m => m.EmailColumn, ViewData["selectListData"] as IEnumerable<SelectListItem>)
                 </div>
+                if (Model.TemplateVariableColumns.Count > 0)
+                {
+                    <h3>Template Variables:</h3>
+                    foreach (var templateVariable in Model.TemplateVariableColumns)
+                    {
+                        <div>
+                            @Html.Label(templateVariable.Key)
+                            @Html.DropDownListFor(m => m.TemplateVariableColumns[templateVariable.Key], ViewData["selectListData"] as IEnumerable<SelectListItem>)
+                        </div>
+                    }
+                }
             <input type="submit"/>
             }
         </div>
