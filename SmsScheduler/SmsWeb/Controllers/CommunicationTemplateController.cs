@@ -49,13 +49,11 @@ namespace SmsWeb.Controllers
 						throw new Exception("shouldn't exist");
 					}
                     
-				    var communicationTemplate = new CommunicationTemplate()
+				    var communicationTemplate = new CommunicationTemplate
 				    {
 				        EmailContent = model.EmailContent,
 				        SmsContent = model.SmsContent,
-				        TemplateName = model.TemplateName,
-                        // TODO : Exstract template variables....
-				        TemplateVariables = null
+				        TemplateName = model.TemplateName
 				    };
 				    communicationTemplate.ExtractVariables();
 					session.Store(communicationTemplate, communicationTemplate.TemplateName);
@@ -92,6 +90,7 @@ namespace SmsWeb.Controllers
 						throw new Exception("should have a document here...");
 					}
 					existingTemplate = model;
+                    existingTemplate.ExtractVariables();
 					session.SaveChanges();
 				}
                 return RedirectToAction ("Index");

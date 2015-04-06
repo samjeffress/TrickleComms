@@ -5,8 +5,12 @@
     Layout = "~/Views/shared/_BootstrapLayout.basic.cshtml";
 }
 
-<h2>Index</h2>
-<table>
+<h2>Communication Templates</h2>
+<a href="@Url.Action("Create")">
+    Add Template <i class="icon-plus-sign"></i>    
+</a>
+
+<table class="table table-striped table-hover">
 	<thead>
 		<tr>
 			<th>Template Name</th>
