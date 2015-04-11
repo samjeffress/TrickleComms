@@ -39,6 +39,7 @@ namespace SmsActioner
             Configure.Instance.Configurer.ConfigureComponent<SmsService>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<TwilioWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<MailGunWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
+            Configure.Instance.Configurer.ConfigureComponent<MandrillWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
             
         //var bus = configure.CreateBus()
         //.Start(() => Configure.Instance.ForInstallationOn<Windows>().Install());
