@@ -1,12 +1,10 @@
 ﻿using System;
+using ConfigurationModels;
 using NServiceBus;
 using NServiceBus.Saga;
 using SmsActioner.InternalMessages.Commands;
-using SmsActioner.InternalMessages.Responses;
-using SmsMessages;
-using SmsMessages.MessageSending.Commands;
-using SmsMessages.MessageSending.Responses;
 using SmsMessages.Email.Events;
+using SmsMessages.MessageSending.Commands;
 
 namespace SmsActioner
 {
@@ -18,6 +16,8 @@ namespace SmsActioner
 		IHandleMessages<EmailRecipientEvent>
     {
         public IMailGunWrapper MailGun { get; set; }
+        public IMandrillWrapper MandrillWrapper { get; set; }
+        public IRavenDocStore DocumentStore { get; set; }
 
         public override void ConfigureHowToFindSaga()
         {
@@ -98,9 +98,27 @@ namespace SmsActioner
 
         public void Handle(SendEmail message)
         {
-            var emailId = MailGun.SendEmail(message);
-			Data.EmailId = emailId;
-//			Bus.Reply(new InternalMessages.Responses.EmailSent { EmailId = emailId, EmailSagaId = message.EmailSagaId });
+
+            using (var session = DocumentStore.GetStore().OpenSession(DocumentStore.ConfigurationDatabaseName()))
+            {
+                var emailProvider = session.Load<EmailDeliveryConfiguration>("EmailDeliveryConfig");
+                if (emailProvider == null)
+                {
+                    Data.EmailId = MailGun.SendEmail(message);
+                } else { 
+                    switch (emailProvider.EmailProvider)
+                    {
+                        case EmailProvider.Mailgun:
+                            Data.EmailId = MailGun.SendEmail(message);
+                            break;
+                        case EmailProvider.Mandrill:
+                            Data.EmailId = MandrillWrapper.SendEmail(message);
+                            break;
+
+                    }
+                }
+                //			Bus.Reply(new InternalMessages.Responses.EmailSent { EmailId = emailId, EmailSagaId = message.EmailSagaId });
+            }
         }
     }
 

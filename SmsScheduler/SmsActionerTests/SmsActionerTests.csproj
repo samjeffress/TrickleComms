@@ -33,8 +33,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FSharp.Core.4.0.0\lib\FSharp.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MailChimp, Version=1.3.1.3, Culture=neutral, PublicKeyToken=1fc125decc69e2d5, processorArchitecture=MSIL">
+      <HintPath>..\packages\mcapi.net.1.3.1.3\lib\net40\MailChimp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NServiceBus, Version=4.6.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -67,8 +76,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RavenDB.Database.2.0.2380\lib\net40\Raven.Database.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=105.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.0.1\lib\net4\RestSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Rhino.Mocks">
       <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
@@ -124,7 +134,9 @@
     <Compile Include="SmsServiceTestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -31,7 +31,7 @@ namespace SmsActioner
                 var baseMessage = message.BaseRequest;
                 var client = new RestClient
                 {
-                    BaseUrl = "https://api.mailgun.net/v2",
+                    BaseUrl = new Uri("https://api.mailgun.net/v2"),
                     Authenticator = new HttpBasicAuthenticator("api", mailgunConfiguration.ApiKey)
                 };
                 RestRequest request = new RestRequest();
@@ -70,7 +70,7 @@ namespace SmsActioner
 
                 var client = new RestClient
                 {
-                    BaseUrl = "https://api.mailgun.net/v2",
+                    BaseUrl = new Uri("https://api.mailgun.net/v2"),
                     Authenticator = new HttpBasicAuthenticator("api", mailgunConfiguration.ApiKey)
                 };
                 var request = new RestRequest();
