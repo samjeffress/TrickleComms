@@ -48,6 +48,10 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NexmoClient, Version=1.0.2.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Softwarehuset.NexmoClient.1.0.2.5\lib\NexmoClient.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NServiceBus, Version=4.6.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NServiceBus.Interfaces.4.6.1\lib\net40\NServiceBus.dll</HintPath>
@@ -116,6 +120,7 @@
     <Compile Include="EndpointConfig.cs" />
     <Compile Include="IMailGunWrapper.cs" />
     <Compile Include="IMandrillWrapper.cs" />
+    <Compile Include="INexmoWrapper.cs" />
     <Compile Include="InternalMessages\Commands\SendEmail.cs" />
     <Compile Include="InternalMessages\Responses\EmailSent.cs" />
     <Compile Include="ISmsService.cs" />

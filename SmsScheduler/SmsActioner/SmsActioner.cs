@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using NServiceBus.Saga;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
@@ -14,8 +12,6 @@ namespace SmsActioner
         IHandleTimeouts<SmsPendingTimeout>
     {
         public ISmsService SmsService { get; set; }
-
-        public ITwilioWrapper TwilioWrapper { get; set; }
 
         public void Handle(SendOneMessageNow sendOneMessageNow)
         {

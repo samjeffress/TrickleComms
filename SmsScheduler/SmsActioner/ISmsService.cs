@@ -21,6 +21,8 @@ namespace SmsActioner
     {
         public ITwilioWrapper TwilioWrapper { get; set; }
 
+        public INexmoWrapper NexmoWrapper { get; set; }
+
         public SmsStatus Send(SendOneMessageNow messageToSend)
         {
             var createdSmsMessage = TwilioWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
