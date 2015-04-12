@@ -45,9 +45,11 @@
     <Compile Include="CountryCodeReplacement.cs" />
     <Compile Include="EmailDefaultNotification.cs" />
     <Compile Include="EmailDeliveryConfiguration.cs" />
+    <Compile Include="EmailProvider.cs" />
     <Compile Include="MailGunConfiguration.cs" />
     <Compile Include="MandrillConfiguration.cs" />
     <Compile Include="NexmoConfiguration.cs" />
+    <Compile Include="SmsProvider.cs" />
     <Compile Include="TwilioConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommunicationTemplate.cs" />

@@ -5,10 +5,4 @@ namespace ConfigurationModels
         Mandrill,
         Mailgun
     }
-
-    public enum SmsProvider
-    {
-        Twilio,
-        Nexmo
-    }
 }

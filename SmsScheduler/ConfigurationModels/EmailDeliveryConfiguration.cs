@@ -7,10 +7,4 @@ namespace ConfigurationModels
         [Required]
         public EmailProvider EmailProvider { get; set; }
     }
-
-    public enum EmailProvider
-    {
-        Mandrill,
-        Mailgun
-    }
 }
