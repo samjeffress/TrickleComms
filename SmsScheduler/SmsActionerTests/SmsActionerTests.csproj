@@ -140,6 +140,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ConfigurationModels\ConfigurationModels.csproj">
+      <Project>{39DA47DF-B0BF-4C61-975D-F4C3E93B1BC8}</Project>
+      <Name>ConfigurationModels</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SmsActioner\SmsActioner.csproj">
       <Project>{ab0baecf-6651-4f33-b58c-9687601e1a3e}</Project>
       <Name>SmsActioner</Name>
