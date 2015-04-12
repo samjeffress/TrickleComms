@@ -17,7 +17,7 @@ namespace SmsActioner
     {
         public IMailGunWrapper MailGun { get; set; }
         public IMandrillWrapper MandrillWrapper { get; set; }
-        public IRavenDocStore DocumentStore { get; set; }
+        public IRavenDocStore RavenDocumentStore { get; set; }
 
         public override void ConfigureHowToFindSaga()
         {
@@ -98,10 +98,9 @@ namespace SmsActioner
 
         public void Handle(SendEmail message)
         {
-
-            using (var session = DocumentStore.GetStore().OpenSession(DocumentStore.ConfigurationDatabaseName()))
+            using (var session = RavenDocumentStore.GetStore().OpenSession(RavenDocumentStore.ConfigurationDatabaseName()))
             {
-                var emailProvider = session.Load<EmailDeliveryConfiguration>("EmailDeliveryConfig");
+                var emailProvider = session.Load<EmailProviderConfiguration>("EmailProviderConfiguration");
                 if (emailProvider == null)
                 {
                     Data.EmailId = MailGun.SendEmail(message);

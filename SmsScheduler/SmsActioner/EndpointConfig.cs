@@ -40,6 +40,7 @@ namespace SmsActioner
             Configure.Instance.Configurer.ConfigureComponent<TwilioWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<MailGunWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
             Configure.Instance.Configurer.ConfigureComponent<MandrillWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
+            Configure.Instance.Configurer.ConfigureComponent<NexmoWrapper>(DependencyLifecycle.InstancePerUnitOfWork);
             
         //var bus = configure.CreateBus()
         //.Start(() => Configure.Instance.ForInstallationOn<Windows>().Install());

@@ -1,4 +1,6 @@
 ﻿using System;
+using ConfigurationModels;
+using Raven.Client.Document;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
 using Twilio;
@@ -20,22 +22,34 @@ namespace SmsActioner
     public class SmsService : ISmsService
     {
         public ITwilioWrapper TwilioWrapper { get; set; }
-
         public INexmoWrapper NexmoWrapper { get; set; }
+        public IRavenDocStore RavenDocStore { get; set; }
 
         public SmsStatus Send(SendOneMessageNow messageToSend)
         {
-            var createdSmsMessage = TwilioWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
-            return ProcessSms(createdSmsMessage);
+            using (var session = RavenDocStore.GetStore().OpenSession(RavenDocStore.ConfigurationDatabaseName()))
+            {
+                var smsProvider = session.Load<SmsProviderConfiguration>("SmsProviderConfiguration");
+                if (smsProvider == null)
+                    throw new Exception("No SMS provider selected");
+                switch (smsProvider.SmsProvider)
+                {
+                    case SmsProvider.Nexmo:
+                        return NexmoWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
+                    case SmsProvider.Twilio:
+                        return ProcessTwilioResponse(TwilioWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message));
+                }
+                throw new Exception("SMS Provder delivery not implemented for " + smsProvider.SmsProvider.ToString());
+            }
         }
 
         public SmsStatus CheckStatus(string sid)
         {
             var checkMessage = TwilioWrapper.CheckMessage(sid);
-            return ProcessSms(checkMessage);
+            return ProcessTwilioResponse(checkMessage);
         }
 
-        private SmsStatus ProcessSms(SMSMessage createdSmsMessage)
+        private SmsStatus ProcessTwilioResponse(SMSMessage createdSmsMessage)
         {
             if ((string.IsNullOrWhiteSpace(createdSmsMessage.Status) && createdSmsMessage.RestException != null)
                 || createdSmsMessage.Status.Equals("failed", StringComparison.CurrentCultureIgnoreCase))
