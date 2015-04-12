@@ -132,6 +132,7 @@
     <Compile Include="SmsSentTrackerTestFixture.cs" />
     <Compile Include="SmsServiceCheckTestFixture.cs" />
     <Compile Include="SmsServiceTestFixture.cs" />
+    <Compile Include="TwilioResponseMapping.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using Rhino.Mocks;
 using SmsActioner;
@@ -16,14 +17,10 @@ namespace SmsActionerTests
             const string sid = "sid";
             twilioWrapper
                 .Expect(t => t.CheckMessage(sid))
-                .Return(new SMSMessage { Sid = sid, Status = "queued" });
+                .Return(new SmsQueued(sid));
 
             var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-            var smsStatus = smsService.CheckStatus(sid);
-
-            Assert.That(smsStatus, Is.TypeOf(typeof(SmsQueued)));
-            Assert.That(smsStatus.Sid, Is.EqualTo(sid));
-            twilioWrapper.VerifyAllExpectations();
+            smsService.CheckStatus(sid);
         }
 
         [Test]
@@ -33,14 +30,10 @@ namespace SmsActionerTests
             const string sid = "sid";
             twilioWrapper
                 .Expect(t => t.CheckMessage(sid))
-                .Return(new SMSMessage { Sid = sid, Status = "sent" });
+                .Return(new SmsSent(new SmsConfirmationData("receipt", DateTime.Now, 0.04m)));
 
             var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-            var smsStatus = smsService.CheckStatus(sid);
-
-            Assert.That(smsStatus, Is.TypeOf(typeof(SmsSent)));
-            Assert.That(smsStatus.Sid, Is.EqualTo(sid));
-            twilioWrapper.VerifyAllExpectations();
+            smsService.CheckStatus(sid);
         }
 
         [Test]
@@ -50,14 +43,10 @@ namespace SmsActionerTests
             const string sid = "sid";
             twilioWrapper
                 .Expect(t => t.CheckMessage(sid))
-                .Return(new SMSMessage { Sid = sid, Status = "sending" });
+                .Return(new SmsSending(sid));
 
             var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-            var smsStatus = smsService.CheckStatus(sid);
-
-            Assert.That(smsStatus, Is.TypeOf(typeof(SmsSending)));
-            Assert.That(smsStatus.Sid, Is.EqualTo(sid));
-            twilioWrapper.VerifyAllExpectations();
+            smsService.CheckStatus(sid);
         }
 
         [Test]
@@ -67,14 +56,10 @@ namespace SmsActionerTests
             const string sid = "sid";
             twilioWrapper
                 .Expect(t => t.CheckMessage(sid))
-                .Return(new SMSMessage { Sid = sid, Status = "failed", RestException = new RestException() });
+                .Return(new SmsFailed(sid, "failed", "message", "more", "status"));
             
             var smsService = new SmsService { TwilioWrapper = twilioWrapper };
-            var smsStatus = smsService.CheckStatus(sid);
-            
-            Assert.That(smsStatus, Is.TypeOf(typeof(SmsFailed)));
-            Assert.That(smsStatus.Sid, Is.EqualTo(sid));
-            twilioWrapper.VerifyAllExpectations();
+            smsService.CheckStatus(sid);
         }
     }
 }

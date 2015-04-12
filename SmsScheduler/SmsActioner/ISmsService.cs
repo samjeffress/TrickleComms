@@ -1,9 +1,7 @@
 ﻿using System;
 using ConfigurationModels;
-using Raven.Client.Document;
 using SmsMessages.CommonData;
 using SmsMessages.MessageSending.Commands;
-using Twilio;
 
 namespace SmsActioner
 {
@@ -37,7 +35,7 @@ namespace SmsActioner
                     case SmsProvider.Nexmo:
                         return NexmoWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
                     case SmsProvider.Twilio:
-                        return ProcessTwilioResponse(TwilioWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message));
+                        return TwilioWrapper.SendSmsMessage(messageToSend.SmsData.Mobile, messageToSend.SmsData.Message);
                 }
                 throw new Exception("SMS Provder delivery not implemented for " + smsProvider.SmsProvider.ToString());
             }
@@ -45,33 +43,7 @@ namespace SmsActioner
 
         public SmsStatus CheckStatus(string sid)
         {
-            var checkMessage = TwilioWrapper.CheckMessage(sid);
-            return ProcessTwilioResponse(checkMessage);
-        }
-
-        private SmsStatus ProcessTwilioResponse(SMSMessage createdSmsMessage)
-        {
-            if ((string.IsNullOrWhiteSpace(createdSmsMessage.Status) && createdSmsMessage.RestException != null)
-                || createdSmsMessage.Status.Equals("failed", StringComparison.CurrentCultureIgnoreCase))
-            {
-                var e = createdSmsMessage.RestException;
-                return new SmsFailed(createdSmsMessage.Sid, e.Code, e.Message, e.MoreInfo, e.Status);
-            } 
-            
-            if (createdSmsMessage.Status.Equals("sent", StringComparison.CurrentCultureIgnoreCase))
-                return new SmsSent(new SmsConfirmationData(createdSmsMessage.Sid, createdSmsMessage.DateSent, createdSmsMessage.Price)); 
-
-            if (createdSmsMessage.Status.Equals("sending", StringComparison.CurrentCultureIgnoreCase))
-            {
-                return new SmsSending(createdSmsMessage.Sid);
-            }
-
-            
-
-            if (createdSmsMessage.Status.Equals("queued", StringComparison.CurrentCultureIgnoreCase))
-                return new SmsQueued(createdSmsMessage.Sid);
-
-            return null;
+            return TwilioWrapper.CheckMessage(sid);
         }
     }
 }
