@@ -1,7 +1,8 @@
 using System;
+using System.Linq;
 using System.Net.Mail;
 using ConfigurationModels;
-using Typesafe.Mailgun;
+using RestSharp;
 
 namespace SmsCoordinator.Email
 {
@@ -14,10 +15,23 @@ namespace SmsCoordinator.Email
     {
         public void Send(MailgunConfiguration configuration, MailMessage message)
         {
-            var mailgunClient = new MailgunClient(configuration.DomainName, configuration.ApiKey);
-            var commandResult = mailgunClient.SendMail(message);
-            var s = commandResult.Message;
-            Console.Write(s);
+            var client = new RestClient
+            {
+                BaseUrl = new Uri("https://api.mailgun.net/v2"),
+                Authenticator = new HttpBasicAuthenticator("api", configuration.ApiKey)
+            };
+            RestRequest request = new RestRequest();
+            request.AddParameter("domain", configuration.DomainName, ParameterType.UrlSegment);
+            request.Resource = "{domain}/messages";
+            request.AddParameter("from", message.From.DisplayName + " <" + message.From.Address + ">");
+            request.AddParameter("to", string.Join(",", message.To.Select(t => t.Address).ToArray()));
+            request.AddParameter("subject", message.Subject);
+//            request.AddParameter("text", message.Body);
+            request.AddParameter("html", message.Body);
+            request.AddParameter("h:Reply-To", message.ReplyToList.Select(r => r.DisplayName + "<" + r.Address + ">").FirstOrDefault());
+            request.Method = Method.POST;
+            var response = client.Execute<dynamic>(request);
+            Console.Write(response);
         }
     }
 }
