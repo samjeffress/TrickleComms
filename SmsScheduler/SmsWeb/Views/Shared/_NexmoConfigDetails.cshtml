@@ -1,0 +1,34 @@
+﻿
+@model ConfigurationModels.NexmoConfiguration
+
+<fieldset>
+    <legend>Nexmo</legend>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.ApiKey)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.ApiKey)
+        </div>
+    </div>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.Secret)
+        </div>
+        <div>
+            **************************
+        </div>
+    </div>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.From)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.From)
+        </div>
+    </div>
+</fieldset>
+@Ajax.ActionLink("Edit", "EditAjax", "NexmoConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "NexmoConfigDiv" })

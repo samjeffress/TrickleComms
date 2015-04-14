@@ -298,6 +298,8 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\CommunicationTemplateController.cs" />
     <Compile Include="Controllers\CoordinatorController.cs" />
+    <Compile Include="Controllers\MandrillConfigController.cs" />
+    <Compile Include="Controllers\NexmoConfigController.cs" />
     <Compile Include="CoordinatorModelToMessageMapping.cs" />
     <Compile Include="Controllers\CountryCodeConfigController.cs" />
     <Compile Include="Controllers\DefaultEmailController.cs" />
@@ -518,6 +520,10 @@
     <Content Include="Views\SmsAndEmail\CreateSmsAndEmail.cshtml" />
     <Content Include="Views\SmsAndEmail\CreateSmsAndEmailPickRows.cshtml" />
     <Content Include="Views\SmsAndEmail\Details.cshtml" />
+    <Content Include="Views\Shared\_MandrillConfigEdit.cshtml" />
+    <Content Include="Views\Shared\_MandrillConfigDetails.cshtml" />
+    <Content Include="Views\Shared\_NexmoConfigEdit.cshtml" />
+    <Content Include="Views\Shared\_NexmoConfigDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

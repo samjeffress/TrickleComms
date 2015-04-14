@@ -1,0 +1,45 @@
+﻿@model ConfigurationModels.NexmoConfiguration
+
+@Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+@Scripts.Render("~/Scripts/jquery.1.8.3.min.js")
+
+
+@using (Ajax.BeginForm("EditAjax", "NexmoConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "NexmoConfigDiv" }))
+{
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Nexmo</legend>
+
+        <div>
+            @Html.LabelFor(model => model.ApiKey, "API Key")
+        </div>
+        <div>
+            @Html.EditorFor(model => model.ApiKey)
+            @Html.ValidationMessageFor(model => model.ApiKey)
+        </div>
+
+        <div>
+            @Html.LabelFor(model => model.Secret)
+        </div>
+        <div>
+            @Html.PasswordFor(model => model.Secret)
+            @Html.ValidationMessageFor(model => model.Secret)
+        </div>
+
+        <div>
+            @Html.LabelFor(model => model.From)
+        </div>
+        <div>
+            @Html.EditorFor(model => model.From)
+            @Html.ValidationMessageFor(model => model.From)
+        </div>
+
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+        <p>
+            @Ajax.ActionLink("Cancel", "DetailsAjax", "NexmoConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "NexmoConfigDiv" })
+        </p>
+    </fieldset>
+}
