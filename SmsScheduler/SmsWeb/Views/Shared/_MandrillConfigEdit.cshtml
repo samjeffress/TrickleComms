@@ -1,0 +1,44 @@
+﻿@model ConfigurationModels.MandrillConfiguration
+
+@Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+@Scripts.Render("~/Scripts/jquery.1.8.3.min.js")
+
+
+@using (Ajax.BeginForm("EditAjax", "MandrillConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "MandrillConfigDiv"})) {
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <legend>Mandrill</legend>
+
+        <div>
+            @Html.LabelFor(model => model.ApiKey, "Api Key")
+        </div>
+        <div>
+            @Html.PasswordFor(model => model.ApiKey)
+            @Html.ValidationMessageFor(model => model.ApiKey)
+        </div>
+
+        <div>
+            @Html.LabelFor(model => model.DomainName, "Domain Name")
+        </div>
+        <div>
+            @Html.EditorFor(model => model.DomainName)
+            @Html.ValidationMessageFor(model => model.DomainName)
+        </div>
+
+        <div>
+            @Html.LabelFor(model => model.DefaultFrom, "Default From")
+        </div>
+        <div>
+            @Html.EditorFor(model => model.DefaultFrom)
+            @Html.ValidationMessageFor(model => model.DefaultFrom)
+        </div>
+
+        <p>
+            <input type="submit" value="Create" />
+        </p>
+        <p>
+            @Ajax.ActionLink("Cancel", "DetailsAjax", "MandrillConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "MandrillConfigDiv" })
+        </p>
+    </fieldset>
+}

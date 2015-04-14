@@ -1,0 +1,33 @@
+﻿@model ConfigurationModels.MandrillConfiguration
+
+<fieldset>
+    <legend>Mandrill</legend>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.ApiKey)
+        </div>
+        <div>
+            **************************
+        </div>
+    </div>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.DomainName)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.DomainName)
+        </div>
+    </div>
+    
+    <div class="Details">
+        <div>
+            @Html.DisplayNameFor(model => model.DefaultFrom)
+        </div>
+        <div>
+            @Html.DisplayFor(model => model.DefaultFrom)
+        </div>
+    </div>
+</fieldset>
+@Ajax.ActionLink("Edit", "EditAjax", "MandrillConfig", new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "MandrillConfigDiv" })
