@@ -85,9 +85,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Typesafe.Mailgun, Version=0.6.0.2152, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\mnailgun.0.6.0\lib\4.0\Typesafe.Mailgun.dll</HintPath>
+    <Reference Include="Typesafe.Mailgun, Version=0.6.0.2156, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\mnailgun.0.7.0\lib\4.0\Typesafe.Mailgun.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
