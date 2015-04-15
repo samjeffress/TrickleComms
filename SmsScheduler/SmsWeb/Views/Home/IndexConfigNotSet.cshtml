@@ -23,12 +23,18 @@
         <div class="span6" id="TwilioConfigDiv">
             @Html.Action("EditAjax", "TwilioConfig")
         </div>
+        <div class="span6" id="NexmoConfigDiv">
+            @Html.Action("EditAjax", "NexmoConfig")
+        </div>
     </div>
     <div class="span6">        
         <h4>Email provider configuration:</h4>
         @Html.Action("EditEmailAjax", "ProviderConfig")
         <div class="span6" id="MailgunConfigDiv">
             @Html.Action("EditAjax", "MailgunConfig")
+        </div>
+        <div class="span6" id="MandrillConfigDiv">
+            @Html.Action("EditAjax", "MandrillConfig")
         </div>
     </div>
 </div>
