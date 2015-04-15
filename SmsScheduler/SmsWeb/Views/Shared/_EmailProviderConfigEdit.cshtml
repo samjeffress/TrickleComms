@@ -4,7 +4,7 @@
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
-@using (Ajax.BeginForm("EditEmailAjax", "ProviderConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "EmailProviderConfigDiv" },new {Class = "form-inline"}))
+@using (Ajax.BeginForm("EditEmailAjax", "ProviderConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "EmailProviderConfigDiv", OnSuccess = "EmailProviderSet" },new {Class = "form-inline"}))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)

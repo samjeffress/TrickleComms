@@ -6,6 +6,40 @@
 @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
 @Scripts.Render("~/Scripts/jquery.1.8.3.min.js")
 
+<script type="text/javascript">
+    function SmsProviderSet() {
+        var provider = $("#SmsProvider").val();
+        if (provider === "Twilio") {
+            $("#TwilioConfigDiv").show();
+            $("#NexmoConfigDiv").hide();
+        } else if (provider === "Nexmo") {
+            $("#NexmoConfigDiv").show();
+            $("#TwilioConfigDiv").hide();
+        } else {
+            $("#NexmoConfigDiv").hide();
+            $("#TwilioConfigDiv").hide();
+        }
+    }
+    function EmailProviderSet() {
+        var provider = $("#EmailProvider").val();
+        if (provider === "Mailgun") {
+            $("#MailgunConfigDiv").show();
+            $("#MandrillConfigDiv").hide();
+        } else if (provider === "Mandrill") {
+            $("#MandrillConfigDiv").show();
+            $("#MailgunConfigDiv").hide();
+        } else {
+            $("#MandrillConfigDiv").hide();
+            $("#MailgunConfigDiv").hide();
+        }
+    }
+
+    $().ready(function() {
+        SmsProviderSet();
+        EmailProviderSet();
+    });
+
+</script>
 
 <div class="hero-unit">
     <h1>Send That Message!</h1>
