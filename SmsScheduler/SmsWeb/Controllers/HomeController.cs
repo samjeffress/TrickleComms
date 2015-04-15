@@ -5,6 +5,7 @@ using ConfigurationModels;
 using Raven.Client.Linq;
 using SmsTrackingModels;
 using System.Linq;
+using System.Reflection;
 using SmsTrackingModels.RavenIndexs;
 using SmsWeb.Models;
 
@@ -18,10 +19,24 @@ namespace SmsWeb.Controllers
         {
             using (var session = RavenDocStore.GetStore().OpenSession("Configuration"))
             {
-                var twilioConfiguration = session.Load<TwilioConfiguration>("TwilioConfig");
-                var mailgunConfiguration = session.Load<MailgunConfiguration>("MailgunConfig");
+                var smsProviderConfiguration = session.Load<SmsProviderConfiguration>("SmsProviderConfiguration");
+                var emailProviderConfiguration = session.Load<EmailProviderConfiguration>("EmailProviderConfiguration");
 
-                if (twilioConfiguration == null || mailgunConfiguration == null)
+                if (smsProviderConfiguration.SmsProvider == SmsProvider.NoSmsFunctionality || emailProviderConfiguration.EmailProvider == EmailProvider.NoEmailFunctionality)
+                    return View("IndexConfigNotSet");
+
+                Assembly asm = typeof (SmsProviderConfiguration).Assembly;
+                var expectedEmailType = "ConfigurationModels."+emailProviderConfiguration.EmailProvider.ToString() + "Configuration";
+                Type emailType = asm.GetType(expectedEmailType);
+
+                var expectedSmsType = "ConfigurationModels."+smsProviderConfiguration.SmsProvider.ToString() + "Configuration";
+                Type smsType = asm.GetType(expectedSmsType);
+
+                var emailProvider = session.Load<dynamic>(emailProviderConfiguration.EmailProvider.ToString() + "Config");
+                var smsProider = session.Load<dynamic>(smsProviderConfiguration.SmsProvider.ToString() + "Config");
+
+                // change this to an &&
+                if (emailProvider == null || smsProider == null)
                     return View("IndexConfigNotSet");
                 else
                     return RedirectToAction("Create", "Coordinator");

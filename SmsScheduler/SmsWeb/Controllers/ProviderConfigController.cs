@@ -29,8 +29,6 @@ namespace SmsWeb.Controllers
         private static List<SelectListItem> SelectListForEnum<T>(string selectValue)
         {
             var providerSelectList = new List<SelectListItem>();
-            providerSelectList.Add(new SelectListItem { Text = string.Empty, Value = string.Empty });
-
             var enumValues = Enum.GetValues(typeof(T)).Cast<T>();
             providerSelectList.AddRange(enumValues.Select(p => new SelectListItem { Selected = false, Text = p.ToString(), Value = p.ToString() }).ToList());
             var activeItem = providerSelectList.First(p => p.Value == selectValue);
