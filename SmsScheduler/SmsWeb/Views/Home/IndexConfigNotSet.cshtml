@@ -16,12 +16,20 @@
     @*<p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>*@
 </div>
 
-<div>
-    <div style="float: left; width: 50%" id="TwilioConfigDiv">
-        @Html.Action("EditAjax", "TwilioConfig")
+<div class="row">
+    <div class="span6">
+        <h4>SMS provider configuration:</h4>
+        @Html.Action("EditSMSAjax", "ProviderConfig" )
+        <div class="span6" id="TwilioConfigDiv">
+            @Html.Action("EditAjax", "TwilioConfig")
+        </div>
     </div>
-    <div style="float: left; width: 50%" id="MailgunConfigDiv">
-        @Html.Action("EditAjax", "MailgunConfig")
+    <div class="span6">        
+        <h4>Email provider configuration:</h4>
+        @Html.Action("EditEmailAjax", "ProviderConfig")
+        <div class="span6" id="MailgunConfigDiv">
+            @Html.Action("EditAjax", "MailgunConfig")
+        </div>
     </div>
 </div>
 

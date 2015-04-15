@@ -1,0 +1,18 @@
+﻿@model ConfigurationModels.SmsProviderConfiguration
+
+<script src="~/Scripts/jquery-1.8.2.min.js"></script>
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+@using (Ajax.BeginForm("EditSMSAjax", "ProviderConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "SMSProviderConfigDiv" }, new { Class = "form-inline" }))
+{
+    @Html.AntiForgeryToken() 
+    @Html.ValidationSummary(true)
+
+    <fieldset>
+        <div>
+            @Html.DropDownListFor(m => m.SmsProvider, @ViewData["SmsProviders"] as List<SelectListItem>)
+            <input type="submit" class="btn" value="Save" />
+        </div>
+    </fieldset>
+}
