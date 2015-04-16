@@ -26,10 +26,10 @@ namespace SmsWeb.Controllers
                     return View("IndexConfigNotSet");
 
                 Assembly asm = typeof (SmsProviderConfiguration).Assembly;
-                var expectedEmailType = "ConfigurationModels."+emailProviderConfiguration.EmailProvider.ToString() + "Configuration";
+                var expectedEmailType = "ConfigurationModels.Providers."+emailProviderConfiguration.EmailProvider.ToString() + "Configuration";
                 Type emailType = asm.GetType(expectedEmailType);
 
-                var expectedSmsType = "ConfigurationModels."+smsProviderConfiguration.SmsProvider.ToString() + "Configuration";
+                var expectedSmsType = "ConfigurationModels.Providers"+smsProviderConfiguration.SmsProvider.ToString() + "Configuration";
                 Type smsType = asm.GetType(expectedSmsType);
 
                 var emailProvider = session.Load<dynamic>(emailProviderConfiguration.EmailProvider.ToString() + "Config");

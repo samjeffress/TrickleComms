@@ -1,5 +1,6 @@
 ﻿using System;
 using ConfigurationModels;
+using ConfigurationModels.Providers;
 using MailChimp;
 using SmsActioner.InternalMessages.Commands;
 

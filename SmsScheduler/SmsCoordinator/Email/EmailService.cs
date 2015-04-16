@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using ConfigurationModels;
+using ConfigurationModels.Providers;
 using NServiceBus;
 using SmsMessages.Coordinator.Events;
 using SmsMessages.Email.Commands;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ConfigurationModels;
+using ConfigurationModels.Providers;
 using Newtonsoft.Json;
 using RestSharp;
 using SmsActioner.InternalMessages.Commands;

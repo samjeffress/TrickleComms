@@ -1,5 +1,6 @@
 using System.Web.Mvc;
 using ConfigurationModels;
+using ConfigurationModels.Providers;
 
 namespace SmsWeb.Controllers
 {

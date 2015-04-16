@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ConfigurationModels
+namespace ConfigurationModels.Providers
 {
-    public class NexmoConfiguration
+    public class NexmoConfiguration : ISmsProvider
     {
         [Required]
         public string ApiKey { get; set; }

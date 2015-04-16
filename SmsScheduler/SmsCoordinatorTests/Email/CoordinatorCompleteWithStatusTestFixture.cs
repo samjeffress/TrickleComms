@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Mail;
 using ConfigurationModels;
+using ConfigurationModels.Providers;
 using NUnit.Framework;
 using Raven.Client;
 using Rhino.Mocks;

@@ -45,11 +45,11 @@
     <Compile Include="CountryCodeReplacement.cs" />
     <Compile Include="EmailDefaultNotification.cs" />
     <Compile Include="EmailProviderConfiguration.cs" />
-    <Compile Include="MailGunConfiguration.cs" />
-    <Compile Include="MandrillConfiguration.cs" />
-    <Compile Include="NexmoConfiguration.cs" />
+    <Compile Include="Providers\MailGunConfiguration.cs" />
+    <Compile Include="Providers\MandrillConfiguration.cs" />
+    <Compile Include="Providers\NexmoConfiguration.cs" />
+    <Compile Include="Providers\TwilioConfiguration.cs" />
     <Compile Include="SmsProviderConfiguration.cs" />
-    <Compile Include="TwilioConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommunicationTemplate.cs" />
   </ItemGroup>

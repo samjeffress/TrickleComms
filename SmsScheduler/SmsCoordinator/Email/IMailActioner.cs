@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net.Mail;
 using ConfigurationModels;
+using ConfigurationModels.Providers;
 using RestSharp;
 
 namespace SmsCoordinator.Email

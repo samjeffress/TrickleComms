@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ConfigurationModels
+namespace ConfigurationModels.Providers
 {
-    public class MandrillConfiguration
+    public class MailgunConfiguration : IEmailProvider
     {
         [Required]
         public string ApiKey { get; set; }

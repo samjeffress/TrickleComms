@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ConfigurationModels
+namespace ConfigurationModels.Providers
 {
-    public class TwilioConfiguration
+    public class TwilioConfiguration : ISmsProvider
     {
         [Required]
         public string AuthToken { get; set; }
@@ -12,5 +12,11 @@ namespace ConfigurationModels
 
         [Required]
         public string From { get; set; }
+    }
+
+    public interface ISmsProvider
+    {
+        [Required]
+        string From { get; set; }
     }
 }
