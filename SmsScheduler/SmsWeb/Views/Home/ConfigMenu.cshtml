@@ -22,12 +22,14 @@
     }
 </style>
 
-<div>
-    <div class="ConfigDiv" id="TwilioConfigDiv">
-        @Html.Action("DetailsAjax", "TwilioConfig")
+<div class="row">
+    <div class="ConfigDiv">
+        <h4>SMS provider configuration:</h4>
+        @Html.Action("EditSMSAjax", "ProviderConfig")
     </div>
-    <div class="ConfigDiv" id="MailgunConfigDiv">
-        @Html.Action("DetailsAjax", "MailgunConfig")
+    <div class="ConfigDiv">
+        <h4>Email provider configuration:</h4>
+        @Html.Action("EditEmailAjax", "ProviderConfig")
     </div>
     <div class="ConfigDiv" id="DefaultEmailConfigDiv">
         @Html.Action("DetailsAjax", "DefaultEmail")

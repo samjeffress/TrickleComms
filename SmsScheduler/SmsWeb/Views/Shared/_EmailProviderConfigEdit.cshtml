@@ -4,6 +4,27 @@
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
+<script type="text/javascript">
+    function EmailProviderSet() {
+        var provider = $("#EmailProvider").val();
+        if (provider === "Mailgun") {
+            $("#MailgunConfigDiv").show();
+            $("#MandrillConfigDiv").hide();
+        } else if (provider === "Mandrill") {
+            $("#MandrillConfigDiv").show();
+            $("#MailgunConfigDiv").hide();
+        } else {
+            $("#MandrillConfigDiv").hide();
+            $("#MailgunConfigDiv").hide();
+        }
+    }
+
+    $().ready(function () {
+        EmailProviderSet();
+    });
+
+</script>
+
 @using (Ajax.BeginForm("EditEmailAjax", "ProviderConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "EmailProviderConfigDiv", OnSuccess = "EmailProviderSet" },new {Class = "form-inline"}))
 {
     @Html.AntiForgeryToken()
@@ -16,3 +37,9 @@
         </div>
     </fieldset>
 }
+<div id="MailgunConfigDiv" style="display: none">
+    @Html.Action("EditAjax", "MailgunConfig")
+</div>
+<div id="MandrillConfigDiv" style="display: none">
+    @Html.Action("EditAjax", "MandrillConfig")
+</div>

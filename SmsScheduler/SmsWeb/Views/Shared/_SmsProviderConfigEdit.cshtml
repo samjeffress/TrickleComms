@@ -3,6 +3,27 @@
 <script src="~/Scripts/jquery.validate.min.js"></script>
 <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
+<script type="text/javascript">
+    function SmsProviderSet() {
+        var provider = $("#SmsProvider").val();
+        if (provider === "Twilio") {
+            $("#TwilioConfigDiv").show();
+            $("#NexmoConfigDiv").hide();
+        } else if (provider === "Nexmo") {
+            $("#NexmoConfigDiv").show();
+            $("#TwilioConfigDiv").hide();
+        } else {
+            $("#NexmoConfigDiv").hide();
+            $("#TwilioConfigDiv").hide();
+        }
+    }
+
+    $().ready(function () {
+        SmsProviderSet();
+    });
+
+</script>
+
 @using (Ajax.BeginForm("EditSMSAjax", "ProviderConfig", new AjaxOptions { HttpMethod = "POST", InsertionMode = InsertionMode.Replace, UpdateTargetId = "SMSProviderConfigDiv", OnSuccess = "SmsProviderSet"}, new { Class = "form-inline" }))
 {
     @Html.AntiForgeryToken() 
@@ -15,3 +36,12 @@
         </div>
     </fieldset>
 }
+
+
+
+<div id="TwilioConfigDiv" style="display: none">
+    @Html.Action("EditAjax", "TwilioConfig")
+</div>
+<div id="NexmoConfigDiv" style="display: none">
+    @Html.Action("EditAjax", "NexmoConfig")
+</div>

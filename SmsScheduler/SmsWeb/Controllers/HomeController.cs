@@ -39,7 +39,7 @@ namespace SmsWeb.Controllers
                 if (emailProvider == null || smsProider == null)
                     return View("IndexConfigNotSet");
                 else
-                    return RedirectToAction("Create", "Coordinator");
+                    return RedirectToAction("Create", "SmsAndEmail");
             }
             return View("Index");
         }
